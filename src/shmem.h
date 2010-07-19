@@ -51,6 +51,24 @@ extern void   shmem_get32(void *dest, const void *src, size_t len, int pe);
 extern void   shmem_get64(void *dest, const void *src, size_t len, int pe);
 extern void   shmem_get128(void *dest, const void *src, size_t len, int pe);
 
+extern void        shmem_char_p(char *addr, char value, int pe);
+extern void        shmem_short_p(short *addr, short value, int pe);
+extern void        shmem_int_p(int *addr, int value, int pe);
+extern void        shmem_long_p(long *addr, long value, int pe);
+extern void        shmem_longlong_p(long long *addr, long long value, int pe);
+extern void        shmem_float_p(float *addr, float value, int pe);
+extern void        shmem_double_p(double *addr, double value, int pe);
+extern void        shmem_longdouble_p(long double *addr, long double value, int pe);
+
+extern char        shmem_char_g(char *addr, int pe);
+extern short       shmem_short_g(short *addr, int pe);
+extern int         shmem_int_g(int *addr, int pe);
+extern long        shmem_long_g(long *addr, int pe);
+extern long long   shmem_longlong_g(long long *addr, int pe);
+extern float       shmem_float_g(float *addr, int pe);
+extern double      shmem_double_g(double *addr, int pe);
+extern long double shmem_longdouble_g(long double *addr, int pe);
+
 /*
  * barriers
  */

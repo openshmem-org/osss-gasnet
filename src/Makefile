@@ -37,10 +37,13 @@ SHMEM_RUN      = oshrun
 all default:	do-deps tlsf $(SHMEM_LIBRARY) wrappers
 
 install:	all
-	install -c  $(SHMEM_LIBRARY) $(PREFIX)/lib/
-	install -c  $(SHMEM_HEADERS) $(PREFIX)/include/
-	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin/
-	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin/
+	mkdir -p $(PREFIX)/lib
+	mkdir -p $(PREFIX)/include
+	mkdir -p $(PREFIX)/bin
+	install -c  $(SHMEM_LIBRARY) $(PREFIX)/lib
+	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
+	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
+	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
 tlsf:
 	$(MAKE) -C $(TLSF_DIR)
