@@ -69,18 +69,22 @@ void *
 shmalloc(size_t size)
 {
   void *area = __symmetric_var_base(__state.mype);
-  void *addr;
+  /*
+   * internally use a long pointer to align nicely.
+   * shfree() *could* check alignment before freeing
+   */
+  long *addr;
 
-  addr = malloc_ex(size, area);
+  addr = (long *)malloc_ex(size, area);
 
-  if (addr == (void *)NULL) {
+  if (addr == (long *)NULL) {
     __shmem_warn("NOTICE", "shmalloc(%ld) failed\n", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
 
   // __shmem_warn("INFO", "allocating %ld @ %p", size, addr);
 
-  return addr;
+  return (void *)addr;
 }
 
 void
@@ -96,9 +100,7 @@ shfree(void *addr)
 
   // __shmem_warn("INFO", "freeing @ %p", addr);
 
-  // TODO: sometimes causes segfaults...
-  // possibly alignment issue between void* and what TLSF wants?
-  // free_ex(addr, area);
+  free_ex(addr, area);
 
   malloc_error = 0;
 }

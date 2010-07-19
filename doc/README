@@ -69,9 +69,10 @@ the former case (GASNet provides a macro you can test against).
 
 Symmetric Memory:
 
-Currently using the TLSF library.  Sometimes (but not always!!??)
-seeing segfaults when you shfree() so this routine essentially does
-nothing for now (i.e. there's a memory leak).  Investigating...
+Currently using the TLSF library.  An issue with occasional segfaults
+when you shfree() has been fixed, as far as I can tell: aligned
+shmalloc() requests as "long" so we don't get ostensibly void*
+allocations at weird locations.
 
 Can investigate dlmalloc() too, source included in src/dlmalloc/.
 
