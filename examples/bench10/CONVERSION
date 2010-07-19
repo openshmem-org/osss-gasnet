@@ -1,0 +1,5 @@
+1. heap-based globals are turned into shmalloc'ed variables.  This means
+switching references and dereferences.
+
+2. don't have a functional shmem_swap at the moment, using a cswap
+instead.  We know what the remote value is supposed to be, so that works.

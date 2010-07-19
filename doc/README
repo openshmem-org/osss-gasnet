@@ -1,0 +1,111 @@
+The SHMEM development area is split up as follows:
+
+    SHMEM
+    |-- bin             executables to wrap underlying compilers and libraries
+    |-- doc             this README and other things
+    |-- examples        test and demo programs
+    |-- include         SHMEM API header files for C and Fortran
+    |-- lib             SHMEM API libraries
+    `-- src             source of SHMEM library
+
+-------------------------------------------------------------------------
+
+Implementation:
+
+Right now, the library is tightly bound to GASNet in order to get
+something going.  In the future, it's going to be a much better idea
+to put in an abstraction layer so we can plug in other communication
+libraries, such as ARMCI.
+
+                    Now                              Better
+        
+         +=======================+          +=======================+
+         |                       |          |       SHMEM API       |
+         |       SHMEM API       |          +-----------------------+
+         |                       |          |    SHMEM Internal     |
+         +-----------------------+          +-----------------------+
+         |        GASNet         |          | GASNet | ARMCI | ...  |
+         +=======================+          +=======================+
+
+Functions/variables whose names start with "__" are
+implementation-internal and are not part of the API.  The API is
+defined in shmem.{h,fh}.
+
+To see things that aren't done, but I know need to be done, do a
+
+    grep -R -n 'TODO:' from the top-level directory.
+
+-------------------------------------------------------------------------
+
+Initialization:
+
+In src/updown.c we handle setting up the SHMEM runtime, and eventual
+shutdown.  Shutdown is implicit in user code, there is no call to do
+this, so we have to register a handler to be called when main() exits.
+
+GASNet provides the symmetric memory areas.  The TLSF library provides
+management of these areas during allocation and freeing of symmetric
+variables in user code, usually through a call like shmalloc().  (I
+discovered TLSF through the SiCortex SHMEM library).
+
+When you GASNet-attach and ask for segment information, each PE has
+access to an array of segments, 1 segment per PE.  Each PE initializes
+a TLSF pool within its own segment.
+
+If the platform allows it, GASNet can align all the segments at the
+same address, which means that all PEs see the same address for
+symmetric variables and there's no address translation.
+
+In the general case though, segments are not aligned (e.g. due to a
+security measure like process address space randomization by the OS).
+However, each PE can see the addresses of the segments of the other
+PEs locally, and can therefore do address translation.
+
+The library should at some point introduce code that differentiates
+between aligned and non-aligned environments with optimized code for
+the former case (GASNet provides a macro you can test against).
+
+-------------------------------------------------------------------------
+
+Symmetric Memory:
+
+Currently using the TLSF library.  Sometimes (but not always!!??)
+seeing segfaults when you shfree() so this routine essentially does
+nothing for now (i.e. there's a memory leak).  Investigating...
+
+Can investigate dlmalloc() too, source included in src/dlmalloc/.
+
+-------------------------------------------------------------------------
+
+Put/Get:
+
+In src/putget.c we manage the simple shmem_<type>_put and get
+routines.  I've included a short-circuit check for local-local
+transfers, and a trap to detect attempted use of non-symmetric
+variables in the wrong place.
+
+Need to work out how SGI handle non-stack globals/statics and whether
+this is portable.
+
+-------------------------------------------------------------------------
+
+Broadcast:
+
+src/broadcast.c has a simple implementation of shmem_broadcast().  In
+the future, expect to include more scalable versions, and potentially
+allow runtime (or launchtime) choice of algorithm.
+
+-------------------------------------------------------------------------
+
+Collects:
+
+src/fcollect.c has a simple implementation of the fixed collect.
+
+-------------------------------------------------------------------------
+
+API Header File:
+
+src/shmem.h (and .fh) are the public APIs and installed into the
+target include directory.  Currently written by hand, should probably
+be generated from per-module headers, e.g. by marking API symbols as
+"public" or similar.
