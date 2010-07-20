@@ -27,6 +27,8 @@ __shmem_exit(int status)
 
   __shmem_atomic_finalize();
 
+  __symmetric_memory_finalize();
+
   SHMEM_STATS_REPORT();
   SHMEM_STATS_CLEANUP();
 

@@ -36,6 +36,12 @@ __symmetric_memory_init(void)
   __gasnet_barrier_all();
 }
 
+void
+__symmetric_memory_finalize(void)
+{
+   destroy_memory_pool(seginfo_table[__state.mype].addr);
+}
+
 /*
  * where the symmetric memory starts on the given PE
  */
@@ -63,7 +69,8 @@ __symmetric_var_in_range(void *addr, int pe)
 
 long malloc_error = 0;         /* exposed for error codes */
 
-static const size_t MIN_MALLOC_EX_SIZE = 32 * 8;
+static const size_t MIN_MALLOC_EX_SIZE = 32 * sizeof(long);
+static int first_malloc = 1;
 
 void *
 shmalloc(size_t size)
@@ -73,15 +80,19 @@ shmalloc(size_t size)
 
   pool = __symmetric_var_base(__state.mype);
 
+#if 0
   /* TODO: bizarre issue with 23 or 24 longs as first malloc */
-  if (size < MIN_MALLOC_EX_SIZE) {
+  if (first_malloc && size < MIN_MALLOC_EX_SIZE) {
+    __shmem_warn("NOTICE", "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
     size = MIN_MALLOC_EX_SIZE;
   }
+  first_malloc = 0;
+#endif
 
   addr = malloc_ex(size, pool);
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shmalloc(%ld) failed\n", size);
+    __shmem_warn("NOTICE", "shmalloc(%ld) failed", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
 
@@ -94,14 +105,16 @@ shfree(void *addr)
   void *pool;
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shfree(%p) already null\n", addr);
+    __shmem_warn("NOTICE", "address passed to shfree already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
 
   pool = __symmetric_var_base(__state.mype);
 
-  free_ex(addr, pool);
+// __shmem_warn("INFO", "about to free address %p in pool %p", addr, pool);
+
+  // free_ex(addr, pool);
 
   malloc_error = 0;
 }
@@ -113,7 +126,7 @@ shrealloc(void *addr, size_t size)
   void *newaddr;
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shrealloc(%p) null\n", addr);
+    __shmem_warn("NOTICE", "address passed to shrealloc already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return (void *)NULL;
   }
