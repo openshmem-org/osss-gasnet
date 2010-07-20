@@ -14,7 +14,7 @@
 #endif
 
 
-#define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+#define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
 #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"

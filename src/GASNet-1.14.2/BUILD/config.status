@@ -568,12 +568,12 @@ s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
 s,@CYGPATH_W@,echo,;t t
 s,@PACKAGE@,GASNet,;t t
 s,@VERSION@,1.14.2,;t t
-s,@ACLOCAL@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9,;t t
-s,@AUTOCONF@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoconf,;t t
-s,@AUTOMAKE@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run automake-1.9,;t t
-s,@AUTOHEADER@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoheader,;t t
-s,@MAKEINFO@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run makeinfo,;t t
-s,@install_sh@,/home/tonyc/src/GASNet-1.14.2/config-aux/install-sh,;t t
+s,@ACLOCAL@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9,;t t
+s,@AUTOCONF@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run automake-1.9,;t t
+s,@AUTOHEADER@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run makeinfo,;t t
+s,@install_sh@,/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
@@ -581,19 +581,19 @@ s,@mkdir_p@,mkdir -p --,;t t
 s,@AWK@,gawk,;t t
 s,@SET_MAKE@,,;t t
 s,@am__leading_dot@,.,;t t
-s,@AMTAR@,${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run tar,;t t
+s,@AMTAR@,${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run tar,;t t
 s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
 s,@am__untar@,${AMTAR} xf -,;t t
 s,@PWD_PROG@,/bin/pwd,;t t
 s,@CONFIGURE_ARGS@,'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++',;t t
-s,@TOP_SRCDIR@,/home/tonyc/src/GASNet-1.14.2,;t t
-s,@TOP_BUILDDIR@,/home/tonyc/src/GASNet-1.14.2/BUILD,;t t
+s,@TOP_SRCDIR@,/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2,;t t
+s,@TOP_BUILDDIR@,/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD,;t t
 s,@BUILD_IS_SRC_TRUE@,#,;t t
 s,@BUILD_IS_SRC_FALSE@,,;t t
 s,@BUILD_IS_SRC@,no,;t t
 s,@SYSTEM_NAME@,coil.cs.uh.edu,;t t
 s,@SYSTEM_TUPLE@,x86_64-unknown-linux-gnu,;t t
-s,@BUILD_ID@,Sun Jul 18 15:26:12 CDT 2010 tonyc,;t t
+s,@BUILD_ID@,Tue Jul 20 11:05:09 CDT 2010 tonyc,;t t
 s,@ALWAYS_TRUECOND_TRUE@,,;t t
 s,@ALWAYS_TRUECOND_FALSE@,#,;t t
 s,@ALWAYS_FALSECOND_TRUE@,#,;t t
@@ -841,7 +841,7 @@ s,@GASNET_INSTALL_CMD@,sed -e '/###NOINSTALL###/d' -e 's@###INSTALL_PREFIX###@$(
 s,@TOOL_PREFIX@,gasnet,;t t
 s,@LIBOBJS@,,;t t
 s,@LTLIBOBJS@,,;t t
-/@PERLSTART@/r /home/tonyc/src/GASNet-1.14.2/BUILD/other/perlstart
+/@PERLSTART@/r /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/other/perlstart
 s,@PERLSTART@,,;t t
 /@cc_wrapper_mk@/r cc-wrapper.mk
 s,@cc_wrapper_mk@,,;t t
@@ -1154,7 +1154,7 @@ ${ac_dA}PACKAGE_BUGREPORT${ac_dB}PACKAGE_BUGREPORT${ac_dC}""${ac_dD}
 ${ac_dA}GASNETI_CONFIGURE_ARGS${ac_dB}GASNETI_CONFIGURE_ARGS${ac_dC}"'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"${ac_dD}
 ${ac_dA}GASNETI_SYSTEM_NAME${ac_dB}GASNETI_SYSTEM_NAME${ac_dC}"coil.cs.uh.edu"${ac_dD}
 ${ac_dA}GASNETI_SYSTEM_TUPLE${ac_dB}GASNETI_SYSTEM_TUPLE${ac_dC}"x86_64-unknown-linux-gnu"${ac_dD}
-${ac_dA}GASNETI_BUILD_ID${ac_dB}GASNETI_BUILD_ID${ac_dC}"Sun Jul 18 15:26:12 CDT 2010 tonyc"${ac_dD}
+${ac_dA}GASNETI_BUILD_ID${ac_dB}GASNETI_BUILD_ID${ac_dC}"Tue Jul 20 11:05:09 CDT 2010 tonyc"${ac_dD}
 ${ac_dA}GASNET_RELEASE_VERSION_MAJOR${ac_dB}GASNET_RELEASE_VERSION_MAJOR${ac_dC}1${ac_dD}
 ${ac_dA}GASNET_RELEASE_VERSION_MINOR${ac_dB}GASNET_RELEASE_VERSION_MINOR${ac_dC}14${ac_dD}
 ${ac_dA}GASNET_RELEASE_VERSION_PATCH${ac_dB}GASNET_RELEASE_VERSION_PATCH${ac_dC}2${ac_dD}
@@ -1404,7 +1404,7 @@ ${ac_uA}PACKAGE_BUGREPORT${ac_uB}PACKAGE_BUGREPORT${ac_uC}""${ac_uD}
 ${ac_uA}GASNETI_CONFIGURE_ARGS${ac_uB}GASNETI_CONFIGURE_ARGS${ac_uC}"'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"${ac_uD}
 ${ac_uA}GASNETI_SYSTEM_NAME${ac_uB}GASNETI_SYSTEM_NAME${ac_uC}"coil.cs.uh.edu"${ac_uD}
 ${ac_uA}GASNETI_SYSTEM_TUPLE${ac_uB}GASNETI_SYSTEM_TUPLE${ac_uC}"x86_64-unknown-linux-gnu"${ac_uD}
-${ac_uA}GASNETI_BUILD_ID${ac_uB}GASNETI_BUILD_ID${ac_uC}"Sun Jul 18 15:26:12 CDT 2010 tonyc"${ac_uD}
+${ac_uA}GASNETI_BUILD_ID${ac_uB}GASNETI_BUILD_ID${ac_uC}"Tue Jul 20 11:05:09 CDT 2010 tonyc"${ac_uD}
 ${ac_uA}GASNET_RELEASE_VERSION_MAJOR${ac_uB}GASNET_RELEASE_VERSION_MAJOR${ac_uC}1${ac_uD}
 ${ac_uA}GASNET_RELEASE_VERSION_MINOR${ac_uB}GASNET_RELEASE_VERSION_MINOR${ac_uC}14${ac_uD}
 ${ac_uA}GASNET_RELEASE_VERSION_PATCH${ac_uB}GASNET_RELEASE_VERSION_PATCH${ac_uC}2${ac_uD}

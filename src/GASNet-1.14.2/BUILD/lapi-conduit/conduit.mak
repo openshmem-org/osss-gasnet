@@ -23,4 +23,4 @@ CONDUIT_LIBS_SEQ =    -lpthread
 # link errors if not using mpcc_r. LAPI fails at runtime in many horrible, 
 # intermittent ways if you link without mpcc_r
 
-#CONDUIT_INCLUDES = -I/home/tonyc/src/GASNet-1.14.2/other/firehose ###NOINSTALL###
+#CONDUIT_INCLUDES = -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/firehose ###NOINSTALL###

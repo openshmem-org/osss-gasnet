@@ -14,7 +14,7 @@ GASNET_LDFLAGS_OVERRIDE =  -O3 --param max-inline-insns-single=35000 --param inl
 MPI_COMPAT_LIBS = 
 
 CONDUIT_INCLUDES = -DGASNET_CONDUIT_VAPI
-CONDUIT_INCLUDES = -DGASNET_CONDUIT_VAPI -I/home/tonyc/src/GASNet-1.14.2/other/firehose ###NOINSTALL###
+CONDUIT_INCLUDES = -DGASNET_CONDUIT_VAPI -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/firehose ###NOINSTALL###
 
 CONDUIT_LIBDIRS = -L/usr/lib64
 CONDUIT_LIBS = -lvapi -lmtl_common -lmosal -lmpga $(MPI_COMPAT_LIBS)

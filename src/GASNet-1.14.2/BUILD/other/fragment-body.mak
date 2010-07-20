@@ -10,8 +10,8 @@ GASNET_LIBDIRS = -L###INSTALL_PREFIX###/lib $(CONDUIT_LIBDIRS) $(CONDUIT_LIBDIRS
 
 # Textual lines containing the string "###NOINSTALL###" are removed by the install process
 # (must be one continuous line) ###NOINSTALL###
-GASNET_INCLUDES =  -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/#conduit_name#-conduit -I/home/tonyc/src/GASNet-1.14.2/other $(CONDUIT_INCLUDES) $(CONDUIT_INCLUDES_#THREAD_MODEL#) -I/home/tonyc/src/GASNet-1.14.2/extended-ref -I/home/tonyc/src/GASNet-1.14.2/BUILD  ###NOINSTALL###
-GASNET_LIBDIRS = -L/home/tonyc/src/GASNet-1.14.2/BUILD/#conduit_name#-conduit $(CONDUIT_LIBDIRS) $(CONDUIT_LIBDIRS_#THREAD_MODEL#) ###NOINSTALL###
+GASNET_INCLUDES =  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/#conduit_name#-conduit -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other $(CONDUIT_INCLUDES) $(CONDUIT_INCLUDES_#THREAD_MODEL#) -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/extended-ref -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD  ###NOINSTALL###
+GASNET_LIBDIRS = -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/#conduit_name#-conduit $(CONDUIT_LIBDIRS) $(CONDUIT_LIBDIRS_#THREAD_MODEL#) ###NOINSTALL###
 
 # ----------------------------------------------------------------------
 # C compiler and options

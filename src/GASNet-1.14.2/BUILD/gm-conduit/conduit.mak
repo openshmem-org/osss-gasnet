@@ -10,11 +10,11 @@
 # When gm-conduit enables MPI compatibility, we must link with MPI compiler
 #GASNET_LD_OVERRIDE = /opt/openmpi/gnu/1.4.2/bin/mpicc 
 #GASNET_LDFLAGS_OVERRIDE =  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline 
-#MPI_COMPAT_INCLUDES = -I/home/tonyc/src/GASNet-1.14.2/other/mpi-spawner ###NOINSTALL### 
+#MPI_COMPAT_INCLUDES = -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/mpi-spawner ###NOINSTALL### 
 #MPI_COMPAT_LIBS = 
 
 CONDUIT_LIBDIRS =  -L/usr/local/gm/lib
 CONDUIT_LIBS = -lgm $(MPI_COMPAT_LIBS)
-firehose_includes = -I/home/tonyc/src/GASNet-1.14.2/other/firehose ###NOINSTALL###
+firehose_includes = -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/firehose ###NOINSTALL###
 CONDUIT_INCLUDES = -I/usr/local/gm/include $(MPI_COMPAT_INCLUDES) $(firehose_includes)
 

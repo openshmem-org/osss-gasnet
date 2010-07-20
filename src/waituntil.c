@@ -5,13 +5,6 @@
 #include "shmem.h"
 #include "state.h"
 
-const int SHMEM_CMP_EQ=0;
-const int SHMEM_CMP_NE=1;
-const int SHMEM_CMP_GT=2;
-const int SHMEM_CMP_LE=3;
-const int SHMEM_CMP_LT=4;
-const int SHMEM_CMP_GE=5;
-
 /*
  * this waits for the variable to change but also dispatches
  * other put/get traffic in the meantime

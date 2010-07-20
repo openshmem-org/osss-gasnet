@@ -75,10 +75,10 @@ configure:2146: result: 2.59
 configure:2153: checking for configure settings
 configure:2155: result: 
 configure:2159: result: configure args: '--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'
-configure:2182: result: TOP_SRCDIR:     /home/tonyc/src/GASNet-1.14.2
-configure:2186: result: TOP_BUILDDIR:   /home/tonyc/src/GASNet-1.14.2/BUILD
+configure:2182: result: TOP_SRCDIR:     /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2
+configure:2186: result: TOP_BUILDDIR:   /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD
 configure:2277: result: system info:      coil.cs.uh.edu x86_64-unknown-linux-gnu
-configure:2281: result: build id:       Sun Jul 18 15:26:12 CDT 2010 tonyc
+configure:2281: result: build id:       Tue Jul 20 11:05:09 CDT 2010 tonyc
 configure:2332: checking for cached autoconf environment settings
 configure:2334: result: ""
 configure:2446: checking for gawk
@@ -193,7 +193,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -221,7 +221,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -252,7 +252,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -294,7 +294,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -329,8 +329,8 @@ configure:5058: $? = 0
 configure:5061: test -s conftest.o
 configure:5064: $? = 0
 configure:5124: /usr/lib64/ccache/gcc  -o conftest -g -O2   conftest.c  >&5
-/tmp/ccg3l7PM.o: In function `main':
-/home/tonyc/src/GASNet-1.14.2/BUILD/conftest.c:25: undefined reference to `some_bogus_nonexistent_symbol'
+/tmp/ccA0tdBK.o: In function `main':
+/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/conftest.c:25: undefined reference to `some_bogus_nonexistent_symbol'
 collect2: ld returned 1 exit status
 configure:5130: $? = 1
 configure: failed program was:
@@ -344,7 +344,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -403,7 +403,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -438,7 +438,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -480,7 +480,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -515,7 +515,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -550,7 +550,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -585,7 +585,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -636,7 +636,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -954,27 +954,27 @@ configure:51410: checking for __attribute__((__format__)) on function pointers
 "/usr/lib64/ccache/gcc -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline gasnet-conftest.c"
 gasnet_cmd_result=0
 configure:51598: result: yes
-pushed new CPPFLAGS value:  -I/home/tonyc/src/GASNet-1.14.2/other
+pushed new CPPFLAGS value:  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other
 configure:51648: checking for PLATFORM_COMPILER_IDSTR
-configure:51680: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:51680: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:51683: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-51706.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:51990: result: |COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|
 configure:52012: checking for PLATFORM_COMPILER_FAMILYID
-configure:52050: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:52050: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:52053: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-52076.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:52366: result: 1
 configure:52388: checking for PLATFORM_COMPILER_ID
-configure:52426: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:52426: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:52429: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-52452.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:52742: result: 1
 configure:52764: checking for PLATFORM_COMPILER_VERSION
-configure:52802: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:52802: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:52805: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-52828.o
 popping GASNET_EXAMINE_BIN back to: <unset>
@@ -1171,7 +1171,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1286,7 +1286,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1385,7 +1385,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1500,10 +1500,10 @@ configure:62827: $? = 0
 configure:62839: result: yes
 popping CFLAGS back to: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline
 popping LIBS back to: <unset>
-pushed new CPPFLAGS value:  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other
+pushed new CPPFLAGS value:  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other
 pushed new LIBS value: -lpthread
 configure:63225: checking pthread.h usability
-configure:63237: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:63237: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:63243: $? = 0
 configure:63247: test -z 
 			 || test ! -s conftest.err
@@ -1512,13 +1512,13 @@ configure:63253: test -s conftest.o
 configure:63256: $? = 0
 configure:63266: result: yes
 configure:63270: checking pthread.h presence
-configure:63280: /usr/lib64/ccache/gcc -E   -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other conftest.c
+configure:63280: /usr/lib64/ccache/gcc -E   -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c
 configure:63286: $? = 0
 configure:63306: result: yes
 configure:63341: checking for pthread.h
 configure:63348: result: yes
 configure:63363: checking for library containing pthread_setconcurrency
-configure:63393: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
+configure:63393: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
 configure:63399: $? = 0
 configure:63403: test -z 
 			 || test ! -s conftest.err
@@ -1527,8 +1527,8 @@ configure:63409: test -s conftest
 configure:63412: $? = 0
 configure:63482: result: none required
 configure:63492: checking for library containing pthread_kill_other_threads_np
-configure:63522: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
-/tmp/ccMQ1xer.o: In function `main':
+configure:63522: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
+/tmp/ccAyTyAc.o: In function `main':
 conftest.c:(.text+0x7): undefined reference to `pthread_kill_other_threads_np'
 collect2: ld returned 1 exit status
 configure:63528: $? = 1
@@ -1543,7 +1543,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1628,8 +1628,8 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:63577: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthread  -lpthread >&5
-/tmp/cc07L6ry.o: In function `main':
+configure:63577: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthread  -lpthread >&5
+/tmp/ccQTKN9j.o: In function `main':
 conftest.c:(.text+0x7): undefined reference to `pthread_kill_other_threads_np'
 collect2: ld returned 1 exit status
 configure:63583: $? = 1
@@ -1644,7 +1644,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1729,7 +1729,7 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:63577: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthreads  -lpthread >&5
+configure:63577: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthreads  -lpthread >&5
 /usr/bin/ld: cannot find -lpthreads
 collect2: ld returned 1 exit status
 configure:63583: $? = 1
@@ -1744,7 +1744,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1831,13 +1831,13 @@ configure: failed program was:
 | }
 configure:63611: result: no
 configure:63793: checking whether the GCC __thread extension is supported.
-configure:63866: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
+configure:63866: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
 configure:63869: $? = 0
 configure:63871: ./conftest
 configure:63874: $? = 0
 configure:63888: result: yes
 configure:63975: checking for shared data cache line size
-configure:64008: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
+configure:64008: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -D_REENTRANT -D_GNU_SOURCE -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c -lpthread >&5
 configure:64011: $? = 0
 configure:64013: ./conftest
 configure:64016: $? = 0
@@ -1860,7 +1860,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -1949,9 +1949,9 @@ configure: failed program was:
 |   return 0;
 | }
 configure:64308: result: no
-pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2/other
+pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other
 configure:64890: checking for pa-risc LDCW psuedo-op
-configure:64930: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2/other  conftest.c >&5
+configure:64930: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  conftest.c >&5
 conftest.c:106:6: error: #error wrong CPU architecture
 configure:64936: $? = 1
 configure: failed program was:
@@ -1965,7 +1965,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2068,9 +2068,9 @@ configure: failed program was:
 | }
 configure:64960: result: no
 popping CFLAGS back to: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline
-pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE
+pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE
 configure:65921: checking for ia64 cmp8xchg16 support
-configure:65982: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
+configure:65982: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
 conftest.c:89:6: error: #error wrong CPU architecture
 configure:65985: $? = 1
 configure: program exited with status 1
@@ -2085,7 +2085,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2207,19 +2207,19 @@ configure: failed program was:
 | 
 configure:66005: result: no
 popping CFLAGS back to: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline
-pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE
+pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE
 configure:66098: checking for x86-64 cmpxchg16b support
-configure:66154: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
+configure:66154: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
 configure:66157: $? = 0
 configure:66159: ./conftest
 configure:66162: $? = 0
 configure:66168: result: yes
 popping CFLAGS back to: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline
-pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE
+pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE
 configure:66279: checking for x86 EBX register
-configure:66313: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE  conftest.c >&5
-/tmp/ccmUy4Nn.s: Assembler messages:
-/tmp/ccmUy4Nn.s:12: Error: suffix or operands invalid for `push'
+configure:66313: /usr/lib64/ccache/gcc  -c -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE  conftest.c >&5
+/tmp/ccPD82ta.s: Assembler messages:
+/tmp/ccPD82ta.s:12: Error: suffix or operands invalid for `push'
 configure:66319: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -2232,7 +2232,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2329,9 +2329,9 @@ configure: failed program was:
 | }
 configure:66343: result: no
 popping CFLAGS back to: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline
-pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE
+pushed new CFLAGS value: -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE
 configure:66711: checking for x86 pause instruction
-configure:66744: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
+configure:66744: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other -D_IN_CONFIGURE   conftest.c  >&5
 configure:66747: $? = 0
 configure:66749: ./conftest
 configure:66752: $? = 0
@@ -2380,7 +2380,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2510,7 +2510,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2655,7 +2655,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2775,7 +2775,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2875,7 +2875,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -2978,7 +2978,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3090,7 +3090,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3190,8 +3190,8 @@ configure:69645: $? = 0
 configure:69648: test -s conftest.o
 configure:69651: $? = 0
 configure:69709: /usr/lib64/ccache/g++  -o conftest -g -O2   conftest.cc  >&5
-/tmp/ccaaKAnN.o: In function `main':
-/home/tonyc/src/GASNet-1.14.2/BUILD/conftest.cc:97: undefined reference to `some_bogus_nonexistent_symbol()'
+/tmp/ccsdx0YF.o: In function `main':
+/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/conftest.cc:97: undefined reference to `some_bogus_nonexistent_symbol()'
 collect2: ld returned 1 exit status
 configure:69715: $? = 1
 configure: failed program was:
@@ -3205,7 +3205,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3311,27 +3311,27 @@ configure:69921: $? = 0
 configure:69923: ./conftest
 configure:69926: $? = 0
 configure:69928: result: yes
-pushed new CPPFLAGS value:  -I/home/tonyc/src/GASNet-1.14.2/other
+pushed new CPPFLAGS value:  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other
 configure:70063: checking C++ compiler for PLATFORM_COMPILER_IDSTR
-configure:70095: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/GASNet-1.14.2/other conftest.cc >&5
+configure:70095: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.cc >&5
 configure:70098: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-70121.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:70405: result: |COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__,__cplusplus=1|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|
 configure:70427: checking C++ compiler for PLATFORM_COMPILER_FAMILYID
-configure:70465: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/GASNet-1.14.2/other conftest.cc >&5
+configure:70465: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.cc >&5
 configure:70468: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-70491.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:70781: result: 1
 configure:70803: checking C++ compiler for PLATFORM_COMPILER_ID
-configure:70841: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/GASNet-1.14.2/other conftest.cc >&5
+configure:70841: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.cc >&5
 configure:70844: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-70867.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:71157: result: 10001
 configure:71179: checking C++ compiler for PLATFORM_COMPILER_VERSION
-configure:71217: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/GASNet-1.14.2/other conftest.cc >&5
+configure:71217: /usr/lib64/ccache/g++  -c -g -O2  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.cc >&5
 configure:71220: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-71243.o
 popping GASNET_EXAMINE_BIN back to: <unset>
@@ -3352,7 +3352,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3463,7 +3463,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3581,7 +3581,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3692,7 +3692,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3803,7 +3803,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -3914,7 +3914,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -4041,7 +4041,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -4396,27 +4396,27 @@ configure:114775: test -s conftest
 configure:114778: $? = 0
 configure:114790: result: yes
 popping LIBS back to: 
-pushed new CPPFLAGS value:  -I/home/tonyc/src/GASNet-1.14.2/other
+pushed new CPPFLAGS value:  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other
 configure:115100: checking MPI compiler for PLATFORM_COMPILER_IDSTR
-configure:115132: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:115132: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:115135: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-115158.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:115442: result: |COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|
 configure:115464: checking MPI compiler for PLATFORM_COMPILER_FAMILYID
-configure:115502: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:115502: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:115505: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-115528.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:115818: result: 1
 configure:115840: checking MPI compiler for PLATFORM_COMPILER_ID
-configure:115878: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:115878: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:115881: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-115904.o
 popping GASNET_EXAMINE_BIN back to: <unset>
 configure:116194: result: 1
 configure:116216: checking MPI compiler for PLATFORM_COMPILER_VERSION
-configure:116254: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/GASNet-1.14.2/other conftest.c >&5
+configure:116254: /opt/openmpi/gnu/1.4.2/bin/mpicc  -c  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline  -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other conftest.c >&5
 configure:116257: $? = 0
 pushed new GASNET_EXAMINE_BIN value: gasnet-examine-bin-116280.o
 popping GASNET_EXAMINE_BIN back to: <unset>
@@ -4437,7 +4437,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -4577,7 +4577,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -4724,7 +4724,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -4864,7 +4864,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -5004,7 +5004,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -5144,7 +5144,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -5375,7 +5375,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -5578,7 +5578,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -5769,7 +5769,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -6107,7 +6107,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -6314,7 +6314,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -6489,7 +6489,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -6696,7 +6696,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -6895,7 +6895,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -7104,7 +7104,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -7365,7 +7365,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -7643,9 +7643,9 @@ configure:139875: checking for ucontext.h
 configure:139882: result: yes
 configure:139890: checking for printstack
 configure:139947: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   conftest.c  >&5
-/tmp/cccJr2Wp.o: In function `main':
+/tmp/ccAMMRhg.o: In function `main':
 conftest.c:(.text+0x9): undefined reference to `printstack'
-/tmp/cccJr2Wp.o:(.data+0x0): undefined reference to `printstack'
+/tmp/ccAMMRhg.o:(.data+0x0): undefined reference to `printstack'
 collect2: ld returned 1 exit status
 configure:139953: $? = 1
 configure: failed program was:
@@ -7659,7 +7659,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -7962,7 +7962,7 @@ configure:141425: $? = 0
 configure:141436: result: yes
 configure:141440: checking for library containing nsleep
 configure:141470: /usr/lib64/ccache/gcc  -o conftest -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   conftest.c  >&5
-/tmp/ccQGG18t.o: In function `main':
+/tmp/cc4maINi.o: In function `main':
 conftest.c:(.text+0x7): undefined reference to `nsleep'
 collect2: ld returned 1 exit status
 configure:141476: $? = 1
@@ -7977,7 +7977,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -8186,7 +8186,7 @@ configure: failed program was:
 | #define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 | #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 | #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
-| #define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+| #define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 | #define GASNET_RELEASE_VERSION_MAJOR 1
 | #define GASNET_RELEASE_VERSION_MINOR 14
 | #define GASNET_RELEASE_VERSION_PATCH 2
@@ -8963,7 +8963,7 @@ gasnet_cv_x86_pause_instruction=yes
 ## Output variables. ##
 ## ----------------- ##
 
-ACLOCAL='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9'
+ACLOCAL='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9'
 ADDR2LINE_PATH='/usr/bin/addr2line'
 ALLOCA=''
 ALWAYS_FALSECOND_FALSE=''
@@ -8973,11 +8973,11 @@ ALWAYS_TRUECOND_TRUE=''
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
-AMTAR='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run tar'
+AMTAR='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run tar'
 AR='/usr/bin/ar'
-AUTOCONF='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoconf'
-AUTOHEADER='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoheader'
-AUTOMAKE='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run automake-1.9'
+AUTOCONF='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoconf'
+AUTOHEADER='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoheader'
+AUTOMAKE='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run automake-1.9'
 AWK='gawk'
 BASENAME='/bin/basename'
 BOURNE_SHELL='/bin/sh'
@@ -8991,7 +8991,7 @@ BUILDCONFIG_STATS_FALSE=''
 BUILDCONFIG_STATS_TRUE='#'
 BUILDCONFIG_TRACE_FALSE=''
 BUILDCONFIG_TRACE_TRUE='#'
-BUILD_ID='Sun Jul 18 15:26:12 CDT 2010 tonyc'
+BUILD_ID='Tue Jul 20 11:05:09 CDT 2010 tonyc'
 BUILD_IS_SRC='no'
 BUILD_IS_SRC_FALSE=''
 BUILD_IS_SRC_TRUE='#'
@@ -9115,7 +9115,7 @@ LIBOBJS=''
 LIBS=''
 LN_S='ln -s'
 LTLIBOBJS=''
-MAKEINFO='${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run makeinfo'
+MAKEINFO='${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run makeinfo'
 MISC_CFLAGS=''
 MISC_CPPFLAGS=''
 MISC_CXXFLAGS=' -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute'
@@ -9177,8 +9177,8 @@ TIMECMD='/usr/bin/time'
 TOOLSONLY_MODE_FALSE=''
 TOOLSONLY_MODE_TRUE='#'
 TOOL_PREFIX='gasnet'
-TOP_BUILDDIR='/home/tonyc/src/GASNet-1.14.2/BUILD'
-TOP_SRCDIR='/home/tonyc/src/GASNet-1.14.2'
+TOP_BUILDDIR='/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD'
+TOP_SRCDIR='/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2'
 USE_AMMPI_FALSE='#'
 USE_AMMPI_TRUE=''
 USE_DCMF_CONDUIT_FALSE=''
@@ -9265,7 +9265,7 @@ host_vendor='unknown'
 ibv_devinfo=''
 includedir='${prefix}/include'
 infodir='${prefix}/info'
-install_sh='/home/tonyc/src/GASNet-1.14.2/config-aux/install-sh'
+install_sh='/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localstatedir='${prefix}/var'
@@ -9289,7 +9289,7 @@ vstat=''
 ## Output files. ##
 ## ------------- ##
 
-PERLSTART='/home/tonyc/src/GASNet-1.14.2/BUILD/other/perlstart'
+PERLSTART='/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/other/perlstart'
 cc_wrapper_mk='cc-wrapper.mk'
 
 ## ----------- ##
@@ -9301,7 +9301,7 @@ cc_wrapper_mk='cc-wrapper.mk'
 #define COMPLETE_STDINT_H 1
 #define GASNETIT_SPEC_VERSION_MAJOR 1
 #define GASNETIT_SPEC_VERSION_MINOR 5
-#define GASNETI_BUILD_ID "Sun Jul 18 15:26:12 CDT 2010 tonyc"
+#define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
 #define GASNETI_CACHE_LINE_BYTES 64
 #define GASNETI_CACHE_LINE_SHIFT 6
 #define GASNETI_CC_RESTRICT __restrict__
@@ -9513,7 +9513,7 @@ configure: exit 0
 This file was extended by config.status, which was
 generated by GNU Autoconf 2.59.  Invocation command line was
 
-  CONFIG_FILES    = smp-conduit/Makefile
+  CONFIG_FILES    = mpi-conduit/Makefile
   CONFIG_HEADERS  = 
   CONFIG_LINKS    = 
   CONFIG_COMMANDS = 
@@ -9523,7 +9523,7 @@ generated by GNU Autoconf 2.59.  Invocation command line was
 This file was extended by config.status, which was
 generated by GNU Autoconf 2.59.  Invocation command line was
 
-  CONFIG_FILES    = mpi-conduit/Makefile
+  CONFIG_FILES    = smp-conduit/Makefile
   CONFIG_HEADERS  = 
   CONFIG_LINKS    = 
   CONFIG_COMMANDS = 
@@ -9546,8 +9546,8 @@ on coil.cs.uh.edu
 on coil.cs.uh.edu
 
 config.status:1010: creating mpi-conduit/Makefile
-config.status:1010: creating smp-conduit/Makefile
 config.status:1010: creating udp-conduit/Makefile
+config.status:1010: creating smp-conduit/Makefile
 config.status:1835: executing depfiles commands
 config.status:1835: executing depfiles commands
 config.status:1835: executing depfiles commands

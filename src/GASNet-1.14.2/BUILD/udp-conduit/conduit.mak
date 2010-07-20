@@ -13,7 +13,7 @@ GASNET_LDFLAGS_OVERRIDE = -O2
 
 # hooks for using AMUDP library from within build tree ###NOINSTALL###
 # (nothing additional required for installed copy)     ###NOINSTALL###
-CONDUIT_INCLUDES = -I/home/tonyc/src/GASNet-1.14.2/other/amudp          ###NOINSTALL###
-CONDUIT_LIBDIRS =  -L/home/tonyc/src/GASNet-1.14.2/BUILD/other/amudp        ###NOINSTALL###
+CONDUIT_INCLUDES = -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/amudp          ###NOINSTALL###
+CONDUIT_LIBDIRS =  -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/other/amudp        ###NOINSTALL###
 
 CONDUIT_LIBS = -lamudp   

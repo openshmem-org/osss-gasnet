@@ -14,13 +14,13 @@ all:
 GASNET_MPI_CC = /opt/openmpi/gnu/1.4.2/bin/mpicc 
 GASNET_MPI_LD = $(GASNET_MPI_CC)
 
-srcdir="/home/tonyc/src/GASNet-1.14.2/tests"
+srcdir="/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/tests"
 
 configfile=/dev/null # must be overridden by caller
 include $(configfile)
 
-Makefile: /home/tonyc/src/GASNet-1.14.2/tests/Makefile.in
-	cd /home/tonyc/src/GASNet-1.14.2/BUILD ; \
+Makefile: /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/tests/Makefile.in
+	cd /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD ; \
 	CONFIG_HEADERS= CONFIG_FILES=tests/Makefile ./config.status
 
 # GASNet-related MPI tests
@@ -206,7 +206,7 @@ run-tests: force
 	if test -z "$$TEST_RUNCMD" ; then                                               \
 	  TEST_RUNCMD="$(CONDUIT_RUNCMD)" ;                                             \
 	fi ;                                                                            \
-	MPI_RUNCMD="$${MPI_RUNCMD:=/home/tonyc/src/GASNet-1.14.2/BUILD/mpi-conduit/contrib/gasnetrun_mpi -np %N %C}" \
+	MPI_RUNCMD="$${MPI_RUNCMD:=/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/mpi-conduit/contrib/gasnetrun_mpi -np %N %C}" \
         export MPI_RUNCMD ;                                                             \
 	if test -z "$$TIMECMD" ; then                                                   \
 	  TIMECMD="/usr/bin/time" ;                                                         \
@@ -331,12 +331,12 @@ KEEPTMP_CFLAGS = $(patsubst %,-save-temps,$(KEEPTMPS))
  TESTTOOLS_DEBUGFLAGS = -DNDEBUG
        TESTTOOLS_THREADFLAGS = -DGASNETT_THREAD_SAFE -D_REENTRANT -D_GNU_SOURCE
        TESTTOOLS_TOOLLIB_NAME = gasnet_tools-par
-       TESTTOOLS_TOOLLIB = -L/home/tonyc/src/GASNet-1.14.2/BUILD -l$(TESTTOOLS_TOOLLIB_NAME) -lpthread
+       TESTTOOLS_TOOLLIB = -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD -l$(TESTTOOLS_TOOLLIB_NAME) -lpthread
 #      TESTTOOLS_TOOLLIB_NAME = gasnet_tools-seq
-#      TESTTOOLS_TOOLLIB = -L/home/tonyc/src/GASNet-1.14.2/BUILD -l$(TESTTOOLS_TOOLLIB_NAME)
+#      TESTTOOLS_TOOLLIB = -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD -l$(TESTTOOLS_TOOLLIB_NAME)
 TOOLS_CPPFLAGS = $(TESTTOOLS_DEBUGFLAGS) $(TESTTOOLS_THREADFLAGS)
 testtools: force
-	@cd /home/tonyc/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
+	@cd /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
 	/usr/lib64/ccache/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CFLAGS) -c -o $@.o $(srcdir)/$@.c
 	/usr/lib64/ccache/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
@@ -347,7 +347,7 @@ testtoolscxx: force
 		echo "ERROR: testtoolscxx target requested, but no c++ compiler is configured"; \
 		exit 1; \
 	 fi
-	@cd /home/tonyc/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
+	@cd /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
 	/usr/lib64/ccache/g++  -O2  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CXXFLAGS) -c -o $@.o $(srcdir)/$@.cc
 	/usr/lib64/ccache/g++  -O2  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
@@ -380,7 +380,7 @@ testmpi: mpi-check force
 # the following are just plain MPI programs
 # testmpinbr requires libm
 $(MPI_TESTS): mpi-check force
-	$(GASNET_MPI_CC) -I$(srcdir)/mpi -I/home/tonyc/src/GASNet-1.14.2/other  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline $(KEEPTMP_CFLAGS) $(MANUAL_CFLAGS) -c -o $@.o $(srcdir)/mpi/$@.c
+	$(GASNET_MPI_CC) -I$(srcdir)/mpi -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline $(KEEPTMP_CFLAGS) $(MANUAL_CFLAGS) -c -o $@.o $(srcdir)/mpi/$@.c
 	$(GASNET_MPI_LD) $(GASNET_LDFLAGS)  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline -o $@ $@.o  -lm $(MANUAL_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
 

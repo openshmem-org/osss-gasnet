@@ -29,4 +29,5 @@ __shmem_warn(char *msg_type, char *fmt, ...)
   strcat(tmp2, "\n");
 
   fputs(tmp2, stderr);
+  fflush(stderr);
 }

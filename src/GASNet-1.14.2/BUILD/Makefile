@@ -112,7 +112,7 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run aclocal-1.9
 ADDR2LINE_PATH = /usr/bin/addr2line
 ALLOCA = 
 ALWAYS_FALSECOND_FALSE = 
@@ -121,11 +121,11 @@ ALWAYS_TRUECOND_FALSE = #
 ALWAYS_TRUECOND_TRUE = 
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run tar
+AMTAR = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run tar
 AR = /usr/bin/ar
-AUTOCONF = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run automake-1.9
+AUTOCONF = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run automake-1.9
 AWK = gawk
 BASENAME = /bin/basename
 BOURNE_SHELL = /bin/sh
@@ -139,7 +139,7 @@ BUILDCONFIG_STATS_FALSE =
 BUILDCONFIG_STATS_TRUE = #
 BUILDCONFIG_TRACE_FALSE = 
 BUILDCONFIG_TRACE_TRUE = #
-BUILD_ID = Sun Jul 18 15:26:12 CDT 2010 tonyc
+BUILD_ID = Tue Jul 20 11:05:09 CDT 2010 tonyc
 BUILD_IS_SRC = no
 BUILD_IS_SRC_FALSE = 
 BUILD_IS_SRC_TRUE = #
@@ -263,7 +263,7 @@ LIBOBJS =
 LIBS = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/tonyc/src/GASNet-1.14.2/config-aux/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/missing --run makeinfo
 MISC_CFLAGS = 
 MISC_CPPFLAGS = 
 MISC_CXXFLAGS =  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute
@@ -325,8 +325,8 @@ TIMECMD = /usr/bin/time
 TOOLSONLY_MODE_FALSE = 
 TOOLSONLY_MODE_TRUE = #
 TOOL_PREFIX = gasnet
-TOP_BUILDDIR = /home/tonyc/src/GASNet-1.14.2/BUILD
-TOP_SRCDIR = /home/tonyc/src/GASNet-1.14.2
+TOP_BUILDDIR = /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD
+TOP_SRCDIR = /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2
 USE_AMMPI_FALSE = #
 USE_AMMPI_TRUE = 
 USE_DCMF_CONDUIT_FALSE = 
@@ -413,7 +413,7 @@ host_vendor = unknown
 ibv_devinfo = 
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /home/tonyc/src/GASNet-1.14.2/config-aux/install-sh
+install_sh = /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/config-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -1144,7 +1144,7 @@ do-end-tests:
 #test: tests
 #tests: force
 #	@$(MAKE) -f $(top_builddir)/tests/Makefile \
-#	        GASNET_INCLUDES="-I/home/tonyc/src/GASNet-1.14.2/BUILD -I/home/tonyc/src/GASNet-1.14.2 -I/home/tonyc/src/GASNet-1.14.2/other" \
+#	        GASNET_INCLUDES="-I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2 -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other" \
 #		$(TOOLSONLY_TESTS)
 #run-tests: tests
 #	./testtools

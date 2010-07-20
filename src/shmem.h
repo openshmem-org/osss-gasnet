@@ -79,9 +79,9 @@ extern void   shmem_barrier_all(void);
  * symmetric memory management
  */
 
-extern const long SHMEM_MALLOC_OK;
-extern const long SHMEM_MALLOC_FAIL;
-extern const long SHMEM_MALLOC_ALREADY_FREE;
+#define SHMEM_MALLOC_OK           (0L)
+#define SHMEM_MALLOC_FAIL         (1L)
+#define SHMEM_MALLOC_ALREADY_FREE (2L)
 
 extern long   malloc_error;
 
@@ -97,12 +97,12 @@ extern void * shmemalign(size_t alignment, size_t size);
 /*
  * values aren't important
  */
-extern const int SHMEM_CMP_EQ;
-extern const int SHMEM_CMP_NE;
-extern const int SHMEM_CMP_GT;
-extern const int SHMEM_CMP_LE;
-extern const int SHMEM_CMP_LT;
-extern const int SHMEM_CMP_GE;
+#define SHMEM_CMP_EQ 0
+#define SHMEM_CMP_NE 1
+#define SHMEM_CMP_GT 2
+#define SHMEM_CMP_LE 3
+#define SHMEM_CMP_LT 4
+#define SHMEM_CMP_GE 5
 
 extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
 extern void   shmem_int_wait_until(int *ivar, int cmp, int cmp_value);

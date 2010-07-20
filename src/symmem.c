@@ -39,6 +39,7 @@ __symmetric_memory_init(void)
 /*
  * where the symmetric memory starts on the given PE
  */
+__inline__
 void *
 __symmetric_var_base(int pe)
 {
@@ -48,6 +49,7 @@ __symmetric_var_base(int pe)
 /*
  * is the address in the managed symmetric area?
  */
+__inline__
 int
 __symmetric_var_in_range(void *addr, int pe)
 {
@@ -61,36 +63,35 @@ __symmetric_var_in_range(void *addr, int pe)
 
 long malloc_error = 0;         /* exposed for error codes */
 
-const long SHMEM_MALLOC_OK=0L;
-const long SHMEM_MALLOC_FAIL=1L;
-const long SHMEM_MALLOC_ALREADY_FREE=2L;
+static const size_t MIN_MALLOC_EX_SIZE = 32 * 8;
 
 void *
 shmalloc(size_t size)
 {
-  void *area = __symmetric_var_base(__state.mype);
-  /*
-   * internally use a long pointer to align nicely.
-   * shfree() *could* check alignment before freeing
-   */
-  long *addr;
+  void *pool;
+  void *addr;
 
-  addr = (long *)malloc_ex(size, area);
+  pool = __symmetric_var_base(__state.mype);
 
-  if (addr == (long *)NULL) {
+  /* TODO: bizarre issue with 23 or 24 longs as first malloc */
+  if (size < MIN_MALLOC_EX_SIZE) {
+    size = MIN_MALLOC_EX_SIZE;
+  }
+
+  addr = malloc_ex(size, pool);
+
+  if (addr == (void *)NULL) {
     __shmem_warn("NOTICE", "shmalloc(%ld) failed\n", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
 
-  // __shmem_warn("INFO", "allocating %ld @ %p", size, addr);
-
-  return (void *)addr;
+  return addr;
 }
 
 void
 shfree(void *addr)
 {
-  void *area = __symmetric_var_base(__state.mype);
+  void *pool;
 
   if (addr == (void *)NULL) {
     __shmem_warn("NOTICE", "shfree(%p) already null\n", addr);
@@ -98,9 +99,9 @@ shfree(void *addr)
     return;
   }
 
-  // __shmem_warn("INFO", "freeing @ %p", addr);
+  pool = __symmetric_var_base(__state.mype);
 
-  free_ex(addr, area);
+  free_ex(addr, pool);
 
   malloc_error = 0;
 }
@@ -108,7 +109,7 @@ shfree(void *addr)
 void *
 shrealloc(void *addr, size_t size)
 {
-  void *area = __symmetric_var_base(__state.mype);
+  void *pool = __symmetric_var_base(__state.mype);
   void *newaddr;
 
   if (addr == (void *)NULL) {
@@ -117,7 +118,7 @@ shrealloc(void *addr, size_t size)
     return (void *)NULL;
   }
 
-  newaddr = realloc_ex(addr, size, area);
+  newaddr = realloc_ex(addr, size, pool);
 
   malloc_error = 0;
 

@@ -13,7 +13,7 @@ GASNET_LDFLAGS_OVERRIDE =  -O3 --param max-inline-insns-single=35000 --param inl
 
 # hooks for using AMMPI library from within build tree ###NOINSTALL### 
 # (nothing additional required for installed copy)     ###NOINSTALL###
-CONDUIT_INCLUDES = -I/home/tonyc/src/GASNet-1.14.2/other/ammpi          ###NOINSTALL###
-CONDUIT_LIBDIRS =  -L/home/tonyc/src/GASNet-1.14.2/BUILD/other/ammpi        ###NOINSTALL###
+CONDUIT_INCLUDES = -I/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/other/ammpi          ###NOINSTALL###
+CONDUIT_LIBDIRS =  -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/other/ammpi        ###NOINSTALL###
 
 CONDUIT_LIBS = -lammpi 
