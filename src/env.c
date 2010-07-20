@@ -4,12 +4,24 @@
 #include "state.h"
 #include "warn.h"
 
+#include "dispatch.h"
+
+#ifndef CLEVER_BARRIER_CHOICE
+
 void
 __shmem_environment_init()
 {
 }
 
-#if 0
+#else
+
+/*
+ * allow runtime choice of barrier (or other) algorithm.  Set up a
+ * dispatch table for such functions.  Each index has an assoicated
+ * symbol that is mapped to a function for that algorithm.
+ * shmem_barrier_all() etc. then becomes a wrapper to dereference and
+ * call that pointer.
+ */
 
 #define SHMEM_DEFAULT_BARRIER_ALGORITHM "linear"
 
