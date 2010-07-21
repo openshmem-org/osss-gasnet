@@ -74,6 +74,8 @@ __shmem_hostnode_init(void)
 void
 shmem_init(void)
 {
+  __shmem_warnings_init();
+
   __state.initialized += 1;
 
   /* I shouldn't really call this more than once */

@@ -1,6 +1,6 @@
 .PHONY: all default clean
 
-all default:	dlmalloc.o
+all default:	dlmalloc.c
 	gcc -fPIC -c -DONLY_MSPACES=1 -DUSE_LOCKS=1 -g dlmalloc.c 
 
 clean:

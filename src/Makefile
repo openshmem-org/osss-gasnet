@@ -7,6 +7,9 @@ TLSF_OBJECT = $(TLSF_DIR)/tlsf.o
 DLMALLOC_DIR = ./dlmalloc
 DLMALLOC_OBJECT = $(DLMALLOC_DIR)/dlmalloc.o
 
+# MALLOC_OBJECT = $(DLMALLOC_OBJECT)
+MALLOC_OBJECT = $(TLSF_OBJECT)
+
 GASNET = $(HOME)/local
 
 include $(GASNET)/include/mpi-conduit/mpi-par.mak 
@@ -31,7 +34,8 @@ SHMEM_RUN      = oshrun
 # ---------------------------------------------------------
 
 .PHONY: c-wrapper f-wrapper
-.PHONY: tlsf tidy clean wrappers
+.PHONY: tlsf dlmalloc
+.PHONY: tidy clean wrappers
 .PHONY: do-deps
 
 all default:	do-deps tlsf $(SHMEM_LIBRARY) wrappers
@@ -48,7 +52,10 @@ install:	all
 tlsf:
 	$(MAKE) -C $(TLSF_DIR)
 
-$(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(TLSF_OBJECT)
+$(DLMALLOC_OBJECT):
+	$(MAKE) -C $(DLMALLOC_DIR)
+
+$(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	rm -f $@
 	$(GASNET_LD) --shared -Wl,-soname,$@ -o $@ $^
 
@@ -94,6 +101,7 @@ tidy:
 
 clean:	tidy
 	$(MAKE) -C $(TLSF_DIR) $@
+	$(MAKE) -C $(DLMALLOC_DIR) $@
 	rm -f $(SHMEM_LIBRARY) $(SHMEM_CC)
 	rm -f Makedeps
 

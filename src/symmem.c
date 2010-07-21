@@ -26,8 +26,6 @@ __symmetric_memory_init(void)
 
   GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
 
-  __gasnet_barrier_all();
-
   /*
    * each PE initializes its own table, but can see addresses of all PEs
    */
@@ -80,14 +78,12 @@ shmalloc(size_t size)
 
   pool = __symmetric_var_base(__state.mype);
 
-#if 0
   /* TODO: bizarre issue with 23 or 24 longs as first malloc */
   if (first_malloc && size < MIN_MALLOC_EX_SIZE) {
-    __shmem_warn("NOTICE", "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
+    // __shmem_warn("NOTICE", "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
     size = MIN_MALLOC_EX_SIZE;
   }
   first_malloc = 0;
-#endif
 
   addr = malloc_ex(size, pool);
 
@@ -112,7 +108,7 @@ shfree(void *addr)
 
   pool = __symmetric_var_base(__state.mype);
 
-// __shmem_warn("INFO", "about to free address %p in pool %p", addr, pool);
+  __shmem_warn("DEBUG", "shfree(%p) does nothing right now", addr);
 
   // free_ex(addr, pool);
 

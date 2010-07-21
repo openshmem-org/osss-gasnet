@@ -13,7 +13,7 @@ typedef void *mspace;
 extern mspace create_mspace_with_base(void* base, size_t capacity, int locked);
 extern void * mspace_malloc(mspace msp, size_t bytes);
 extern void mspace_free(mspace msp, void *mem);
-
+extern size_t mspace_footprint(mspace msp);
 static mspace myspace;
 
 /*
@@ -40,27 +40,36 @@ __symmetric_memory_init(void)
                                     seginfo_table[__state.mype].size,
                                     1
                                    );
-
-  __gasnet_barrier_all();
+// __gasnet_barrier_all();
 }
+
+void
+__symmetric_memory_finalize(void)
+{
+  destroy_mspace(myspace);
+}
+
 
 /*
  * where the symmetric memory starts on the given PE
  */
+__inline__
 void *
 __symmetric_var_base(int pe)
 {
-  return myspace + 128;
+  return myspace;
 }
 
 /*
  * is the address in the managed symmetric area?
  */
+__inline__
 int
 __symmetric_var_in_range(void *addr, int pe)
 {
-  void *top = myspace + seginfo_table[pe].size;
-  return (myspace <= addr) && (addr < top) ? 1 : 0;
+  return 1;
+//void *top = myspace + seginfo_table[pe].size;
+//return (myspace <= addr) && (addr < top) ? 1 : 0;
 }
 
 /*
@@ -68,10 +77,6 @@ __symmetric_var_in_range(void *addr, int pe)
  */
 
 long malloc_error = 0;         /* exposed for error codes */
-
-const long SHMEM_MALLOC_OK=0L;
-const long SHMEM_MALLOC_FAIL=1L;
-const long SHMEM_MALLOC_ALREADY_FREE=2L;
 
 void *
 shmalloc(size_t size)
@@ -82,7 +87,7 @@ shmalloc(size_t size)
   addr = mspace_malloc(area, size);
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shmalloc(%ld) failed\n", size);
+    __shmem_warn("NOTICE", "shmalloc(%ld) failed", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
 
@@ -97,15 +102,14 @@ shfree(void *addr)
   void *area = __symmetric_var_base(__state.mype);
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shfree(%p) already null\n", addr);
+    __shmem_warn("NOTICE", "address passed to shfree already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
 
 __shmem_warn("INFO", "freeing @ %p", addr);
 
-  // TODO: sometimes causes segfaults...
-  // mspace_free(area, addr);
+//mspace_free(area, addr);
 
   malloc_error = 0;
 }
