@@ -120,13 +120,17 @@ extern void   shmem_wait(long *ivar, long cmp_value);
  * atomic swaps
  */
 
-extern short       shmem_short_swap(short *target, short value, int pe);
 extern int         shmem_int_swap(int *target, int value, int pe);
 extern long        shmem_long_swap(long *target, long value, int pe);
 extern long long   shmem_longlong_swap(long long *target, long long value, int pe);
 extern float       shmem_float_swap(float *target, float value, int pe);
 extern double      shmem_double_swap(double *target, double value, int pe);
 extern long        shmem_swap(long *target, long value, int pe);
+
+extern int         shmem_int_cswap(int *target, int cond, int value, int pe);
+extern long        shmem_long_cswap(long *target, long cond, long value, int pe);
+extern long long   shmem_longlong_cswap(long long *target,
+					long long cond, long long value, int pe);
 
 /*
  * cache flushing

@@ -16,7 +16,7 @@ GASNET_LIBDIRS = -L/home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD/#conduit_
 # ----------------------------------------------------------------------
 # C compiler and options
 
-GASNET_CC = /usr/lib64/ccache/gcc 
+GASNET_CC = /opt/local/gcc/4.5.0/bin/gcc 
 
 GASNET_OPT_CFLAGS = -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline $(CONDUIT_OPT_CFLAGS) $(CONDUIT_OPT_CFLAGS_#THREAD_MODEL#)
 GASNET_MISC_CFLAGS =  $(CONDUIT_MISC_CFLAGS) $(CONDUIT_MISC_CFLAGS_#THREAD_MODEL#)
@@ -54,7 +54,7 @@ GASNET_LIBS =                             \
     $(CONDUIT_LIBS_#THREAD_MODEL#)        \
     $(GASNET_EXTRALIBS_#THREAD_MODEL#)    \
                         \
-    -L/usr/lib/gcc/x86_64-redhat-linux/4.1.2 -lgcc                              \
+    -L/opt/local/gcc/4.5.0/lib/gcc/x86_64-unknown-linux-gnu/4.5.0 -lgcc                              \
                                     \
     -lm                                \
     $(MANUAL_LIBS)

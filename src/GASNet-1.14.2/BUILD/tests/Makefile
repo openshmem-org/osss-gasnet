@@ -337,19 +337,19 @@ KEEPTMP_CFLAGS = $(patsubst %,-save-temps,$(KEEPTMPS))
 TOOLS_CPPFLAGS = $(TESTTOOLS_DEBUGFLAGS) $(TESTTOOLS_THREADFLAGS)
 testtools: force
 	@cd /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
-	/usr/lib64/ccache/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CFLAGS) -c -o $@.o $(srcdir)/$@.c
-	/usr/lib64/ccache/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
+	/opt/local/gcc/4.5.0/bin/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CFLAGS) -c -o $@.o $(srcdir)/$@.c
+	/opt/local/gcc/4.5.0/bin/gcc  -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline   $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
 
 # As above w/ a c++ tools client
 testtoolscxx: force
-	@if test -z "/usr/lib64/ccache/g++ "; then \
+	@if test -z "/opt/local/gcc/4.5.0/bin/g++ "; then \
 		echo "ERROR: testtoolscxx target requested, but no c++ compiler is configured"; \
 		exit 1; \
 	 fi
 	@cd /home/tonyc/src/SHMEM/trunk/src/GASNet-1.14.2/BUILD && $(MAKE) lib$(TESTTOOLS_TOOLLIB_NAME).a
-	/usr/lib64/ccache/g++  -O2  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CXXFLAGS) -c -o $@.o $(srcdir)/$@.cc
-	/usr/lib64/ccache/g++  -O2  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
+	/opt/local/gcc/4.5.0/bin/g++  -O2  -g3 -Wall -Wno-unused -Wno-address -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(GASNET_INCLUDES) $(TOOLS_CPPFLAGS) $(KEEPTMP_CFLAGS) $(MANUAL_CXXFLAGS) -c -o $@.o $(srcdir)/$@.cc
+	/opt/local/gcc/4.5.0/bin/g++  -O2  -g3 -Wall -Wno-unused -Wno-address -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute  $(MANUAL_LDFLAGS) -o $@ $@.o $(TESTTOOLS_TOOLLIB)  -lm $(MANUAL_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
 
 # some tests need delay.o
@@ -387,12 +387,12 @@ $(MPI_TESTS): mpi-check force
 # testcxx tests support for compiling a C++-based GASNet client 
 # this is unlikely to work on conduits requiring a special linker (eg mpi-conduit)
 testcxx: force
-	@if test -z "/usr/lib64/ccache/g++ "; then \
+	@if test -z "/opt/local/gcc/4.5.0/bin/g++ "; then \
 		echo "ERROR: testcxx target requested, but no c++ compiler is configured"; \
 		exit 1; \
 	 fi
-	/usr/lib64/ccache/g++  -O2  -g3 -Wall -Wno-unused -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute -I$(srcdir) $(GASNET_DEFINES) $(GASNET_INCLUDES) $(KEEPTMP_CFLAGS) $(MANUAL_CXXFLAGS) -c -o $@.o $(srcdir)/$@.cc
-	/usr/lib64/ccache/g++  -O2 $(GASNET_LDFLAGS) -o $@ $@.o $($@_extraobjs) $(GASNET_LIBS)
+	/opt/local/gcc/4.5.0/bin/g++  -O2  -g3 -Wall -Wno-unused -Wno-address -Wpointer-arith -Wwrite-strings -Wmissing-format-attribute -I$(srcdir) $(GASNET_DEFINES) $(GASNET_INCLUDES) $(KEEPTMP_CFLAGS) $(MANUAL_CXXFLAGS) -c -o $@.o $(srcdir)/$@.cc
+	/opt/local/gcc/4.5.0/bin/g++  -O2 $(GASNET_LDFLAGS) -o $@ $@.o $($@_extraobjs) $(GASNET_LIBS)
 	@test -n '$(KEEPTMPS)' || ( cmd="rm -f $@.o"; echo "$$cmd"; eval "$$cmd" )
 
 # This is a model for how GASNet clients should be built:

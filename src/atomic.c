@@ -1,23 +1,17 @@
-#include <semaphore.h>
+#include <sys/types.h>
 
 #include "state.h"
+
 #include "shmem.h"
 
-static sem_t swap_lock;
-static sem_t cswap_lock;
-
-void
+__inline__ void
 __shmem_atomic_init(void)
 {
-  sem_init(&swap_lock, 0, 1);
-  sem_init(&cswap_lock, 0, 1);
 }
 
-void
+__inline__ void
 __shmem_atomic_finalize(void)
 {
-  sem_destroy(&swap_lock);
-  sem_destroy(&cswap_lock);
 }
 
 /*
@@ -31,6 +25,7 @@ __shmem_atomic_finalize(void)
  * get old target from pe;
  * write value to target on pe;
  * return old target
+ * UGH, barriers: should use "wait" for point-to-point sync
  *
  *
  * or use Active Messages???
@@ -38,16 +33,32 @@ __shmem_atomic_finalize(void)
  * & atomic intrinsic for local-local
  */
 
+static __inline__ int64_t
+__atomic_xchg64(volatile int64_t *p, int64_t new_value)
+{
+  asm volatile ("lock xchg %1, %0" : 
+                "+m" (*p), "+r" (new_value) : : 
+                "memory");
+  return new_value;
+}
+
+static __inline__ int64_t
+__atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
+{
+  asm volatile ("lock cmpxchg %2, %0" : 
+                "+m" (*p), "+a" (old_value) :
+                "r" (new_value) : 
+                "memory");
+  return old_value;
+}
+
 #define SHMEM_TYPE_SWAP(Name, Type)					\
   Type									\
   shmem_##Name##_swap(Type *target, Type value, int pe)			\
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      sem_wait(&swap_lock);						\
-      retval = *target;							\
-      *target = value;							\
-      sem_post(&swap_lock);						\
+      retval = __atomic_xchg64((volatile int64_t *)target, value);	\
     }									\
     else {								\
       Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
@@ -61,7 +72,7 @@ __shmem_atomic_finalize(void)
     }									\
   }
 
-SHMEM_TYPE_SWAP(short, short)
+/* SHMEM_TYPE_SWAP(short, short) */
 SHMEM_TYPE_SWAP(int, int)
 SHMEM_TYPE_SWAP(long, long)
 SHMEM_TYPE_SWAP(longlong, long long)
@@ -76,12 +87,7 @@ _Pragma("weak shmem_swap=shmem_long_swap")
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      sem_wait(&cswap_lock);						\
-      retval = *target;							\
-      if (cond == retval) {						\
-	*target = value;						\
-      }									\
-      sem_post(&cswap_lock);						\
+      retval = __atomic_cmpxchg64((volatile int64_t *)target, cond, value); \
     }									\
     else {								\
       Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
@@ -97,11 +103,8 @@ _Pragma("weak shmem_swap=shmem_long_swap")
     }									\
   }
 
-SHMEM_TYPE_CSWAP(short, short)
 SHMEM_TYPE_CSWAP(int, int)
 SHMEM_TYPE_CSWAP(long, long)
 SHMEM_TYPE_CSWAP(longlong, long long)
-SHMEM_TYPE_CSWAP(double, double)
-SHMEM_TYPE_CSWAP(float, float)
 
 _Pragma("weak shmem_cswap=shmem_long_cswap")

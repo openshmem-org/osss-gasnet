@@ -8,7 +8,7 @@
 #INSTRUCTIONS# or $(top_srcdir)/other/fragment-head.mak.in for usage info.
 
 # AMUDP is C++-based, which requires us to link using the C++ compiler
-GASNET_LD_OVERRIDE = /usr/lib64/ccache/g++ 
+GASNET_LD_OVERRIDE = /opt/local/gcc/4.5.0/bin/g++ 
 GASNET_LDFLAGS_OVERRIDE = -O2  
 
 # hooks for using AMUDP library from within build tree ###NOINSTALL###

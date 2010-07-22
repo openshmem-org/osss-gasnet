@@ -35,10 +35,10 @@ fh_special_objs =                                   \
 # useful optimizations for the entire conduit.
 $(builddir)/firehose-$(THREAD_MODEL).o: force
 	keeptmps='$(KEEPTMPS)'; \
-	/usr/lib64/ccache/gcc  $(LIBCFLAGS)  -o $@ -c $(fh_srcdir)/firehose.c
+	/opt/local/gcc/4.5.0/bin/gcc  $(LIBCFLAGS)  -o $@ -c $(fh_srcdir)/firehose.c
 $(builddir)/firehose_$(fh_type)-$(THREAD_MODEL).o: force
 	keeptmps='$(KEEPTMPS)'; \
-	/usr/lib64/ccache/gcc  $(LIBCFLAGS)  -o $@ -c $(fh_srcdir)/firehose_$(fh_type).c
+	/opt/local/gcc/4.5.0/bin/gcc  $(LIBCFLAGS)  -o $@ -c $(fh_srcdir)/firehose_$(fh_type).c
 
 # How to rebuild this file
 $(fh_blddir)/firehose.mak: $(fh_srcdir)/firehose.mak.in

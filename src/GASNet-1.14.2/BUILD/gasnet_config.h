@@ -14,8 +14,8 @@
 #endif
 
 
-#define GASNETI_BUILD_ID "Tue Jul 20 11:05:09 CDT 2010 tonyc"
-#define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--enable-allow-gcc4' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
+#define GASNETI_BUILD_ID "Wed Jul 21 21:18:29 CDT 2010 tonyc"
+#define GASNETI_CONFIGURE_ARGS "'--prefix=/home/tonyc/local' '--enable-segment-large' '--disable-aligned-segments'"
 #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
 #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 /* #undef GASNETI_CROSS_COMPILING */
@@ -79,22 +79,22 @@
 #define GASNETI_HAVE_MPI_CC_ATTRIBUTE_FORMAT_FUNCPTR 1
 
 /* identification of the C compiler used at configure time */
-#define GASNETI_PLATFORM_COMPILER_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|"
+#define GASNETI_PLATFORM_COMPILER_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.5.0|"
 #define GASNETI_PLATFORM_COMPILER_FAMILYID 1
 #define GASNETI_PLATFORM_COMPILER_ID 1
-#define GASNETI_PLATFORM_COMPILER_VERSION 262402
+#define GASNETI_PLATFORM_COMPILER_VERSION 263424
 
 /* identification of the C++ compiler used at configure time */
-#define GASNETI_PLATFORM_CXX_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__,__cplusplus=1|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|"
+#define GASNETI_PLATFORM_CXX_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__,__cplusplus=1|misc:4.5.0|"
 #define GASNETI_PLATFORM_CXX_FAMILYID 1
 #define GASNETI_PLATFORM_CXX_ID 10001
-#define GASNETI_PLATFORM_CXX_VERSION 262402
+#define GASNETI_PLATFORM_CXX_VERSION 263424
 
 /* identification of the MPI C compiler used at configure time */
-#define GASNETI_PLATFORM_MPI_CC_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|"
+#define GASNETI_PLATFORM_MPI_CC_IDSTR "|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.5.0|"
 #define GASNETI_PLATFORM_MPI_CC_FAMILYID 1
 #define GASNETI_PLATFORM_MPI_CC_ID 1
-#define GASNETI_PLATFORM_MPI_CC_VERSION 262402
+#define GASNETI_PLATFORM_MPI_CC_VERSION 263424
 
 /* Defined to be the inline function modifier supported by the C
    compilers (if supported), prefixed by 'static' (if permitted) */

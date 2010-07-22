@@ -59,7 +59,7 @@
 # ----------------------------------------------------------------------
 # conduit-overridable variables 
 
-GASNET_LD_OVERRIDE = /usr/lib64/ccache/gcc 
+GASNET_LD_OVERRIDE = /opt/local/gcc/4.5.0/bin/gcc 
 GASNET_LDFLAGS_OVERRIDE = -O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline 
 
 # ----------------------------------------------------------------------

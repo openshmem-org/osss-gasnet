@@ -33,8 +33,8 @@ ac_cv_build=${ac_cv_build=x86_64-unknown-linux-gnu}
 ac_cv_build_alias=${ac_cv_build_alias=x86_64-unknown-linux-gnu}
 ac_cv_c_compiler_gnu=${ac_cv_c_compiler_gnu=yes}
 ac_cv_cxx_compiler_gnu=${ac_cv_cxx_compiler_gnu=yes}
-ac_cv_env_CC_set=set
-ac_cv_env_CC_value=gcc
+ac_cv_env_CC_set=
+ac_cv_env_CC_value=
 ac_cv_env_CFLAGS_set=
 ac_cv_env_CFLAGS_value=
 ac_cv_env_CPPFLAGS_set=
@@ -45,8 +45,8 @@ ac_cv_env_CXXCPP_set=
 ac_cv_env_CXXCPP_value=
 ac_cv_env_CXXFLAGS_set=
 ac_cv_env_CXXFLAGS_value=
-ac_cv_env_CXX_set=set
-ac_cv_env_CXX_value=g++
+ac_cv_env_CXX_set=
+ac_cv_env_CXX_value=
 ac_cv_env_LDFLAGS_set=
 ac_cv_env_LDFLAGS_value=
 ac_cv_env_build_alias_set=
@@ -121,10 +121,10 @@ ac_cv_path_PWD_PROG=${ac_cv_path_PWD_PROG=/bin/pwd}
 ac_cv_path_RANLIB=${ac_cv_path_RANLIB=/usr/bin/ranlib}
 ac_cv_path_READLINK=${ac_cv_path_READLINK=/usr/bin/readlink}
 ac_cv_path_TIMECMD=${ac_cv_path_TIMECMD=/usr/bin/time}
-ac_cv_path_gasnet_cv__gfp_fullprogname_CC=${ac_cv_path_gasnet_cv__gfp_fullprogname_CC=/usr/lib64/ccache/gcc}
-ac_cv_path_gasnet_cv__gfp_fullprogname_CPP=${ac_cv_path_gasnet_cv__gfp_fullprogname_CPP=/usr/lib64/ccache/gcc}
-ac_cv_path_gasnet_cv__gfp_fullprogname_CXX=${ac_cv_path_gasnet_cv__gfp_fullprogname_CXX=/usr/lib64/ccache/g++}
-ac_cv_path_gasnet_cv__gfp_fullprogname_CXXCPP=${ac_cv_path_gasnet_cv__gfp_fullprogname_CXXCPP=/usr/lib64/ccache/g++}
+ac_cv_path_gasnet_cv__gfp_fullprogname_CC=${ac_cv_path_gasnet_cv__gfp_fullprogname_CC=/opt/local/gcc/4.5.0/bin/gcc}
+ac_cv_path_gasnet_cv__gfp_fullprogname_CPP=${ac_cv_path_gasnet_cv__gfp_fullprogname_CPP=/opt/local/gcc/4.5.0/bin/gcc}
+ac_cv_path_gasnet_cv__gfp_fullprogname_CXX=${ac_cv_path_gasnet_cv__gfp_fullprogname_CXX=/opt/local/gcc/4.5.0/bin/g++}
+ac_cv_path_gasnet_cv__gfp_fullprogname_CXXCPP=${ac_cv_path_gasnet_cv__gfp_fullprogname_CXXCPP=/opt/local/gcc/4.5.0/bin/g++}
 ac_cv_path_gasnet_cv__gfp_fullprogname_MPIRUN_CMD=${ac_cv_path_gasnet_cv__gfp_fullprogname_MPIRUN_CMD=/opt/openmpi/gnu/1.4.2/bin/mpirun}
 ac_cv_path_gasnet_cv__gfp_fullprogname_MPI_CC=${ac_cv_path_gasnet_cv__gfp_fullprogname_MPI_CC=/opt/openmpi/gnu/1.4.2/bin/mpicc}
 ac_cv_path_install=${ac_cv_path_install='/usr/bin/install -c'}
@@ -132,6 +132,7 @@ ac_cv_prog_AWK=${ac_cv_prog_AWK=gawk}
 ac_cv_prog_CPP=${ac_cv_prog_CPP='gcc -E'}
 ac_cv_prog_CXXCPP=${ac_cv_prog_CXXCPP='g++ -E'}
 ac_cv_prog_ac_ct_CC=${ac_cv_prog_ac_ct_CC=gcc}
+ac_cv_prog_ac_ct_CXX=${ac_cv_prog_ac_ct_CXX=g++}
 ac_cv_prog_cc_cross=${ac_cv_prog_cc_cross=no}
 ac_cv_prog_cc_g=${ac_cv_prog_cc_g=yes}
 ac_cv_prog_cc_stdc=${ac_cv_prog_cc_stdc=}
@@ -172,21 +173,21 @@ gasnet_cv_PAGESIZE=${gasnet_cv_PAGESIZE=no}
 gasnet_cv_PAGE_SIZE=${gasnet_cv_PAGE_SIZE=no}
 gasnet_cv_PLATFORM_COMPILER_FAMILYID=${gasnet_cv_PLATFORM_COMPILER_FAMILYID=1}
 gasnet_cv_PLATFORM_COMPILER_ID=${gasnet_cv_PLATFORM_COMPILER_ID=1}
-gasnet_cv_PLATFORM_COMPILER_IDSTR=${gasnet_cv_PLATFORM_COMPILER_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|'}
-gasnet_cv_PLATFORM_COMPILER_VERSION=${gasnet_cv_PLATFORM_COMPILER_VERSION=262402}
+gasnet_cv_PLATFORM_COMPILER_IDSTR=${gasnet_cv_PLATFORM_COMPILER_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.5.0|'}
+gasnet_cv_PLATFORM_COMPILER_VERSION=${gasnet_cv_PLATFORM_COMPILER_VERSION=263424}
 gasnet_cv_PLATFORM_CXX_FAMILYID=${gasnet_cv_PLATFORM_CXX_FAMILYID=1}
 gasnet_cv_PLATFORM_CXX_ID=${gasnet_cv_PLATFORM_CXX_ID=10001}
-gasnet_cv_PLATFORM_CXX_IDSTR=${gasnet_cv_PLATFORM_CXX_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__,__cplusplus=1|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|'}
-gasnet_cv_PLATFORM_CXX_VERSION=${gasnet_cv_PLATFORM_CXX_VERSION=262402}
+gasnet_cv_PLATFORM_CXX_IDSTR=${gasnet_cv_PLATFORM_CXX_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__,__cplusplus=1|misc:4.5.0|'}
+gasnet_cv_PLATFORM_CXX_VERSION=${gasnet_cv_PLATFORM_CXX_VERSION=263424}
 gasnet_cv_PLATFORM_MPI_CC_FAMILYID=${gasnet_cv_PLATFORM_MPI_CC_FAMILYID=1}
 gasnet_cv_PLATFORM_MPI_CC_ID=${gasnet_cv_PLATFORM_MPI_CC_ID=1}
-gasnet_cv_PLATFORM_MPI_CC_IDSTR=${gasnet_cv_PLATFORM_MPI_CC_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.1.2|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.1.2 20080704 (Red Hat 4.1.2-48)|'}
-gasnet_cv_PLATFORM_MPI_CC_VERSION=${gasnet_cv_PLATFORM_MPI_CC_VERSION=262402}
+gasnet_cv_PLATFORM_MPI_CC_IDSTR=${gasnet_cv_PLATFORM_MPI_CC_IDSTR='|COMPILER_FAMILY:GNU|COMPILER_VERSION:4.5.0|COMPILER_FAMILYID:1|STD:__STDC__|misc:4.5.0|'}
+gasnet_cv_PLATFORM_MPI_CC_VERSION=${gasnet_cv_PLATFORM_MPI_CC_VERSION=263424}
 gasnet_cv__SC_PAGESIZE=${gasnet_cv__SC_PAGESIZE=4096}
-gasnet_cv__gfp_fullprogname_CC=${gasnet_cv__gfp_fullprogname_CC=/usr/lib64/ccache/gcc}
-gasnet_cv__gfp_fullprogname_CPP=${gasnet_cv__gfp_fullprogname_CPP=/usr/lib64/ccache/gcc}
-gasnet_cv__gfp_fullprogname_CXX=${gasnet_cv__gfp_fullprogname_CXX=/usr/lib64/ccache/g++}
-gasnet_cv__gfp_fullprogname_CXXCPP=${gasnet_cv__gfp_fullprogname_CXXCPP=/usr/lib64/ccache/g++}
+gasnet_cv__gfp_fullprogname_CC=${gasnet_cv__gfp_fullprogname_CC=/opt/local/gcc/4.5.0/bin/gcc}
+gasnet_cv__gfp_fullprogname_CPP=${gasnet_cv__gfp_fullprogname_CPP=/opt/local/gcc/4.5.0/bin/gcc}
+gasnet_cv__gfp_fullprogname_CXX=${gasnet_cv__gfp_fullprogname_CXX=/opt/local/gcc/4.5.0/bin/g++}
+gasnet_cv__gfp_fullprogname_CXXCPP=${gasnet_cv__gfp_fullprogname_CXXCPP=/opt/local/gcc/4.5.0/bin/g++}
 gasnet_cv__gfp_fullprogname_MPIRUN_CMD=${gasnet_cv__gfp_fullprogname_MPIRUN_CMD=/opt/openmpi/gnu/1.4.2/bin/mpirun}
 gasnet_cv__gfp_fullprogname_MPI_CC=${gasnet_cv__gfp_fullprogname_MPI_CC=/opt/openmpi/gnu/1.4.2/bin/mpicc}
 gasnet_cv_buggy_ctype=${gasnet_cv_buggy_ctype=ok}
@@ -288,7 +289,7 @@ gasnet_cv_have_VSNPRINTF_decl=${gasnet_cv_have_VSNPRINTF_decl=yes}
 gasnet_cv_have_mmap=${gasnet_cv_have_mmap=yes}
 gasnet_cv_ibv_works=${gasnet_cv_ibv_works=no}
 gasnet_cv_lapi_works=${gasnet_cv_lapi_works=no}
-gasnet_cv_lib_gcc=${gasnet_cv_lib_gcc='-L/usr/lib/gcc/x86_64-redhat-linux/4.1.2 -lgcc'}
+gasnet_cv_lib_gcc=${gasnet_cv_lib_gcc='-L/opt/local/gcc/4.5.0/lib/gcc/x86_64-unknown-linux-gnu/4.5.0 -lgcc'}
 gasnet_cv_malloc_is_ptmalloc=${gasnet_cv_malloc_is_ptmalloc=yes}
 gasnet_cv_map_anon=${gasnet_cv_map_anon=yes}
 gasnet_cv_map_anonymous=${gasnet_cv_map_anonymous=yes}
