@@ -4,6 +4,10 @@
 
 #include "shmem.h"
 
+/*
+ * placeholders: no init/final required (so far)
+ */
+
 __inline__ void
 __shmem_atomic_init(void)
 {

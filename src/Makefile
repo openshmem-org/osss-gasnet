@@ -18,14 +18,12 @@ CPPFLAGS += -I../include
 # CPPFLAGS += -DSHMEM_COLLECT_STATS
 CPPFLAGS += -MMD
 
-CFLAGS += -fPIC
-
-DEBUG_OR_OPT = -O3
+DEBUG_OR_OPT = -g
 
 SHMEM_SOURCES  = $(wildcard *.c)
 SHMEM_OBJECTS  = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY  = libshmem.so
+SHMEM_LIBRARY  = libshmem.a
 SHMEM_HEADERS  = shmem.h shmem.fh
 SHMEM_CC       = oshcc
 SHMEM_FC       = oshfort
@@ -57,7 +55,8 @@ $(DLMALLOC_OBJECT):
 
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	rm -f $@
-	$(GASNET_LD) --shared -Wl,-soname,$@ -o $@ $^
+	ar cru $@ $^
+	ranlib $@
 
 #
 # eventually, we'll migrate gasnet dependencies to a
