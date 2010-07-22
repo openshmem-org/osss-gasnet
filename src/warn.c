@@ -7,31 +7,26 @@
 #include <stdarg.h>
 
 #include "state.h"
+#include "warn.h"
 
 static int n_warnings_enabled = 0;
 
-enum __warn {
-  SHMEM_LOG_DEBUG=0,
-  SHMEM_LOG_INFO,
-  SHMEM_LOG_NOTICE,
-  SHMEM_LOG_AUTH,
-  SHMEM_LOG_FATAL
-};
-
 typedef struct {
-  const enum __warn level;
+  const int level;
   const char *text;
   int on;
 } __warn_table_t;
 
+#define INIT_LEVEL(L) { SHMEM_LOG_##L , #L , 0 }
+
 static
 __warn_table_t warnings[] =
   {
-    { SHMEM_LOG_DEBUG,  "debug",   0 },
-    { SHMEM_LOG_INFO,   "info",   0 },
-    { SHMEM_LOG_NOTICE, "notice", 0 },
-    { SHMEM_LOG_AUTH,   "auth",   0 },
-    { SHMEM_LOG_FATAL,  "fatal",  0 }
+    INIT_LEVEL(DEBUG),
+    INIT_LEVEL(INFO),
+    INIT_LEVEL(NOTICE),
+    INIT_LEVEL(AUTH),
+    INIT_LEVEL(FATAL)
   };
 static const int n_warnings = sizeof(warnings) / sizeof(__warn_table_t);
 
@@ -51,18 +46,33 @@ __warn_enable(char *w)
 }
 
 static int
-__is_warn_enabled(char *w)
+__is_warn_enabled(int level)
 {
   int i;
   __warn_table_t *t = warnings;
 
   for (i = 0; i < n_warnings; i += 1) {
-    if (strcasecmp(w, t->text) == 0) {
+    if (level == t->level) {
       return t->on;
     }
     t += 1;
   }
   return 0;
+}
+
+static char *
+__level_to_string(int level)
+{
+  int i;
+  __warn_table_t *t = warnings;
+
+  for (i = 0; i < n_warnings; i += 1) {
+    if (level == t->level) {
+      return t->text;
+    }
+    t += 1;
+  }
+  return "?";
 }
 
 void
@@ -88,7 +98,7 @@ __shmem_warnings_init(void)
 #define BUF_SIZE 1024
 
 void
-__shmem_warn(char *msg_type, char *fmt, ...)
+__shmem_warn(int msg_type, char *fmt, ...)
 {
   if (n_warnings_enabled == 0) {
     return;
@@ -105,7 +115,7 @@ __shmem_warn(char *msg_type, char *fmt, ...)
   
     strcpy(tmp1, prefix_fmt);
   
-    sprintf(tmp2, tmp1, __state.mype, msg_type);
+    sprintf(tmp2, tmp1, __state.mype, __level_to_string(msg_type));
   
     va_start(ap, fmt);
     vsnprintf (tmp1, BUF_SIZE, fmt, ap);

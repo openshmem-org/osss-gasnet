@@ -80,7 +80,7 @@ shmalloc(size_t size)
 
   /* TODO: bizarre issue with 23 or 24 longs as first malloc */
   if (first_malloc && size < MIN_MALLOC_EX_SIZE) {
-    // __shmem_warn("NOTICE", "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
+    // __shmem_warn(SHMEM_LOG_NOTICE, "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
     size = MIN_MALLOC_EX_SIZE;
   }
   first_malloc = 0;
@@ -88,7 +88,7 @@ shmalloc(size_t size)
   addr = malloc_ex(size, pool);
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "shmalloc(%ld) failed", size);
+    __shmem_warn(SHMEM_LOG_NOTICE, "shmalloc(%ld) failed", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
 
@@ -101,14 +101,14 @@ shfree(void *addr)
   void *pool;
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "address passed to shfree already null");
+    __shmem_warn(SHMEM_LOG_NOTICE, "address passed to shfree already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
 
   pool = __symmetric_var_base(__state.mype);
 
-  __shmem_warn("DEBUG", "shfree(%p) does nothing right now", addr);
+  __shmem_warn(SHMEM_LOG_DEBUG, "shfree(%p) does nothing right now", addr);
 
   // free_ex(addr, pool);
 
@@ -122,7 +122,7 @@ shrealloc(void *addr, size_t size)
   void *newaddr;
 
   if (addr == (void *)NULL) {
-    __shmem_warn("NOTICE", "address passed to shrealloc already null");
+    __shmem_warn(SHMEM_LOG_NOTICE, "address passed to shrealloc already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return (void *)NULL;
   }

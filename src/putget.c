@@ -8,7 +8,7 @@
 #include "symmem.h"
 #include "stats.h"
 #include "updown.h"
-
+#include "warn.h"
 
 #define SHMEM_TYPE_PUT_NBI(Name, Type)					\
   void									\
@@ -53,7 +53,7 @@ __shmem_wait_syncnbi_puts(void)
       size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
       void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
       if (! __symmetric_var_in_range(rdest, pe)) {			\
-	__shmem_warn("FATAL",						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_put() to PE %d, address %p not symmetric", \
 		     #Name,						\
 		     pe,						\
@@ -93,7 +93,7 @@ _Pragma("weak shmem_put128=shmem_longdouble_put")
       size_t offset = (Type *)src - (Type *)__symmetric_var_base(__state.mype); \
       void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
       if (! __symmetric_var_in_range(their_src, pe)) {			\
-	__shmem_warn("FATAL",						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_get() from PE %d, address %p not symmetric", \
 		     #Name,						\
 		     pe,						\
@@ -148,7 +148,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
       void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
       if (! __symmetric_var_in_range(rdest, pe)) {			\
-	__shmem_warn("FATAL",						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_p() to PE %d, address %p not symmetric", \
 		     #Name,						\
 		     pe,						\
@@ -191,7 +191,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       size_t offset = (Type *)src - (Type *)__symmetric_var_base(__state.mype); \
       void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
       if (! __symmetric_var_in_range(their_src, pe)) {			\
-	__shmem_warn("FATAL",						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_g() from PE %d, address %p not symmetric", \
 		     #Name,						\
 		     pe,						\

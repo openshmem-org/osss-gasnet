@@ -42,7 +42,7 @@ __environment_init()
   else if (strcasecmp(ba, "tree") == 0) {
     __shmem_dispatch[SHMEM_BARRIER_ALL_DISPATCH] = __shmem_barrier_all_tree;
   else {
-    __shmem_warn("NOTICE",
+    __shmem_warn(SHMEM_LOG_NOTICE,
                  "unknown barrier algorithm \"%s\", using default (%s)\n",
                  ba,
                  SHMEM_DEFAULT_BARRIER_ALGORITHM
