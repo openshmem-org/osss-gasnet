@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export CC=gcc
+export CXX=g++
+
+../configure \
+	--enable-segment-large \
+	--disable-aligned-segments \
+	--prefix=/home/tonyc/local

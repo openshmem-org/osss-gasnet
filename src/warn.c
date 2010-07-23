@@ -60,7 +60,7 @@ __is_warn_enabled(int level)
   return 0;
 }
 
-static char *
+static const char *
 __level_to_string(int level)
 {
   int i;

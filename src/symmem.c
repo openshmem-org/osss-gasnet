@@ -3,7 +3,6 @@
 
 #include "gasnet_safe.h"
 
-#include "tlsf.h"                /* symmetric var allocation       */
 
 #include "state.h"
 #include "barrier.h"
@@ -11,13 +10,17 @@
 
 #include "shmem.h"
 
+#include "dlmalloc.h"
+
 /*
  * Tony's development interface
  */
 
 static gasnet_seginfo_t* seginfo_table;
 
-static void *my_pool;
+static mspace myspace;
+
+#define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
 
 void
 __symmetric_memory_init(void)
@@ -32,13 +35,9 @@ __symmetric_memory_init(void)
    * each PE initializes its own table, but can see addresses of all PEs
    */
 
-  my_pool = seginfo_table[__state.mype].addr;
-
-  {
-    size_t ps = init_memory_pool(seginfo_table[__state.mype].size,
-				 my_pool);
-    __shmem_warn(SHMEM_LOG_DEBUG, "pool size is %ld", ps);
-  }
+  myspace = create_mspace_with_base(seginfo_table[__state.mype].addr,
+				    seginfo_table[__state.mype].size,
+				    1);
 
   __gasnet_barrier_all();
 }
@@ -46,7 +45,7 @@ __symmetric_memory_init(void)
 void
 __symmetric_memory_finalize(void)
 {
-   destroy_memory_pool(my_pool);
+  destroy_mspace(myspace);
 }
 
 /*
@@ -56,8 +55,6 @@ __inline__
 void *
 __symmetric_var_base(int pe)
 {
-#define ROUNDUP8(v) ((v + 7) & ~7)
-
   return seginfo_table[pe].addr;
 }
 
@@ -78,22 +75,12 @@ __symmetric_var_in_range(void *addr, int pe)
 
 long malloc_error = 0;         /* exposed for error codes */
 
-static const size_t MIN_MALLOC_EX_SIZE = 32 * sizeof(long);
-static int first_malloc = 1;
-
 void *
 shmalloc(size_t size)
 {
   void *addr;
 
-  /* TODO: bizarre issue with 23 or 24 longs as first malloc */
-  if (first_malloc && (size == 184 || size == 192)) {
-    // __shmem_warn(SHMEM_LOG_NOTICE, "first shmalloc(%ld) rounding up to %ld", size, MIN_MALLOC_EX_SIZE);
-    size = MIN_MALLOC_EX_SIZE;
-  }
-  first_malloc = 0;
-
-  addr = malloc_ex(size, my_pool);
+  addr = mspace_malloc(myspace, size);
 
   if (addr == (void *)NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE, "shmalloc(%ld) failed", size);
@@ -112,9 +99,9 @@ shfree(void *addr)
     return;
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG, "shfree(%p) does nothing right now", addr);
+  __shmem_warn(SHMEM_LOG_DEBUG, "shfree(%p) in pool @ %p", addr, myspace);
 
-  free_ex(addr, my_pool);
+  mspace_free(myspace, addr);
 
   malloc_error = 0;
 }
@@ -130,7 +117,7 @@ shrealloc(void *addr, size_t size)
     return (void *)NULL;
   }
 
-  newaddr = realloc_ex(addr, size, seginfo_table[__state.mype].addr);
+  newaddr = mspace_realloc(myspace, addr, size);
 
   malloc_error = 0;
 
@@ -146,5 +133,5 @@ shrealloc(void *addr, size_t size)
 void *
 shmemalign(size_t alignment, size_t size)
 {
-  return shmalloc(size);
+  return mspace_memalign(myspace, alignment, size);
 }

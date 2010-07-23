@@ -1,14 +1,10 @@
 PREFIX = $(HOME)/SHMEM
 
-TLSF_DIR = ./TLSF/src
-TLSF_CFLAGS = -I$(TLSF_DIR)
-TLSF_OBJECT = $(TLSF_DIR)/tlsf.o
-
 DLMALLOC_DIR = ./dlmalloc
+DLMALLOC_CFLAGS = -I$(DLMALLOC_DIR)
 DLMALLOC_OBJECT = $(DLMALLOC_DIR)/dlmalloc.o
 
-# MALLOC_OBJECT = $(DLMALLOC_OBJECT)
-MALLOC_OBJECT = $(TLSF_OBJECT)
+MALLOC_OBJECT = $(DLMALLOC_OBJECT)
 
 GASNET = $(HOME)/local
 
@@ -18,12 +14,14 @@ CPPFLAGS += -I../include
 # CPPFLAGS += -DSHMEM_COLLECT_STATS
 CPPFLAGS += -MMD
 
+CFLAGS += -fPIC
+
 DEBUG_OR_OPT = -g
 
 SHMEM_SOURCES  = $(wildcard *.c)
 SHMEM_OBJECTS  = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY  = libshmem.a
+SHMEM_LIBRARY  = libshmem.so
 SHMEM_HEADERS  = shmem.h shmem.fh
 SHMEM_CC       = oshcc
 SHMEM_FC       = oshfort
@@ -31,12 +29,12 @@ SHMEM_RUN      = oshrun
 
 # ---------------------------------------------------------
 
-.PHONY: c-wrapper f-wrapper
-.PHONY: tlsf dlmalloc
-.PHONY: tidy clean wrappers
+.PHONY: c-wrapper f-wrapper wrappers
+.PHONY: dlmalloc
+.PHONY: tidy clean
 .PHONY: do-deps
 
-all default:	do-deps tlsf $(SHMEM_LIBRARY) wrappers
+all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
 install:	all
 	mkdir -p $(PREFIX)/lib
@@ -47,16 +45,13 @@ install:	all
 	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
 	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
-tlsf:
-	$(MAKE) -C $(TLSF_DIR)
+dlmalloc:	$(DLMALLOC_OBJECT)
 
 $(DLMALLOC_OBJECT):
 	$(MAKE) -C $(DLMALLOC_DIR)
 
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
-	rm -f $@
-	ar cru $@ $^
-	ranlib $@
+	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
 
 #
 # eventually, we'll migrate gasnet dependencies to a
@@ -66,7 +61,7 @@ $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	$(GASNET_CC) \
 		$(CPPFLAGS) $(CFLAGS) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
-		$(TLSF_CFLAGS) \
+		$(DLMALLOC_CFLAGS) \
 		$(DEBUG_OR_OPT) -c -o $@ $<
 
 wrappers:	c-wrapper f-wrapper
@@ -99,7 +94,6 @@ tidy:
 	rm -f $(SHMEM_DEPFILES)
 
 clean:	tidy
-	$(MAKE) -C $(TLSF_DIR) $@
 	$(MAKE) -C $(DLMALLOC_DIR) $@
 	rm -f $(SHMEM_LIBRARY) $(SHMEM_CC)
 	rm -f Makedeps
