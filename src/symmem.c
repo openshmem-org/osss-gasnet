@@ -20,6 +20,7 @@ static gasnet_seginfo_t* seginfo_table;
 
 static mspace myspace;
 
+/* UNUSED */
 #define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
 
 void
@@ -73,7 +74,7 @@ __symmetric_var_in_range(void *addr, int pe)
  * PUBLIC INTERFACE
  */
 
-long malloc_error = 0;         /* exposed for error codes */
+long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 
 void *
 shmalloc(size_t size)
@@ -86,6 +87,9 @@ shmalloc(size_t size)
     __shmem_warn(SHMEM_LOG_NOTICE, "shmalloc(%ld) failed", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
+  else {
+    malloc_error = SHMEM_MALLOC_OK;
+  }
 
   return addr;
 }
@@ -94,7 +98,8 @@ void
 shfree(void *addr)
 {
   if (addr == (void *)NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE, "address passed to shfree already null");
+    __shmem_warn(SHMEM_LOG_NOTICE,
+		 "address passed to shfree() already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
@@ -103,7 +108,7 @@ shfree(void *addr)
 
   mspace_free(myspace, addr);
 
-  malloc_error = 0;
+  malloc_error = SHMEM_MALLOC_OK;
 }
 
 void *
@@ -112,14 +117,15 @@ shrealloc(void *addr, size_t size)
   void *newaddr;
 
   if (addr == (void *)NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE, "address passed to shrealloc already null");
+    __shmem_warn(SHMEM_LOG_NOTICE,
+		 "address passed to shrealloc() already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return (void *)NULL;
   }
 
   newaddr = mspace_realloc(myspace, addr, size);
 
-  malloc_error = 0;
+  malloc_error = SHMEM_MALLOC_OK;
 
   return newaddr;
 }
@@ -133,5 +139,17 @@ shrealloc(void *addr, size_t size)
 void *
 shmemalign(size_t alignment, size_t size)
 {
-  return mspace_memalign(myspace, alignment, size);
+  void *addr = mspace_memalign(myspace, alignment, size);
+
+  if (addr == (void *)NULL) {
+    __shmem_warn(SHMEM_LOG_NOTICE,
+		 "shmem_memalign() couldn't resize %ld bytes to alignment %ld",
+		 size, alignment);
+    malloc_error = SHMEM_MALLOC_MEMALIGN_FAILED;
+  }
+  else {
+    malloc_error = SHMEM_MALLOC_OK;
+  }
+
+  return addr;
 }
