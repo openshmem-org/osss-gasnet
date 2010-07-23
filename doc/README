@@ -43,14 +43,14 @@ In src/updown.c we handle setting up the SHMEM runtime, and eventual
 shutdown.  Shutdown is implicit in user code, there is no call to do
 this, so we have to register a handler to be called when main() exits.
 
-GASNet provides the symmetric memory areas.  The TLSF library provides
-management of these areas during allocation and freeing of symmetric
-variables in user code, usually through a call like shmalloc().  (I
-discovered TLSF through the SiCortex SHMEM library).
+GASNet provides the symmetric memory areas.  The dlmalloc library
+provides management of these areas during allocation and freeing of
+symmetric variables in user code, usually through a call like
+shmalloc().
 
 When you GASNet-attach and ask for segment information, each PE has
 access to an array of segments, 1 segment per PE.  Each PE initializes
-a TLSF pool within its own segment.
+a memory pool within its own segment.
 
 If the platform allows it, GASNet can align all the segments at the
 same address, which means that all PEs see the same address for
@@ -69,12 +69,13 @@ the former case (GASNet provides a macro you can test against).
 
 Symmetric Memory:
 
-Currently using the TLSF library.  An issue with occasional segfaults
-when you shfree() has been fixed, as far as I can tell: aligned
-shmalloc() requests as "long" so we don't get ostensibly void*
-allocations at weird locations.
+Using the dlmalloc library:
 
-Can investigate dlmalloc() too, source included in src/dlmalloc/.
+  http://gee.cs.oswego.edu/dl/html/malloc.html
+
+Seems to have fixed up all the bizarre problems I was seeing with the
+TLSF library (used in the SiCortex implementation.  Probably works
+nicer with the MIPS architecture and the SiCortex environment).
 
 -------------------------------------------------------------------------
 
@@ -110,3 +111,10 @@ src/shmem.h (and .fh) are the public APIs and installed into the
 target include directory.  Currently written by hand, should probably
 be generated from per-module headers, e.g. by marking API symbols as
 "public" or similar.
+
+-------------------------------------------------------------------------
+
+Swaps:
+
+This is done very stupidly for now as a placeholder.  Need to look
+into Active Messages and HSLs in gasnet.

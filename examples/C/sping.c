@@ -80,7 +80,7 @@ void printStats (int proc, int peer, int doprint, int now, double t)
 	   proc, peer, now, t, sizeof(long)*now/(t));
 }
 
-volatile int zog = 1;
+volatile int tony = 1;
 
 int main (int argc, char *argv[])
 {
@@ -146,16 +146,13 @@ int main (int argc, char *argv[])
   else if ((incWords = getSize (argv[optind++])) < 0)
     usage (progName);
 
-#if 0
   if (!(rbuf = (long *)shmalloc(maxWords * sizeof(long))))
     {
       perror ("Failed memory allocation");
       exit (1);
     }
-#endif
-  rbuf = (long *)shmalloc(maxWords * sizeof(long));
-  shmem_barrier_all();
   memset (rbuf, 0, maxWords * sizeof (long)); 
+  shmem_barrier_all();
 
   if (!(tbuf = (long *)malloc(maxWords * sizeof(long))))
     {
@@ -221,11 +218,8 @@ int main (int argc, char *argv[])
 
   shmem_barrier_all();
 
-  while (zog == 0);
-
+  free(tbuf);
   shfree(rbuf);
-
-  shmem_barrier_all();
 
   return 0;
 }

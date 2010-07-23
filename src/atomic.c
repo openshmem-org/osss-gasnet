@@ -67,10 +67,8 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
     else {								\
       Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
       shmem_##Name##_get(oldtarget, target, 1, pe);			\
-      shmem_barrier_all();						\
-      shmem_##Name##_put(target, &value, 1, pe);			\
-      shmem_barrier_all();						\
       retval = *oldtarget;						\
+      shmem_##Name##_put(target, &value, 1, pe);			\
       shfree(oldtarget);						\
       return retval;							\
     }									\

@@ -6,6 +6,7 @@ TESTS = hello.c multi-init.c \
 		testwait.c \
 		bcast1.c bcast2.c \
 		fcollect.c \
+		dip.c fip.c iip.c lip.c \
 		sping.c
 
 EXES = $(TESTS:.c=.x)
@@ -17,7 +18,7 @@ all default:	$(EXES)
 .SUFFIXES: .x
 
 %.x:	%.c
-	$(SHMEM_CC) -o $@ $^
+	$(SHMEM_CC) -g -o $@ $^
 
 clean:
 	rm -f $(EXES)

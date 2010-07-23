@@ -3,12 +3,15 @@
 int
 main(void)
 {
-  long *one, *two;
+  void *one;
+  long *two;
 
   shmem_init();
 
-  one = (long *) shmalloc( 8 * sizeof(*one) );
-  two = (long *) shmalloc( 23000000 * sizeof(*two) );
+  one = shmalloc( 23 * 8 );
+  shmem_barrier_all();
+  two = (long *) shmalloc( 23 * sizeof(*two) );
+  shmem_barrier_all();
 
   shfree(one);
   shfree(two);

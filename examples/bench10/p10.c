@@ -457,9 +457,8 @@ assert(step != (unsigned long *)NULL);
      long *flag; // TONY: needs to be shmalloced for gatech code
 
      flag = (long *)shmalloc(sizeof(*flag));
+    barrier();
      assert(flag != (long *)NULL);
-
-fprintf(stderr, "HERE\n");
 
      *flag = 0;
      
@@ -470,6 +469,8 @@ fprintf(stderr, "HERE\n");
 
      shmem_wait(flag, 0);
  
+fprintf(stderr, "HERE\n");
+
      shmem_get64(step, totalSolutions, 1, 0);
 
      *totalSolutions = *step + SOLUT;
@@ -477,10 +478,10 @@ fprintf(stderr, "HERE\n");
      shmem_put64(totalSolutions, totalSolutions, 1, 0);
      
      if(proc_id+1 < WIDTH) {
-       // TONY: should be just a swap: but we know the remote value, can "fake" it
        shmem_long_swap(flag, 1, proc_id+1);
      }
 
+     barrier();
      shfree(flag);
    }
    
