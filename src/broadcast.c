@@ -13,10 +13,10 @@
 			      int PE_root, int PE_start, int logPE_stride, int PE_size, \
 			      long *pSync)				\
   {									\
-    int i;								\
     const int step = 1 << logPE_stride;					\
     const int root = PE_root + PE_start;				\
     if (root == __state.mype) {						\
+      int i;								\
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\
 	if (this_pe != root) {						\
@@ -34,7 +34,6 @@ SHMEM_BROADCAST_TYPE(64, long)
 long *
 shmem_sync_init(void)
 {
-  int i;
   long *sync;
   size_t sync_size = _SHMEM_BCAST_SYNC_SIZE * sizeof(*sync);
 

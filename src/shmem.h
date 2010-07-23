@@ -83,6 +83,7 @@ extern void   shmem_barrier_all(void);
 #define SHMEM_MALLOC_FAIL                 (1L)
 #define SHMEM_MALLOC_ALREADY_FREE         (2L)
 #define SHMEM_MALLOC_MEMALIGN_FAILED      (3L)
+#define SHMEM_MALLOC_REALLOC_FAILED       (4L)
 
 extern long   malloc_error;
 

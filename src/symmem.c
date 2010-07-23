@@ -125,7 +125,15 @@ shrealloc(void *addr, size_t size)
 
   newaddr = mspace_realloc(myspace, addr, size);
 
-  malloc_error = SHMEM_MALLOC_OK;
+  if (newaddr == (void *)NULL) {
+    __shmem_warn(SHMEM_LOG_NOTICE,
+		 "shrealloc() couldn't reallocate %ld bytes @ %p",
+		 size, addr);
+    malloc_error = SHMEM_MALLOC_REALLOC_FAILED;
+  }
+  else {
+    malloc_error = SHMEM_MALLOC_OK;
+  }
 
   return newaddr;
 }
