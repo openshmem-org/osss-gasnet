@@ -1,13 +1,10 @@
+#include <stdio.h>
 #include <assert.h>
 #include <sys/types.h>
 
-#include "gasnet_safe.h"
-
-
 #include "state.h"
-#include "barrier.h"
+#include "comms.h"
 #include "warn.h"
-
 #include "shmem.h"
 
 #include "dlmalloc.h"
@@ -16,59 +13,7 @@
  * Tony's development interface
  */
 
-static gasnet_seginfo_t* seginfo_table;
-
-static mspace myspace;
-
-/* UNUSED */
-#define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
-
-void
-__symmetric_memory_init(void)
-{
-  seginfo_table = (gasnet_seginfo_t *)calloc(__state.numpes,
-                                             sizeof(gasnet_seginfo_t));
-  assert(seginfo_table != (gasnet_seginfo_t *)NULL);
-
-  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
-
-  /*
-   * each PE initializes its own table, but can see addresses of all PEs
-   */
-
-  myspace = create_mspace_with_base(seginfo_table[__state.mype].addr,
-				    seginfo_table[__state.mype].size,
-				    1);
-
-  __gasnet_barrier_all();
-}
-
-void
-__symmetric_memory_finalize(void)
-{
-  destroy_mspace(myspace);
-}
-
-/*
- * where the symmetric memory starts on the given PE
- */
-__inline__
-void *
-__symmetric_var_base(int pe)
-{
-  return seginfo_table[pe].addr;
-}
-
-/*
- * is the address in the managed symmetric area?
- */
-__inline__
-int
-__symmetric_var_in_range(void *addr, int pe)
-{
-  void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
-  return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
-}
+mspace myspace;
 
 /*
  * PUBLIC INTERFACE

@@ -1,11 +1,8 @@
 #ifndef _SYMMEM_H
 #define _SYMMEM_H 1
 
-#include <sys/types.h>
+#include "dlmalloc.h"
 
-extern void   __symmetric_memory_init(void);
-extern void   __symmetric_memory_finalize(void);
-extern void * __symmetric_var_base(int pe);
-extern int    __symmetric_var_in_range(void *addr, int pe);
+extern mspace myspace;
 
-#endif /* _SYMMEM_H */
+#endif /* _SYMMEM_H*/

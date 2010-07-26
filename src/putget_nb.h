@@ -1,9 +1,7 @@
 #ifndef _PUTGET_NB_H
 #define _PUTGET_NB_H 1
 
-#include "gasnet_safe.h"
-
-typedef gasnet_handle_t shmem_handle_t;
+#include "comms.h"
 
 extern void __shmem_short_put_nb(short *target, short *source,
 				 size_t len, int pe,

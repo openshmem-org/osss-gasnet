@@ -1,3 +1,5 @@
+#include "gasnet.h"
+
 #include "putget_nb.h"
 
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\

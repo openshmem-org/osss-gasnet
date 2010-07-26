@@ -1,15 +1,22 @@
 PREFIX          = $(HOME)/SHMEM
 
+# ---------------------------------------------------------
+
 DLMALLOC_DIR    = ./dlmalloc
 DLMALLOC_CFLAGS = -I$(DLMALLOC_DIR)
 DLMALLOC_OBJECT = $(DLMALLOC_DIR)/dlmalloc.o
 
 MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
 
+# ---------------------------------------------------------
+
 GASNET          = $(HOME)/local
 
 include $(GASNET)/include/mpi-conduit/mpi-par.mak 
 
+# ---------------------------------------------------------
+
+CC              = gcc
 CPPFLAGS       += -I../include
 # CPPFLAGS       += -DSHMEM_COLLECT_STATS
 CPPFLAGS       += -MMD
@@ -57,10 +64,30 @@ $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 # eventually, we'll migrate gasnet dependencies to a
 # separate transport directory
 #
-.c.o:
+comms.o:	comms.c
 	$(GASNET_CC) \
 		$(CPPFLAGS) $(CFLAGS) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+		$(DLMALLOC_CFLAGS) \
+		$(DEBUG_OR_OPT) -c -o $@ $<
+
+putget.o:	putget.c
+	$(GASNET_CC) \
+		$(CPPFLAGS) $(CFLAGS) \
+		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+		$(DLMALLOC_CFLAGS) \
+		$(DEBUG_OR_OPT) -c -o $@ $<
+
+putget_nb.o:	putget_nb.c
+	$(GASNET_CC) \
+		$(CPPFLAGS) $(CFLAGS) \
+		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+		$(DLMALLOC_CFLAGS) \
+		$(DEBUG_OR_OPT) -c -o $@ $<
+
+.c.o:
+	$(CC) \
+		$(CPPFLAGS) $(CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(DEBUG_OR_OPT) -c -o $@ $<
 

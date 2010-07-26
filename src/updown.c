@@ -4,11 +4,8 @@
 #include <string.h>              /* strdup()                       */
 #include <sys/types.h>           /* size_t                         */
 
-#include "gasnet_safe.h"         /* call wrapper w/ err handler    */
-
+#include "comms.h"
 #include "state.h"
-#include "barrier.h"
-#include "symmem.h"
 #include "stats.h"
 #include "warn.h"
 #include "atomic.h"
@@ -19,14 +16,8 @@
 void
 __shmem_exit(int status)
 {
-  /*
-   * apparently we're supposed to barrier gasnet
-   * before calling exit
-   */
-  __gasnet_barrier_all();
 
   __shmem_atomic_finalize();
-
   __symmetric_memory_finalize();
 
   SHMEM_STATS_REPORT();
@@ -38,7 +29,7 @@ __shmem_exit(int status)
    * strictly speaking should free alloc'ed things,
    * but exit is immediately next, so everything gets reaped anyway...
    */
-  gasnet_exit(status);
+  __comms_shutdown(status);
 }
 
 static void
@@ -87,12 +78,10 @@ shmem_init(void)
     return;
   }
 
-  /*
-   * TODO: abstract away from gasnet with intermediate layer
-   */
-  __shmem_gasnet_init();
-  __state.mype = gasnet_mynode();
-  __state.numpes = gasnet_nodes();
+  __comms_init();
+  __state.mype = __comms_mynode();
+  __state.numpes = __comms_nodes();
+
   __shmem_hostnode_init();
   __symmetric_memory_init();
   __shmem_atomic_init();

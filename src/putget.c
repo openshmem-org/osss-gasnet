@@ -1,11 +1,12 @@
 #include <stdio.h>               /* NULL                           */
-#include <stdlib.h>              /* memcpy()                       */
+#include <string.h>              /* memcpy()                       */
 #include <sys/types.h>           /* size_t                         */
 
 #include "gasnet_safe.h"         /* call wrapper w/ err handler    */
 
 #include "state.h"
 #include "symmem.h"
+#include "comms.h"
 #include "stats.h"
 #include "updown.h"
 #include "warn.h"

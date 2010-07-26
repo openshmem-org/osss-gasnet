@@ -1,4 +1,4 @@
-#include "symmem.h"
+#include "comms.h"
 
 /*
  * assume yes, for now

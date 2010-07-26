@@ -1,9 +1,8 @@
 #include <stdio.h>
 
-#include "gasnet_safe.h"
-
 #include "shmem.h"
 #include "state.h"
+#include "comms.h"
 
 /*
  * this waits for the variable to change but also dispatches
@@ -12,7 +11,7 @@
 
 #define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op)		\
   do {							\
-    gasnet_AMPoll();					\
+    __comms_poll();					\
   } while ( *((volatile Type *) Var) Op cmp_value)
 
 /*
@@ -23,7 +22,6 @@
   void									\
   shmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
-    GASNET_BEGIN_FUNCTION();						\
     if (cmp == SHMEM_CMP_EQ) {						\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==);				\
     }									\
