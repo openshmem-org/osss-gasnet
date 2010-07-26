@@ -82,7 +82,7 @@ shmem_init(void)
   if (__state.initialized > 1) {
     __shmem_warn(SHMEM_LOG_NOTICE,
                  "shmem has already been initialized (occasion %d)",
-                 __state.initialized - 1
+                 __state.initialized
                 );
     return;
   }
@@ -108,7 +108,7 @@ shmem_init(void)
 /*
  * same as shmem_init()
  */
-void
+__inline__ void
 start_pes(int npes)
 {
     shmem_init();

@@ -1,31 +1,31 @@
-PREFIX = $(HOME)/SHMEM
+PREFIX          = $(HOME)/SHMEM
 
-DLMALLOC_DIR = ./dlmalloc
+DLMALLOC_DIR    = ./dlmalloc
 DLMALLOC_CFLAGS = -I$(DLMALLOC_DIR)
 DLMALLOC_OBJECT = $(DLMALLOC_DIR)/dlmalloc.o
 
-MALLOC_OBJECT = $(DLMALLOC_OBJECT)
+MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
 
-GASNET = $(HOME)/local
+GASNET          = $(HOME)/local
 
 include $(GASNET)/include/mpi-conduit/mpi-par.mak 
 
-CPPFLAGS += -I../include
-# CPPFLAGS += -DSHMEM_COLLECT_STATS
-CPPFLAGS += -MMD
+CPPFLAGS       += -I../include
+# CPPFLAGS       += -DSHMEM_COLLECT_STATS
+CPPFLAGS       += -MMD
 
-CFLAGS += -fPIC
+CFLAGS         += -fPIC
 
-DEBUG_OR_OPT = -g
+DEBUG_AND_OPT   = -g -O3
 
-SHMEM_SOURCES  = $(wildcard *.c)
-SHMEM_OBJECTS  = $(SHMEM_SOURCES:.c=.o)
-SHMEM_DEPFILES = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY  = libshmem.so
-SHMEM_HEADERS  = shmem.h shmem.fh
-SHMEM_CC       = oshcc
-SHMEM_FC       = oshfort
-SHMEM_RUN      = oshrun
+SHMEM_SOURCES   = $(wildcard *.c)
+SHMEM_OBJECTS   = $(SHMEM_SOURCES:.c=.o)
+SHMEM_DEPFILES  = $(SHMEM_SOURCES:.c=.d)
+SHMEM_LIBRARY   = libshmem.so
+SHMEM_HEADERS   = shmem.h shmem.fh
+SHMEM_CC        = oshcc
+SHMEM_FC        = oshfort
+SHMEM_RUN       = oshrun
 
 # ---------------------------------------------------------
 
