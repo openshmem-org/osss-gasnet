@@ -16,6 +16,8 @@ SHMEM_TYPE_PUT_NB(longlong, long long)
 SHMEM_TYPE_PUT_NB(double, double)
 SHMEM_TYPE_PUT_NB(float, float)
 
+_Pragma("weak __shmem_putmem_nb=__shmem_long_put_nb")
+
 __inline__ void
 __shmem_wait_nb(shmem_handle_t h)
 {

@@ -14,6 +14,9 @@ extern void __shmem_int_put_nb(int *target, int *source,
 extern void __shmem_long_put_nb(long *target, long *source,
 				size_t len, int pe,
 				shmem_handle_t *h);
+extern void __shmem_putmem_nb(long *target, long *source,
+			      size_t len, int pe,
+			      shmem_handle_t *h);
 extern void __shmem_longdouble_put_nb(long double *target,
 				      long double *source,
 				      size_t len, int pe,
