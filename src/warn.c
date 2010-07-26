@@ -1,5 +1,3 @@
-/* TODO: pretty messy code, assume no overflow etc */
-
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
@@ -8,8 +6,7 @@
 
 #include "state.h"
 #include "warn.h"
-
-static int n_warnings_enabled = 0;
+#include "updown.h"
 
 typedef struct {
   const int level;
@@ -17,16 +14,16 @@ typedef struct {
   int on;
 } __warn_table_t;
 
-#define INIT_LEVEL(L) { SHMEM_LOG_##L , #L , 0 }
+#define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
 static
 __warn_table_t warnings[] =
   {
-    INIT_LEVEL(DEBUG),
-    INIT_LEVEL(INFO),
-    INIT_LEVEL(NOTICE),
-    INIT_LEVEL(AUTH),
-    INIT_LEVEL(FATAL)
+    INIT_LEVEL(FATAL,  1),
+    INIT_LEVEL(DEBUG,  0),
+    INIT_LEVEL(INFO,   0),
+    INIT_LEVEL(NOTICE, 0),
+    INIT_LEVEL(AUTH,   0)
   };
 static const int n_warnings = sizeof(warnings) / sizeof(__warn_table_t);
 
@@ -89,20 +86,17 @@ __shmem_warnings_init(void)
 
     while (opt != (char *)NULL) {
       __warn_enable(opt);
-      n_warnings_enabled += 1;
       opt = strtok((char *)NULL, delims);
     }
   }
 }
 
-#define BUF_SIZE 1024
+/* big enough?  I reckon so, we're not writing a novel... */
+#define BUF_SIZE 256
 
 void
 __shmem_warn(int msg_type, char *fmt, ...)
 {
-  if (n_warnings_enabled == 0) {
-    return;
-  }
   if (! __is_warn_enabled(msg_type)) {
     return;
   }
@@ -113,18 +107,22 @@ __shmem_warn(int msg_type, char *fmt, ...)
     char tmp2[BUF_SIZE];
     va_list ap;
   
-    strcpy(tmp1, prefix_fmt);
+    strncpy(tmp1, prefix_fmt, BUF_SIZE);
   
-    sprintf(tmp2, tmp1, __state.mype, __level_to_string(msg_type));
+    snprintf(tmp2, BUF_SIZE, tmp1, __state.mype, __level_to_string(msg_type));
   
     va_start(ap, fmt);
     vsnprintf (tmp1, BUF_SIZE, fmt, ap);
     va_end(ap);
   
-    strcat(tmp2, tmp1);
-    strcat(tmp2, "\n");
+    strncat(tmp2, tmp1, BUF_SIZE);
+    strncat(tmp2, "\n", BUF_SIZE);
   
     fputs(tmp2, stderr);
     fflush(stderr);		/* make sure this all goes out in 1 burst */
+  }
+
+  if (msg_type == SHMEM_LOG_FATAL) {
+    __shmem_exit(1);
   }
 }

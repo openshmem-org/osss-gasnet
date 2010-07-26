@@ -39,7 +39,6 @@
 		     pe,						\
 		     rdest						\
 		     );							\
-	__shmem_exit(1);						\
       }									\
       gasnet_put(pe, rdest, (Type *)src, typed_len);			\
     }									\
@@ -76,7 +75,6 @@ _Pragma("weak shmem_put=shmem_long_put")
 		     pe,						\
 		     their_src						\
 		     );							\
-	__shmem_exit(1);						\
       }									\
       gasnet_get(dest, pe, their_src, typed_len);			\
     }									\
@@ -128,7 +126,6 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
 		     pe,						\
 		     rdest						\
 		     );							\
-	__shmem_exit(1);						\
       }									\
       gasnet_put_val(pe, rdest, value, typed_len);			\
     }									\
@@ -170,7 +167,6 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
 		     pe,						\
 		     their_src						\
 		     );							\
-	__shmem_exit(1);						\
       }									\
       retval = (Type) gasnet_get_val(pe, their_src, typed_len);		\
     }									\

@@ -3,6 +3,7 @@
 #include "shmem.h"
 #include "state.h"
 #include "comms.h"
+#include "warn.h"
 
 /*
  * this waits for the variable to change but also dispatches
@@ -41,7 +42,11 @@
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=);				\
     }									\
     else {								\
-      ;  /* error handler goes here */					\
+      __shmem_warn(SHMEM_LOG_FATAL,					\
+		   "unknown operator (code %d) in shmem_%s_wait_until()", \
+		   cmp,							\
+		   #Name						\
+		   );							\
     }									\
   }
 
@@ -56,7 +61,7 @@ _Pragma("weak shmem_wait_until=shmem_long_wait_until")
  * wait is just wait_until with equality test
  */
 #define SHMEM_TYPE_WAIT(Name, Type)				\
-  void								\
+  __inline__ void						\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)		\
   {								\
     shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);	\
