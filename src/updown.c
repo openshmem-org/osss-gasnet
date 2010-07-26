@@ -113,11 +113,3 @@ start_pes(int npes)
 {
     shmem_init();
 }
-
-void
-start_pes_(int *npes)                  /* fortran */
-{
-  shmem_init();
-}
-
-_Pragma("weak shmem_init_=shmem_init") /* fortran */
