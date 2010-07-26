@@ -25,6 +25,8 @@ CFLAGS         += -fPIC
 
 DEBUG_AND_OPT   = -g -O3
 
+COMMON_FLAGS    = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
+
 SHMEM_SOURCES   = $(wildcard *.c)
 SHMEM_OBJECTS   = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES  = $(SHMEM_SOURCES:.c=.d)
@@ -37,7 +39,6 @@ SHMEM_RUN       = oshrun
 # ---------------------------------------------------------
 
 .PHONY: c-wrapper f-wrapper wrappers
-.PHONY: dlmalloc
 .PHONY: tidy clean
 .PHONY: do-deps
 
@@ -52,8 +53,6 @@ install:	all
 	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
 	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
-dlmalloc:	$(DLMALLOC_OBJECT)
-
 $(DLMALLOC_OBJECT):
 	$(MAKE) -C $(DLMALLOC_DIR)
 
@@ -61,35 +60,35 @@ $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
 
 #
+# -- GASNET ------------------------------------------------
 # eventually, we'll migrate gasnet dependencies to a
 # separate transport directory
 #
+
 comms.o:	comms.c
 	$(GASNET_CC) \
-		$(CPPFLAGS) $(CFLAGS) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
-		$(DEBUG_OR_OPT) -c -o $@ $<
+		$(COMMON_FLAGS) -c -o $@ $<
 
 putget.o:	putget.c
 	$(GASNET_CC) \
-		$(CPPFLAGS) $(CFLAGS) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
-		$(DEBUG_OR_OPT) -c -o $@ $<
+		$(COMMON_FLAGS) -c -o $@ $<
 
 putget_nb.o:	putget_nb.c
 	$(GASNET_CC) \
-		$(CPPFLAGS) $(CFLAGS) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
-		$(DLMALLOC_CFLAGS) \
-		$(DEBUG_OR_OPT) -c -o $@ $<
+		$(COMMON_FLAGS) -c -o $@ $<
 
-.c.o:
-	$(CC) \
-		$(CPPFLAGS) $(CFLAGS) \
-		$(DLMALLOC_CFLAGS) \
-		$(DEBUG_OR_OPT) -c -o $@ $<
+# -- GASNET ------------------------------------------------
+
+symmem.o:	symmem.c
+	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
+
+%.o:	%.c
+	$(CC) $(COMMON_FLAGS) -c -o $@ $<
 
 wrappers:	c-wrapper f-wrapper
 
