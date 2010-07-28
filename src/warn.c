@@ -22,10 +22,10 @@ __warn_table_t warnings[] =
     INIT_LEVEL(FATAL,  1),
     INIT_LEVEL(DEBUG,  0),
     INIT_LEVEL(INFO,   0),
-    INIT_LEVEL(NOTICE, 0),
-    INIT_LEVEL(AUTH,   0)
+    INIT_LEVEL(AUTH,   0),
+    INIT_LEVEL(NOTICE, 0)
   };
-static const int n_warnings = sizeof(warnings) / sizeof(__warn_table_t);
+static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
 
 static void
 __warn_enable(char *w)

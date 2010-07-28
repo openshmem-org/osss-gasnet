@@ -33,8 +33,8 @@ ac_cv_build=${ac_cv_build=x86_64-unknown-linux-gnu}
 ac_cv_build_alias=${ac_cv_build_alias=x86_64-unknown-linux-gnu}
 ac_cv_c_compiler_gnu=${ac_cv_c_compiler_gnu=yes}
 ac_cv_cxx_compiler_gnu=${ac_cv_cxx_compiler_gnu=yes}
-ac_cv_env_CC_set=
-ac_cv_env_CC_value=
+ac_cv_env_CC_set=set
+ac_cv_env_CC_value=gcc
 ac_cv_env_CFLAGS_set=
 ac_cv_env_CFLAGS_value=
 ac_cv_env_CPPFLAGS_set=
@@ -45,8 +45,8 @@ ac_cv_env_CXXCPP_set=
 ac_cv_env_CXXCPP_value=
 ac_cv_env_CXXFLAGS_set=
 ac_cv_env_CXXFLAGS_value=
-ac_cv_env_CXX_set=
-ac_cv_env_CXX_value=
+ac_cv_env_CXX_set=set
+ac_cv_env_CXX_value=g++
 ac_cv_env_LDFLAGS_set=
 ac_cv_env_LDFLAGS_value=
 ac_cv_env_build_alias_set=
@@ -116,7 +116,6 @@ ac_cv_path_GDB_PATH=${ac_cv_path_GDB_PATH=/usr/bin/gdb}
 ac_cv_path_GMAKE=${ac_cv_path_GMAKE=/usr/bin/gmake}
 ac_cv_path_NM=${ac_cv_path_NM=/usr/bin/nm}
 ac_cv_path_PERL=${ac_cv_path_PERL=/usr/bin/perl}
-ac_cv_path_PGDBG_PATH=${ac_cv_path_PGDBG_PATH=/opt/pgi/10.0/linux86-64/10.0/bin/pgdbg}
 ac_cv_path_PWD_PROG=${ac_cv_path_PWD_PROG=/bin/pwd}
 ac_cv_path_RANLIB=${ac_cv_path_RANLIB=/usr/bin/ranlib}
 ac_cv_path_READLINK=${ac_cv_path_READLINK=/usr/bin/readlink}
@@ -132,7 +131,6 @@ ac_cv_prog_AWK=${ac_cv_prog_AWK=gawk}
 ac_cv_prog_CPP=${ac_cv_prog_CPP='gcc -E'}
 ac_cv_prog_CXXCPP=${ac_cv_prog_CXXCPP='g++ -E'}
 ac_cv_prog_ac_ct_CC=${ac_cv_prog_ac_ct_CC=gcc}
-ac_cv_prog_ac_ct_CXX=${ac_cv_prog_ac_ct_CXX=g++}
 ac_cv_prog_cc_cross=${ac_cv_prog_cc_cross=no}
 ac_cv_prog_cc_g=${ac_cv_prog_cc_g=yes}
 ac_cv_prog_cc_stdc=${ac_cv_prog_cc_stdc=}

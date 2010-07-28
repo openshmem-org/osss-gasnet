@@ -14,8 +14,8 @@
 #endif
 
 
-#define GASNETI_BUILD_ID "Wed Jul 21 21:18:29 CDT 2010 tonyc"
-#define GASNETI_CONFIGURE_ARGS "'--prefix=/home/tonyc/local' '--enable-segment-large' '--disable-aligned-segments'"
+#define GASNETI_BUILD_ID "Tue Jul 27 15:33:17 CDT 2010 tonyc"
+#define GASNETI_CONFIGURE_ARGS "'--enable-segment-large' '--disable-aligned-segments' '--prefix=/home/tonyc/local' 'CC=gcc' 'CXX=g++'"
 #define GASNETI_SYSTEM_TUPLE "x86_64-unknown-linux-gnu"
 #define GASNETI_SYSTEM_NAME "coil.cs.uh.edu"
 /* #undef GASNETI_CROSS_COMPILING */
@@ -172,7 +172,7 @@
 /* #undef HAVE_PRINTSTACK */
 #define ADDR2LINE_PATH "/usr/bin/addr2line"
 #define GDB_PATH "/usr/bin/gdb"
-#define PGDBG_PATH "/opt/pgi/10.0/linux86-64/10.0/bin/pgdbg"
+/* #undef PGDBG_PATH */
 /* #undef IDB_PATH */
 /* #undef LADEBUG_PATH */
 /* #undef DBX_PATH */
