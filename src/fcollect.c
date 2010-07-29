@@ -6,6 +6,11 @@
 
 #include "shmem.h"
 
+/*
+ * should be using pSync for point-to-point sync, barrier here would be wrong
+ * (but sort of works for some initial testing :-)
+ */
+
 #define SHMEM_FCOLLECT_TYPE(Size, Type)				\
   void shmem_fcollect##Size (void *target, const void *source, size_t nlong, \
 			      int PE_start, int logPE_stride, int PE_size, \
@@ -22,7 +27,6 @@
 	walk += typed_len;						\
 	this_pe += step;						\
       }									\
-      shmem_barrier_all();						\
     }									\
     shmem_broadcast##Size (target, target, nlong * PE_size, 0, PE_start, logPE_stride, PE_size, pSync); \
   }
