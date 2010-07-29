@@ -4,6 +4,8 @@
 
 #include "state.h"
 #include "symmem.h"
+#include "warn.h"
+#include "dispatch.h"
 
 /*
  * use the global anonymous barrier for _all.
@@ -12,12 +14,17 @@
  * for the subset-barrier
  */
 
+static int barcount = 0;
+static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
+
 void
 __comms_barrier_all(void)
 {
   GASNET_BEGIN_FUNCTION();
-  gasnet_barrier_notify(0,GASNET_BARRIERFLAG_ANONYMOUS);
-  gasnet_barrier_wait(0,GASNET_BARRIERFLAG_ANONYMOUS);
+  gasnet_barrier_notify(barcount, barflag);
+  GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
+
+  barcount += 1;
 }
 
 void
@@ -47,13 +54,11 @@ __comms_init(void)
   nhandlers = 0;
   GASNET_SAFE( gasnet_attach(handlers, nhandlers, mss, 0) );
 
-  __comms_barrier_all();
-
   /*
    * GASNET_WAIT_SPIN | GASNET_WAIT_BLOCK | GASNET_WAIT_SPINBLOCK
    */
-   GASNET_SAFE( gasnet_set_waitmode(GASNET_WAIT_SPINBLOCK) );
-
+  GASNET_SAFE( gasnet_set_waitmode(GASNET_WAIT_SPINBLOCK) );
+   
   __comms_barrier_all();
 }
 

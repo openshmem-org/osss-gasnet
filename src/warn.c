@@ -16,6 +16,8 @@ typedef struct {
 
 #define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
+static const char *shmem_loglevels_envvar = "SHMEM_LOGLEVELS";
+
 static
 __warn_table_t warnings[] =
   {
@@ -75,7 +77,7 @@ __level_to_string(int level)
 void
 __shmem_warnings_init(void)
 {
-  char *shll = getenv("SHMEM_LOGLEVELS");
+  char *shll = getenv(shmem_loglevels_envvar);
   if (shll == (char *)NULL) {
     return;
   }

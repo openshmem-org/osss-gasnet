@@ -1,27 +1,29 @@
 #include "shmem.h"
 
-void
-shmem_init_(void)
+#define FORTRANIFY(sym)    sym##_
+
+__inline__ void
+FORTRANIFY(shmem_init)(void)
 {
   shmem_init();
 }
 
-void
-start_pes_(int *npes)
+__inline__ void
+FORTRANIFY(start_pes)(int *npes)
 {
   shmem_init();
 }
 
 #define SHMEM_FORTRAN_PUT(Name, CType)					\
   __inline__ void							\
-  shmem_##Name##_put_(CType *target, const CType *src, size_t *size, int *pe) \
+  FORTRANIFY(shmem_##Name##_put)(CType *target, const CType *src, size_t *size, int *pe) \
   {									\
     shmem_##CType##_put(target, src, *size, *pe);			\
   }
 
 #define SHMEM_FORTRAN_PUT_SIZE(Size, Name, CType)			\
   __inline__ void							\
-  shmem_put##Size##_ (CType *target, const CType *src, size_t *size, int *pe) \
+  FORTRANIFY(shmem_put##Size) (CType *target, const CType *src, size_t *size, int *pe) \
   {									\
     shmem_##Name##_put(target, src, *size, *pe);			\
   }
@@ -39,7 +41,7 @@ SHMEM_FORTRAN_PUT_SIZE(64,   long, long)
 SHMEM_FORTRAN_PUT_SIZE(128,  longlong, void)
 
 __inline__ void
-shmem_put_(long *target, const long *src, size_t *size, int *pe)
+FORTRANIFY(shmem_put)(long *target, const long *src, size_t *size, int *pe)
 {
   shmem_put(target, src, *size, *pe);
 }
