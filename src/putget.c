@@ -21,6 +21,13 @@
  * TODO: provide address translation routine (note repeated offset code below)
  */
 
+#if 0
+
+      size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
+      void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
+
+#endif
+
 #define SHMEM_TYPE_PUT(Name, Type)					\
   void									\
   shmem_##Name##_put(Type *dest, const Type *src, size_t len, int pe)	\
@@ -30,8 +37,7 @@
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
-      void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
+      void *rdest = __symmetric_var_offset(dest, pe);			\
       if (! __symmetric_var_in_range(rdest, pe)) {			\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_put() to PE %d, address %p not symmetric", \
@@ -66,8 +72,7 @@ _Pragma("weak shmem_put=shmem_long_put")
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      size_t offset = (Type *)src - (Type *)__symmetric_var_base(__state.mype); \
-      void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
+      void *their_src = __symmetric_var_offset((Type *) src, pe);	\
       if (! __symmetric_var_in_range(their_src, pe)) {			\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
 		     "during shmem_%s_get() from PE %d, address %p not symmetric", \

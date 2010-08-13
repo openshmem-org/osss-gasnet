@@ -116,8 +116,7 @@ __symmetric_memory_finalize(void)
 /*
  * where the symmetric memory starts on the given PE
  */
-__inline__
-void *
+__inline__ void *
 __symmetric_var_base(int pe)
 {
   return seginfo_table[pe].addr;
@@ -126,13 +125,24 @@ __symmetric_var_base(int pe)
 /*
  * is the address in the managed symmetric area?
  */
-__inline__
-int
+__inline__ int
 __symmetric_var_in_range(void *addr, int pe)
 {
   void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
   return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
 }
+
+/*
+ * translate my "dest" to corresponding address on PE "pe"
+ */
+__inline__ void *
+__symmetric_var_offset(void *dest, int pe)
+{
+  size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
+  char *rdest = (char *)__symmetric_var_base(pe) + offset;
+  return (void *)rdest;
+}
+
 
 __inline__ void
 __comms_poll(void)

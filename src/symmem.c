@@ -84,8 +84,6 @@ shrealloc(void *addr, size_t size)
 }
 
 /*
- * TODO: shmemalign, this is probably wrong
- *
  * The shmemalign function allocates a block in the symmetric heap that
  * has a byte alignment specified by the alignment argument.
  */

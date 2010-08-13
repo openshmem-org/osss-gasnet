@@ -11,6 +11,6 @@ program whoami
   me = my_pe()
   call hostnm(h)
 
-  write (*,*) h, ': I am ', me, ' of ', npes
+  print *, h, 'I am ', me, ' of ', npes
 
 end program whoami

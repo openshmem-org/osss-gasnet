@@ -50,7 +50,6 @@ main(void)
 
   if (me == 1) {
     shmem_long_wait(dest, 9L);
-  shmem_barrier_all();
     fprintf(stderr, "PE %d finished wait, got %d\n", me, *dest);
   }
 

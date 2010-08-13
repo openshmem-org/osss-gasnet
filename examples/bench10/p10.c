@@ -457,10 +457,10 @@ assert(step != (unsigned long *)NULL);
      long *flag; // TONY: needs to be shmalloced for gatech code
 
      flag = (long *)shmalloc(sizeof(*flag));
-    barrier();
      assert(flag != (long *)NULL);
 
      *flag = 0;
+    barrier();
      
      if(proc_id == 0)
        *flag = 1;
@@ -469,13 +469,11 @@ assert(step != (unsigned long *)NULL);
 
      shmem_wait(flag, 0);
  
-fprintf(stderr, "HERE\n");
-
-     shmem_get64(step, totalSolutions, 1, 0);
+     shmem_long_get(step, totalSolutions, 1, 0);
 
      *totalSolutions = *step + SOLUT;
 
-     shmem_put64(totalSolutions, totalSolutions, 1, 0);
+     shmem_long_put(totalSolutions, totalSolutions, 1, 0);
      
      if(proc_id+1 < WIDTH) {
        shmem_long_swap(flag, 1, proc_id+1);
@@ -489,7 +487,7 @@ fprintf(stderr, "HERE\n");
 
    /* Copy all of my solutions onto the Master's solution array */
    if(proc_id > 0) {
-     shmem_put64(TSOLS + *step, TSOLS, SOLUT, 0);
+     shmem_long_put(TSOLS + *step, TSOLS, SOLUT, 0);
 fprintf(stderr, "APP(%d): step = %ld\n", proc_id, *step);
    }
 
