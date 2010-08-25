@@ -44,7 +44,7 @@ __barrier_dispatch_init()
 {
   char *ba = getenv(shmem_barrier_algorithm_envvar);
 
-  if (ba == (char *)NULL) {
+  if (ba == (char *) NULL) {
     ba = shmem_default_barrier_algorithm;
   }
 

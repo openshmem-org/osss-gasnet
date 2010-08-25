@@ -28,7 +28,7 @@ shmalloc(size_t size)
 
   addr = mspace_malloc(myspace, size);
 
-  if (addr == (void *)NULL) {
+  if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE, "shmalloc(%ld) failed", size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
@@ -42,7 +42,7 @@ shmalloc(size_t size)
 void
 shfree(void *addr)
 {
-  if (addr == (void *)NULL) {
+  if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
 		 "address passed to shfree() already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
@@ -61,16 +61,16 @@ shrealloc(void *addr, size_t size)
 {
   void *newaddr;
 
-  if (addr == (void *)NULL) {
+  if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
 		 "address passed to shrealloc() already null");
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
-    return (void *)NULL;
+    return (void *) NULL;
   }
 
   newaddr = mspace_realloc(myspace, addr, size);
 
-  if (newaddr == (void *)NULL) {
+  if (newaddr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
 		 "shrealloc() couldn't reallocate %ld bytes @ %p",
 		 size, addr);
@@ -92,7 +92,7 @@ shmemalign(size_t alignment, size_t size)
 {
   void *addr = mspace_memalign(myspace, alignment, size);
 
-  if (addr == (void *)NULL) {
+  if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
 		 "shmem_memalign() couldn't resize %ld bytes to alignment %ld",
 		 size, alignment);

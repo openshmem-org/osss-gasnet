@@ -1,7 +1,7 @@
 #include <sys/types.h>
 
 #include "state.h"
-
+#include "comms.h"
 #include "shmem.h"
 
 /*
@@ -24,19 +24,6 @@ __shmem_atomic_finalize(void)
  * contents of target as an atomic operation.
  */
 
-/*
- * TODO: using put/get?  probably stupid way...
- * get old target from pe;
- * write value to target on pe;
- * return old target
- * UGH, barriers: should use "wait" for point-to-point sync
- *
- *
- * or use Active Messages???
- *
- * & atomic intrinsic for local-local
- */
-
 static __inline__ int64_t
 __atomic_xchg64(volatile int64_t *p, int64_t new_value)
 {
@@ -56,6 +43,10 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
   return old_value;
 }
 
+/*
+ * TODO: spin on retval being set by reply handler
+ */
+
 #define SHMEM_TYPE_SWAP(Name, Type)					\
   Type									\
   shmem_##Name##_swap(Type *target, Type value, int pe)			\
@@ -65,13 +56,9 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
       retval = __atomic_xchg64((volatile int64_t *)target, value);	\
     }									\
     else {								\
-      Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
-      shmem_##Name##_get(oldtarget, target, 1, pe);			\
-      retval = *oldtarget;						\
-      shmem_##Name##_put(target, &value, 1, pe);			\
-      shfree(oldtarget);						\
-      return retval;							\
+      retval = __comms_request(target, value, pe);			\
     }									\
+    return retval;							\
   }
 
 /* SHMEM_TYPE_SWAP(short, short) */

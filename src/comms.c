@@ -1,21 +1,32 @@
-#include <assert.h>
-
 #include "gasnet_safe.h"
 
 #include "state.h"
 #include "symmem.h"
 #include "warn.h"
 #include "dispatch.h"
-
-/*
- * use the global anonymous barrier for _all.
- *
- * will presumably have to set up our own barrier flags
- * for the subset-barrier
- */
+#include "atomic.h"
+#include "comms.h"
 
 static int barcount = 0;
 static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
+
+/*
+ *start of handlers
+ */
+
+#define GASNET_HANDLER_SWAP_OUT 128
+#define GASNET_HANDLER_SWAP_BAK 129
+
+static gasnet_handlerentry_t handlers[] =
+  {
+    { GASNET_HANDLER_SWAP_OUT, handler_swap_out },
+    { GASNET_HANDLER_SWAP_BAK, handler_swap_bak }
+  };
+static int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
+
+/*
+ * end of handlers
+ */
 
 void
 __comms_barrier_all(void)
@@ -24,7 +35,7 @@ __comms_barrier_all(void)
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
-  barcount += 1;
+  // barcount += 1;
 }
 
 void
@@ -35,31 +46,63 @@ __comms_init(void)
    */
   int argc = 1;
   char **argv;
-  uintptr_t mss;
-  int nhandlers;
-  gasnet_handlerentry_t *handlers = (gasnet_handlerentry_t *)NULL;
 
   argv = (char **) malloc(argc * sizeof(*argv));
-  assert(argv != (char **)NULL);
-  argv[0] = "hello";
+  if (argv == (char **) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+                 "could not allocate memory for GASNet initialization");
+  }
+  argv[0] = "shmem";
+  
+  GASNET_SAFE(
+	      gasnet_init(&argc, &argv)
+	      );
+  
+  GASNET_SAFE(
+	      gasnet_attach(handlers, nhandlers,
+			    gasnet_getMaxLocalSegmentSize(),
+			    0)
+	      );
+  
+  __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
-  GASNET_SAFE( gasnet_init(&argc, &argv) );
-
-  mss = gasnet_getMaxLocalSegmentSize();
-
-  /*
-   * no active message handlers for now, but may be needed later
-   * (e.g. for atomic swap)
-   */
-  nhandlers = 0;
-  GASNET_SAFE( gasnet_attach(handlers, nhandlers, mss, 0) );
-
-  /*
-   * GASNET_WAIT_SPIN | GASNET_WAIT_BLOCK | GASNET_WAIT_SPINBLOCK
-   */
-  GASNET_SAFE( gasnet_set_waitmode(GASNET_WAIT_SPINBLOCK) );
-   
   __comms_barrier_all();
+}
+
+/*
+ * allow the runtime to change the spin/block behavior dynamically,
+ * would allow adaptivity
+ */
+void
+__comms_set_waitmode(int mode)
+{
+  int gm;
+
+  switch (mode) {
+  case SHMEM_COMMS_SPINBLOCK:
+    gm = GASNET_WAIT_SPINBLOCK;
+    break;
+  case SHMEM_COMMS_SPIN:
+    gm = GASNET_WAIT_SPIN;
+    break;
+  case SHMEM_COMMS_BLOCK:
+    gm = GASNET_WAIT_BLOCK;
+    break;
+  default:
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "tried to set unknown wait mode %d", mode);
+    /* NOT REACHED */
+    break;
+  }
+
+  GASNET_SAFE( gasnet_set_waitmode(gm) );
+}
+
+__inline__ void
+__comms_poll(void)
+{
+  GASNET_BEGIN_FUNCTION();
+  gasnet_AMPoll();
 }
 
 void
@@ -82,7 +125,7 @@ __comms_nodes(void)
   return (int) gasnet_nodes();
 }
 
-static gasnet_seginfo_t* seginfo_table;
+static gasnet_seginfo_t * seginfo_table;
 
 /* UNUSED */
 #define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
@@ -92,7 +135,10 @@ __symmetric_memory_init(void)
 {
   seginfo_table = (gasnet_seginfo_t *)calloc(__state.numpes,
                                              sizeof(gasnet_seginfo_t));
-  assert(seginfo_table != (gasnet_seginfo_t *)NULL);
+  if (seginfo_table == (gasnet_seginfo_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+                 "could not allocate GASNet segments");
+  }
 
   GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
 
@@ -143,10 +189,81 @@ __symmetric_var_offset(void *dest, int pe)
   return (void *)rdest;
 }
 
+/*
+ * -- swap handlers --
+ */
+gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 
-__inline__ void
-__comms_poll(void)
+typedef struct {
+  void *s_symm_addr;		/* sender symmetric var */
+  void *r_symm_addr;		/* recipient symmetric car */
+  long value;			/* value to be swapped */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;		/* addr of marker for copied payload */
+} swap_payload_t;
+
+/*
+ * called by remote PE to do the swap.  Store new value, send back old value
+ */
+void
+handler_swap_out(gasnet_token_t token,
+                 void *buf, size_t bufsiz,
+                 gasnet_handlerarg_t unused)
 {
-  GASNET_BEGIN_FUNCTION();
-  gasnet_AMPoll();
+  long old;
+  swap_payload_t *pp = (swap_payload_t *) buf;
+
+  gasnet_hsl_lock(& swap_out_lock);
+
+  old = *(long *) pp->r_symm_addr;
+  *(long *) pp->r_symm_addr = pp->value;
+  pp->value = old;
+
+  gasnet_hsl_unlock(& swap_out_lock);
+
+  /* return the updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by swap invoker when old value returned by remote PE
+ */
+void
+handler_swap_bak(gasnet_token_t token,
+                 void *buf, size_t bufsiz,
+                 gasnet_handlerarg_t unused)
+{
+  swap_payload_t *pp = (swap_payload_t *) buf;
+
+  gasnet_hsl_lock(& swap_bak_lock);
+
+  *(long *) pp->s_symm_addr = pp->value;
+
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& swap_bak_lock);
+}
+
+
+long
+__comms_request(void *target, long value, int pe)
+{
+  // allocate p
+  swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
+  p->s_symm_addr = target;
+  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->value = value;
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel); /* this one, not the copy */
+
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
+			  p, sizeof(*p),
+			  0);
+
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+
+  return p->value;
 }

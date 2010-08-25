@@ -22,7 +22,6 @@ extern char * shmem_nodename(void);    /* unqualified */
 
 extern char * shmem_version(void);
 
-
 /*
  * I/O
  */

@@ -78,7 +78,7 @@ void
 __shmem_warnings_init(void)
 {
   char *shll = getenv(shmem_loglevels_envvar);
-  if (shll == (char *)NULL) {
+  if (shll == (char *) NULL) {
     return;
   }
 
@@ -86,9 +86,9 @@ __shmem_warnings_init(void)
     const char *delims = ",:;";
     char *opt = strtok(shll, delims);
 
-    while (opt != (char *)NULL) {
+    while (opt != (char *) NULL) {
       __warn_enable(opt);
-      opt = strtok((char *)NULL, delims);
+      opt = strtok((char *) NULL, delims);
     }
   }
 }
@@ -114,7 +114,7 @@ __shmem_warn(int msg_type, char *fmt, ...)
     snprintf(tmp2, BUF_SIZE, tmp1, __state.mype, __level_to_string(msg_type));
   
     va_start(ap, fmt);
-    vsnprintf (tmp1, BUF_SIZE, fmt, ap);
+    vsnprintf(tmp1, BUF_SIZE, fmt, ap);
     va_end(ap);
   
     strncat(tmp2, tmp1, BUF_SIZE);
