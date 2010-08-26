@@ -22,7 +22,7 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_SWAP_OUT, handler_swap_out },
     { GASNET_HANDLER_SWAP_BAK, handler_swap_bak }
   };
-static int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
+static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
 /*
  * end of handlers
@@ -46,6 +46,7 @@ __comms_init(void)
    */
   int argc = 1;
   char **argv;
+  uintptr_t mlss;
 
   argv = (char **) malloc(argc * sizeof(*argv));
   if (argv == (char **) NULL) {
@@ -58,12 +59,19 @@ __comms_init(void)
 	      gasnet_init(&argc, &argv)
 	      );
   
+  mlss = gasnet_getMaxLocalSegmentSize();
+
   GASNET_SAFE(
 	      gasnet_attach(handlers, nhandlers,
-			    gasnet_getMaxLocalSegmentSize(),
+			    mlss,
 			    0)
 	      );
-  
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "attached %d handler%s, segment size is %ld\n",
+	       nhandlers,
+	       (nhandlers == 1) ? "" : "s",
+	       mlss);
+
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
   __comms_barrier_all();
@@ -77,16 +85,20 @@ void
 __comms_set_waitmode(int mode)
 {
   int gm;
+  const char *mstr;
 
   switch (mode) {
   case SHMEM_COMMS_SPINBLOCK:
     gm = GASNET_WAIT_SPINBLOCK;
+    mstr = "spinblock";
     break;
   case SHMEM_COMMS_SPIN:
     gm = GASNET_WAIT_SPIN;
+    mstr = "spin";
     break;
   case SHMEM_COMMS_BLOCK:
     gm = GASNET_WAIT_BLOCK;
+    mstr = "block";
     break;
   default:
     __shmem_warn(SHMEM_LOG_FATAL,
@@ -96,6 +108,10 @@ __comms_set_waitmode(int mode)
   }
 
   GASNET_SAFE( gasnet_set_waitmode(gm) );
+
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "set waitmode to %s",
+	       mstr);
 }
 
 __inline__ void
