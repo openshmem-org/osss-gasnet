@@ -1,6 +1,5 @@
 #include <stdio.h>               /* NULL                           */
 #include <sys/utsname.h>         /* uname()                        */
-#include <assert.h>              /* assert()                       */
 #include <string.h>              /* strdup()                       */
 #include <sys/types.h>           /* size_t                         */
 
@@ -45,8 +44,14 @@ static void
 __shmem_hostnode_init(void)
 {
   struct utsname u;
+  int s;
 
-  assert( uname(&u) == 0 );
+  s = uname(&u);
+  if (s != 0) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+                 "can't find any node information"
+                );
+  }
 
   __state.hostname = strdup(u.nodename);
   __state.nodename = strdup(u.nodename);
