@@ -141,6 +141,34 @@ __comms_nodes(void)
   return (int) gasnet_nodes();
 }
 
+void
+__comms_put(void *dst, void *src, size_t len, int pe)
+{
+  gasnet_put(pe, dst, src, len);
+}
+
+void
+__comms_get(void *dst, void *src, size_t len, int pe)
+{
+  gasnet_get(dst, pe, src, len);
+}
+
+void
+__comms_put_val(void *dst, long src, size_t len, int pe)
+{
+  gasnet_put_val(pe, dst, src, len);
+}
+
+long
+__comms_get_val(void *src, size_t len, int pe)
+{
+  return gasnet_get_val(pe, src, len);
+}
+
+/*
+ * initialize the symmetric segments
+ */
+
 static gasnet_seginfo_t * seginfo_table;
 
 /* UNUSED */

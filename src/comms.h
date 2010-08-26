@@ -1,6 +1,8 @@
 #ifndef _COMMS_H
 #define _COMMS_H 1
 
+#include <sys/types.h>
+
 typedef void *shmem_handle_t;
 
 extern void __comms_init(void);
@@ -14,6 +16,11 @@ extern void __comms_set_waitmode(int mode);
 
 extern int __comms_mynode(void);
 extern int __comms_nodes(void);
+
+extern void __comms_put(void *dst, void *src, size_t len, int pe);
+extern void __comms_get(void *dst, void *src, size_t len, int pe);
+extern void __comms_put_val(void *dst, long src, size_t len, int pe);
+extern long __comms_get_val(void *src, size_t len, int pe);
 
 extern void   __symmetric_memory_init(void);
 extern void   __symmetric_memory_finalize(void);

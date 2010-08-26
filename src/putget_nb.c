@@ -1,4 +1,4 @@
-#include "gasnet.h"
+#include "gasnet_safe.h"
 
 #include "putget_nb.h"
 

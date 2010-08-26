@@ -2,7 +2,7 @@
 #include <string.h>              /* memcpy()                       */
 #include <sys/types.h>           /* size_t                         */
 
-#include "gasnet_safe.h"         /* call wrapper w/ err handler    */
+// #include "gasnet_safe.h"         /* call wrapper w/ err handler    */
 
 #include "state.h"
 #include "symmem.h"
@@ -46,7 +46,7 @@
 		     rdest						\
 		     );							\
       }									\
-      gasnet_put(pe, rdest, (Type *)src, typed_len);			\
+      __comms_put(rdest, (Type *)src, typed_len, pe);			\
     }									\
     SHMEM_STATS_PUT(pe);						\
   }
@@ -81,7 +81,7 @@ _Pragma("weak shmem_put=shmem_long_put")
 		     their_src						\
 		     );							\
       }									\
-      gasnet_get(dest, pe, their_src, typed_len);			\
+      __comms_get(dest, their_src, typed_len, pe);			\
     }									\
     SHMEM_STATS_GET(pe);						\
   }
@@ -132,7 +132,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
 		     rdest						\
 		     );							\
       }									\
-      gasnet_put_val(pe, rdest, value, typed_len);			\
+      __comms_put_val(rdest, value, typed_len, pe);			\
     }									\
     SHMEM_STATS_PUT(pe);						\
   }
@@ -173,7 +173,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
 		     their_src						\
 		     );							\
       }									\
-      retval = (Type) gasnet_get_val(pe, their_src, typed_len);		\
+      retval = (Type) __comms_get_val(their_src, typed_len, pe);	\
     }									\
     SHMEM_STATS_GET(pe);						\
     return retval;							\

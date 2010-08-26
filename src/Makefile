@@ -71,11 +71,11 @@ comms.o:	comms.c
 		$(DLMALLOC_CFLAGS) \
 		$(COMMON_FLAGS) -c -o $@ $<
 
-putget.o:	putget.c
-	$(GASNET_CC) \
-		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
-		$(DLMALLOC_CFLAGS) \
-		$(COMMON_FLAGS) -c -o $@ $<
+# putget.o:	putget.c
+# 	$(GASNET_CC) \
+# 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+# 		$(DLMALLOC_CFLAGS) \
+# 		$(COMMON_FLAGS) -c -o $@ $<
 
 putget_nb.o:	putget_nb.c
 	$(GASNET_CC) \
@@ -85,6 +85,9 @@ putget_nb.o:	putget_nb.c
 # -- GASNET ------------------------------------------------
 
 symmem.o:	symmem.c
+	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
+
+putget.o:	putget.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
 %.o:	%.c
