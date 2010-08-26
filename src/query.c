@@ -1,5 +1,4 @@
 #include <stdio.h>               /* NULL                           */
-#include <assert.h>              /* assert()                       */
 
 #include "state.h"
 #include "stats.h"

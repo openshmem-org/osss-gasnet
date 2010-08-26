@@ -8,10 +8,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "state.h"
-
+#include "warn.h"
 #include "stats.h"
 
 static long *put_count;
@@ -28,7 +27,10 @@ static FILE *stats_fp = stderr;
 #define ALLOC_COUNTERS(Op) \
 { \
   Op##_count = (long *) calloc( __state.numpes, sizeof(* Op##_count) ); \
-  assert( Op##_count != (long *)NULL ); \
+  if (Op##_count == (long *)NULL) {					\
+    _shmem_warn(SHMEM_LOG_FATAL,					\
+		"couldn't allocate memory for statistics"		\
+		);							\
 }
 
 #define DISPLAY_COUNTERS(Op) \
