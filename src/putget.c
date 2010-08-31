@@ -2,8 +2,6 @@
 #include <string.h>              /* memcpy()                       */
 #include <sys/types.h>           /* size_t                         */
 
-// #include "gasnet_safe.h"         /* call wrapper w/ err handler    */
-
 #include "state.h"
 #include "symmem.h"
 #include "comms.h"
@@ -16,17 +14,6 @@
  * local/remote addresses
  * (should probably ifdef for aligned segments case)
  */
-
-/*
- * TODO: provide address translation routine (note repeated offset code below)
- */
-
-#if 0
-
-      size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
-      void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
-
-#endif
 
 #define SHMEM_TYPE_PUT(Name, Type)					\
   void									\

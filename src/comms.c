@@ -153,6 +153,11 @@ __comms_get(void *dst, void *src, size_t len, int pe)
   gasnet_get(dst, pe, src, len);
 }
 
+/*
+ * not completely sure about using longs in these two:
+ * it's big enough and hides the gasnet type: is that good enough?
+ */
+
 void
 __comms_put_val(void *dst, long src, size_t len, int pe)
 {

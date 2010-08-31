@@ -71,11 +71,7 @@ comms.o:	comms.c
 		$(DLMALLOC_CFLAGS) \
 		$(COMMON_FLAGS) -c -o $@ $<
 
-# putget.o:	putget.c
-# 	$(GASNET_CC) \
-# 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
-# 		$(DLMALLOC_CFLAGS) \
-# 		$(COMMON_FLAGS) -c -o $@ $<
+# to be moved, too
 
 putget_nb.o:	putget_nb.c
 	$(GASNET_CC) \
