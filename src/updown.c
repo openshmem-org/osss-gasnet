@@ -70,7 +70,9 @@ __shmem_hostnode_init(void)
 void
 shmem_init(void)
 {
-  __shmem_warnings_init();
+
+  /* has to happen early to enable warn */
+  __shmem_environment_init();
 
   __state.initialized += 1;
 
@@ -88,10 +90,13 @@ shmem_init(void)
   __state.numpes = __comms_nodes();
 
   __shmem_hostnode_init();
+
   __symmetric_memory_init();
+
   __shmem_atomic_init();
-  __shmem_environment_init();
+
   SHMEM_STATS_INIT();
+
   atexit(__shmem_exit_handler);
 
   /*

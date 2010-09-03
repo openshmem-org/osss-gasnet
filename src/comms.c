@@ -35,7 +35,7 @@ __comms_barrier_all(void)
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
-  // barcount += 1;
+  barcount = barcount ^ 1;
 }
 
 void
@@ -168,6 +168,30 @@ long
 __comms_get_val(void *src, size_t len, int pe)
 {
   return gasnet_get_val(pe, src, len);
+}
+
+#define SHMEM_TYPE_PUT_NB(Name, Type)					\
+  __inline__ void							\
+  __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe, \
+			  shmem_handle_t *h)				\
+  {									\
+    *(h) = gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
+  }
+
+SHMEM_TYPE_PUT_NB(short, short)
+SHMEM_TYPE_PUT_NB(int, int)
+SHMEM_TYPE_PUT_NB(long, long)
+SHMEM_TYPE_PUT_NB(longdouble, long double)
+SHMEM_TYPE_PUT_NB(longlong, long long)
+SHMEM_TYPE_PUT_NB(double, double)
+SHMEM_TYPE_PUT_NB(float, float)
+
+_Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
+
+__inline__ void
+__comms_wait_nb(shmem_handle_t h)
+{
+  gasnet_wait_syncnb((gasnet_handle_t ) h);
 }
 
 /*
