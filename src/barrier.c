@@ -22,7 +22,6 @@ shmem_barrier_all(void)
 
   (*barfunc)();
 
-
   SHMEM_STATS_BARRIER_ALL();
 }
 

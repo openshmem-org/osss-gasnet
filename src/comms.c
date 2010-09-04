@@ -7,9 +7,6 @@
 #include "atomic.h"
 #include "comms.h"
 
-static int barcount = 0;
-static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
-
 /*
  *start of handlers
  */
@@ -27,16 +24,6 @@ static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 /*
  * end of handlers
  */
-
-void
-__comms_barrier_all(void)
-{
-  GASNET_BEGIN_FUNCTION();
-  gasnet_barrier_notify(barcount, barflag);
-  GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
-
-  barcount = barcount ^ 1;
-}
 
 void
 __comms_init(void)
@@ -144,13 +131,13 @@ __comms_nodes(void)
 void
 __comms_put(void *dst, void *src, size_t len, int pe)
 {
-  gasnet_put(pe, dst, src, len);
+  gasnet_put_nbi(pe, dst, src, len);
 }
 
 void
 __comms_get(void *dst, void *src, size_t len, int pe)
 {
-  gasnet_get(dst, pe, src, len);
+  gasnet_get_nbi(dst, pe, src, len);
 }
 
 /*
@@ -161,7 +148,7 @@ __comms_get(void *dst, void *src, size_t len, int pe)
 void
 __comms_put_val(void *dst, long src, size_t len, int pe)
 {
-  gasnet_put_val(pe, dst, src, len);
+  gasnet_put_nbi_val(pe, dst, src, len);
 }
 
 long
@@ -170,7 +157,7 @@ __comms_get_val(void *src, size_t len, int pe)
   return gasnet_get_val(pe, src, len);
 }
 
-#define SHMEM_TYPE_PUT_NB(Name, Type)					\
+#define COMMS_TYPE_PUT_NB(Name, Type)					\
   __inline__ void							\
   __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe, \
 			  shmem_handle_t *h)				\
@@ -178,13 +165,13 @@ __comms_get_val(void *src, size_t len, int pe)
     *(h) = gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
   }
 
-SHMEM_TYPE_PUT_NB(short, short)
-SHMEM_TYPE_PUT_NB(int, int)
-SHMEM_TYPE_PUT_NB(long, long)
-SHMEM_TYPE_PUT_NB(longdouble, long double)
-SHMEM_TYPE_PUT_NB(longlong, long long)
-SHMEM_TYPE_PUT_NB(double, double)
-SHMEM_TYPE_PUT_NB(float, float)
+COMMS_TYPE_PUT_NB(short, short)
+COMMS_TYPE_PUT_NB(int, int)
+COMMS_TYPE_PUT_NB(long, long)
+COMMS_TYPE_PUT_NB(longdouble, long double)
+COMMS_TYPE_PUT_NB(longlong, long long)
+COMMS_TYPE_PUT_NB(double, double)
+COMMS_TYPE_PUT_NB(float, float)
 
 _Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
 
@@ -192,6 +179,25 @@ __inline__ void
 __comms_wait_nb(shmem_handle_t h)
 {
   gasnet_wait_syncnb((gasnet_handle_t ) h);
+}
+
+
+static int barcount = 0;
+static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
+
+__inline__ void
+__comms_barrier_all(void)
+{
+  GASNET_BEGIN_FUNCTION();
+
+  /* wait for gasnet to finish pending puts/gets */
+  gasnet_wait_syncnbi_all();
+
+  /* use gasnet's global barrier */
+  gasnet_barrier_notify(barcount, barflag);
+  GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
+
+  barcount ^= 1;
 }
 
 /*
