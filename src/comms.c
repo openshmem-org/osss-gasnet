@@ -116,6 +116,12 @@ __comms_shutdown(int status)
   gasnet_exit(status);
 }
 
+char *
+__comms_getenv(const char *name)
+{
+  return gasnet_getenv(name);
+}
+
 int
 __comms_mynode(void)
 {
@@ -137,7 +143,7 @@ __comms_put(void *dst, void *src, size_t len, int pe)
 void
 __comms_get(void *dst, void *src, size_t len, int pe)
 {
-  gasnet_get_nbi(dst, pe, src, len);
+  gasnet_get(dst, pe, src, len);
 }
 
 /*
@@ -190,14 +196,40 @@ __comms_barrier_all(void)
 {
   GASNET_BEGIN_FUNCTION();
 
-  /* wait for gasnet to finish pending puts/gets */
-  gasnet_wait_syncnbi_all();
-
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
+
+  /* wait for gasnet to finish pending puts/gets */
+  do {
+    __comms_poll();
+  } while (gasnet_try_syncnbi_puts() != GASNET_OK);
+
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
-  barcount ^= 1;
+  barcount = 1 - barcount;
+}
+
+__inline__ void
+__comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
+{
+  GASNET_BEGIN_FUNCTION();
+
+  {
+    int step = 1 << logPE_stride;
+    int thispe = PE_start;
+    int i;
+    for (i = 0; i < PE_size; i += 1) {
+      if (thispe == __state.mype) {
+	gasnet_wait_syncnbi_all();
+      }
+
+      gasnet_barrier_notify(barcount, barflag);
+      GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
+      barcount ^= 1;
+
+      thispe += step;
+    }
+  }
 }
 
 /*

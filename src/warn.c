@@ -7,6 +7,7 @@
 #include "state.h"
 #include "warn.h"
 #include "updown.h"
+#include "comms.h"
 
 typedef struct {
   const int level;
@@ -77,7 +78,7 @@ __level_to_string(int level)
 void
 __shmem_warnings_init(void)
 {
-  char *shll = getenv(shmem_loglevels_envvar);
+  char *shll = __comms_getenv(shmem_loglevels_envvar);
   if (shll == (char *) NULL) {
     return;
   }

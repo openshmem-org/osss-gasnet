@@ -11,6 +11,7 @@
 #include "barrier.h"
 #include "warn.h"
 #include "dispatch.h"
+#include "comms.h"
 
 #define DISPATCH_MAX 128
 
@@ -42,7 +43,7 @@ static char *shmem_default_barrier_algorithm = "basic";
 void
 __barrier_dispatch_init()
 {
-  char *ba = getenv(shmem_barrier_algorithm_envvar);
+  char *ba = __comms_getenv(shmem_barrier_algorithm_envvar);
 
   if (ba == (char *) NULL) {
     ba = shmem_default_barrier_algorithm;
