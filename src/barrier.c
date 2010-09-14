@@ -9,7 +9,7 @@
  * don't actually do the work here, choose the appropriate dispatcher
  */
 
-__inline__ void
+void
 shmem_barrier_all(void)
 {
   __shmem_dispatch_t barfunc = __shmem_dispatch[SHMEM_BARRIER_DISPATCH];
@@ -31,13 +31,13 @@ _Pragma("weak barrier=shmem_barrier_all")
  * now do the various different implementations here
  */
 
-__inline__ void
+void
 __shmem_barrier_all_basic(void)
 {
   __comms_barrier_all();
 }
 
-__inline__ void
+void
 shmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
 }

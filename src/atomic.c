@@ -8,12 +8,12 @@
  * placeholders: no init/final required (so far)
  */
 
-__inline__ void
+void
 __shmem_atomic_init(void)
 {
 }
 
-__inline__ void
+void
 __shmem_atomic_finalize(void)
 {
 }
@@ -24,7 +24,7 @@ __shmem_atomic_finalize(void)
  * contents of target as an atomic operation.
  */
 
-static __inline__ int64_t
+static int64_t
 __atomic_xchg64(volatile int64_t *p, int64_t new_value)
 {
   asm volatile ("lock xchg %1, %0" : 
@@ -33,7 +33,7 @@ __atomic_xchg64(volatile int64_t *p, int64_t new_value)
   return new_value;
 }
 
-static __inline__ int64_t
+static int64_t
 __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
 {
   asm volatile ("lock cmpxchg %2, %0" : 

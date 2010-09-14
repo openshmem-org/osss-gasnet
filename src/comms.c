@@ -101,7 +101,7 @@ __comms_set_waitmode(int mode)
 	       mstr);
 }
 
-__inline__ void
+void
 __comms_poll(void)
 {
   GASNET_BEGIN_FUNCTION();
@@ -164,7 +164,7 @@ __comms_get_val(void *src, size_t len, int pe)
 }
 
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
-  __inline__ void							\
+   void							\
   __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe, \
 			  shmem_handle_t *h)				\
   {									\
@@ -181,7 +181,7 @@ COMMS_TYPE_PUT_NB(float, float)
 
 _Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
 
-__inline__ void
+void
 __comms_wait_nb(shmem_handle_t h)
 {
   gasnet_wait_syncnb((gasnet_handle_t ) h);
@@ -191,7 +191,7 @@ __comms_wait_nb(shmem_handle_t h)
 static int barcount = 0;
 static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
 
-__inline__ void
+void
 __comms_barrier_all(void)
 {
   GASNET_BEGIN_FUNCTION();
@@ -209,7 +209,7 @@ __comms_barrier_all(void)
   barcount = 1 - barcount;
 }
 
-__inline__ void
+void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   GASNET_BEGIN_FUNCTION();
@@ -232,7 +232,7 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   }
 }
 
-__inline__ void
+void
 __comms_fence(void)
 {
   gasnet_wait_syncnbi_all();
@@ -279,7 +279,7 @@ __symmetric_memory_finalize(void)
 /*
  * where the symmetric memory starts on the given PE
  */
-__inline__ void *
+void *
 __symmetric_var_base(int pe)
 {
   return seginfo_table[pe].addr;
@@ -288,7 +288,7 @@ __symmetric_var_base(int pe)
 /*
  * is the address in the managed symmetric area?
  */
-__inline__ int
+ int
 __symmetric_var_in_range(void *addr, int pe)
 {
   void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
@@ -298,7 +298,7 @@ __symmetric_var_in_range(void *addr, int pe)
 /*
  * translate my "dest" to corresponding address on PE "pe"
  */
-__inline__ void *
+void *
 __symmetric_var_offset(void *dest, int pe)
 {
   size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
