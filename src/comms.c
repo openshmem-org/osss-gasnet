@@ -232,6 +232,12 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   }
 }
 
+__inline__ void
+__comms_fence(void)
+{
+  gasnet_wait_syncnbi_all();
+}
+
 /*
  * initialize the symmetric segments
  */

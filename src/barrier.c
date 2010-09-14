@@ -36,3 +36,8 @@ __shmem_barrier_all_basic(void)
 {
   __comms_barrier_all();
 }
+
+__inline__ void
+shmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
+{
+}

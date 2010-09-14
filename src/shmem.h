@@ -73,6 +73,9 @@ extern long double shmem_longdouble_g(long double *addr, int pe);
  */
 
 extern void   shmem_barrier_all(void);
+extern void   shmem_barrier(int PE_start, int logPE_stride, int PE_size,
+                            long *pSync);
+extern void   shmem_fence(void);
 
 /*
  * symmetric memory management

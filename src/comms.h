@@ -53,6 +53,8 @@ extern void __comms_float_put_nb(float *target, float *source,
 				 shmem_handle_t *h);
 extern void __comms_wait_nb(shmem_handle_t h);
 
+extern void __comms_fence(void);
+
 extern void   __symmetric_memory_init(void);
 extern void   __symmetric_memory_finalize(void);
 extern void * __symmetric_var_base(int pe);
