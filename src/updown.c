@@ -54,6 +54,7 @@ __shmem_hostnode_init(void)
   }
 
   __state.hostname = strdup(u.nodename);
+  /* TODO: slightly wasteful of space, but domain names aren't too big */
   __state.nodename = strdup(u.nodename);
   {
     char *period = __state.nodename;
@@ -62,7 +63,7 @@ __shmem_hostnode_init(void)
         *period = '\0';
         break;
       }
-      ++period;
+      period += 1;
     }
   }
 }

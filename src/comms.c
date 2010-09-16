@@ -200,9 +200,7 @@ __comms_barrier_all(void)
   gasnet_barrier_notify(barcount, barflag);
 
   /* wait for gasnet to finish pending puts/gets */
-  do {
-    __comms_poll();
-  } while (gasnet_try_syncnbi_puts() != GASNET_OK);
+  gasnet_wait_syncnbi_puts();
 
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
@@ -218,16 +216,20 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
     int step = 1 << logPE_stride;
     int thispe = PE_start;
     int i;
+    int foundit = 0;
+
     for (i = 0; i < PE_size; i += 1) {
       if (thispe == __state.mype) {
 	gasnet_wait_syncnbi_all();
+	foundit = 1;
+	break;
       }
-
-      gasnet_barrier_notify(barcount, barflag);
-      GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
-      barcount ^= 1;
-
       thispe += step;
+    }
+    if (! foundit) {
+      __shmem_warn(SHMEM_LOG_FATAL,
+		   "PE %d is not in active set for barrier",
+		   __state.mype);
     }
   }
 }

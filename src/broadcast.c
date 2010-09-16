@@ -25,7 +25,7 @@
 	this_pe += step;						\
       }									\
     }									\
-    shmem_barrier_all();						\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }
 
 SHMEM_BROADCAST_TYPE(32, int)
