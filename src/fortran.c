@@ -46,38 +46,18 @@ FORTRANIFY(shmem_put)(long *target, const long *src, size_t *size, int *pe)
   shmem_put(target, src, *size, *pe);
 }
 
-int
-FORTRANIFY(shmem_my_pe)(void)
-{
-  return shmem_my_pe();
-}
+#define SHMEM_FORTRAN_QUERY_PE(Name)		\
+  int						\
+  FORTRANIFY(Name)(void)			\
+  {						\
+    return Name ();				\
+  }
 
-int
-FORTRANIFY(my_pe)(void)
-{
-  return my_pe();
-}
 
-int
-FORTRANIFY(_my_pe)(void)
-{
-  return _my_pe();
-}
+SHMEM_FORTRAN_QUERY_PE(shmem_my_pe)
+SHMEM_FORTRAN_QUERY_PE(my_pe)
+SHMEM_FORTRAN_QUERY_PE(_my_pe)
 
-int
-FORTRANIFY(shmem_num_pes)(void)
-{
-  return shmem_num_pes();
-}
-
-int
-FORTRANIFY(num_pes)(void)
-{
-  return num_pes();
-}
-
-int
-FORTRANIFY(_num_pes)(void)
-{
-  return _num_pes();
-}
+SHMEM_FORTRAN_QUERY_PE(shmem_num_pes)
+SHMEM_FORTRAN_QUERY_PE(num_pes)
+SHMEM_FORTRAN_QUERY_PE(_num_pes)
