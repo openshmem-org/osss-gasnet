@@ -12,7 +12,12 @@ MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
 
 GASNET          = $(HOME)/local
 
-include $(GASNET)/include/mpi-conduit/mpi-par.mak 
+#
+# or IBV or ...
+#
+GASNET_CONDUIT  = mpi
+
+include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
 # ---------------------------------------------------------
 

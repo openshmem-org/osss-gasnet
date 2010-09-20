@@ -1,5 +1,17 @@
+/*
+ * This is the Fortran interface.  Parameter-less routines are
+ * the same as C, but with the standard underscore mangling we all love.
+ *
+ * Also provides pass-by-reference wrappers to translate C value params
+ *
+ */
+
 #include "shmem.h"
 
+/*
+ * TODO: some compilers use double-underscore,
+ *       so need to wrap this with a test
+ */
 #define FORTRANIFY(sym)    sym##_
 
 void
@@ -50,7 +62,7 @@ FORTRANIFY(shmem_put)(long *target, const long *src, size_t *size, int *pe)
   int						\
   FORTRANIFY(Name)(void)			\
   {						\
-    return Name ();				\
+    return Name();				\
   }
 
 
