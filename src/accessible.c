@@ -2,6 +2,9 @@
 
 /*
  * assume yes, for now
+ *
+ * TODO: what kind of tests could we do to really check this?
+ *       (maybe send a test ping-pong message)
  */
 int
 shmem_pe_accessible(int pe)
