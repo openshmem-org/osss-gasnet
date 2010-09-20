@@ -11,7 +11,7 @@ FORTRANIFY(shmem_init)(void)
 void
 FORTRANIFY(start_pes)(int *npes)
 {
-  shmem_init();
+  start_pes(*npes);
 }
 
 #define SHMEM_FORTRAN_PUT(Name, CType)					\
@@ -44,4 +44,40 @@ void
 FORTRANIFY(shmem_put)(long *target, const long *src, size_t *size, int *pe)
 {
   shmem_put(target, src, *size, *pe);
+}
+
+int
+FORTRANIFY(shmem_my_pe)(void)
+{
+  return shmem_my_pe();
+}
+
+int
+FORTRANIFY(my_pe)(void)
+{
+  return my_pe();
+}
+
+int
+FORTRANIFY(_my_pe)(void)
+{
+  return _my_pe();
+}
+
+int
+FORTRANIFY(shmem_num_pes)(void)
+{
+  return shmem_num_pes();
+}
+
+int
+FORTRANIFY(num_pes)(void)
+{
+  return num_pes();
+}
+
+int
+FORTRANIFY(_num_pes)(void)
+{
+  return _num_pes();
 }

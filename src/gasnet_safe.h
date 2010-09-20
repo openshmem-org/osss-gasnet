@@ -3,16 +3,16 @@
 
 #include <gasnet.h>
 
+#include "warn.h"
+
 #define GASNET_SAFE(fncall) do {                                        \
     int _retval;                                                        \
     if ((_retval = fncall) != GASNET_OK) {                              \
-      fprintf(stderr, "ERROR calling: %s\n"                             \
-              " at: %s:%i\n"                                            \
-              " error: %s (%s)\n",                                      \
-              #fncall, __FILE__, __LINE__,                              \
-              gasnet_ErrorName(_retval), gasnet_ErrorDesc(_retval));    \
-      fflush(stderr);                                                   \
-      gasnet_exit(_retval);                                             \
+      __shmem_warn(SHMEM_LOG_FATAL,					\
+		   "error calling: %s at %s:%i, %s (%s)\n",		\
+		   #fncall, __FILE__, __LINE__,				\
+		   gasnet_ErrorName(_retval),				\
+		   gasnet_ErrorDesc(_retval));				\
     }                                                                   \
   } while(0)
 

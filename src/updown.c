@@ -80,8 +80,7 @@ shmem_init(void)
   /* I shouldn't really call this more than once */
   if (__state.initialized > 1) {
     __shmem_warn(SHMEM_LOG_FATAL,
-                 "shmem has already been initialized (occasion %d)",
-                 __state.initialized
+                 "shmem has already been initialized"
                 );
   }
 
