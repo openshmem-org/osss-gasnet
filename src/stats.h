@@ -28,7 +28,7 @@ extern void __shmem_stats_barrier();
 #define SHMEM_STATS_NUM_PES()            __shmem_stats_num_pes()
 #define SHMEM_STATS_HOSTNAME()           __shmem_stats_hostname()
 #define SHMEM_STATS_NODENAME()           __shmem_stats_nodename()
-#define SHMEM_STATS_BARRIER_ALL()        __shmem_stats_barrier_all()
+#define SHMEM_STATS_BARRIER()            __shmem_stats_barrier()
 
 #else /* ! SHMEM_COLLECT_STATS */
 
@@ -47,7 +47,7 @@ extern void __shmem_stats_barrier();
 #define SHMEM_STATS_NUM_PES()
 #define SHMEM_STATS_HOSTNAME()
 #define SHMEM_STATS_NODENAME()
-#define SHMEM_STATS_BARRIER_ALL()
+#define SHMEM_STATS_BARRIER()
 
 #endif /* SHMEM_COLLECT_STATS */
 

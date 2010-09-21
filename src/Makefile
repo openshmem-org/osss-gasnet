@@ -12,12 +12,7 @@ MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
 
 GASNET          = $(HOME)/local
 
-#
-# or IBV or ...
-#
-GASNET_CONDUIT  = mpi
-
-include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+include $(GASNET)/include/mpi-conduit/mpi-par.mak 
 
 # ---------------------------------------------------------
 
@@ -77,6 +72,9 @@ comms.o:	comms.c
 		$(COMMON_FLAGS) -c -o $@ $<
 
 # -- GASNET ------------------------------------------------
+
+fortran.o:	fortran.c
+	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
 symmem.o:	symmem.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<

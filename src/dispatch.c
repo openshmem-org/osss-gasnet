@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include "barrier.h"
 #include "warn.h"

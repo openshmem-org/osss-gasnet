@@ -11,10 +11,12 @@ extern void   shmem_init(void);
 extern void   start_pes(int npes);     /* synonym for shmem_init() */
 
 extern int    shmem_my_pe(void);
+extern int    my_pe(void);
 extern int    _my_pe(void);            /* synonyms */
 
 extern int    shmem_num_pes(void);
 extern int    shmem_n_pes(void);
+extern int    num_pes(void);
 extern int    _num_pes(void);          /* synonyms */
 
 extern char * shmem_hostname(void);    /* might be FQDN */

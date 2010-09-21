@@ -22,7 +22,7 @@ shmem_barrier_all(void)
 
   (*barfunc)();
 
-  SHMEM_STATS_BARRIER_ALL();
+  SHMEM_STATS_BARRIER();
 }
 
 _Pragma("weak barrier=shmem_barrier_all")

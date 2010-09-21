@@ -52,7 +52,7 @@ _Pragma("weak shmem_put=shmem_long_put")
   
 #define SHMEM_TYPE_GET(Name, Type)					\
   void									\
-  shmem_##Name##_get(Type *dest, const Type *src, size_t len, int pe) \
+  shmem_##Name##_get(Type *dest, const Type *src, size_t len, int pe)	\
   {									\
     int typed_len = sizeof(Type) * len;					\
     if (__state.mype == pe) {						\
@@ -89,7 +89,7 @@ _Pragma("weak shmem_get=shmem_long_get")
  */
 
 #define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
-   void							\
+  void									\
   shmem_##Name##_p(Type *dest, Type value, int pe)			\
   {									\
     shmem_##Name##_put(dest, &value, sizeof(value), pe);		\
@@ -129,7 +129,7 @@ SHMEM_TYPE_P(int, int)
 SHMEM_TYPE_P(long, long)
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
-   void							\
+  void									\
   shmem_##Name##_g(Type *dest, Type value, int pe)			\
   {									\
     shmem_##Name##_get(dest, &value, sizeof(value), pe);		\

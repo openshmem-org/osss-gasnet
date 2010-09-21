@@ -26,6 +26,7 @@ SHMEM_MY_PE(_my_pe)
   }
 
 SHMEM_NUM_PES(shmem_num_pes)
+SHMEM_NUM_PES(shmem_n_pes)
 SHMEM_NUM_PES(num_pes)
 SHMEM_NUM_PES(_num_pes)
 
