@@ -1,8 +1,8 @@
-program whoami
+program multiinit
 
   include 'shmem.fh'
 
   call shmem_init
   call shmem_init
 
-end program whoami
+end program multiinit

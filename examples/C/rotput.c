@@ -26,17 +26,24 @@ main(int argc, char **argv)
 
   nextpe = (me + 1) % npes;
 
-  src = me;
+  src = nextpe;
 
   while (tony == 0);
   shmem_int_put(dest, &src, 1, nextpe);
 
   shmem_barrier_all();
 
-  printf("%d @ %s: %d\n", me, shmem_nodename(), *dest);
+  printf("%4d @ %8s: got %4d: ", me, shmem_nodename(), *dest);
+  if (*dest == me) {
+    printf("CORRECT");
+  }
+  else {
+    printf("WRONG, expected %d", me);
+  }
+  printf("\n");
 
-  shmem_barrier_all();
   shfree(dest);
+  shmem_barrier_all();
 
   return 0;
 }

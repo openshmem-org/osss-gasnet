@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <shmem.h>
 
@@ -8,25 +9,30 @@ main(void)
   int i;
   long *pSync;
   long *target;
-  long source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-  int nlong = 8;
-  int me;
+  long *source;
+  int me, npes;
 
   shmem_init();
   me = shmem_my_pe();
+  npes = shmem_num_pes();
 
-  target = (long *) shmalloc( 8 * sizeof(*target) );
+  source = (long *) malloc( npes * sizeof(*source) );
+  for (i = 0; i < npes; i += 1) {
+    source[i] = i + 1;
+  }
+
+  target = (long *) shmalloc( npes * sizeof(*target) );
 
   pSync = shmem_sync_init();
 
-  shmem_broadcast64(target, source, nlong, 0, 4, 0, 4, pSync);
+  shmem_broadcast64(target, source, npes, 0, 0, 0, npes, pSync);
 
-  for (i = 0; i < 8; i++) {
-    printf("%d: target[%d] = %ld\n", me, i, target[i]);
-  }
-  
   shmem_barrier_all();
 
+  for (i = 0; i < npes; i++) {
+    printf("%-8d %ld\n", me, target[i]);
+  }
+  
   shfree(pSync);
   shfree(target);
 
