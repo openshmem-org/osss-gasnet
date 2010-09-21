@@ -18,7 +18,8 @@
 
 #endif /* FORTRAN_SINGLE_UNDERSCORE */
 
-
+#define FORTRANIFY_VOID_VOID(F) \
+  void FORTRANIFY(F) (void) { F(); }
 
 /*
  * puts and gets
@@ -96,17 +97,14 @@ FORTRANIFY(shmem_getmem)(long *target, const long *src, size_t *size, int *pe)
  * query functions
  */
 
-void
-FORTRANIFY(shmem_init)(void)
-{
-  shmem_init();
-}
+FORTRANIFY_VOID_VOID(shmem_init)
 
 void
 FORTRANIFY(start_pes)(int *npes)
 {
   start_pes(*npes);
 }
+
 #define SHMEM_FORTRAN_QUERY_PE(Name)		\
   int						\
   FORTRANIFY(Name)(void)			\
@@ -122,3 +120,36 @@ SHMEM_FORTRAN_QUERY_PE(shmem_num_pes)
 SHMEM_FORTRAN_QUERY_PE(shmem_n_pes)
 SHMEM_FORTRAN_QUERY_PE(num_pes)
 SHMEM_FORTRAN_QUERY_PE(_num_pes)
+
+char *
+FORTRANIFY(shmem_hostname)(void)
+{
+  return shmem_hostname();
+}
+
+char *
+FORTRANIFY(shmem_nodename)(void)
+{
+  return shmem_nodename();
+}
+
+char *
+FORTRANIFY(shmem_version)(void)
+{
+  return shmem_version();
+}
+
+/*
+ * barriers & fences
+ */
+
+void
+FORTRANIFY(shmem_barrier)(int *PE_start, int *logPE_stride, int *PE_size,
+			  long *pSync)
+{
+  shmem_barrier(*PE_start, *logPE_stride, *PE_size, pSync);
+}
+
+FORTRANIFY_VOID_VOID(shmem_barrier_all)
+FORTRANIFY_VOID_VOID(shmem_fence)
+FORTRANIFY_VOID_VOID(shmem_quiet)

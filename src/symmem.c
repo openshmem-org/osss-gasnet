@@ -36,6 +36,8 @@ shmalloc(size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
+  shmem_barrier_all();		/* so say the SGI docs */
+
   return addr;
 }
 
@@ -54,6 +56,8 @@ shfree(void *addr)
   mspace_free(myspace, addr);
 
   malloc_error = SHMEM_MALLOC_OK;
+
+  shmem_barrier_all();
 }
 
 void *
@@ -80,6 +84,8 @@ shrealloc(void *addr, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
+  shmem_barrier_all();
+
   return newaddr;
 }
 
@@ -101,6 +107,8 @@ shmemalign(size_t alignment, size_t size)
   else {
     malloc_error = SHMEM_MALLOC_OK;
   }
+
+  shmem_barrier_all();
 
   return addr;
 }
