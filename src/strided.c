@@ -9,10 +9,10 @@
   shmem_##Name##_iput(Type *target, const Type *source,			\
 		      ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe)	\
   {									\
-    __warn(SHMEM_LOG_FATAL,						\
-	   "shmem_%s_iput not yet implemented",				\
-	   #Name							\
-	   );								\
+    __shmem_warn(SHMEM_LOG_FATAL,					\
+		 "shmem_%s_iput not yet implemented",			\
+		 #Name							\
+		 );							\
   }
 
 SHMEM_EMIT_IPUT(short, short)
