@@ -153,3 +153,108 @@ FORTRANIFY(shmem_barrier)(int *PE_start, int *logPE_stride, int *PE_size,
 FORTRANIFY_VOID_VOID(shmem_barrier_all)
 FORTRANIFY_VOID_VOID(shmem_fence)
 FORTRANIFY_VOID_VOID(shmem_quiet)
+
+/*
+ * TODO: symmetric memory: this is subtly different in Fortran
+ */
+
+/*
+ * wait operations
+ */
+
+#define FORTRANIFY_WAIT_UNTIL(Name, Type)				\
+  void									\
+  FORTRANIFY(shmem_##Name##_wait_until)(Type *ivar, int *cmp, Type *cmp_value) \
+  {									\
+    shmem_##Name##_wait_until(ivar, *cmp, *cmp_value);			\
+  }
+
+#define FORTRANIFY_WAIT(Name, Type)					\
+  void									\
+  FORTRANIFY(shmem_##Name##_wait)(Type *ivar, Type *cmp_value)		\
+  {									\
+    shmem_##Name##_wait(ivar, *cmp_value);				\
+  }
+
+FORTRANIFY_WAIT_UNTIL(short, short)
+FORTRANIFY_WAIT_UNTIL(int, int)
+FORTRANIFY_WAIT_UNTIL(long, long)
+FORTRANIFY_WAIT_UNTIL(longlong, long long)
+
+FORTRANIFY_WAIT(short, short)
+FORTRANIFY_WAIT(int, int)
+FORTRANIFY_WAIT(long, long)
+FORTRANIFY_WAIT(longlong, long long)
+
+_Pragma("weak shmem_wait_until_=shmem_long_wait_until_")
+_Pragma("weak shmem_wait_=shmem_long_wait_")
+
+/*
+ * cache flushing
+ */
+
+FORTRANIFY_VOID_VOID(shmem_clear_cache_inv)
+FORTRANIFY_VOID_VOID(shmem_set_cache_inv)
+FORTRANIFY_VOID_VOID(shmem_udcflush)
+
+void
+FORTRANIFY(shmem_clear_cache_line_inv)(void *target)
+{
+  shmem_clear_cache_line_inv(target);
+}
+void
+FORTRANIFY(shmem_set_cache_line_inv)(void *target)
+{
+  shmem_set_cache_line_inv(target);
+}
+void
+FORTRANIFY(shmem_udcflush_line)(void *target)
+{
+  shmem_udcflush_line(target);
+}
+
+/*
+ * reductions
+ */
+
+/*
+ * broadcasts
+ */
+
+#if 0
+extern void shmem_broadcast32(void *target, const void *source, size_t nlong,
+                              int PE_root, int PE_start, int logPE_stride, int PE_size,
+                              long *pSync);
+
+extern void shmem_broadcast64(void *target, const void *source, size_t nlong,
+                              int PE_root, int PE_start, int logPE_stride, int PE_size,
+                              long *pSync);
+
+extern long * shmem_sync_init(void);
+#endif
+
+/*
+ * fixed collects
+ */
+
+#if 0
+extern void shmem_fcollect32(void *target, const void *source, size_t nlong,
+                             int PE_start, int logPE_stride, int PE_size,
+                             long *pSync);
+extern void shmem_fcollect64(void *target, const void *source, size_t nlong,
+                             int PE_start, int logPE_stride, int PE_size,
+                             long *pSync);
+#endif
+
+/*
+ * generalized collects
+ */
+
+#if 0
+extern void shmem_collect32(void *target, const void *source, size_t nlong,
+                            int PE_start, int logPE_stride, int PE_size,
+                            long *pSync);
+extern void shmem_collect64(void *target, const void *source, size_t nlong,
+                            int PE_start, int logPE_stride, int PE_size,
+                            long *pSync);
+#endif
