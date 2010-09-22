@@ -42,7 +42,7 @@ __comms_get_segment_size(void)
 
   p = mlss_str;
   while (*p != '\0') {
-    if (isalpha(*p)) {
+    if (! isdigit(*p)) {
       unit = *p;
       *p = '\0';
       break;
@@ -107,7 +107,7 @@ __comms_init(void)
 	      );
 
   __shmem_warn(SHMEM_LOG_DEBUG,
-	       "symmetric heap size is %ld bytes\n",
+	       "symmetric heap size is %ld bytes",
 	       __state.heapsize
 	       );
 
