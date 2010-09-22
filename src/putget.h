@@ -1,6 +1,6 @@
 
 #ifndef _PUTGET_H
-#define _PUTGET_h 1
+#define _PUTGET_H 1
 
 extern void __shmem_short_put_nbi(short *target, short *source, size_t len, int pe);
 extern void __shmem_int_put_nbi(int *target, int *source, size_t len, int pe);
