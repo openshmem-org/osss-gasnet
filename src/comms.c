@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #include "gasnet_safe.h"
 
 #include "state.h"
@@ -8,7 +10,7 @@
 #include "comms.h"
 
 /*
- *start of handlers
+ * start of handlers
  */
 
 #define GASNET_HANDLER_SWAP_OUT 128
@@ -25,6 +27,55 @@ static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
  * end of handlers
  */
 
+static size_t
+__comms_get_segment_size(void)
+{
+  char unit = '\0';
+  size_t mul = 1;
+  char *p;
+  size_t retval;
+  char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
+
+  if (mlss_str == (char *) NULL) {
+    return (size_t) gasnet_getMaxLocalSegmentSize();
+  }
+
+  p = mlss_str;
+  while (*p != '\0') {
+    if (isalpha(*p)) {
+      unit = *p;
+      *p = '\0';
+      break;
+    }
+    p += 1;
+  }
+  switch (tolower(unit)) {
+  case 'k':
+    mul = 1024L;
+    break;
+  case 'm':
+    mul = 1024L * 1024L;
+    break;
+  case 'g':
+    mul = 1024L * 1024L * 1024L;
+    break;
+  case 't':
+    mul = 1024L * 1024L * 1024L * 1024L;
+    break;
+  case '\0':
+    break;
+  default:
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "unknown data size unit \"%c\" in symmetric heap specification",
+		 unit);
+    break;
+  }
+  retval = (size_t) strtol(mlss_str, (char **) NULL, 10);
+  retval *= mul;
+
+  return retval;
+}
+
 void
 __comms_init(void)
 {
@@ -33,7 +84,6 @@ __comms_init(void)
    */
   int argc = 1;
   char **argv;
-  uintptr_t mlss;
 
   argv = (char **) malloc(argc * sizeof(*argv));
   if (argv == (char **) NULL) {
@@ -45,19 +95,21 @@ __comms_init(void)
   GASNET_SAFE(
 	      gasnet_init(&argc, &argv)
 	      );
-  
-  mlss = gasnet_getMaxLocalSegmentSize();
+
+  __state.mype = __comms_mynode();
+  __state.numpes = __comms_nodes();
+  __state.heapsize = __comms_get_segment_size();
 
   GASNET_SAFE(
 	      gasnet_attach(handlers, nhandlers,
-			    mlss,
+			    __state.heapsize,
 			    0)
 	      );
+
   __shmem_warn(SHMEM_LOG_DEBUG,
-	       "attached %d handler%s, segment size is %ld\n",
-	       nhandlers,
-	       (nhandlers == 1) ? "" : "s",
-	       mlss);
+	       "symmetric heap size is %ld bytes\n",
+	       __state.heapsize
+	       );
 
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
@@ -228,8 +280,8 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
     }
     if (! foundit) {
       __shmem_warn(SHMEM_LOG_FATAL,
-		   "PE %d is not in active set for barrier",
-		   __state.mype);
+		   "PE not in active set for barrier"
+		   );
     }
   }
 }

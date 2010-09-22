@@ -197,21 +197,18 @@ FORTRANIFY_VOID_VOID(shmem_clear_cache_inv)
 FORTRANIFY_VOID_VOID(shmem_set_cache_inv)
 FORTRANIFY_VOID_VOID(shmem_udcflush)
 
-void
-FORTRANIFY(shmem_clear_cache_line_inv)(void *target)
-{
-  shmem_clear_cache_line_inv(target);
-}
-void
-FORTRANIFY(shmem_set_cache_line_inv)(void *target)
-{
-  shmem_set_cache_line_inv(target);
-}
-void
-FORTRANIFY(shmem_udcflush_line)(void *target)
-{
-  shmem_udcflush_line(target);
-}
+#define FORTRANIFY_CACHE(Name)					\
+  void								\
+  FORTRANIFY(Name)(void *target)				\
+  {								\
+    Name(target);						\
+  }
+
+FORTRANIFY_CACHE(shmem_set_cache_line_inv)
+FORTRANIFY_CACHE(shmem_clear_cache_line_inv)
+FORTRANIFY_CACHE(shmem_udcflush_line)
+
+
 
 /*
  * reductions

@@ -86,8 +86,6 @@ shmem_init(void)
   }
 
   __comms_init();
-  __state.mype = __comms_mynode();
-  __state.numpes = __comms_nodes();
 
   __shmem_hostnode_init();
 
