@@ -8,18 +8,7 @@
 
 #include "shmem.h"
 
-#ifdef FORTRAN_SINGLE_UNDERSCORE
-
-#define FORTRANIFY(sym)    sym##_
-
-#else /* ! FORTRAN_SINGLE_UNDERSCORE */
-
-#define FORTRANIFY(sym)    sym##__
-
-#endif /* FORTRAN_SINGLE_UNDERSCORE */
-
-#define FORTRANIFY_VOID_VOID(F) \
-  void FORTRANIFY(F) (void) { F(); }
+#include "fortran-common.h"
 
 /*
  * puts and gets
@@ -154,9 +143,7 @@ FORTRANIFY_VOID_VOID(shmem_barrier_all)
 FORTRANIFY_VOID_VOID(shmem_fence)
 FORTRANIFY_VOID_VOID(shmem_quiet)
 
-/*
- * TODO: symmetric memory: this is subtly different in Fortran
- */
+
 
 /*
  * wait operations

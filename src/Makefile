@@ -76,6 +76,9 @@ comms.o:	comms.c
 fortran.o:	fortran.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
+fortran-mem.o:	fortran-mem.c
+	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
+
 symmem.o:	symmem.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
