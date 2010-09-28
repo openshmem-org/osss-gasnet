@@ -17,7 +17,6 @@ static long *put_count;
 static long *get_count;
 static long *my_pe_count;
 static long *num_pes_count;
-static long *hostname_count;
 static long *nodename_count;
 static long *barrier_all_count;
 
@@ -53,7 +52,6 @@ __shmem_stats_init(void)
   ALLOC_COUNTERS(get);
   ALLOC_COUNTERS(my_pe);
   ALLOC_COUNTERS(num_pes);
-  ALLOC_COUNTERS(hostname);
   ALLOC_COUNTERS(nodename);
   ALLOC_COUNTERS(barrier_all);
 }
@@ -65,7 +63,6 @@ __shmem_stats_report(void)
   DISPLAY_COUNTERS(get);
   DISPLAY_COUNTERS(my_pe);
   DISPLAY_COUNTERS(num_pes);
-  DISPLAY_COUNTERS(hostname);
   DISPLAY_COUNTERS(nodename);
   DISPLAY_COUNTERS(barrier_all);
 }
@@ -146,19 +143,6 @@ __shmem_stats_num_pes(void)
          );
 #endif /* SHMEM_STATS_VERBOSE */
   num_pes_count[__state.mype] += 1;
-}
-
-void
-__shmem_stats_hostname(void)
-{
-#ifdef SHMEM_STATS_VERBOSE
-  fprintf(stats_fp,
-          "SHMEM(PE %d): \"%s\" on PE %d\n",
-          __state.mype,
-          "hostname"
-         );
-#endif /* SHMEM_STATS_VERBOSE */
-  hostname_count[__state.mype] += 1;
 }
 
 void

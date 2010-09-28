@@ -31,17 +31,10 @@ SHMEM_NUM_PES(num_pes)
 SHMEM_NUM_PES(_num_pes)
 
 char *
-shmem_hostname(void)
-{
-  SHMEM_STATS_HOSTNAME();
-  return __state.hostname;
-}
-
-char *
 shmem_nodename(void)
 {
   SHMEM_STATS_NODENAME();
-  return __state.nodename;
+  return __state.loc.nodename;
 }
 
 char *

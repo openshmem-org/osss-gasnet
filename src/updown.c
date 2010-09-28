@@ -42,30 +42,15 @@ __shmem_exit_handler(void)
  * find the short & (potentially) long host/node name
  */
 static void
-__shmem_hostnode_init(void)
+__shmem_place_init(void)
 {
-  struct utsname u;
   int s;
 
-  s = uname(&u);
+  s = uname(& __state.loc);
   if (s != 0) {
     __shmem_warn(SHMEM_LOG_FATAL,
                  "can't find any node information"
                 );
-  }
-
-  __state.hostname = strdup(u.nodename);
-  /* TODO: slightly wasteful of space, but domain names aren't too big */
-  __state.nodename = strdup(u.nodename);
-  {
-    char *period = __state.nodename;
-    while (*period != '\0') {
-      if (*period == '.') {
-        *period = '\0';
-        break;
-      }
-      period += 1;
-    }
   }
 }
 
@@ -87,7 +72,7 @@ shmem_init(void)
 
   __comms_init();
 
-  __shmem_hostnode_init();
+  __shmem_place_init();
 
   __symmetric_memory_init();
 

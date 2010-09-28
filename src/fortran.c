@@ -111,12 +111,6 @@ SHMEM_FORTRAN_QUERY_PE(num_pes)
 SHMEM_FORTRAN_QUERY_PE(_num_pes)
 
 char *
-FORTRANIFY(shmem_hostname)(void)
-{
-  return shmem_hostname();
-}
-
-char *
 FORTRANIFY(shmem_nodename)(void)
 {
   return shmem_nodename();

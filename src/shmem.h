@@ -19,8 +19,7 @@ extern int    shmem_n_pes(void);
 extern int    num_pes(void);
 extern int    _num_pes(void);          /* synonyms */
 
-extern char * shmem_hostname(void);    /* might be FQDN */
-extern char * shmem_nodename(void);    /* unqualified */
+extern char * shmem_nodename(void);    /* where the PE is running */
 
 extern char * shmem_version(void);
 
