@@ -13,9 +13,8 @@ main(void)
 
   f = (float *) shmalloc( sizeof(*f) );
 
-  shmem_barrier_all();
-
   *f = 3.1415927;
+  shmem_barrier_all();
 
   printf("BEFORE %d: f = %f\n", me, *f);
 

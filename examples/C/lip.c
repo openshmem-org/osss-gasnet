@@ -13,9 +13,8 @@ main(void)
 
   f = (long *) shmalloc( sizeof(*f) );
 
-  shmem_barrier_all();
-
   *f = 3;
+  shmem_barrier_all();
 
   printf("BEFORE %d: f = %d\n", me, *f);
 
