@@ -246,17 +246,17 @@ static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
 void
 __comms_barrier_all(void)
 {
-  GASNET_BEGIN_FUNCTION();
+  // GASNET_BEGIN_FUNCTION();
+
+  /* wait for gasnet to finish pending puts/gets */
+  gasnet_wait_syncnbi_all();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
-
-  /* wait for gasnet to finish pending puts/gets */
-  gasnet_wait_syncnbi_puts();
-
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
-  barcount = 1 - barcount;
+  // barcount = 1 - barcount;
+  barcount += 1;
 }
 
 void

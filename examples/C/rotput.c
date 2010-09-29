@@ -7,8 +7,6 @@
 
 #include <shmem.h>
 
-volatile int tony = 1;
-
 int
 main(int argc, char **argv)
 {
@@ -21,14 +19,15 @@ main(int argc, char **argv)
   me = shmem_my_pe();
   npes = shmem_num_pes();
 
-  dest = (int *)shmalloc(sizeof(*dest));
-  shmem_barrier_all();
+  dest = (int *) shmalloc(sizeof(*dest));
 
   nextpe = (me + 1) % npes;
 
+  *dest = -1;
+  shmem_barrier_all();
+
   src = nextpe;
 
-  while (tony == 0);
   shmem_int_put(dest, &src, 1, nextpe);
 
   shmem_barrier_all();
@@ -43,7 +42,6 @@ main(int argc, char **argv)
   printf("\n");
 
   shfree(dest);
-  shmem_barrier_all();
 
   return 0;
 }

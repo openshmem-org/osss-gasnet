@@ -8,11 +8,11 @@ main(int argc, char **argv)
   int me, npes;
 
   shmem_init();
-  me   = shmem_my_pe();
-  npes = shmem_num_pes();
 
-  printf("Hello from node %4d of %4d on \"%s\"\n",
-         me, npes, shmem_nodename());
+  me   = my_pe();
+  npes = num_pes();
+
+  printf("Hello from node %4d of %4d\n", me, npes); 
 
   return 0;
 }
