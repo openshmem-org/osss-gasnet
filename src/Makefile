@@ -1,59 +1,75 @@
-PREFIX          = $(HOME)/SHMEM
+PREFIX           = $(HOME)/SHMEM
 
 # ---------------------------------------------------------
 
-DLMALLOC_DIR    = ./dlmalloc
-DLMALLOC_CFLAGS = -I$(DLMALLOC_DIR)
-DLMALLOC_OBJECT = $(DLMALLOC_DIR)/dlmalloc.o
+DLMALLOC_DIR     = ./dlmalloc
+DLMALLOC_CFLAGS  = -I$(DLMALLOC_DIR)
+DLMALLOC_OBJECT  = $(DLMALLOC_DIR)/dlmalloc.o
 
-MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
+MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 
 # ---------------------------------------------------------
 
-GASNET          = $(HOME)/local
-GASNET_CONDUIT  = mpi
+GASNET           = $(HOME)/local
+GASNET_CONDUIT   = mpi
 
 include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
 # ---------------------------------------------------------
 
-CC              = gcc
-CPPFLAGS       += -I../include
-# CPPFLAGS       += -DSHMEM_COLLECT_STATS
-CPPFLAGS       += -MMD
+CC               = gcc
+CPPFLAGS        += -I../include
+# CPPFLAGS        += -DSHMEM_COLLECT_STATS
+CPPFLAGS        += -MMD
 
-CFLAGS         += -fPIC
+CFLAGS          += -fPIC
 
-DEBUG_AND_OPT   = -g -O3
+DEBUG_AND_OPT    = -g -O3
 
-COMMON_FLAGS    = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
+COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
-SHMEM_SOURCES   = $(wildcard *.c)
-SHMEM_OBJECTS   = $(SHMEM_SOURCES:.c=.o)
-SHMEM_DEPFILES  = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY   = libshmem.so
-SHMEM_HEADERS   = shmem.h shmem.fh
-SHMEM_CC        = oshcc
-SHMEM_FC        = oshfort
-SHMEM_RUN       = oshrun
+SHMEM_SOURCES    = $(wildcard *.c)
+SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
+SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
+SHMEM_LIBRARY    = libshmem.so
+SHMEM_HEADERS    = shmem.h shmem.fh
+SHMEM_CC         = oshcc
+SHMEM_FC         = oshfort
+SHMEM_RUN        = oshrun
+
+SHMEM_MANPAGES_1 = $(wildcard *.1)
 
 # ---------------------------------------------------------
 
 .PHONY: c-wrapper f-wrapper wrappers
+.PHONY: install install-lib install-bin install-include install-man
 .PHONY: tidy clean
 .PHONY: do-deps
 
 all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
-install:	all
+install:	install-lib install-bin install-include install-man
+
+install-lib:	all
 	mkdir -p $(PREFIX)/lib
-	mkdir -p $(PREFIX)/include/mpp
-	mkdir -p $(PREFIX)/bin
 	install -c  $(SHMEM_LIBRARY) $(PREFIX)/lib
-	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
-	install -c  $(SHMEM_HEADERS) $(PREFIX)/include/mpp
+
+install-bin:	all
+	mkdir -p $(PREFIX)/bin
 	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
 	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+
+install-include:	all
+	mkdir -p $(PREFIX)/include/mpp
+	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
+	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do rm -f $$f; ln -s ../$$f; done)
+
+install-man:	all
+	mkdir -p $(PREFIX)/man/man{1,3}
+	install -c  $(SHMEM_MANPAGES_1) $(PREFIX)/man/man1
+	# install -c  $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
+
+# -- start dlmalloc ----------------------------------------
 
 $(DLMALLOC_OBJECT):
 	$(MAKE) -C $(DLMALLOC_DIR)
@@ -61,8 +77,9 @@ $(DLMALLOC_OBJECT):
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
 
-#
-# -- GASNET ------------------------------------------------
+# -- end dlmalloc ------------------------------------------
+
+# -- start GASNet ------------------------------------------
 # eventually, we'll migrate gasnet dependencies to a
 # separate transport directory
 #
@@ -73,7 +90,7 @@ comms.o:	comms.c
 		$(DLMALLOC_CFLAGS) \
 		$(COMMON_FLAGS) -c -o $@ $<
 
-# -- GASNET ------------------------------------------------
+# -- end GASNet --------------------------------------------
 
 fortran.o:	fortran.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
