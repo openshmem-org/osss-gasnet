@@ -1,3 +1,8 @@
+/*
+ * This file provides the layer on top of GASNet, ARMCI or whatever.
+ * API should be formalized at some point
+ */
+
 #include <ctype.h>
 
 #include "gasnet_safe.h"
@@ -8,6 +13,69 @@
 #include "dispatch.h"
 #include "atomic.h"
 #include "comms.h"
+
+/*
+ * define accepted size units.  Table set up to favor expected units
+ */
+
+struct unit_lookup {
+  char unit;
+  size_t size;
+};
+
+static struct unit_lookup units[] =
+  {
+    { 'g', 1024L * 1024L * 1024L         },
+    { 'm', 1024L * 1024L                 },
+    { 'k', 1024L                         },
+    { 't', 1024L * 1024L * 1024L * 1024L }
+  };
+static const int nunits = sizeof(units) / sizeof(units[0]);
+
+static size_t
+__comms_get_segment_size(void)
+{
+  char unit = '\0';
+  size_t mul = 1;
+  char *p;
+  char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
+
+  if (mlss_str == (char *) NULL) {
+    return (size_t) gasnet_getMaxLocalSegmentSize();
+  }
+
+  p = mlss_str;
+  while (*p != '\0') {
+    if (! isdigit(*p)) {
+      unit = *p;
+      *p = '\0';		/* get unit, chop */
+      break;
+    }
+    p += 1;
+  }
+
+  if (unit != '\0') {
+    int i;
+    int foundit = 0;
+    struct unit_lookup *up = (struct unit_lookup *) units;
+
+    unit = tolower(unit);
+    for (i = 0; i < nunits; up += 1, i += 1) {
+      if (up->unit == unit) {	/* walk the table, assign if unit matches */
+	mul = up->size;
+	foundit = 1;
+	break;
+      }
+    }
+    if (! foundit) {
+      __shmem_warn(SHMEM_LOG_FATAL,
+		   "unknown data size unit \"%c\" in symmetric heap specification",
+		   unit);
+    }
+  }
+
+  return mul * (size_t) strtol(mlss_str, (char **) NULL, 10);
+}
 
 /*
  * start of handlers
@@ -26,55 +94,6 @@ static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 /*
  * end of handlers
  */
-
-static size_t
-__comms_get_segment_size(void)
-{
-  char unit = '\0';
-  size_t mul = 1;
-  char *p;
-  size_t retval;
-  char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
-
-  if (mlss_str == (char *) NULL) {
-    return (size_t) gasnet_getMaxLocalSegmentSize();
-  }
-
-  p = mlss_str;
-  while (*p != '\0') {
-    if (! isdigit(*p)) {
-      unit = *p;
-      *p = '\0';
-      break;
-    }
-    p += 1;
-  }
-  switch (tolower(unit)) {
-  case 'k':
-    mul = 1024L;
-    break;
-  case 'm':
-    mul = 1024L * 1024L;
-    break;
-  case 'g':
-    mul = 1024L * 1024L * 1024L;
-    break;
-  case 't':
-    mul = 1024L * 1024L * 1024L * 1024L;
-    break;
-  case '\0':
-    break;
-  default:
-    __shmem_warn(SHMEM_LOG_FATAL,
-		 "unknown data size unit \"%c\" in symmetric heap specification",
-		 unit);
-    break;
-  }
-  retval = (size_t) strtol(mlss_str, (char **) NULL, 10);
-  retval *= mul;
-
-  return retval;
-}
 
 void
 __comms_init(void)
@@ -258,6 +277,7 @@ __comms_barrier_all(void)
   // barcount = 1 - barcount;
   barcount += 1;
 }
+
 
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
