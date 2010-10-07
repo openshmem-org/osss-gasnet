@@ -123,6 +123,6 @@ clean:	tidy
 	rm -f Makedeps
 
 do-deps: $(SHMEM_OBJECTS)
-	cat $(SHMEM_DEPFILES) > Makedeps
+	- cat $(SHMEM_DEPFILES) > Makedeps
 
 -include Makedeps

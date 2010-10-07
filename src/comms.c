@@ -1,6 +1,7 @@
 /*
  * This file provides the layer on top of GASNet, ARMCI or whatever.
- * API should be formalized at some point
+ * API should be formalized at some point, but basically everything
+ * that starts with "__comms_"
  */
 
 #include <ctype.h>
@@ -324,6 +325,9 @@ static gasnet_seginfo_t * seginfo_table;
 void
 __symmetric_memory_init(void)
 {
+  /*
+   * calloc zeroes for us
+   */
   seginfo_table = (gasnet_seginfo_t *)calloc(__state.numpes,
                                              sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
@@ -331,12 +335,14 @@ __symmetric_memory_init(void)
                  "could not allocate GASNet segments");
   }
 
+  /*
+   * prep the segments for use across all PEs
+   */
   GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
 
   /*
-   * each PE initializes its own table, but can see addresses of all PEs
+   * each PE manages its own segment, but can see addresses from all PEs
    */
-
   myspace = create_mspace_with_base(seginfo_table[__state.mype].addr,
 				    seginfo_table[__state.mype].size,
 				    1);
@@ -440,7 +446,7 @@ handler_swap_bak(gasnet_token_t token,
 long
 __comms_request(void *target, long value, int pe)
 {
-  // allocate p
+  // allocate p, TODO: check result
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
