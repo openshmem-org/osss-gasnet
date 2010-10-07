@@ -21,11 +21,11 @@ shmem_barrier_all(void)
 		 );
   }
 
-  __hooks_pre_barrier();
+  // __hooks_pre_barrier();
 
   (*barfunc)();
 
-  __hooks_post_barrier();
+  // __hooks_post_barrier();
 
   SHMEM_STATS_BARRIER();
 }

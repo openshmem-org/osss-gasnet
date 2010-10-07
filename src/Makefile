@@ -11,8 +11,9 @@ MALLOC_OBJECT   = $(DLMALLOC_OBJECT)
 # ---------------------------------------------------------
 
 GASNET          = $(HOME)/local
+GASNET_CONDUIT  = mpi
 
-include $(GASNET)/include/mpi-conduit/mpi-par.mak 
+include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
 # ---------------------------------------------------------
 
@@ -46,10 +47,11 @@ all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
 install:	all
 	mkdir -p $(PREFIX)/lib
-	mkdir -p $(PREFIX)/include
+	mkdir -p $(PREFIX)/include/mpp
 	mkdir -p $(PREFIX)/bin
 	install -c  $(SHMEM_LIBRARY) $(PREFIX)/lib
 	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
+	install -c  $(SHMEM_HEADERS) $(PREFIX)/include/mpp
 	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
 	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
