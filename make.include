@@ -1,0 +1,16 @@
+#
+# common install defs.  should come from GNU configure at some point
+#
+
+
+
+PREFIX           = $(HOME)/SHMEM
+
+# ---------------------------------------------------------
+
+GASNET           = $(HOME)/local
+GASNET_CONDUIT   = mpi
+
+include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+
+# ---------------------------------------------------------

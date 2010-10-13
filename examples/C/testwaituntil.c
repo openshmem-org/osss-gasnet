@@ -25,10 +25,8 @@ main(void)
   npes = shmem_num_pes();
 
   dest = (long *) shmalloc( sizeof(*dest) );
-  shmem_barrier_all();
 
   *dest = 9L;
-
   shmem_barrier_all();
 
   if (me == 0) {

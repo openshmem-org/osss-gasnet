@@ -3,8 +3,6 @@
 
 #include <sys/types.h>
 
-typedef void *shmem_handle_t;
-
 extern void __comms_init(void);
 extern void __comms_shutdown(int status);
 
@@ -25,33 +23,25 @@ extern void __comms_put_val(void *dst, long src, size_t len, int pe);
 extern long __comms_get_val(void *src, size_t len, int pe);
 
 
-extern void __comms_short_put_nb(short *target, short *source,
-				 size_t len, int pe,
-				 shmem_handle_t *h);
-extern void __comms_int_put_nb(int *target, int *source,
-			       size_t len, int pe,
-			       shmem_handle_t *h);
-extern void __comms_long_put_nb(long *target, long *source,
-				size_t len, int pe,
-				shmem_handle_t *h);
-extern void __comms_putmem_nb(long *target, long *source,
-			      size_t len, int pe,
-			      shmem_handle_t *h);
-extern void __comms_longdouble_put_nb(long double *target,
-				      long double *source,
-				      size_t len, int pe,
-				      shmem_handle_t *h);
-extern void __comms_longlong_put_nb(long long *target,
-				    long long *source,
-				    size_t len, int pe,
-				    shmem_handle_t *h);
-extern void __comms_double_put_nb(double *target, double *source,
-				  size_t len, int pe,
-				  shmem_handle_t *h);
-extern void __comms_float_put_nb(float *target, float *source,
-				 size_t len, int pe,
-				 shmem_handle_t *h);
-extern void __comms_wait_nb(shmem_handle_t h);
+extern void * __comms_short_put_nb(short *target, short *source,
+				   size_t len, int pe);
+extern void * __comms_int_put_nb(int *target, int *source,
+				 size_t len, int pe);
+extern void * __comms_long_put_nb(long *target, long *source,
+				  size_t len, int pe);
+extern void * __comms_putmem_nb(long *target, long *source,
+				size_t len, int pe);
+extern void * __comms_longdouble_put_nb(long double *target,
+					long double *source,
+					size_t len, int pe);
+extern void * __comms_longlong_put_nb(long long *target,
+				      long long *source,
+				      size_t len, int pe);
+extern void * __comms_double_put_nb(double *target, double *source,
+				    size_t len, int pe);
+extern void * __comms_float_put_nb(float *target, float *source,
+				   size_t len, int pe);
+extern void __comms_wait_nb(void *h);
 
 extern void __comms_fence(void);
 

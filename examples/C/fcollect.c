@@ -21,12 +21,12 @@ main(void)
   dst = shmalloc(sizeof(*dst) * 4);
   src = shmalloc(sizeof(*src));
 
-  shmem_barrier_all();
-
   for (i = 0; i < 4; i++) {
     dst[i] = 10101;
   }
   *src = me + 100;
+
+  shmem_barrier_all();
 
   pSync = shmem_sync_init();
 

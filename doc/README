@@ -12,12 +12,10 @@ The SHMEM development area is split up as follows:
 
 Implementation:
 
-Right now, the library is tightly bound to GASNet in order to get
-something going.  In the future, it's going to be a much better idea
-to put in an abstraction layer so we can plug in other communication
-libraries, such as ARMCI.
+The library has an abstraction layer so we can plug in other
+communication libraries, such as ARMCI, in place of GASNet currently.
 
-                    Now                              Better
+                  GASNet                           Abstracted
         
          +=======================+          +=======================+
          |                       |          |       SHMEM API       |
@@ -116,5 +114,4 @@ be generated from per-module headers, e.g. by marking API symbols as
 
 Swaps:
 
-This is done very stupidly for now as a placeholder.  Need to look
-into Active Messages and HSLs in gasnet.
+Done with Active Messages

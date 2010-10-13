@@ -236,11 +236,10 @@ __comms_get_val(void *src, size_t len, int pe)
 }
 
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
-   void							\
-  __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe, \
-			  shmem_handle_t *h)				\
+  void *								\
+  __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
   {									\
-    *(h) = gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
+    return gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
   }
 
 COMMS_TYPE_PUT_NB(short, short)
@@ -254,7 +253,7 @@ COMMS_TYPE_PUT_NB(float, float)
 _Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
 
 void
-__comms_wait_nb(shmem_handle_t h)
+__comms_wait_nb(void *h)
 {
   gasnet_wait_syncnb((gasnet_handle_t ) h);
 }

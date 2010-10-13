@@ -1,0 +1,24 @@
+.\" Emacs: -*- nroff -*-
+.TH oshcc 1 ""
+.SH NAME
+\fBoshcc\fP - compile an OpenSHMEM C program
+.SH SYNOPSIS
+\fBoshcc\fP
+[ underlying compiler flags ]
+file.c [file.c ...]
+.SH DESCRIPTION
+\fBoshcc\fP is a wrapper in the vein of mpicc that compiles
+an OpenSHMEM program.  The wrapper hides implementation
+details from the user.
+.SH EXAMPLES
+The command
+.LP
+.RS
+$ oshcc -g -o foo.exe foo.c
+.RE
+.LP
+compiles foo.c into the OpenSHMEM executable foo.exe.
+.SH SEE ALSO
+intro_shmem(3),
+oshrun(1),
+oshfort(1)

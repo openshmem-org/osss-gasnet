@@ -1,0 +1,31 @@
+.PHONY: all all-doc all-src
+.PHONY: install install-doc install-src
+.PHONY: clean clean-doc clean-src
+
+all: all-doc all-src
+
+all-doc:
+	$(MAKE) -C doc all
+
+all-src:
+	$(MAKE) -C src all
+
+# -------------------------------------------------------------
+
+install: install-doc install-src
+
+install-doc:
+	$(MAKE) -C doc install
+
+install-src:
+	$(MAKE) -C src install
+
+# -------------------------------------------------------------
+
+clean: clean-doc clean-src
+
+clean-doc:
+	$(MAKE) -C doc clean
+
+clean-src:
+	$(MAKE) -C src clean

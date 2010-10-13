@@ -27,7 +27,7 @@ __shmem_atomic_finalize(void)
 static int64_t
 __atomic_xchg64(volatile int64_t *p, int64_t new_value)
 {
-  asm volatile ("lock xchg %1, %0" : 
+  __asm__ volatile ("lock xchg %1, %0" : 
                 "+m" (*p), "+r" (new_value) : : 
                 "memory");
   return new_value;
@@ -36,7 +36,7 @@ __atomic_xchg64(volatile int64_t *p, int64_t new_value)
 static int64_t
 __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
 {
-  asm volatile ("lock cmpxchg %2, %0" : 
+  __asm__ volatile ("lock cmpxchg %2, %0" : 
                 "+m" (*p), "+a" (old_value) :
                 "r" (new_value) : 
                 "memory");

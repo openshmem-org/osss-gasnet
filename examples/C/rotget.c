@@ -21,8 +21,6 @@ main(int argc, char **argv)
 
   src = (long *)shmalloc(sizeof(*src));
 
-  shmem_barrier_all();
-
   *src = me;
 
   shmem_barrier_all();

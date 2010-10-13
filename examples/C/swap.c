@@ -14,9 +14,10 @@ main()
   npes = shmem_num_pes();
 
   target = (long *) shmalloc( sizeof(*target) );
-  shmem_barrier_all();
 
   *target = me;
+  shmem_barrier_all();
+
   new_val = me;
 
   if (me & 1) {

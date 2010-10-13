@@ -29,8 +29,6 @@ main(int argc, char **argv)
 
   dest = (long *)shmalloc(sizeof(*dest));
 
-  shmem_barrier_all();
-
   if (me == 0) {
     int other_pe = rand() % npes;
     printf("Random destination PE is %d, sending value %ld\n", other_pe, src);

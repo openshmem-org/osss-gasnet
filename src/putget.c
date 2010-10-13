@@ -48,6 +48,9 @@ SHMEM_TYPE_PUT(float, float)
 
 _Pragma("weak shmem_putmem=shmem_long_put")
 _Pragma("weak shmem_put=shmem_long_put")
+_Pragma("weak shmem_put32=shmem_int_put")
+_Pragma("weak shmem_put64=shmem_long_put")
+_Pragma("weak shmem_put128=shmem_longdouble_put")
 
   
 #define SHMEM_TYPE_GET(Name, Type)					\
@@ -83,9 +86,12 @@ SHMEM_TYPE_GET(float, float)
 
 _Pragma("weak shmem_getmem=shmem_long_get")
 _Pragma("weak shmem_get=shmem_long_get")
+_Pragma("weak shmem_get32=shmem_int_get")
+_Pragma("weak shmem_get64=shmem_long_get")
+_Pragma("weak shmem_get128=shmem_longdouble_get")
 
 /*
- * gasnet_(put|get)_val can't handle bigger types..
+ * gasnet_(get|get)_val can't handle bigger types..
  */
 
 #define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
@@ -169,3 +175,22 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
 SHMEM_TYPE_G(short, short)
 SHMEM_TYPE_G(int, int)
 SHMEM_TYPE_G(long, long)
+
+/*
+ * non-blocking extensions
+ */
+
+#define SHMEM_TYPE_PUT_NB(Name, Type)					\
+  void *								\
+  shmem_##Name##_put_nb(Type *target, Type *source, size_t len, int pe)	\
+  {									\
+    return __comms_##Name##_put_nb(target, source, len, pe);		\
+  }
+
+SHMEM_TYPE_PUT_NB(short, short)
+SHMEM_TYPE_PUT_NB(int, int)
+SHMEM_TYPE_PUT_NB(long, long)
+SHMEM_TYPE_PUT_NB(longdouble, long double)
+SHMEM_TYPE_PUT_NB(longlong, long long)
+SHMEM_TYPE_PUT_NB(double, double)
+SHMEM_TYPE_PUT_NB(float, float)

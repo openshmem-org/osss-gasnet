@@ -1,0 +1,28 @@
+.\" Emacs: -*- nroff -*-
+.TH oshrun 1 ""
+.SH NAME
+\fBoshrun\fP - run an OpenSHMEM program
+.SH SYNOPSIS
+\fBoshrun\fP
+-np N
+program
+[program arguments]
+.SH DESCRIPTION
+\fBoshrun\fP runs an OpenSHMEM program on the given number of
+processing elements.
+.SH OPTIONS
+.IP "-np N" 4
+Run the program on N processing elements (processors).
+.SH EXAMPLES
+The command
+.LP
+.RS
+$ oshrun -np 4 ./sping.x -e
+.RE
+.LP
+runs the Quadrics ping-pong example code on 4 processing elements,
+and passes the "-e" option to the OpenSHMEM program.
+.SH SEE ALSO
+intro_shmem(3),
+oshcc(1),
+oshfort(1)

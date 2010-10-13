@@ -23,6 +23,11 @@ CPPFLAGS        += -I../include
 CPPFLAGS        += -MMD
 
 CFLAGS          += -fPIC
+ 
+#
+# in case we ever want complex math support in C
+#
+# CFLAGS          += -std=c99
 
 DEBUG_AND_OPT    = -g -O3
 
@@ -37,18 +42,16 @@ SHMEM_CC         = oshcc
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
 
-SHMEM_MANPAGES_1 = $(wildcard *.1)
-
 # ---------------------------------------------------------
 
 .PHONY: c-wrapper f-wrapper wrappers
-.PHONY: install install-lib install-bin install-include install-man
+.PHONY: install install-lib install-bin install-include
 .PHONY: tidy clean
 .PHONY: do-deps
 
 all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
-install:	install-lib install-bin install-include install-man
+install:	install-lib install-bin install-include
 
 install-lib:	all
 	mkdir -p $(PREFIX)/lib
@@ -64,11 +67,6 @@ install-include:	all
 	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
 	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do rm -f $$f; ln -s ../$$f; done)
 
-install-man:	all
-	mkdir -p $(PREFIX)/man/man{1,3}
-	install -c  $(SHMEM_MANPAGES_1) $(PREFIX)/man/man1
-	# install -c  $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
-
 # -- start dlmalloc ----------------------------------------
 
 $(DLMALLOC_OBJECT):
@@ -76,6 +74,12 @@ $(DLMALLOC_OBJECT):
 
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
+
+symmem.o:	symmem.c
+	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
+
+putget.o:	putget.c
+	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
 # -- end dlmalloc ------------------------------------------
 
@@ -97,12 +101,6 @@ fortran.o:	fortran.c
 
 fortran-mem.o:	fortran-mem.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
-
-symmem.o:	symmem.c
-	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
-
-putget.o:	putget.c
-	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
 %.o:	%.c
 	$(CC) $(COMMON_FLAGS) -c -o $@ $<
