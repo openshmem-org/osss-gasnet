@@ -75,7 +75,7 @@ $(DLMALLOC_OBJECT):
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
 
-symmem.o:	symmem.c
+memalloc.o:	memalloc.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
 putget.o:	putget.c

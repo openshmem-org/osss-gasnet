@@ -7,33 +7,56 @@
 #include "warn.h"
 #include "shmem.h"
 
-#include "dlmalloc.h"
-
-/*
- * Tony's development interface
- */
-
-mspace myspace;
-
-/*
- * PUBLIC INTERFACE
- */
+#include "memalloc.h"
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 
 /*
  * TODO: shmalloc should check that ALL PEs got passed the same
  * "size", return NULL and set malloc_error if not.
+ *
+ * definitely need internal unchecked shmalloc layer for this
  */
+
+static long *shmalloc_remote_size;
+
+static int
+shmalloc_symmetry_check(size_t size)
+{
+  int i = 0;
+  int succeeded = 1;
+  long shmalloc_received_size;
+
+  *shmalloc_remote_size = size;
+  shmem_barrier_all();
+  for (; i < __state.numpes; i+= 1) {
+    if (i == __state.mype) {
+      continue;
+    }
+    shmalloc_received_size = shmem_long_g(shmalloc_remote_size, i);
+    if (shmalloc_received_size != size) {
+      __shmem_warn(SHMEM_LOG_NOTICE,
+		   "shmalloc was given %ld on PE %d",
+		   shmalloc_received_size, i);
+      malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+      succeeded = 0;
+      break;
+    }
+  }
+  return succeeded;
+}
+
 void *
 shmalloc(size_t size)
 {
   void *addr;
 
-  addr = mspace_malloc(myspace, size);
+  addr = __mem_alloc(size);
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE, "shmalloc(%ld) failed", size);
+    __shmem_warn(SHMEM_LOG_NOTICE,
+		 "shmalloc(%ld) failed",
+		 size);
     malloc_error = SHMEM_MALLOC_FAIL;
   }
   else {
@@ -55,9 +78,9 @@ shfree(void *addr)
     return;
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG, "shfree(%p) in pool @ %p", addr, myspace);
+  __shmem_warn(SHMEM_LOG_DEBUG, "shfree(%p) in pool @ %p", addr, __mem_base());
 
-  mspace_free(myspace, addr);
+  __mem_free(addr);
 
   malloc_error = SHMEM_MALLOC_OK;
 
@@ -76,7 +99,7 @@ shrealloc(void *addr, size_t size)
     return (void *) NULL;
   }
 
-  newaddr = mspace_realloc(myspace, addr, size);
+  newaddr = __mem_realloc(addr, size);
 
   if (newaddr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
@@ -100,7 +123,7 @@ shrealloc(void *addr, size_t size)
 void *
 shmemalign(size_t alignment, size_t size)
 {
-  void *addr = mspace_memalign(myspace, alignment, size);
+  void *addr = __mem_align(alignment, size);
 
   if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
