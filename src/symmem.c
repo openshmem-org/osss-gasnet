@@ -21,6 +21,10 @@ mspace myspace;
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 
+/*
+ * TODO: shmalloc should check that ALL PEs got passed the same
+ * "size", return NULL and set malloc_error if not.
+ */
 void *
 shmalloc(size_t size)
 {

@@ -144,6 +144,7 @@ extern void   shmem_quiet(void);
 #define SHMEM_MALLOC_ALREADY_FREE         (-2L)
 #define SHMEM_MALLOC_MEMALIGN_FAILED      (-3L)
 #define SHMEM_MALLOC_REALLOC_FAILED       (-4L)
+#define SHMEM_MALLOC_SYMMSIZE_FAILED      (-5L)
 
 extern long   malloc_error;
 
@@ -259,7 +260,7 @@ extern void shmem_broadcast64(void *target, const void *source, size_t nlong,
                               int PE_root, int PE_start, int logPE_stride, int PE_size,
                               long *pSync);
 
-extern long * shmem_sync_init(void);
+extern int shmem_sync_init(long **);
 
 /*
  * fixed collects
