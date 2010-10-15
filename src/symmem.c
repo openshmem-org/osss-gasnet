@@ -29,7 +29,7 @@ static int first_check = 1;
 static int
 shmalloc_symmetry_check(size_t size)
 {
-  int i = 0;
+  int i;
   int any_failed_pe = -1;
   long shmalloc_received_size;
 
@@ -44,7 +44,7 @@ shmalloc_symmetry_check(size_t size)
   shmem_barrier_all();
 
   /* everyone checks everyone else's sizes, barf if mis-match */
-  for (; i < __state.numpes; i+= 1) {
+  for (i = 0; i < __state.numpes; i+= 1) {
     if (i == __state.mype) {
       continue;
     }
@@ -60,6 +60,8 @@ shmalloc_symmetry_check(size_t size)
   }
   return any_failed_pe;
 }
+
+
 
 void *
 shmalloc(size_t size)
@@ -87,6 +89,7 @@ shmalloc(size_t size)
 
   return addr;
 }
+_Pragma("weak shmem_malloc=shmalloc")
 
 void
 shfree(void *addr)
@@ -106,6 +109,7 @@ shfree(void *addr)
 
   shmem_barrier_all();
 }
+_Pragma("weak shmem_free=shfree")
 
 void *
 shrealloc(void *addr, size_t size)
@@ -140,6 +144,7 @@ shrealloc(void *addr, size_t size)
 
   return newaddr;
 }
+_Pragma("weak shmem_realloc=shrealloc")
 
 /*
  * The shmemalign function allocates a block in the symmetric heap that
@@ -171,3 +176,4 @@ shmemalign(size_t alignment, size_t size)
 
   return addr;
 }
+_Pragma("weak shmem_memalign=shmemalign")
