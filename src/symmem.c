@@ -30,16 +30,20 @@ static int
 shmalloc_symmetry_check(size_t size)
 {
   int i = 0;
-  int failed_pe = -1;
+  int any_failed_pe = -1;
   long shmalloc_received_size;
 
   if (first_check) {
     shmalloc_remote_size = (long *) __mem_alloc(sizeof(*shmalloc_remote_size));
+    /* TODO: unchecked return */
     first_check = 0;
   }
 
+  /* record for everyone else to see */
   *shmalloc_remote_size = size;
   shmem_barrier_all();
+
+  /* everyone checks everyone else's sizes, barf if mis-match */
   for (; i < __state.numpes; i+= 1) {
     if (i == __state.mype) {
       continue;
@@ -50,11 +54,11 @@ shmalloc_symmetry_check(size_t size)
 		   "shmalloc expected %ld, but saw %ld on PE %d",
 		   size, shmalloc_received_size, i);
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
-      failed_pe = i;
+      any_failed_pe = i;
       break;
     }
   }
-  return failed_pe;
+  return any_failed_pe;
 }
 
 void *
