@@ -9,11 +9,13 @@
 #include "gasnet_safe.h"
 
 #include "state.h"
-#include "symmem.h"
+#include "memalloc.h"
 #include "warn.h"
 #include "dispatch.h"
 #include "atomic.h"
 #include "comms.h"
+
+#include "shmem.h"
 
 /*
  * define accepted size units.  Table set up to favor expected units
@@ -258,6 +260,15 @@ __comms_wait_nb(void *h)
   gasnet_wait_syncnb((gasnet_handle_t ) h);
 }
 
+void
+__comms_fence(void)
+{
+  gasnet_wait_syncnbi_all();
+}
+
+
+
+#if 1
 
 static int barcount = 0;
 static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
@@ -278,45 +289,50 @@ __comms_barrier_all(void)
   barcount += 1;
 }
 
+#else
+
+void
+__comms_barrrier_all(void)
+{
+  __comms_barrier(0, 0, __state.numpes, syncit);
+}
+
+#endif
+
+
 
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   GASNET_BEGIN_FUNCTION();
 
-  {
-    int step = 1 << logPE_stride;
-    int thispe = PE_start;
-    int i;
-    int foundit = 0;
+  __comms_fence();
 
-    for (i = 0; i < PE_size; i += 1) {
-      if (thispe == __state.mype) {
-	gasnet_wait_syncnbi_all();
-	foundit = 1;
-	break;
-      }
+  if (__state.mype == PE_start) {
+    int step = 1 << logPE_stride;
+    int i;
+    int thispe = PE_start;
+    for (i = 1; i < PE_size; i+= 1) {
       thispe += step;
-    }
-    if (! foundit) {
-      __shmem_warn(SHMEM_LOG_FATAL,
-		   "PE not in active set for barrier"
-		   );
+      shmem_wait(& pSync[thispe], _SHMEM_SYNC_VALUE);
+      pSync[thispe] = _SHMEM_SYNC_VALUE;
+      shmem_long_p(& pSync[thispe], _SHMEM_SYNC_VALUE, thispe);
     }
   }
-}
+  else {
+    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE + 1, PE_start);
+    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE + 1);
+  }
 
-void
-__comms_fence(void)
-{
-  gasnet_wait_syncnbi_all();
+  __comms_fence();
+
 }
 
 /*
  * initialize the symmetric segments
  */
 
-static gasnet_seginfo_t * seginfo_table;
+static gasnet_seginfo_t *seginfo_table;
 
 /* UNUSED */
 #define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
@@ -342,9 +358,8 @@ __symmetric_memory_init(void)
   /*
    * each PE manages its own segment, but can see addresses from all PEs
    */
-  myspace = create_mspace_with_base(seginfo_table[__state.mype].addr,
-				    seginfo_table[__state.mype].size,
-				    1);
+  __mem_init(seginfo_table[__state.mype].addr,
+	     seginfo_table[__state.mype].size);
 
   __comms_barrier_all();
 }
@@ -352,7 +367,7 @@ __symmetric_memory_init(void)
 void
 __symmetric_memory_finalize(void)
 {
-  destroy_mspace(myspace);
+  __mem_finalize();
 }
 
 /*

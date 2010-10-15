@@ -31,18 +31,14 @@
 SHMEM_BROADCAST_TYPE(32, int)
 SHMEM_BROADCAST_TYPE(64, long)
 
-long *
-shmem_sync_init(void)
+int
+shmem_sync_init(long **sync)
 {
-  long *sync;
-  size_t sync_size = _SHMEM_BCAST_SYNC_SIZE * sizeof(*sync);
-
-  sync = (long *) shmalloc(sync_size);
-
-  if (sync != (long*)NULL) {
-    memset(sync, _SHMEM_SYNC_VALUE, sync_size);
-    shmem_barrier_all();
+  if (*sync == (long *) NULL) {
+    return 0;
   }
 
-  return sync;
+  memset(*sync, _SHMEM_SYNC_VALUE, _SHMEM_BCAST_SYNC_SIZE * sizeof(**sync));
+  shmem_barrier_all();
+  return 1;
 }

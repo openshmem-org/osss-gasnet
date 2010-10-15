@@ -7,8 +7,7 @@
 
 #include "dlmalloc.h"
 
-/* (c|sh)ould be static at some point */
-mspace myspace;
+static mspace myspace;
 
 /*
  * initialize the memory pool

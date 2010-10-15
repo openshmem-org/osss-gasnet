@@ -19,13 +19,24 @@ long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
  */
 
 static long *shmalloc_remote_size;
+static int first_check = 1;
 
+/*
+ * check that all PEs see the same shmalloc size: return first
+ * mis-matching PE id if there's a mis-match, return -1 to record
+ * correct symmetry
+ */
 static int
 shmalloc_symmetry_check(size_t size)
 {
   int i = 0;
-  int succeeded = 1;
+  int failed_pe = -1;
   long shmalloc_received_size;
+
+  if (first_check) {
+    shmalloc_remote_size = (long *) __mem_alloc(sizeof(*shmalloc_remote_size));
+    first_check = 0;
+  }
 
   *shmalloc_remote_size = size;
   shmem_barrier_all();
@@ -36,20 +47,25 @@ shmalloc_symmetry_check(size_t size)
     shmalloc_received_size = shmem_long_g(shmalloc_remote_size, i);
     if (shmalloc_received_size != size) {
       __shmem_warn(SHMEM_LOG_NOTICE,
-		   "shmalloc was given %ld on PE %d",
-		   shmalloc_received_size, i);
+		   "shmalloc expected %ld, but saw %ld on PE %d",
+		   size, shmalloc_received_size, i);
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
-      succeeded = 0;
+      failed_pe = i;
       break;
     }
   }
-  return succeeded;
+  return failed_pe;
 }
 
 void *
 shmalloc(size_t size)
 {
   void *addr;
+
+  if (shmalloc_symmetry_check(size) != -1) {
+    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+    return (void *) NULL;
+  }
 
   addr = __mem_alloc(size);
 
@@ -92,6 +108,11 @@ shrealloc(void *addr, size_t size)
 {
   void *newaddr;
 
+  if (shmalloc_symmetry_check(size) != -1) {
+    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+    return (void *) NULL;
+  }
+
   if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
 		 "address passed to shrealloc() already null");
@@ -123,7 +144,14 @@ shrealloc(void *addr, size_t size)
 void *
 shmemalign(size_t alignment, size_t size)
 {
-  void *addr = __mem_align(alignment, size);
+  void *addr;
+
+  if (shmalloc_symmetry_check(size) != -1) {
+    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+    return (void *) NULL;
+  }
+
+  addr = __mem_align(alignment, size);
 
   if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
