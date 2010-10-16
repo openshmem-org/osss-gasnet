@@ -177,3 +177,35 @@ shmemalign(size_t alignment, size_t size)
   return addr;
 }
 _Pragma("weak shmem_memalign=shmemalign")
+
+/*
+ * readable error message for error code "e"
+ */
+char *
+sherror(void)
+{
+  switch (malloc_error) {
+  case SHMEM_MALLOC_OK:
+    return "no symmetric memory allocation error";
+    break;
+  case SHMEM_MALLOC_FAIL:
+    return "symmetric memory allocation failed";
+    break;
+  case SHMEM_MALLOC_ALREADY_FREE:
+    return "attempt to free already null symmetric memory address";
+    break;
+  case SHMEM_MALLOC_MEMALIGN_FAILED:
+    return "attempt to align symmetric memory address failed";
+    break;
+  case SHMEM_MALLOC_REALLOC_FAILED:
+    return "attempt to reallocate symmetric memory address failed";
+    break;
+  case SHMEM_MALLOC_SYMMSIZE_FAILED:
+    return "asymmetric sizes passed to symmetric memory allocator";
+    break;
+  default:
+    return "unknown error";
+    break;
+  }
+}
+_Pragma("weak shmem_error=sherror")

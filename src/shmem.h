@@ -158,6 +158,9 @@ extern void   shmem_free(void *ptr);
 extern void * shmem_realloc(void *ptr, size_t size);
 extern void * shmem_memalign(size_t alignment, size_t size);
 
+extern char * sherror(void);
+extern char * shmem_error(void);
+
 /*
  * wait operations
  */

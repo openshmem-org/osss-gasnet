@@ -36,9 +36,3 @@ shmem_nodename(void)
   SHMEM_STATS_NODENAME();
   return __state.loc.nodename;
 }
-
-char *
-shmem_version(void)
-{
-  return "Super Happy Fun OpenSHMEM";
-}
