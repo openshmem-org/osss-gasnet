@@ -1,9 +1,11 @@
 SHMEM_CC = oshcc
 
 TESTS = \
-		hello.c hellofrom.c multi-init.c lock.c \
+		hello.c hellofrom.c \
+		multi-init.c lock.c \
 		randput.c rotput.c rotget.c \
 		badput.c badget.c arrput.c \
+		bad-malloc.c \
 		testwait.c testwaituntil.c \
 		bcast1.c bcast2.c \
 		fcollect.c \

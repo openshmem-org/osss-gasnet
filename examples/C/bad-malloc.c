@@ -14,7 +14,7 @@ main(int argc, char *argv[])
 
   x = (long *) shmalloc(8 * me);      /* deliberately pass different values */
   if (x == (long *) NULL) {
-    fprintf(stderr, "shmalloc: %s\n", sherror());
+    fprintf(stderr, "%d/%d: %s\n", me, npes, sherror());
     return 1;
   }
 
