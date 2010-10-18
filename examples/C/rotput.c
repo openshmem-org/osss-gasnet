@@ -19,14 +19,14 @@ main(int argc, char **argv)
   me = shmem_my_pe();
   npes = shmem_num_pes();
 
-  dest = (int *) shmalloc(sizeof(*dest));
-
   nextpe = (me + 1) % npes;
+
+  src = nextpe;
+
+  dest = (int *) shmalloc(sizeof(*dest));
 
   *dest = -1;
   shmem_barrier_all();
-
-  src = nextpe;
 
   shmem_int_put(dest, &src, 1, nextpe);
 
