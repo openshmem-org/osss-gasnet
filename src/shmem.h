@@ -218,7 +218,7 @@ extern void         shmem_udcflush_line(void *target);
  * reductions
  */
 
-#define _SHMEM_BCAST_SYNC_SIZE 256
+#define _SHMEM_BCAST_SYNC_SIZE 1024
 #define _SHMEM_SYNC_VALUE 0
 
 extern void shmem_int_and_to_all(int *target, int *source, int nreduce,

@@ -70,6 +70,10 @@ SHMEM_TYPE_SWAP(float, float)
 
 _Pragma("weak shmem_swap=shmem_long_swap") 
 
+/*
+ * this is an utterly stupid attempt.  Just so you know :-)
+ */
+
 #define SHMEM_TYPE_CSWAP(Name, Type)					\
   Type									\
   shmem_##Name##_cswap(Type *target, Type cond, Type value, int pe)	\
@@ -81,12 +85,12 @@ _Pragma("weak shmem_swap=shmem_long_swap")
     else {								\
       Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
       shmem_##Name##_get(oldtarget, target, 1, pe);			\
-      shmem_barrier_all();						\
       if (cond == *oldtarget) {						\
 	shmem_##Name##_put(target, &value, 1, pe);			\
 	shmem_barrier_all();						\
       }									\
       retval = *oldtarget;						\
+      shmem_barrier_all();						\
       shfree(oldtarget);						\
       return retval;							\
     }									\

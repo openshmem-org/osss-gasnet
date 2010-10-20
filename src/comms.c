@@ -460,6 +460,7 @@ handler_swap_bak(gasnet_token_t token,
 long
 __comms_request(void *target, long value, int pe)
 {
+  long retval;
   // allocate p, TODO: check result
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   p->s_symm_addr = target;
@@ -474,7 +475,9 @@ __comms_request(void *target, long value, int pe)
 
   GASNET_BLOCKUNTIL(p->sentinel);
 
+  retval = p->value;
+
   free(p);
 
-  return p->value;
+  return retval;
 }
