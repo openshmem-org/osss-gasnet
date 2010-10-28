@@ -17,6 +17,25 @@
 
 #include "shmem.h"
 
+#if defined(GASNET_SEGMENT_FAST) || defined(GASNET_SEGMENT_LARGE)
+#  define NEED_MANAGED_SEGMENTS 1
+#elif defined(GASNET_SEGMENT_EVERYTHING)
+#  undef NEED_MANAGED_SEGMENTS
+#else
+#  error "I don't know what kind of GASNet segment model you're trying to use"
+#endif
+
+
+static gasnet_seginfo_t *seginfo_table;
+
+#if ! defined(NEED_MANAGED_SEGMENTS)
+
+#define HEAP_SIZE 104857600L
+
+static char great_big_heap[HEAP_SIZE];
+
+#endif /* ! NEED_MANAGED_SEGMENTS */
+
 /*
  * define accepted size units.  Table set up to favor expected units
  */
@@ -44,7 +63,11 @@ __comms_get_segment_size(void)
   char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
 
   if (mlss_str == (char *) NULL) {
+#ifdef NEED_MANAGED_SEGMENTS
     return (size_t) gasnet_getMaxLocalSegmentSize();
+#else
+    return HEAP_SIZE;
+#endif
   }
 
   p = mlss_str;
@@ -122,6 +145,10 @@ __comms_init(void)
   __state.numpes = __comms_nodes();
   __state.heapsize = __comms_get_segment_size();
 
+  /*
+   * not guarding the attach for different gasnet models,
+   * since params are ignored if not needed
+   */
   GASNET_SAFE(
 	      gasnet_attach(handlers, nhandlers,
 			    __state.heapsize,
@@ -329,10 +356,14 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 }
 
 /*
- * initialize the symmetric segments
+ * initialize the symmetric segments.
+ *
+ * In the gasnet fast/large models, use the attached segments and
+ * manage address translations through the segment table
+ *
+ * In the everything model, we allocate on our own heap so all
+ * addresses should be the same everywhere.
  */
-
-static gasnet_seginfo_t *seginfo_table;
 
 /* UNUSED */
 #define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
@@ -352,12 +383,42 @@ __symmetric_memory_init(void)
 
   /*
    * prep the segments for use across all PEs
-   */
-  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
-
-  /*
+   *
    * each PE manages its own segment, but can see addresses from all PEs
    */
+
+#ifdef NEED_MANAGED_SEGMENTS
+
+  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
+
+#else
+
+  /* TODO: this is nasty */
+  {
+    int i;
+    char *hpp = & great_big_heap[0];
+    for (i = 0; i < __state.numpes; i += 1) {
+      if (__state.mype == i) {
+	seginfo_table[__state.mype].addr = hpp;
+	seginfo_table[__state.mype].size = __state.heapsize;
+      }
+      else {
+	__comms_put_val(& seginfo_table[__state.mype].addr, (unsigned long) hpp, sizeof(unsigned long), i);
+	__comms_put_val(& seginfo_table[__state.mype].size, __state.heapsize, sizeof(long), i);
+      }
+    }
+    __comms_barrier_all();
+
+    fprintf(stderr, "DEBUG: great_big_heap @ %p\n", hpp);
+  }
+
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "seg addr = %p, seg size = %ld\n",
+	       seginfo_table[__state.mype].addr,
+	       seginfo_table[__state.mype].size);
+
+#endif /* NEED_MANAGED_SEGMENTS */
+
   __mem_init(seginfo_table[__state.mype].addr,
 	     seginfo_table[__state.mype].size);
 
@@ -376,17 +437,25 @@ __symmetric_memory_finalize(void)
 void *
 __symmetric_var_base(int pe)
 {
+#ifdef NEED_MANAGED_SEGMENTS
   return seginfo_table[pe].addr;
+#else /* ! NEED_MANAGED_SEGMENTS */
+  return (void *) great_big_heap;
+#endif /* NEED_MANAGED_SEGMENTS */
 }
 
 /*
  * is the address in the managed symmetric area?
  */
- int
+int
 __symmetric_var_in_range(void *addr, int pe)
 {
+#ifdef NEED_MANAGED_SEGMENTS
   void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
   return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
+#else /* ! NEED_MANAGED_SEGMENTS */
+  return 1;
+#endif /* NEED_MANAGED_SEGMENTS */
 }
 
 /*
@@ -395,9 +464,13 @@ __symmetric_var_in_range(void *addr, int pe)
 void *
 __symmetric_var_offset(void *dest, int pe)
 {
+#ifdef NEED_MANAGED_SEGMENTS
   size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
   char *rdest = (char *)__symmetric_var_base(pe) + offset;
   return (void *)rdest;
+#else /* ! NEED_MANAGED_SEGMENTS */
+  return dest;
+#endif /* NEED_MANAGED_SEGMENTS */
 }
 
 /*
@@ -408,7 +481,7 @@ gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
   void *s_symm_addr;		/* sender symmetric var */
-  void *r_symm_addr;		/* recipient symmetric car */
+  void *r_symm_addr;		/* recipient symmetric var */
   long value;			/* value to be swapped */
   int sentinel;			/* end of transaction marker */
   int *sentinel_addr;		/* addr of marker for copied payload */
@@ -458,7 +531,7 @@ handler_swap_bak(gasnet_token_t token,
 
 
 long
-__comms_request(void *target, long value, int pe)
+__comms_swap_request(void *target, long value, int pe)
 {
   long retval;
   // allocate p, TODO: check result
@@ -481,3 +554,13 @@ __comms_request(void *target, long value, int pe)
 
   return retval;
 }
+
+/*
+ * global variable put/get handlers (for non-everything cases)
+ */
+
+typedef struct {
+  void *var_addr;		/* address of global var */
+  long var_size;		/* size of data lurking behind var */
+  int *sentinel_addr;		/* addr of symmetric completion marker */
+} globalvar_payload_t;

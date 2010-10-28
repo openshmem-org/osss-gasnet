@@ -56,6 +56,6 @@ extern void __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *p
 
 extern void __comms_poll(void);
 
-extern long __comms_request(void *target, long value, int pe);
+extern long __comms_swap_request(void *target, long value, int pe);
 
 #endif /* _COMMS_H */

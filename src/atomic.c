@@ -56,7 +56,7 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
       retval = __atomic_xchg64((volatile int64_t *)target, value);	\
     }									\
     else {								\
-      retval = __comms_request(target, value, pe);			\
+      retval = __comms_swap_request(target, value, pe);			\
     }									\
     return retval;							\
   }
