@@ -107,13 +107,22 @@ __comms_get_segment_size(void)
  * start of handlers
  */
 
-#define GASNET_HANDLER_SWAP_OUT 128
-#define GASNET_HANDLER_SWAP_BAK 129
+#define GASNET_HANDLER_SWAP_OUT      128
+#define GASNET_HANDLER_SWAP_BAK      129
+#define GASNET_HANDLER_GLOBALVAR_OUT 130
+#define GASNET_HANDLER_GLOBALVAR_BAK 131
+
+void handler_swap_out();
+void handler_swap_bak();
+void handler_globalvar_out();
+void handler_globalvar_bak();
 
 static gasnet_handlerentry_t handlers[] =
   {
-    { GASNET_HANDLER_SWAP_OUT, handler_swap_out },
-    { GASNET_HANDLER_SWAP_BAK, handler_swap_bak }
+    { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
+    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
+    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -529,13 +538,18 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_unlock(& swap_bak_lock);
 }
 
-
 long
 __comms_swap_request(void *target, long value, int pe)
 {
   long retval;
-  // allocate p, TODO: check result
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
+
+  if (p == (swap_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate swap payload memory"
+		 );
+  }
+
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->value = value;
@@ -556,11 +570,96 @@ __comms_swap_request(void *target, long value, int pe)
 }
 
 /*
- * global variable put/get handlers (for non-everything cases)
+ * global variable put/get handlers (for non-everything cases):
+ *
+ * 1. we need to ship the variable info to the remote PE, which can
+ * then allocate a temporary buffer in private memory, and...
+ *
+ * 2. reply with that address to sender (which can't use it but we
+ * have to remember it)
+ *
+ * 3. send message with data to remote PE into temp buffer there (pass
+ * private address back)
+ *
+ * 4. remote PE replies with ack to sender, then writes data locally,
+ * frees temp buffer
+ *
+ * 4.1. argh, my head hurts
+ *
+ * 5. sender/remote PEs can continue
+ *
+ * HOW DO WE HANDLE WAITING FOR OUTSTANDING OPS IN THIS FRAMEWORK FOR BARRIERS etc.?
+ * INSERT MEMBAR?
+ *
  */
 
+gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
+
 typedef struct {
-  void *var_addr;		/* address of global var */
-  long var_size;		/* size of data lurking behind var */
+  void *var_addr;		/* address of global var to be written to on remote PE */
+  long var_size;		/* size of data to be written (so we can allocate remotely) */
+  void *rem_tmpbuf;		/* address of temp buffer on remote PE */
+  int sentinel;			/* completion marker */
   int *sentinel_addr;		/* addr of symmetric completion marker */
 } globalvar_payload_t;
+
+
+/*
+ * called by remote PE to do the swap.  Store new value, send back old value
+ */
+void
+handler_globalvar_out(gasnet_token_t token,
+		      void *buf, size_t bufsiz,
+		      gasnet_handlerarg_t unused)
+{
+  long old;
+  globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+
+  gasnet_hsl_lock(& globalvar_out_lock);
+
+  gasnet_hsl_unlock(& globalvar_out_lock);
+
+  /* return the updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by swap invoker when old value returned by remote PE
+ */
+void
+handler_globalvar_bak(gasnet_token_t token,
+		      void *buf, size_t bufsiz,
+		      gasnet_handlerarg_t unused)
+{
+  globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+
+  gasnet_hsl_lock(& globalvar_bak_lock);
+
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& globalvar_bak_lock);
+}
+
+void
+__comms_globalvar_translation(void *target, long value, int pe)
+{
+  globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
+
+  if (p == (globalvar_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate heap variable payload memory"
+		 );
+  }
+
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel); /* this one, not the copy */
+
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
+			  p, sizeof(*p),
+			  0);
+
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+}
