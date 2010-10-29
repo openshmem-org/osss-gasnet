@@ -572,21 +572,14 @@ __comms_swap_request(void *target, long value, int pe)
 /*
  * global variable put/get handlers (for non-everything cases):
  *
- * 1. we need to ship the variable info to the remote PE, which can
- * then allocate a temporary buffer in private memory, and...
+ * 1. sender AMs remote with address of variable to write into, total size to write, and
+ * current offset (like seek), then the data itself.
  *
- * 2. reply with that address to sender (which can't use it but we
- * have to remember it)
+ * 2. remote acks
  *
- * 3. send message with data to remote PE into temp buffer there (pass
- * private address back)
+ * (repeat as needed if data size > max request length, updating offset)
  *
- * 4. remote PE replies with ack to sender, then writes data locally,
- * frees temp buffer
- *
- * 4.1. argh, my head hurts
- *
- * 5. sender/remote PEs can continue
+ * 3. done?
  *
  * HOW DO WE HANDLE WAITING FOR OUTSTANDING OPS IN THIS FRAMEWORK FOR BARRIERS etc.?
  * INSERT MEMBAR?
@@ -599,21 +592,21 @@ gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *var_addr;		/* address of global var to be written to on remote PE */
   long var_size;		/* size of data to be written (so we can allocate remotely) */
-  void *rem_tmpbuf;		/* address of temp buffer on remote PE */
+  long offset;		        /* where we are in the write process */
+  void *data;			/* the actual data to be sent */
   int sentinel;			/* completion marker */
   int *sentinel_addr;		/* addr of symmetric completion marker */
 } globalvar_payload_t;
 
 
 /*
- * called by remote PE to do the swap.  Store new value, send back old value
+ * called by remote PE to grab and write to its variable
  */
 void
 handler_globalvar_out(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
 {
-  long old;
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   gasnet_hsl_lock(& globalvar_out_lock);
@@ -621,11 +614,12 @@ handler_globalvar_out(gasnet_token_t token,
   gasnet_hsl_unlock(& globalvar_out_lock);
 
   /* return the updated payload */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyLong(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
 }
 
 /*
- * called by swap invoker when old value returned by remote PE
+ * called by sender PE after remote has set up temp buffer.
+ * Sends data across to remote.
  */
 void
 handler_globalvar_bak(gasnet_token_t token,
@@ -655,9 +649,9 @@ __comms_globalvar_translation(void *target, long value, int pe)
   p->sentinel = 0;
   p->sentinel_addr = &(p->sentinel); /* this one, not the copy */
 
-  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
-			  p, sizeof(*p),
-			  0);
+  gasnet_AMRequestLong1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
+			p, sizeof(*p),
+			0);
 
   GASNET_BLOCKUNTIL(p->sentinel);
 
