@@ -10,7 +10,7 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 
 # ---------------------------------------------------------
 
-GASNET_SEGMENT_STYLE = large
+GASNET_SEGMENT_STYLE = fast
 
 GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
 GASNET_CONDUIT   = mpi

@@ -30,9 +30,9 @@ static gasnet_seginfo_t *seginfo_table;
 
 #if ! defined(NEED_MANAGED_SEGMENTS)
 
-#define HEAP_SIZE 104857600L
+#define HEAP_SIZE 10485760L
 
-static char great_big_heap[HEAP_SIZE];
+char great_big_heap[HEAP_SIZE];
 
 #endif /* ! NEED_MANAGED_SEGMENTS */
 
@@ -146,9 +146,7 @@ __comms_init(void)
   }
   argv[0] = "shmem";
   
-  GASNET_SAFE(
-	      gasnet_init(&argc, &argv)
-	      );
+  GASNET_SAFE( gasnet_init(&argc, &argv) );
 
   __state.mype = __comms_mynode();
   __state.numpes = __comms_nodes();
@@ -402,7 +400,10 @@ __symmetric_memory_init(void)
 
 #else
 
-  /* TODO: this is nasty */
+  /* TODO: rework this with active messages, since we don't have any
+   * guaranteed symmetric location to write to.  medium message + seginfo_t payload?
+   *
+   */
   {
     int i;
     char *hpp = & great_big_heap[0];
@@ -607,6 +608,7 @@ handler_globalvar_out(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
 {
+#if 0
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   gasnet_hsl_lock(& globalvar_out_lock);
@@ -615,6 +617,7 @@ handler_globalvar_out(gasnet_token_t token,
 
   /* return the updated payload */
   gasnet_AMReplyLong(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
+#endif
 }
 
 /*
@@ -626,6 +629,7 @@ handler_globalvar_bak(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
 {
+#if 0
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   gasnet_hsl_lock(& globalvar_bak_lock);
@@ -633,11 +637,13 @@ handler_globalvar_bak(gasnet_token_t token,
   *(pp->sentinel_addr) = 1;
 
   gasnet_hsl_unlock(& globalvar_bak_lock);
+#endif
 }
 
 void
 __comms_globalvar_translation(void *target, long value, int pe)
 {
+#if 0
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
 
   if (p == (globalvar_payload_t *) NULL) {
@@ -656,4 +662,5 @@ __comms_globalvar_translation(void *target, long value, int pe)
   GASNET_BLOCKUNTIL(p->sentinel);
 
   free(p);
+#endif
 }
