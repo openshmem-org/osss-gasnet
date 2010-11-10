@@ -18,9 +18,9 @@
 #include "shmem.h"
 
 #if defined(GASNET_SEGMENT_FAST) || defined(GASNET_SEGMENT_LARGE)
-#  define NEED_MANAGED_SEGMENTS 1
+#  define HAVE_MANAGED_SEGMENTS 1
 #elif defined(GASNET_SEGMENT_EVERYTHING)
-#  undef NEED_MANAGED_SEGMENTS
+#  undef HAVE_MANAGED_SEGMENTS
 #else
 #  error "I don't know what kind of GASNet segment model you're trying to use"
 #endif
@@ -28,13 +28,15 @@
 
 static gasnet_seginfo_t *seginfo_table;
 
-#if ! defined(NEED_MANAGED_SEGMENTS)
+#if ! defined(HAVE_MANAGED_SEGMENTS)
 
 #define HEAP_SIZE 10485760L
 
-char great_big_heap[HEAP_SIZE];
+static char great_big_heap[HEAP_SIZE];
 
-#endif /* ! NEED_MANAGED_SEGMENTS */
+static char *gbhp_ptr = & great_big_heap[0];
+
+#endif /* ! HAVE_MANAGED_SEGMENTS */
 
 /*
  * define accepted size units.  Table set up to favor expected units
@@ -63,7 +65,7 @@ __comms_get_segment_size(void)
   char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
 
   if (mlss_str == (char *) NULL) {
-#ifdef NEED_MANAGED_SEGMENTS
+#ifdef HAVE_MANAGED_SEGMENTS
     return (size_t) gasnet_getMaxLocalSegmentSize();
 #else
     return HEAP_SIZE;
@@ -394,7 +396,7 @@ __symmetric_memory_init(void)
    * each PE manages its own segment, but can see addresses from all PEs
    */
 
-#ifdef NEED_MANAGED_SEGMENTS
+#ifdef HAVE_MANAGED_SEGMENTS
 
   GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
 
@@ -406,20 +408,18 @@ __symmetric_memory_init(void)
    */
   {
     int i;
-    char *hpp = & great_big_heap[0];
     for (i = 0; i < __state.numpes; i += 1) {
+      /* record my own heap, send to everyone else */
       if (__state.mype == i) {
-	seginfo_table[__state.mype].addr = hpp;
+	seginfo_table[__state.mype].addr = gbhp_ptr;
 	seginfo_table[__state.mype].size = __state.heapsize;
       }
       else {
-	__comms_put_val(& seginfo_table[__state.mype].addr, (unsigned long) hpp, sizeof(unsigned long), i);
-	__comms_put_val(& seginfo_table[__state.mype].size, __state.heapsize, sizeof(long), i);
+	;
       }
     }
-    __comms_barrier_all();
 
-    fprintf(stderr, "DEBUG: great_big_heap @ %p\n", hpp);
+    fprintf(stderr, "DEBUG: great_big_heap @ %p\n", gbhp_ptr);
   }
 
   __shmem_warn(SHMEM_LOG_DEBUG,
@@ -427,7 +427,7 @@ __symmetric_memory_init(void)
 	       seginfo_table[__state.mype].addr,
 	       seginfo_table[__state.mype].size);
 
-#endif /* NEED_MANAGED_SEGMENTS */
+#endif /* HAVE_MANAGED_SEGMENTS */
 
   __mem_init(seginfo_table[__state.mype].addr,
 	     seginfo_table[__state.mype].size);
@@ -447,11 +447,11 @@ __symmetric_memory_finalize(void)
 void *
 __symmetric_var_base(int pe)
 {
-#ifdef NEED_MANAGED_SEGMENTS
+#ifdef HAVE_MANAGED_SEGMENTS
   return seginfo_table[pe].addr;
-#else /* ! NEED_MANAGED_SEGMENTS */
+#else /* ! HAVE_MANAGED_SEGMENTS */
   return (void *) great_big_heap;
-#endif /* NEED_MANAGED_SEGMENTS */
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -460,12 +460,12 @@ __symmetric_var_base(int pe)
 int
 __symmetric_var_in_range(void *addr, int pe)
 {
-#ifdef NEED_MANAGED_SEGMENTS
+#ifdef HAVE_MANAGED_SEGMENTS
   void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
   return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
-#else /* ! NEED_MANAGED_SEGMENTS */
+#else /* ! HAVE_MANAGED_SEGMENTS */
   return 1;
-#endif /* NEED_MANAGED_SEGMENTS */
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -474,13 +474,13 @@ __symmetric_var_in_range(void *addr, int pe)
 void *
 __symmetric_var_offset(void *dest, int pe)
 {
-#ifdef NEED_MANAGED_SEGMENTS
+#ifdef HAVE_MANAGED_SEGMENTS
   size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
   char *rdest = (char *)__symmetric_var_base(pe) + offset;
   return (void *)rdest;
-#else /* ! NEED_MANAGED_SEGMENTS */
+#else /* ! HAVE_MANAGED_SEGMENTS */
   return dest;
-#endif /* NEED_MANAGED_SEGMENTS */
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
