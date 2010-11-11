@@ -35,11 +35,9 @@ static gasnet_seginfo_t *seginfo_table;
  * respect setting from environment variable
  */
 
-#define HEAP_SIZE 10485760L
+#define DEFAULT_HEAP_SIZE 10485760L
 
-static char great_big_heap[HEAP_SIZE];
-
-static char *gbhp_ptr = (char *) great_big_heap;
+static char *great_big_heap;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
@@ -73,7 +71,7 @@ __comms_get_segment_size(void)
 #ifdef HAVE_MANAGED_SEGMENTS
     return (size_t) gasnet_getMaxLocalSegmentSize();
 #else
-    return HEAP_SIZE;
+    return DEFAULT_HEAP_SIZE;
 #endif
   }
 
@@ -456,10 +454,15 @@ __symmetric_memory_init(void)
 
 #else
 
-  /* TODO: rework this with active messages, since we don't have any
-   * guaranteed symmetric location to write to.  medium message + seginfo_t payload?
-   *
-   */
+  /* allocate the heap */
+  great_big_heap = (char *) malloc(__state.heapsize);
+  if (great_big_heap == (char *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "unable to allocate symmetric heap"
+		 );
+    /* NOT REACHED */
+  }
+
   {
     int i;
     for (i = 0; i < __state.numpes; i += 1) {
@@ -469,7 +472,7 @@ __symmetric_memory_init(void)
 	segsetup_payload_t ssp;
 
 	ssp.sender_pe = __state.mype;
-	ssp.gs.addr   = gbhp_ptr;
+	ssp.gs.addr   = great_big_heap;
         ssp.gs.size   = __state.heapsize;
 
 	gasnet_AMRequestMedium1(i, GASNET_HANDLER_SETUP_OUT,
@@ -477,7 +480,7 @@ __symmetric_memory_init(void)
 				0);
       }
       else {
-	seginfo_table[i].addr = gbhp_ptr;
+	seginfo_table[i].addr = great_big_heap;
 	seginfo_table[i].size = __state.heapsize;
       }
     }
@@ -507,11 +510,7 @@ __symmetric_memory_finalize(void)
 void *
 __symmetric_var_base(int pe)
 {
-#ifdef HAVE_MANAGED_SEGMENTS
   return seginfo_table[pe].addr;
-#else /* ! HAVE_MANAGED_SEGMENTS */
-  return (void *) great_big_heap;
-#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -520,12 +519,8 @@ __symmetric_var_base(int pe)
 int
 __symmetric_var_in_range(void *addr, int pe)
 {
-#ifdef HAVE_MANAGED_SEGMENTS
   void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
   return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
-#else /* ! HAVE_MANAGED_SEGMENTS */
-  return 1;
-#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -534,13 +529,15 @@ __symmetric_var_in_range(void *addr, int pe)
 void *
 __symmetric_var_offset(void *dest, int pe)
 {
-#ifdef HAVE_MANAGED_SEGMENTS
-  size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
-  char *rdest = (char *)__symmetric_var_base(pe) + offset;
-  return (void *)rdest;
-#else /* ! HAVE_MANAGED_SEGMENTS */
-  return dest;
-#endif /* HAVE_MANAGED_SEGMENTS */
+  if (__symmetric_var_in_range(dest, pe)) {
+    size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
+    char *rdest = (char *)__symmetric_var_base(pe) + offset;
+    return (void *)rdest;
+  }
+  else {
+    /* TODO: assume global for now, but should ELF check */
+    return dest;
+  }
 }
 
 /*

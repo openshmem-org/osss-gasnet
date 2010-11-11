@@ -25,17 +25,7 @@
     }									\
     else {								\
       void *rdest = __symmetric_var_offset(dest, pe);			\
-      if (__symmetric_var_in_range(rdest, pe)) {			\
-	__comms_put(rdest, (Type *)src, typed_len, pe);			\
-      }									\
-      else {								\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "during shmem_%s_put() to PE %d, address %p not symmetric", \
-		     #Name,						\
-		     pe,						\
-		     rdest						\
-		     );							\
-      }									\
+      __comms_put(rdest, (Type *)src, typed_len, pe);			\
     }									\
     SHMEM_STATS_PUT(pe);						\
   }
@@ -65,17 +55,7 @@ _Pragma("weak shmem_put128=shmem_longdouble_put")
     }									\
     else {								\
       void *their_src = __symmetric_var_offset((Type *) src, pe);	\
-      if (__symmetric_var_in_range(their_src, pe)) {			\
-	__comms_get(dest, their_src, typed_len, pe);			\
-      }									\
-      else {								\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "during shmem_%s_get() from PE %d, address %p not symmetric", \
-		     #Name,						\
-		     pe,						\
-		     their_src						\
-		     );							\
-      }									\
+      __comms_get(dest, their_src, typed_len, pe);			\
     }									\
     SHMEM_STATS_GET(pe);						\
   }
