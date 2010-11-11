@@ -101,17 +101,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       int typed_len = sizeof(Type);					\
       size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
       void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
-      if (__symmetric_var_in_range(rdest, pe)) {			\
-	__comms_put_val(rdest, value, typed_len, pe);			\
-      }									\
-      else {								\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "during shmem_%s_p() to PE %d, address %p not symmetric", \
-		     #Name,						\
-		     pe,						\
-		     rdest						\
-		     );							\
-      }									\
+      __comms_put_val(rdest, value, typed_len, pe);			\
     }									\
     SHMEM_STATS_PUT(pe);						\
   }
@@ -144,17 +134,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       int typed_len = sizeof(Type);					\
       size_t offset = (Type *)src - (Type *)__symmetric_var_base(__state.mype); \
       void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
-      if (__symmetric_var_in_range(their_src, pe)) {			\
-	retval = (Type) __comms_get_val(their_src, typed_len, pe);	\
-      }									\
-      else {								\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "during shmem_%s_g() from PE %d, address %p not symmetric", \
-		     #Name,						\
-		     pe,						\
-		     their_src						\
-		     );							\
-      }									\
+      retval = (Type) __comms_get_val(their_src, typed_len, pe);	\
     }									\
     SHMEM_STATS_GET(pe);						\
     return retval;							\

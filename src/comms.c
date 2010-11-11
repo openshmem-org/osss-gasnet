@@ -5,6 +5,8 @@
  */
 
 #include <ctype.h>
+#include <string.h>
+#include <errno.h>
 
 #include "gasnet_safe.h"
 
@@ -31,13 +33,13 @@ static gasnet_seginfo_t *seginfo_table;
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
 /*
- * eventually this will be malloc'ed so we can
- * respect setting from environment variable
+ * this will be malloc'ed so we can respect setting from environment
+ * variable
  */
 
 #define DEFAULT_HEAP_SIZE 10485760L
 
-static char *great_big_heap;
+static void *great_big_heap;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
@@ -154,6 +156,7 @@ __comms_init(void)
   if (argv == (char **) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
                  "could not allocate memory for GASNet initialization");
+    /* NOT REACHED */
   }
   argv[0] = "shmem";
   
@@ -420,7 +423,6 @@ void
 handler_segsetup_bak(gasnet_token_t token,
 		     void *buf, size_t bufsiz,
 		     gasnet_handlerarg_t unused)
-
 {
   gasnet_hsl_lock(& setup_bak_lock);
 
@@ -439,7 +441,10 @@ __symmetric_memory_init(void)
 					      sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
-                 "could not allocate GASNet segments");
+                 "could not allocate GASNet segments (%s)",
+		 strerror(errno)
+		 );
+    /* NOT REACHED */
   }
 
   /*
@@ -455,21 +460,24 @@ __symmetric_memory_init(void)
 #else
 
   /* allocate the heap */
-  great_big_heap = (char *) malloc(__state.heapsize);
-  if (great_big_heap == (char *) NULL) {
+  great_big_heap = malloc(__state.heapsize);
+  if (great_big_heap == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
-		 "unable to allocate symmetric heap"
+		 "unable to allocate symmetric heap (%s)",
+		 strerror(errno)
 		 );
     /* NOT REACHED */
   }
 
+  seginfo_table[__state.mype].addr = great_big_heap;
+  seginfo_table[__state.mype].size = __state.heapsize;
+
   {
+    segsetup_payload_t ssp;
     int i;
     for (i = 0; i < __state.numpes; i += 1) {
-      /* record my own heap, send to everyone else */
+      /* I've recorded my own heap above, send to everyone else */
       if (__state.mype != i) {
-	/* I send my heap addr + size to the other PE(s). AM medium request */
-	segsetup_payload_t ssp;
 
 	ssp.sender_pe = __state.mype;
 	ssp.gs.addr   = great_big_heap;
@@ -479,15 +487,14 @@ __symmetric_memory_init(void)
 				&ssp, sizeof(ssp),
 				0);
       }
-      else {
-	seginfo_table[i].addr = great_big_heap;
-	seginfo_table[i].size = __state.heapsize;
-      }
     }
-    /* now wait on the AM replies */
-    do {
-      __comms_poll();
-    } while (seg_setup_replies < __state.numpes - 2); /* 0-based AND don't count myself */
+    {
+      /* now wait on the AM replies */
+      int got_all = __state.numpes - 2; /* 0-based AND don't count myself */
+      do {
+	__comms_poll();
+      } while (seg_setup_replies < got_all);
+    }
   }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
@@ -530,9 +537,9 @@ void *
 __symmetric_var_offset(void *dest, int pe)
 {
   if (__symmetric_var_in_range(dest, pe)) {
-    size_t offset = (char *)dest - (char *)__symmetric_var_base(__state.mype);
-    char *rdest = (char *)__symmetric_var_base(pe) + offset;
-    return (void *)rdest;
+    size_t offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
+    char *rdest = (char *) __symmetric_var_base(pe) + offset;
+    return (void *) rdest;
   }
   else {
     /* TODO: assume global for now, but should ELF check */
