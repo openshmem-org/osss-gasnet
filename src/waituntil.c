@@ -61,7 +61,7 @@ _Pragma("weak shmem_wait_until=shmem_long_wait_until")
  * wait is just wait_until with equality test
  */
 #define SHMEM_TYPE_WAIT(Name, Type)				\
-   void						\
+  void						\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)		\
   {								\
     shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);	\

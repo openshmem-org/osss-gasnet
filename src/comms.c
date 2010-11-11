@@ -30,11 +30,16 @@ static gasnet_seginfo_t *seginfo_table;
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
+/*
+ * eventually this will be malloc'ed so we can
+ * respect setting from environment variable
+ */
+
 #define HEAP_SIZE 10485760L
 
 static char great_big_heap[HEAP_SIZE];
 
-static char *gbhp_ptr = & great_big_heap[0];
+static char *gbhp_ptr = (char *) great_big_heap;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
@@ -113,18 +118,24 @@ __comms_get_segment_size(void)
 #define GASNET_HANDLER_SWAP_BAK      129
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
 #define GASNET_HANDLER_GLOBALVAR_BAK 131
+#define GASNET_HANDLER_SETUP_OUT     132
+#define GASNET_HANDLER_SETUP_BAK     133
 
 void handler_swap_out();
 void handler_swap_bak();
 void handler_globalvar_out();
 void handler_globalvar_bak();
+void handler_segsetup_out();
+void handler_segsetup_bak();
 
 static gasnet_handlerentry_t handlers[] =
   {
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
     { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak }
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
+    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
+    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -370,12 +381,55 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
  * In the gasnet fast/large models, use the attached segments and
  * manage address translations through the segment table
  *
- * In the everything model, we allocate on our own heap so all
- * addresses should be the same everywhere.
+ * In the everything model, we allocate on our own heap and send out
+ * the addresses with active messages
  */
 
-/* UNUSED */
-#define ROUNDUP(v, n) (((v) + (n)) & ~((n) - 1))
+static volatile int seg_setup_replies = 0;
+
+static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
+
+typedef struct {
+  int sender_pe;
+  gasnet_seginfo_t gs;
+} segsetup_payload_t;
+
+/*
+ * unpack buf from sender PE and store seg info locally.  Ack. receipt.
+ */
+void
+handler_segsetup_out(gasnet_token_t token,
+		     void *buf, size_t bufsiz,
+		     gasnet_handlerarg_t unused)
+{
+  segsetup_payload_t *ssp = (segsetup_payload_t *) buf;
+
+  gasnet_hsl_lock(& setup_out_lock);
+
+  seginfo_table[ssp->sender_pe].addr = ssp->gs.addr;
+  seginfo_table[ssp->sender_pe].size = ssp->gs.size;
+
+  gasnet_hsl_unlock(& setup_out_lock);
+
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK, (void *) NULL, 0, unused);
+}
+
+/*
+ * record receipt ack.
+ */
+void
+handler_segsetup_bak(gasnet_token_t token,
+		     void *buf, size_t bufsiz,
+		     gasnet_handlerarg_t unused)
+
+{
+  gasnet_hsl_lock(& setup_bak_lock);
+
+  seg_setup_replies += 1;
+
+  gasnet_hsl_unlock(& setup_bak_lock);
+}
 
 void
 __symmetric_memory_init(void)
@@ -383,8 +437,8 @@ __symmetric_memory_init(void)
   /*
    * calloc zeroes for us
    */
-  seginfo_table = (gasnet_seginfo_t *)calloc(__state.numpes,
-                                             sizeof(gasnet_seginfo_t));
+  seginfo_table = (gasnet_seginfo_t *) calloc(__state.numpes,
+					      sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
                  "could not allocate GASNet segments");
@@ -410,22 +464,28 @@ __symmetric_memory_init(void)
     int i;
     for (i = 0; i < __state.numpes; i += 1) {
       /* record my own heap, send to everyone else */
-      if (__state.mype == i) {
-	seginfo_table[__state.mype].addr = gbhp_ptr;
-	seginfo_table[__state.mype].size = __state.heapsize;
+      if (__state.mype != i) {
+	/* I send my heap addr + size to the other PE(s). AM medium request */
+	segsetup_payload_t ssp;
+
+	ssp.sender_pe = __state.mype;
+	ssp.gs.addr   = gbhp_ptr;
+        ssp.gs.size   = __state.heapsize;
+
+	gasnet_AMRequestMedium1(i, GASNET_HANDLER_SETUP_OUT,
+				&ssp, sizeof(ssp),
+				0);
       }
       else {
-	;
+	seginfo_table[i].addr = gbhp_ptr;
+	seginfo_table[i].size = __state.heapsize;
       }
     }
-
-    fprintf(stderr, "DEBUG: great_big_heap @ %p\n", gbhp_ptr);
+    /* now wait on the AM replies */
+    do {
+      __comms_poll();
+    } while (seg_setup_replies < __state.numpes - 2); /* 0-based AND don't count myself */
   }
-
-  __shmem_warn(SHMEM_LOG_DEBUG,
-	       "seg addr = %p, seg size = %ld\n",
-	       seginfo_table[__state.mype].addr,
-	       seginfo_table[__state.mype].size);
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
@@ -486,8 +546,8 @@ __symmetric_var_offset(void *dest, int pe)
 /*
  * -- swap handlers --
  */
-gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
   void *s_symm_addr;		/* sender symmetric var */
@@ -587,8 +647,8 @@ __comms_swap_request(void *target, long value, int pe)
  *
  */
 
-gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
   void *var_addr;		/* address of global var to be written to on remote PE */

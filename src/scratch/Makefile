@@ -2,7 +2,7 @@ PREFIX          = $(HOME)/SHMEM
 
 # ---------------------------------------------------------
 
-GASNET          = $(HOME)/local
+GASNET          = $(HOME)/gasnet/everything
 
 include $(GASNET)/include/mpi-conduit/mpi-par.mak 
 
