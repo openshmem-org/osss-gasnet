@@ -87,6 +87,8 @@ variables in the wrong place.
 Need to work out how SGI handle non-stack globals/statics and whether
 this is portable.
 
+Using the GASNet EVERYTHING model, I can now put to both classes of data.
+
 -------------------------------------------------------------------------
 
 Broadcast:
