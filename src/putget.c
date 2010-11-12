@@ -25,7 +25,7 @@
     }									\
     else {								\
       void *rdest = __symmetric_var_offset(dest, pe);			\
-      __comms_put(rdest, (Type *)src, typed_len, pe);			\
+      __comms_put(rdest, (Type *) src, typed_len, pe);			\
     }									\
     SHMEM_STATS_PUT(pe);						\
   }

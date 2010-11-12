@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/mman.h>
+#include <stdlib.h>
 
 #include "gasnet_safe.h"
 
@@ -114,28 +116,38 @@ __comms_get_segment_size(void)
  * start of handlers
  */
 
-#define GASNET_HANDLER_SWAP_OUT      128
-#define GASNET_HANDLER_SWAP_BAK      129
-#define GASNET_HANDLER_GLOBALVAR_OUT 130
-#define GASNET_HANDLER_GLOBALVAR_BAK 131
-#define GASNET_HANDLER_SETUP_OUT     132
-#define GASNET_HANDLER_SETUP_BAK     133
+#if ! defined(HAVE_MANAGED_SEGMENTS)
 
-void handler_swap_out();
-void handler_swap_bak();
-void handler_globalvar_out();
-void handler_globalvar_bak();
+#define GASNET_HANDLER_SETUP_OUT     128
+#define GASNET_HANDLER_SETUP_BAK     129
+
 void handler_segsetup_out();
 void handler_segsetup_bak();
 
+#endif /* ! HAVE_MANAGED_SEGMENTS */
+
+#define GASNET_HANDLER_SWAP_OUT      130
+#define GASNET_HANDLER_SWAP_BAK      131
+
+void handler_swap_out();
+void handler_swap_bak();
+
+#define GASNET_HANDLER_GLOBALVAR_OUT 132
+#define GASNET_HANDLER_GLOBALVAR_BAK 133
+
+void handler_globalvar_out();
+void handler_globalvar_bak();
+
 static gasnet_handlerentry_t handlers[] =
   {
+#if ! defined(HAVE_MANAGED_SEGMENTS)
+    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
+    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
+#endif /* ! HAVE_MANAGED_SEGMENTS */
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
     { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
-    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
-    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  }
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -162,8 +174,8 @@ __comms_init(void)
   
   GASNET_SAFE( gasnet_init(&argc, &argv) );
 
-  __state.mype = __comms_mynode();
-  __state.numpes = __comms_nodes();
+  __state.mype     = __comms_mynode();
+  __state.numpes   = __comms_nodes();
   __state.heapsize = __comms_get_segment_size();
 
   /*
@@ -176,14 +188,16 @@ __comms_init(void)
 			    0)
 	      );
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
-	       "symmetric heap size is %ld bytes",
-	       __state.heapsize
-	       );
-
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
   __comms_barrier_all();
+
+#if 0
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "there are %d PEs in this program",
+	       __state.numpes
+	       );
+#endif
 }
 
 /*
@@ -377,6 +391,8 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 }
 
 /*
+ * ---------------------------------------------------------------------------
+ *
  * initialize the symmetric segments.
  *
  * In the gasnet fast/large models, use the attached segments and
@@ -386,7 +402,9 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
  * the addresses with active messages
  */
 
-static volatile int seg_setup_replies = 0;
+#if ! defined(HAVE_MANAGED_SEGMENTS)
+
+static volatile int seg_setup_replies_received = 0;
 
 static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
@@ -426,10 +444,12 @@ handler_segsetup_bak(gasnet_token_t token,
 {
   gasnet_hsl_lock(& setup_bak_lock);
 
-  seg_setup_replies += 1;
+  seg_setup_replies_received += 1;
 
   gasnet_hsl_unlock(& setup_bak_lock);
 }
+
+#endif /* ! HAVE_MANAGED_SEGMENTS */
 
 void
 __symmetric_memory_init(void)
@@ -460,42 +480,48 @@ __symmetric_memory_init(void)
 #else
 
   /* allocate the heap */
-  great_big_heap = malloc(__state.heapsize);
-  if (great_big_heap == (void *) NULL) {
+  if (posix_memalign(& great_big_heap, GASNET_PAGESIZE, __state.heapsize) != 0) {
     __shmem_warn(SHMEM_LOG_FATAL,
-		 "unable to allocate symmetric heap (%s)",
-		 strerror(errno)
+		 "unable to allocate symmetric heap"
 		 );
     /* NOT REACHED */
   }
+
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "symmetric heap @ %p, size is %ld bytes",
+	       great_big_heap, __state.heapsize
+	       );
 
   seginfo_table[__state.mype].addr = great_big_heap;
   seginfo_table[__state.mype].size = __state.heapsize;
 
   {
     segsetup_payload_t ssp;
-    int i;
-    for (i = 0; i < __state.numpes; i += 1) {
+    int pe;
+    for (pe = 0; pe < __state.numpes; pe += 1) {
       /* I've recorded my own heap above, send to everyone else */
-      if (__state.mype != i) {
+      if (__state.mype != pe) {
 
 	ssp.sender_pe = __state.mype;
 	ssp.gs.addr   = great_big_heap;
         ssp.gs.size   = __state.heapsize;
 
-	gasnet_AMRequestMedium1(i, GASNET_HANDLER_SETUP_OUT,
+	gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SETUP_OUT,
 				&ssp, sizeof(ssp),
 				0);
       }
     }
     {
       /* now wait on the AM replies */
-      int got_all = __state.numpes - 2; /* 0-based AND don't count myself */
+      int got_all = __state.numpes - 1; /* 0-based AND don't count myself */
       do {
 	__comms_poll();
-      } while (seg_setup_replies < got_all);
+      } while (seg_setup_replies_received < got_all);
     }
   }
+
+  /* make sure everyone has ALL the values! */
+  __comms_barrier_all();
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
@@ -503,12 +529,28 @@ __symmetric_memory_init(void)
 	     seginfo_table[__state.mype].size);
 
   __comms_barrier_all();
+
+#if 0
+  {
+    int pe;
+    for (pe = 0; pe < __state.numpes; pe += 1) {
+      __shmem_warn(SHMEM_LOG_DEBUG,
+		   "seginfo_table[%d] = (.addr = %p, .size = %ld)",
+		   pe,
+		   seginfo_table[pe].addr,
+		   seginfo_table[pe].size
+		   );
+    }
+  }
+#endif
+
 }
 
 void
 __symmetric_memory_finalize(void)
 {
   __mem_finalize();
+  free(great_big_heap);
 }
 
 /*
@@ -526,8 +568,19 @@ __symmetric_var_base(int pe)
 int
 __symmetric_var_in_range(void *addr, int pe)
 {
-  void *top = seginfo_table[pe].addr + seginfo_table[pe].size;
-  return (seginfo_table[pe].addr <= addr) && (addr <= top) ? 1 : 0;
+  int retval;
+
+  if (addr < seginfo_table[pe].addr) {
+    retval = 0;
+  }
+  else if (addr > (seginfo_table[pe].addr + seginfo_table[pe].size)) {
+    retval = 0;
+  }
+  else {
+    retval = 1;
+  }
+
+  return retval;
 }
 
 /*
@@ -536,13 +589,14 @@ __symmetric_var_in_range(void *addr, int pe)
 void *
 __symmetric_var_offset(void *dest, int pe)
 {
-  if (__symmetric_var_in_range(dest, pe)) {
-    size_t offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
-    char *rdest = (char *) __symmetric_var_base(pe) + offset;
+  size_t offset = (size_t) dest - (size_t) __symmetric_var_base(__state.mype);
+  char *rdest = (char *) __symmetric_var_base(pe) + offset;
+
+  if (__symmetric_var_in_range(rdest, pe)) {
     return (void *) rdest;
   }
   else {
-    /* TODO: assume global for now, but should ELF check */
+    /* TODO: assume remotely accessible global for now, but should ELF check */
     return dest;
   }
 }

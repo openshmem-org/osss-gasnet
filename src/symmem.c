@@ -186,31 +186,43 @@ _Pragma("weak shmem_memalign=shmemalign")
 /*
  * readable error message for error code "e"
  */
+
+typedef struct {
+  long code;
+  char *msg;
+} malloc_error_code_t;
+
+static
+malloc_error_code_t error_table[] =
+  {
+    { SHMEM_MALLOC_OK,
+      "no symmetric memory allocation error"                  },
+    { SHMEM_MALLOC_FAIL,
+      "symmetric memory allocation failed"                    },
+    { SHMEM_MALLOC_ALREADY_FREE,
+      "attempt to free already null symmetric memory address" },
+    { SHMEM_MALLOC_MEMALIGN_FAILED,
+      "attempt to align symmetric memory address failed"      },
+    { SHMEM_MALLOC_REALLOC_FAILED,
+      "attempt to reallocate symmetric memory address failed" },
+    { SHMEM_MALLOC_SYMMSIZE_FAILED,
+      "asymmetric sizes passed to symmetric memory allocator" }
+  };
+static const int nerrors = sizeof(error_table) / sizeof(error_table[0]);
+
 char *
 sherror(void)
 {
-  switch (malloc_error) {
-  case SHMEM_MALLOC_OK:
-    return "no symmetric memory allocation error";
-    break;
-  case SHMEM_MALLOC_FAIL:
-    return "symmetric memory allocation failed";
-    break;
-  case SHMEM_MALLOC_ALREADY_FREE:
-    return "attempt to free already null symmetric memory address";
-    break;
-  case SHMEM_MALLOC_MEMALIGN_FAILED:
-    return "attempt to align symmetric memory address failed";
-    break;
-  case SHMEM_MALLOC_REALLOC_FAILED:
-    return "attempt to reallocate symmetric memory address failed";
-    break;
-  case SHMEM_MALLOC_SYMMSIZE_FAILED:
-    return "asymmetric sizes passed to symmetric memory allocator";
-    break;
-  default:
-    return "unknown error";
-    break;
+  malloc_error_code_t *etp = error_table;
+  int i;
+
+  for (i = 0; i < nerrors; i+= 1) {
+    if (malloc_error == etp->code) {
+      return etp->msg;
+    }
+    etp += 1;
   }
+
+  return "unknown error";
 }
 _Pragma("weak shmem_error=sherror")
