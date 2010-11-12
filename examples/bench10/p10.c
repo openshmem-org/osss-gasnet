@@ -454,10 +454,8 @@ assert(step != (unsigned long *)NULL);
    *totalSolutions = 0;
 
    {
-     long *flag; // TONY: needs to be shmalloced for gatech code
-
-     flag = (long *)shmalloc(sizeof(*flag));
-     assert(flag != (long *)NULL);
+     long *flag = (long *)shmalloc(sizeof(*flag));
+     // assert(flag != (long *)NULL);
 
      *flag = 0;
     barrier();

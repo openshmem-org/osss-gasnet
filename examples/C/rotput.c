@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
 
 #include <shmem.h>
 
@@ -24,6 +25,7 @@ main(int argc, char **argv)
   src = nextpe;
 
   dest = (int *) shmalloc(sizeof(*dest));
+  assert(dest != NULL);
 
   *dest = -1;
   shmem_barrier_all();
@@ -32,7 +34,7 @@ main(int argc, char **argv)
 
   shmem_barrier_all();
 
-  printf("%4d @ %8s: got %4d: ", me, shmem_nodename(), *dest);
+  printf("%4d: got %4d: ", me, *dest);
   if (*dest == me) {
     printf("CORRECT");
   }

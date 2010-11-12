@@ -191,13 +191,6 @@ __comms_init(void)
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
   __comms_barrier_all();
-
-#if 0
-  __shmem_warn(SHMEM_LOG_DEBUG,
-	       "there are %d PEs in this program",
-	       __state.numpes
-	       );
-#endif
 }
 
 /*
@@ -404,6 +397,9 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
+/*
+ * remotely modified, stop it being put in a register
+ */
 static volatile int seg_setup_replies_received = 0;
 
 static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
@@ -495,6 +491,9 @@ __symmetric_memory_init(void)
   seginfo_table[__state.mype].addr = great_big_heap;
   seginfo_table[__state.mype].size = __state.heapsize;
 
+  __mem_init(seginfo_table[__state.mype].addr,
+	     seginfo_table[__state.mype].size);
+
   {
     segsetup_payload_t ssp;
     int pe;
@@ -520,30 +519,10 @@ __symmetric_memory_init(void)
     }
   }
 
-  /* make sure everyone has ALL the values! */
-  __comms_barrier_all();
-
 #endif /* HAVE_MANAGED_SEGMENTS */
 
-  __mem_init(seginfo_table[__state.mype].addr,
-	     seginfo_table[__state.mype].size);
-
+  /* and make sure everyone is up-to-speed */
   __comms_barrier_all();
-
-#if 0
-  {
-    int pe;
-    for (pe = 0; pe < __state.numpes; pe += 1) {
-      __shmem_warn(SHMEM_LOG_DEBUG,
-		   "seginfo_table[%d] = (.addr = %p, .size = %ld)",
-		   pe,
-		   seginfo_table[pe].addr,
-		   seginfo_table[pe].size
-		   );
-    }
-  }
-#endif
-
 }
 
 void
@@ -688,6 +667,8 @@ __comms_swap_request(void *target, long value, int pe)
   return retval;
 }
 
+#ifdef HAVE_MANAGED_SEGMENTS
+
 /*
  * global variable put/get handlers (for non-everything cases):
  *
@@ -782,3 +763,5 @@ __comms_globalvar_translation(void *target, long value, int pe)
   free(p);
 #endif
 }
+
+#endif /* HAVE_MANAGED_SEGMENTS */
