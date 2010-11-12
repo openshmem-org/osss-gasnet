@@ -1,4 +1,4 @@
-PREFIX           = $(HOME)/SHMEM
+include ../make.include
 
 # ---------------------------------------------------------
 
@@ -7,15 +7,6 @@ DLMALLOC_CFLAGS  = -I$(DLMALLOC_DIR)
 DLMALLOC_OBJECT  = $(DLMALLOC_DIR)/dlmalloc.o
 
 MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
-
-# ---------------------------------------------------------
-
-GASNET_SEGMENT_STYLE = everything
-
-GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
-GASNET_CONDUIT   = mpi
-
-include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
 # ---------------------------------------------------------
 

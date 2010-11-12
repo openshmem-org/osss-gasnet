@@ -8,9 +8,9 @@ PREFIX           = $(HOME)/SHMEM
 
 # ---------------------------------------------------------
 
-GASNET           = $(HOME)/local
+GASNET_SEGMENT_STYLE = everything
+
+GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
 GASNET_CONDUIT   = mpi
 
 include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
-
-# ---------------------------------------------------------
