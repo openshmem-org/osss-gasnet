@@ -124,30 +124,30 @@ __comms_get_segment_size(void)
 void handler_segsetup_out();
 void handler_segsetup_bak();
 
-#endif /* ! HAVE_MANAGED_SEGMENTS */
-
-#define GASNET_HANDLER_SWAP_OUT      130
-#define GASNET_HANDLER_SWAP_BAK      131
-
-void handler_swap_out();
-void handler_swap_bak();
-
-#define GASNET_HANDLER_GLOBALVAR_OUT 132
-#define GASNET_HANDLER_GLOBALVAR_BAK 133
+#define GASNET_HANDLER_GLOBALVAR_OUT 130
+#define GASNET_HANDLER_GLOBALVAR_BAK 131
 
 void handler_globalvar_out();
 void handler_globalvar_bak();
+
+#endif /* ! HAVE_MANAGED_SEGMENTS */
+
+#define GASNET_HANDLER_SWAP_OUT      132
+#define GASNET_HANDLER_SWAP_BAK      133
+
+void handler_swap_out();
+void handler_swap_bak();
 
 static gasnet_handlerentry_t handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
     { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
+    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
 #endif /* ! HAVE_MANAGED_SEGMENTS */
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
-    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
-    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak }
+    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -667,7 +667,7 @@ __comms_swap_request(void *target, long value, int pe)
   return retval;
 }
 
-#ifdef HAVE_MANAGED_SEGMENTS
+#if ! defined(HAVE_MANAGED_SEGMENTS)
 
 /*
  * global variable put/get handlers (for non-everything cases):
@@ -764,4 +764,4 @@ __comms_globalvar_translation(void *target, long value, int pe)
 #endif
 }
 
-#endif /* HAVE_MANAGED_SEGMENTS */
+#endif /* ! HAVE_MANAGED_SEGMENTS */
