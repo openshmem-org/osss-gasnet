@@ -113,87 +113,6 @@ __comms_get_segment_size(void)
 }
 
 /*
- * start of handlers
- */
-
-#if ! defined(HAVE_MANAGED_SEGMENTS)
-
-#define GASNET_HANDLER_SETUP_OUT     128
-#define GASNET_HANDLER_SETUP_BAK     129
-
-void handler_segsetup_out();
-void handler_segsetup_bak();
-
-#define GASNET_HANDLER_GLOBALVAR_OUT 130
-#define GASNET_HANDLER_GLOBALVAR_BAK 131
-
-void handler_globalvar_out();
-void handler_globalvar_bak();
-
-#endif /* ! HAVE_MANAGED_SEGMENTS */
-
-#define GASNET_HANDLER_SWAP_OUT      132
-#define GASNET_HANDLER_SWAP_BAK      133
-
-void handler_swap_out();
-void handler_swap_bak();
-
-static gasnet_handlerentry_t handlers[] =
-  {
-#if ! defined(HAVE_MANAGED_SEGMENTS)
-    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
-    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
-    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
-#endif /* ! HAVE_MANAGED_SEGMENTS */
-    { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
-    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      }
-  };
-static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
-
-/*
- * end of handlers
- */
-
-void
-__comms_init(void)
-{
-  /*
-   * fake the command-line args
-   */
-  int argc = 1;
-  char **argv;
-
-  argv = (char **) malloc(argc * sizeof(*argv));
-  if (argv == (char **) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
-                 "could not allocate memory for GASNet initialization");
-    /* NOT REACHED */
-  }
-  argv[0] = "shmem";
-  
-  GASNET_SAFE( gasnet_init(&argc, &argv) );
-
-  __state.mype     = __comms_mynode();
-  __state.numpes   = __comms_nodes();
-  __state.heapsize = __comms_get_segment_size();
-
-  /*
-   * not guarding the attach for different gasnet models,
-   * since params are ignored if not needed
-   */
-  GASNET_SAFE(
-	      gasnet_attach(handlers, nhandlers,
-			    __state.heapsize,
-			    0)
-	      );
-
-  __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
-
-  __comms_barrier_all();
-}
-
-/*
  * allow the runtime to change the spin/block behavior dynamically,
  * would allow adaptivity
  */
@@ -381,6 +300,90 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 
   __comms_fence();
 
+}
+
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * start of handlers
+ */
+
+#if ! defined(HAVE_MANAGED_SEGMENTS)
+
+#define GASNET_HANDLER_SETUP_OUT     128
+#define GASNET_HANDLER_SETUP_BAK     129
+
+void handler_segsetup_out();
+void handler_segsetup_bak();
+
+#define GASNET_HANDLER_GLOBALVAR_OUT 130
+#define GASNET_HANDLER_GLOBALVAR_BAK 131
+
+void handler_globalvar_out();
+void handler_globalvar_bak();
+
+#endif /* ! HAVE_MANAGED_SEGMENTS */
+
+#define GASNET_HANDLER_SWAP_OUT      132
+#define GASNET_HANDLER_SWAP_BAK      133
+
+void handler_swap_out();
+void handler_swap_bak();
+
+static gasnet_handlerentry_t handlers[] =
+  {
+#if ! defined(HAVE_MANAGED_SEGMENTS)
+    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
+    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
+    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
+#endif /* ! HAVE_MANAGED_SEGMENTS */
+    { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
+    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      }
+  };
+static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
+
+/*
+ * end of handlers
+ */
+
+void
+__comms_init(void)
+{
+  /*
+   * fake the command-line args
+   */
+  int argc = 1;
+  char **argv;
+
+  argv = (char **) malloc(argc * sizeof(*argv));
+  if (argv == (char **) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+                 "could not allocate memory for GASNet initialization");
+    /* NOT REACHED */
+  }
+  argv[0] = "shmem";
+  
+  GASNET_SAFE( gasnet_init(&argc, &argv) );
+
+  __state.mype     = __comms_mynode();
+  __state.numpes   = __comms_nodes();
+  __state.heapsize = __comms_get_segment_size();
+
+  /*
+   * not guarding the attach for different gasnet models,
+   * since params are ignored if not needed
+   */
+  GASNET_SAFE(
+	      gasnet_attach(handlers, nhandlers,
+			    __state.heapsize,
+			    0)
+	      );
+
+  __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
+
+  __comms_barrier_all();
 }
 
 /*
@@ -606,9 +609,10 @@ static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *s_symm_addr;		/* sender symmetric var */
   void *r_symm_addr;		/* recipient symmetric var */
-  long value;			/* value to be swapped */
+  void *value;			/* value to be swapped */
+  size_t nbytes;		/* how big the value is */
   int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;		/* addr of marker for copied payload */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
 } swap_payload_t;
 
 /*
@@ -616,21 +620,16 @@ typedef struct {
  */
 void
 handler_swap_out(gasnet_token_t token,
-                 void *buf, size_t bufsiz,
-                 gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
 {
-  long old;
+  void *old;
   swap_payload_t *pp = (swap_payload_t *) buf;
-
   gasnet_hsl_lock(& swap_out_lock);
-
-  old = *(long *) pp->r_symm_addr;
-  *(long *) pp->r_symm_addr = pp->value;
-  pp->value = old;
-
+  mempcy(old, pp->r_symm_addr, pp->nbytes);
+  memcpy(pp->r_symm_addr, pp->value, pp->nbytes);
+  memcpy(pp->value, old, pp->nbytes);
   gasnet_hsl_unlock(& swap_out_lock);
-
-  /* return the updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
 }
 
@@ -639,48 +638,38 @@ handler_swap_out(gasnet_token_t token,
  */
 void
 handler_swap_bak(gasnet_token_t token,
-                 void *buf, size_t bufsiz,
-                 gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
 {
   swap_payload_t *pp = (swap_payload_t *) buf;
-
   gasnet_hsl_lock(& swap_bak_lock);
-
-  *(long *) pp->s_symm_addr = pp->value;
-
+  memcpy(pp->s_symm_addr, pp->value, pp->nbytes);
   *(pp->sentinel_addr) = 1;
-
   gasnet_hsl_unlock(& swap_bak_lock);
 }
-
-long
-__comms_swap_request(void *target, long value, int pe)
+  
+void *
+__comms_swap_request(void *target, void *value, size_t nbytes, int pe)
 {
-  long retval;
+  void *retval;
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
-
   if (p == (swap_payload_t *) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate swap payload memory"
 		 );
   }
-
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
-  p->value = value;
+  p->nbytes = nbytes;
+  memcpy(p->value, value, nbytes);
   p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel); /* this one, not the copy */
-
+  p->sentinel_addr = &(p->sentinel);
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
-
   GASNET_BLOCKUNTIL(p->sentinel);
-
-  retval = p->value;
-
+  memcpy(retval, p->value, nbytes);
   free(p);
-
   return retval;
 }
 

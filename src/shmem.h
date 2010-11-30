@@ -296,8 +296,8 @@ extern void shmem_collect64(void *target, const void *source, size_t nlong,
  * locks/critical section
  */
 
-extern void shmem_clear_lock(long *lock);
 extern void shmem_set_lock(long *lock);
+extern void shmem_clear_lock(long *lock);
 extern int  shmem_test_lock(long *lock);
 
 

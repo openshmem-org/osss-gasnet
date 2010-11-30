@@ -20,25 +20,33 @@ unimpl_helper(char *name)
 }
 
 void
-shmem_clear_lock(long *lock)
+shmem_set_lock(long *lock)
 {
-  unimpl_helper("clear");
+  do {
+    __comms_poll();
+  } while (*(volatile long *)lock != 0L);
+
+  *lock = 1L;
+
 }
 
 void
-shmem_set_lock(long *lock)
+shmem_clear_lock(long *lock)
 {
-  unimpl_helper("set");
+  if (*lock != 0L) {
+    // flush
+  *lock = 0L;
+  }
 }
 
 int
 shmem_test_lock(long *lock)
 {
-  unimpl_helper("test");
+  return 1;
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_clear_lock=shmem_clear_lock")
 _Pragma("weak pshmem_set_lock=shmem_set_lock")
+_Pragma("weak pshmem_clear_lock=shmem_clear_lock")
 _Pragma("weak pshmem_test_lock=shmem_test_lock")
 #endif /* HAVE_PSHMEM_SUPPORT */
