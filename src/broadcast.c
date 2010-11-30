@@ -9,6 +9,7 @@
 #include "putget.h"
 
 #define SHMEM_BROADCAST_TYPE(Size, Type)				\
+  /* @api */								\
   void shmem_broadcast##Size (void *target, const void *source, size_t nlong, \
 			      int PE_root, int PE_start, int logPE_stride, int PE_size, \
 			      long *pSync)				\
@@ -31,6 +32,12 @@
 SHMEM_BROADCAST_TYPE(32, int)
 SHMEM_BROADCAST_TYPE(64, long)
 
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_broadcast32=shmem_broadcast32")
+_Pragma("weak pshmem_broadcast64=shmem_broadcast64")
+#endif /* HAVE_PSHMEM_SUPPORT */
+
+/* @api@ */
 int
 shmem_sync_init(long **sync)
 {
@@ -42,3 +49,7 @@ shmem_sync_init(long **sync)
   shmem_barrier_all();
   return 1;
 }
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_sync_init=shmem_sync_init")
+#endif /* HAVE_PSHMEM_SUPPORT */

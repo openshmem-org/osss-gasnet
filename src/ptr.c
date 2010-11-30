@@ -25,3 +25,7 @@ shmem_ptr(void *target, int pe)
 
 #endif /* SHMEM_PUTGET_SHARED_MEMORY*/
 }
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_ptr=shmem_ptr")
+#endif /* HAVE_PSHMEM_SUPPORT */

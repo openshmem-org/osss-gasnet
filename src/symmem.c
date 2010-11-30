@@ -50,6 +50,7 @@ shmalloc_symmetry_check(size_t size)
   return any_failed_pe;
 }
 
+/* @api@ */
 void *
 shmalloc(size_t size)
 {
@@ -89,6 +90,7 @@ shmalloc(size_t size)
 }
 _Pragma("weak shmem_malloc=shmalloc")
 
+/* @api@ */
 void
 shfree(void *addr)
 {
@@ -113,6 +115,7 @@ shfree(void *addr)
 }
 _Pragma("weak shmem_free=shfree")
 
+/* @api@ */
 void *
 shrealloc(void *addr, size_t size)
 {
@@ -154,6 +157,7 @@ _Pragma("weak shmem_realloc=shrealloc")
  * The shmemalign function allocates a block in the symmetric heap that
  * has a byte alignment specified by the alignment argument.
  */
+/* @api@ */
 void *
 shmemalign(size_t alignment, size_t size)
 {
@@ -210,6 +214,7 @@ malloc_error_code_t error_table[] =
   };
 static const int nerrors = sizeof(error_table) / sizeof(error_table[0]);
 
+/* @api@ */
 char *
 sherror(void)
 {
@@ -226,3 +231,14 @@ sherror(void)
   return "unknown error";
 }
 _Pragma("weak shmem_error=sherror")
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmalloc=shmalloc")
+_Pragma("weak pshmem_malloc=shmem_malloc")
+_Pragma("weak pshfree=shfree")
+_Pragma("weak pshmem_free=shmem_free")
+_Pragma("weak pshrealloc=shrealloc")
+_Pragma("weak pshmem_realloc=shmem_realloc")
+_Pragma("weak pshmemalign=shmemalign")
+_Pragma("weak pshmem_memalignloc=shmem_memalign")
+#endif /* HAVE_PSHMEM_SUPPORT */

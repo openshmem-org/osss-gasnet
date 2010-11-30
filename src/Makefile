@@ -13,6 +13,7 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 CC               = gcc
 CPPFLAGS        += -I../include
 # CPPFLAGS        += -DSHMEM_COLLECT_STATS
+CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CPPFLAGS        += -MMD
 
 CFLAGS          += -fPIC

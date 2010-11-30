@@ -36,3 +36,9 @@ shmem_test_lock(long *lock)
 {
   unimpl_helper("test");
 }
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_clear_lock=shmem_clear_lock")
+_Pragma("weak pshmem_set_lock=shmem_set_lock")
+_Pragma("weak pshmem_test_lock=shmem_test_lock")
+#endif /* HAVE_PSHMEM_SUPPORT */

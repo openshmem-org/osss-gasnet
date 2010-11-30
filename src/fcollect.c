@@ -11,7 +11,8 @@
  * (but sort of works for some initial testing :-)
  */
 
-#define SHMEM_FCOLLECT_TYPE(Size, Type)				\
+#define SHMEM_FCOLLECT_TYPE(Size, Type)					\
+  /* @api@ */								\
   void shmem_fcollect##Size (void *target, const void *source, size_t nlong, \
 			      int PE_start, int logPE_stride, int PE_size, \
 			      long *pSync)				\
@@ -33,3 +34,8 @@
 
 SHMEM_FCOLLECT_TYPE(32, int)
 SHMEM_FCOLLECT_TYPE(64, long)
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_fcollect32=shmem_fcollect32")
+_Pragma("weak pshmem_fcollect64=shmem_fcollect64")
+#endif /* HAVE_PSHMEM_SUPPORT */

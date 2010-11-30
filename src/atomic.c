@@ -48,6 +48,7 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
  */
 
 #define SHMEM_TYPE_SWAP(Name, Type)					\
+  /* @api@ */								\
   Type									\
   shmem_##Name##_swap(Type *target, Type value, int pe)			\
   {									\
@@ -75,6 +76,7 @@ _Pragma("weak shmem_swap=shmem_long_swap")
  */
 
 #define SHMEM_TYPE_CSWAP(Name, Type)					\
+  /* @api@ */								\
   Type									\
   shmem_##Name##_cswap(Type *target, Type cond, Type value, int pe)	\
   {									\
@@ -101,3 +103,15 @@ SHMEM_TYPE_CSWAP(long, long)
 SHMEM_TYPE_CSWAP(longlong, long long)
 
 _Pragma("weak shmem_cswap=shmem_long_cswap")
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_int_swap=shmem_int_swap")
+_Pragma("weak pshmem_long_swap=shmem_long_swap")
+_Pragma("weak pshmem_longlong_swap=shmem_longlong_swap")
+_Pragma("weak pshmem_float_swap=shmem_float_swap")
+_Pragma("weak pshmem_double_swap=shmem_double_swap")
+
+_Pragma("weak pshmem_int_cswap=shmem_int_cswap")
+_Pragma("weak pshmem_long_cswap=shmem_long_cswap")
+_Pragma("weak pshmem_longlong_cswap=shmem_longlong_cswap")
+#endif /* HAVE_PSHMEM_SUPPORT */
