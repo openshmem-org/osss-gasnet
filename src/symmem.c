@@ -60,8 +60,8 @@ shmalloc(size_t size)
     return (void *) NULL;
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
-	       "shmalloc(%ld) passed symmetry check",
+  __shmem_warn(SHMEM_LOG_MEMORY,
+	       "shmalloc(%ld bytes) passed symmetry check",
 	       size
 	       );
 
@@ -69,7 +69,7 @@ shmalloc(size_t size)
 
   if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_NOTICE,
-		 "shmalloc(%ld) failed",
+		 "shmalloc(%ld bytes) failed",
 		 size
 		 );
     malloc_error = SHMEM_MALLOC_FAIL;
@@ -78,8 +78,8 @@ shmalloc(size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
-	       "shmalloc(%ld) @ %p",
+  __shmem_warn(SHMEM_LOG_MEMORY,
+	       "shmalloc(%ld bytes) @ %p",
 	       size, addr
 	       );
 
@@ -93,14 +93,14 @@ void
 shfree(void *addr)
 {
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE,
+    __shmem_warn(SHMEM_LOG_MEMORY,
 		 "address passed to shfree() already null"
 		 );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_warn(SHMEM_LOG_MEMORY,
 	       "shfree(%p) in pool @ %p",
 	       addr, __mem_base()
 	       );
@@ -124,7 +124,7 @@ shrealloc(void *addr, size_t size)
   }
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE,
+    __shmem_warn(SHMEM_LOG_MEMORY,
 		 "address passed to shrealloc() already null"
 		 );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
@@ -134,8 +134,8 @@ shrealloc(void *addr, size_t size)
   newaddr = __mem_realloc(addr, size);
 
   if (newaddr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE,
-		 "shrealloc() couldn't reallocate %ld bytes @ %p",
+    __shmem_warn(SHMEM_LOG_MEMORY,
+		 "shrealloc(%ld bytes) failed @ original address %p",
 		 size, addr
 		 );
     malloc_error = SHMEM_MALLOC_REALLOC_FAILED;
@@ -167,8 +167,8 @@ shmemalign(size_t alignment, size_t size)
   addr = __mem_align(alignment, size);
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE,
-		 "shmem_memalign() couldn't resize %ld bytes to alignment %ld",
+    __shmem_warn(SHMEM_LOG_MEMORY,
+		 "shmem_memalign(%ld bytes) couldn't realign to %ld",
 		 size, alignment
 		 );
     malloc_error = SHMEM_MALLOC_MEMALIGN_FAILED;

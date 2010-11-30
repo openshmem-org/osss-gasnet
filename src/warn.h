@@ -8,10 +8,13 @@ extern void __shmem_warnings_init(void);
 extern void __shmem_warn(int msg_type, char *fmt, ...);
 
 
-#define SHMEM_LOG_DEBUG   0
-#define SHMEM_LOG_INFO    1
-#define SHMEM_LOG_NOTICE  2
-#define SHMEM_LOG_AUTH    3
-#define SHMEM_LOG_FATAL   4
+#define SHMEM_LOG_FATAL   0	/* unrecoverable problem */
+
+#define SHMEM_LOG_DEBUG   1	/* debugging information */
+#define SHMEM_LOG_INFO    2	/* informational */
+#define SHMEM_LOG_NOTICE  3	/* serious informational (but not fatal) */
+#define SHMEM_LOG_AUTH    4	/* something not authorized */
+#define SHMEM_LOG_INIT    5	/* during OpenSHMEM initialization */
+#define SHMEM_LOG_MEMORY  6	/* symmetric memory operations */
 
 #endif /* _WARN_H */

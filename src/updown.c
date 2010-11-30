@@ -11,12 +11,13 @@
 #include "atomic.h"
 #include "env.h"
 
+#include "shmem.h"
+
 /* ----------------------------------------------------------------- */
 
 void
 __shmem_exit(int status)
 {
-
   __shmem_atomic_finalize();
   __symmetric_memory_finalize();
 

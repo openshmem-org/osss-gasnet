@@ -23,10 +23,13 @@ static
 __warn_table_t warnings[] =
   {
     INIT_LEVEL(FATAL,  1),
+
     INIT_LEVEL(DEBUG,  0),
     INIT_LEVEL(INFO,   0),
     INIT_LEVEL(AUTH,   0),
-    INIT_LEVEL(NOTICE, 0)
+    INIT_LEVEL(NOTICE, 0),
+    INIT_LEVEL(INIT,   0),
+    INIT_LEVEL(MEMORY, 0)
   };
 static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
 

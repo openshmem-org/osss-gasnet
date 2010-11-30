@@ -1,3 +1,13 @@
+/*
+ * set lock: wait for lock to become 0.  then set to 1, and send 1 to
+ * everyone else.
+ *
+ * clear lock: if non-0, flush all I/O in critical region & set to zero.
+ *
+ * test lock: check, then set only if 0.  return 0 if able to set,
+ * return 1 if not.
+ */
+
 #include "warn.h"
 
 static void

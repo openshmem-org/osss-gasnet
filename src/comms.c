@@ -420,12 +420,17 @@ handler_segsetup_out(gasnet_token_t token,
 {
   segsetup_payload_t *ssp = (segsetup_payload_t *) buf;
 
-  gasnet_hsl_lock(& setup_out_lock);
+  /*
+   * no lock here: each PE writes exactly once to its own array index,
+   * and only to that...
+   */
+
+  // gasnet_hsl_lock(& setup_out_lock);
 
   seginfo_table[ssp->sender_pe].addr = ssp->gs.addr;
   seginfo_table[ssp->sender_pe].size = ssp->gs.size;
 
-  gasnet_hsl_unlock(& setup_out_lock);
+  // gasnet_hsl_unlock(& setup_out_lock);
 
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK, (void *) NULL, 0, unused);
 }
@@ -483,7 +488,7 @@ __symmetric_memory_init(void)
     /* NOT REACHED */
   }
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_warn(SHMEM_LOG_MEMORY,
 	       "symmetric heap @ %p, size is %ld bytes",
 	       great_big_heap, __state.heapsize
 	       );
@@ -523,6 +528,18 @@ __symmetric_memory_init(void)
 
   /* and make sure everyone is up-to-speed */
   __comms_barrier_all();
+
+  {
+    int pe;
+    for (pe = 0; pe < __state.numpes; pe += 1) {
+      __shmem_warn(SHMEM_LOG_INIT,
+		   "seginfo_table[%d] = ( addr = %p, size = %ld )",
+		   pe,
+		   seginfo_table[pe].addr,
+		   seginfo_table[pe].size
+		   );
+    }
+  }
 }
 
 void
