@@ -55,6 +55,7 @@ __shmem_place_init(void)
   }
 }
 
+/* @api@ */
 void
 shmem_init(void)
 {
@@ -86,13 +87,26 @@ shmem_init(void)
   /*
    * and we're up and running
    */
+
+  __shmem_warn(SHMEM_LOG_INIT,
+	       "version \"%s\" running on %d PE%s",
+	       shmem_version(),
+	       __state.numpes,
+	       __state.numpes == 1 ? "" : "s"
+	       );
 }
 
 /*
  * same as shmem_init()
  */
+/* @api@ */
 void
 start_pes(int npes)
 {
-    shmem_init();
+  shmem_init();
 }
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_init=shmem_init")
+_Pragma("weak pstart_pes=start_pes")
+#endif /* HAVE_PSHMEM_SUPPORT */

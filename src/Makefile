@@ -30,7 +30,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT)
 SHMEM_SOURCES    = $(wildcard *.c)
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY    = libshmem.so
+SHMEM_LIBRARY    = libopenshmem.so
 SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_CC         = oshcc
 SHMEM_FC         = oshfort
@@ -108,7 +108,7 @@ c-wrapper:
 	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_CC)
 	@ echo "#" >> $(SHMEM_CC)
 	@ echo "SHMEM_LDFLAGS=\"-L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib\"" >> $(SHMEM_CC)
-	@ echo "SHMEM_LIB=\"-lshmem\"" >> $(SHMEM_CC)
+	@ echo "SHMEM_LIB=\"-lopenshmem\"" >> $(SHMEM_CC)
 	@ echo "SHMEM_INCLUDE_DIR=\"$(PREFIX)/include\"" >> $(SHMEM_CC)
 	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_CC)
 
@@ -119,7 +119,7 @@ f-wrapper:
 	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_FC)
 	@ echo "#" >> $(SHMEM_FC)
 	@ echo "SHMEM_LDFLAGS=\"-L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib\"" >> $(SHMEM_FC)
-	@ echo "SHMEM_LIB=\"-lshmem\"" >> $(SHMEM_FC)
+	@ echo "SHMEM_LIB=\"-lopenshmem\"" >> $(SHMEM_FC)
 	@ echo "SHMEM_INCLUDE_DIR=\"$(PREFIX)/include\"" >> $(SHMEM_FC)
 	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_FC)
 	TMP=`mktemp`; cp $(SHMEM_FC) $$TMP; sed -e 's%bin/mpicc%bin/mpif90%' $$TMP > $(SHMEM_FC) ; rm -f $$TMP
