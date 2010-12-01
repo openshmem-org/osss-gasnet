@@ -497,7 +497,7 @@ __symmetric_memory_init(void)
 
 #else
 
-  /* allocate the heap */
+  /* allocate the heap - has to be pagesize aligned */
   if (posix_memalign(& great_big_heap,
 		     GASNET_PAGESIZE, __state.heapsize) != 0) {
     __shmem_warn(SHMEM_LOG_FATAL,
@@ -555,7 +555,7 @@ __symmetric_memory_init(void)
 
   /*
    * spit out the seginfo table (but check first that the loop is
-   * warranted
+   * warranted)
    */
   if (__warn_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
@@ -650,11 +650,17 @@ handler_swap_out(gasnet_token_t token,
 {
   void *old;
   swap_payload_t *pp = (swap_payload_t *) buf;
+
   gasnet_hsl_lock(& swap_out_lock);
+
+  /* save and update */
   mempcy(old, pp->r_symm_addr, pp->nbytes);
   memcpy(pp->r_symm_addr, pp->value, pp->nbytes);
   memcpy(pp->value, old, pp->nbytes);
+
   gasnet_hsl_unlock(& swap_out_lock);
+
+  /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
 }
 
@@ -667,35 +673,45 @@ handler_swap_bak(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   swap_payload_t *pp = (swap_payload_t *) buf;
+
   gasnet_hsl_lock(& swap_bak_lock);
+
+  /* save returned value */
   memcpy(pp->s_symm_addr, pp->value, pp->nbytes);
+
+  /* done it */
   *(pp->sentinel_addr) = 1;
+
   gasnet_hsl_unlock(& swap_bak_lock);
 }
   
-void *
-__comms_swap_request(void *target, void *value, size_t nbytes, int pe)
+void
+__comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *retval)
 {
-  void *retval;
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   if (p == (swap_payload_t *) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate swap payload memory"
 		 );
   }
+  /* build payload to send */
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
   memcpy(p->value, value, nbytes);
   p->sentinel = 0;
   p->sentinel_addr = &(p->sentinel);
+
+  /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
   GASNET_BLOCKUNTIL(p->sentinel);
+
+  /* local store */
   memcpy(retval, p->value, nbytes);
+
   free(p);
-  return retval;
 }
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
@@ -729,6 +745,8 @@ typedef struct {
   int *sentinel_addr;		/* addr of symmetric completion marker */
 } globalvar_payload_t;
 
+
+/* TODO: these are all stubs, still in thinking phase */
 
 /*
  * called by remote PE to grab and write to its variable
