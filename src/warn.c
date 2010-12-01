@@ -43,24 +43,10 @@ __warn_enable(char *w)
     if (strcasecmp(w, t->text) == 0) {
       t->on = 1;
       return;
+      /* NOT REACHED */
     }
     t += 1;
   }
-}
-
-static int
-__is_warn_enabled(int level)
-{
-  int i;
-  __warn_table_t *t = warnings;
-
-  for (i = 0; i < n_warnings; i += 1) {
-    if (level == t->level) {
-      return t->on;
-    }
-    t += 1;
-  }
-  return 0;
 }
 
 static const char *
@@ -72,10 +58,29 @@ __level_to_string(int level)
   for (i = 0; i < n_warnings; i += 1) {
     if (level == t->level) {
       return t->text;
+      /* NOT REACHED */
     }
     t += 1;
   }
   return "?";
+}
+
+/* -- end of static -- */
+
+int
+__warn_is_enabled(int level)
+{
+  int i;
+  __warn_table_t *t = warnings;
+
+  for (i = 0; i < n_warnings; i += 1) {
+    if (level == t->level) {
+      return t->on;
+      /* NOT REACHED */
+    }
+    t += 1;
+  }
+  return 0;
 }
 
 void

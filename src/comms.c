@@ -149,6 +149,9 @@ __comms_set_waitmode(int mode)
 	       mstr);
 }
 
+/*
+ * used in wait loops to poll for put/get/AM traffic
+ */
 void
 __comms_poll(void)
 {
@@ -160,7 +163,6 @@ void
 __comms_shutdown(int status)
 {
   __comms_barrier_all();
-  
   gasnet_exit(status);
 }
 
@@ -182,6 +184,10 @@ __comms_nodes(void)
   return (int) gasnet_nodes();
 }
 
+/*
+ * we use the _nbi routine, so that gasnet tracks outstanding
+ * I/O for us (fence/barrier waits for these implicit handles)
+ */
 void
 __comms_put(void *dst, void *src, size_t len, int pe)
 {
@@ -239,8 +245,6 @@ __comms_fence(void)
 {
   gasnet_wait_syncnbi_all();
 }
-
-
 
 #if 1
 
@@ -367,23 +371,34 @@ __comms_init(void)
   
   GASNET_SAFE( gasnet_init(&argc, &argv) );
 
+  /*
+   * now we can ask about the node count & heap
+   */
   __state.mype     = __comms_mynode();
   __state.numpes   = __comms_nodes();
   __state.heapsize = __comms_get_segment_size();
 
   /*
    * not guarding the attach for different gasnet models,
-   * since params are ignored if not needed
+   * since last 2 params are ignored if not needed
    */
   GASNET_SAFE(
 	      gasnet_attach(handlers, nhandlers,
-			    __state.heapsize,
-			    0)
+			    __state.heapsize, 0
+			    )
 	      );
 
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
+  /*
+   * make sure all nodes are up to speed before "declaring"
+   * initialization done
+   */
   __comms_barrier_all();
+
+  __shmem_warn(SHMEM_LOG_INIT,
+	       "initialization complete"
+	       );
 }
 
 /*
@@ -408,11 +423,6 @@ static volatile int seg_setup_replies_received = 0;
 static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 
-typedef struct {
-  int sender_pe;
-  gasnet_seginfo_t gs;
-} segsetup_payload_t;
-
 /*
  * unpack buf from sender PE and store seg info locally.  Ack. receipt.
  */
@@ -421,7 +431,8 @@ handler_segsetup_out(gasnet_token_t token,
 		     void *buf, size_t bufsiz,
 		     gasnet_handlerarg_t unused)
 {
-  segsetup_payload_t *ssp = (segsetup_payload_t *) buf;
+  int src_pe;
+  gasnet_seginfo_t *gsp = (gasnet_seginfo_t *) buf;
 
   /*
    * no lock here: each PE writes exactly once to its own array index,
@@ -430,16 +441,19 @@ handler_segsetup_out(gasnet_token_t token,
 
   // gasnet_hsl_lock(& setup_out_lock);
 
-  seginfo_table[ssp->sender_pe].addr = ssp->gs.addr;
-  seginfo_table[ssp->sender_pe].size = ssp->gs.size;
+  GASNET_SAFE( gasnet_AMGetMsgSource(token, &src_pe) );
+
+  seginfo_table[src_pe].addr = gsp->addr;
+  seginfo_table[src_pe].size = gsp->size;
 
   // gasnet_hsl_unlock(& setup_out_lock);
 
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK, (void *) NULL, 0, unused);
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK,
+			(void *) NULL, 0, unused);
 }
 
 /*
- * record receipt ack.
+ * record receipt ack.  We only need to count the number of replies
  */
 void
 handler_segsetup_bak(gasnet_token_t token,
@@ -484,7 +498,8 @@ __symmetric_memory_init(void)
 #else
 
   /* allocate the heap */
-  if (posix_memalign(& great_big_heap, GASNET_PAGESIZE, __state.heapsize) != 0) {
+  if (posix_memalign(& great_big_heap,
+		     GASNET_PAGESIZE, __state.heapsize) != 0) {
     __shmem_warn(SHMEM_LOG_FATAL,
 		 "unable to allocate symmetric heap"
 		 );
@@ -496,28 +511,34 @@ __symmetric_memory_init(void)
 	       great_big_heap, __state.heapsize
 	       );
 
+  /*
+   * store my own heap entry
+   */
   seginfo_table[__state.mype].addr = great_big_heap;
   seginfo_table[__state.mype].size = __state.heapsize;
 
+  /*
+   * initializem my heap
+   */
   __mem_init(seginfo_table[__state.mype].addr,
 	     seginfo_table[__state.mype].size);
 
   {
-    segsetup_payload_t ssp;
+    gasnet_seginfo_t gsp;
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
       /* I've recorded my own heap above, send to everyone else */
       if (__state.mype != pe) {
 
-	ssp.sender_pe = __state.mype;
-	ssp.gs.addr   = great_big_heap;
-        ssp.gs.size   = __state.heapsize;
+	gsp.addr = great_big_heap;
+        gsp.size = __state.heapsize;
 
 	gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SETUP_OUT,
-				&ssp, sizeof(ssp),
+				&gsp, sizeof(gsp),
 				0);
       }
     }
+    /* messages swirl around... */
     {
       /* now wait on the AM replies */
       int got_all = __state.numpes - 1; /* 0-based AND don't count myself */
@@ -532,7 +553,11 @@ __symmetric_memory_init(void)
   /* and make sure everyone is up-to-speed */
   __comms_barrier_all();
 
-  {
+  /*
+   * spit out the seginfo table (but check first that the loop is
+   * warranted
+   */
+  if (__warn_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
       __shmem_warn(SHMEM_LOG_INIT,

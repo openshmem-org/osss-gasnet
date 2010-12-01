@@ -6,7 +6,7 @@ extern void __shmem_warnings_init(void);
 #include <stdarg.h>
 
 extern void __shmem_warn(int msg_type, char *fmt, ...);
-
+extern int  __warn_is_enabled(int level);
 
 #define SHMEM_LOG_FATAL   0	/* unrecoverable problem */
 
