@@ -1,7 +1,7 @@
 /*
  * This file provides the layer on top of GASNet, ARMCI or whatever.
  * API should be formalized at some point, but basically everything
- * that starts with "__comms_"
+ * non-static that starts with "__comms_"
  */
 
 #include <ctype.h>
@@ -282,8 +282,6 @@ __comms_barrrier_all(void)
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  GASNET_BEGIN_FUNCTION();
-
   __comms_fence();
 
   if (__state.mype == PE_start) {
@@ -335,6 +333,12 @@ void handler_globalvar_bak();
 void handler_swap_out();
 void handler_swap_bak();
 
+#define GASNET_HANDLER_CSWAP_OUT     134
+#define GASNET_HANDLER_CSWAP_BAK     135
+
+void handler_cswap_out();
+void handler_cswap_bak();
+
 static gasnet_handlerentry_t handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
@@ -344,7 +348,9 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
 #endif /* ! HAVE_MANAGED_SEGMENTS */
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
-    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      }
+    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
+    { GASNET_HANDLER_CSWAP_OUT,     handler_cswap_out     },
+    { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -631,14 +637,32 @@ __symmetric_var_offset(void *dest, int pe)
 static gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 
+/*
+ * NB we make the cond/value "long long" throughout
+ * to be used by smaller types as self-contained payload
+ */
+
 typedef struct {
   void *s_symm_addr;		/* sender symmetric var */
   void *r_symm_addr;		/* recipient symmetric var */
-  void *value;			/* value to be swapped */
-  size_t nbytes;		/* how big the value is */
   int sentinel;			/* end of transaction marker */
   int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be swapped */
 } swap_payload_t;
+
+static gasnet_hsl_t cswap_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
+
+typedef struct {
+  void *s_symm_addr;		/* sender symmetric var */
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be swapped */
+  long long cond;		/* conditional value */
+} cswap_payload_t;
 
 /*
  * called by remote PE to do the swap.  Store new value, send back old value
@@ -648,15 +672,24 @@ handler_swap_out(gasnet_token_t token,
 		 void *buf, size_t bufsiz,
 		 gasnet_handlerarg_t unused)
 {
-  void *old;
+  long long old;
   swap_payload_t *pp = (swap_payload_t *) buf;
 
   gasnet_hsl_lock(& swap_out_lock);
 
+#if 0
+  /* debugging */
+  fprintf(stderr, "PP: pp->s_symm_addr = %p\n", pp->s_symm_addr);
+  fprintf(stderr, "PP: pp->r_symm_addr = %p\n", pp->r_symm_addr);
+  fprintf(stderr, "PP: pp->value       = %p\n", pp->value);
+  fprintf(stderr, "PP: pp->sentinel    = %d\n", pp->sentinel);
+  fprintf(stderr, "PP: pp->nbytes      = %ld\n", pp->nbytes);
+#endif
+
   /* save and update */
-  mempcy(old, pp->r_symm_addr, pp->nbytes);
-  memcpy(pp->r_symm_addr, pp->value, pp->nbytes);
-  memcpy(pp->value, old, pp->nbytes);
+  memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  pp->value = old;
 
   gasnet_hsl_unlock(& swap_out_lock);
 
@@ -677,14 +710,14 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_lock(& swap_bak_lock);
 
   /* save returned value */
-  memcpy(pp->s_symm_addr, pp->value, pp->nbytes);
+  memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
 
   /* done it */
   *(pp->sentinel_addr) = 1;
 
   gasnet_hsl_unlock(& swap_bak_lock);
 }
-  
+
 void
 __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *retval)
 {
@@ -698,7 +731,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
-  memcpy(p->value, value, nbytes);
+  p->value = *(long long *) value;
   p->sentinel = 0;
   p->sentinel_addr = &(p->sentinel);
 
@@ -709,10 +742,97 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   GASNET_BLOCKUNTIL(p->sentinel);
 
   /* local store */
-  memcpy(retval, p->value, nbytes);
+  memcpy(retval, &(p->value), nbytes);
 
   free(p);
 }
+
+/*
+ * called by remote PE to do the swap.  Store new value if cond
+ * matches, send back old value in either case
+ */
+void
+handler_cswap_out(gasnet_token_t token,
+		  void *buf, size_t bufsiz,
+		  gasnet_handlerarg_t unused)
+{
+  long long old;
+  cswap_payload_t *pp = (cswap_payload_t *) buf;
+
+  gasnet_hsl_lock(& cswap_out_lock);
+
+  /* save current target */
+  memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  /* update value if cond matches */
+  if (memcmp(&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
+    memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  }
+  /* return value */
+  pp->value = old;
+
+  gasnet_hsl_unlock(& cswap_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by swap invoker when old value returned by remote PE
+ * (same as swap_bak)
+ */
+void
+handler_cswap_bak(gasnet_token_t token,
+		  void *buf, size_t bufsiz,
+		  gasnet_handlerarg_t unused)
+{
+  cswap_payload_t *pp = (cswap_payload_t *) buf;
+
+  gasnet_hsl_lock(& cswap_bak_lock);
+
+  /* save returned value */
+  memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
+
+  /* done it */
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& cswap_bak_lock);
+}
+
+void
+__comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
+		      int pe,
+		      void *retval)
+{
+  cswap_payload_t *cp = (cswap_payload_t *) malloc(sizeof(*cp));
+  if (cp == (cswap_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate conditional swap payload memory"
+		 );
+  }
+  /* build payload to send */
+  cp->s_symm_addr = target;
+  cp->r_symm_addr = __symmetric_var_offset(target, pe);
+  cp->nbytes = nbytes;
+  cp->value = *(long long *) value;
+  cp->cond = *(long long *) cond;
+  cp->sentinel = 0;
+  cp->sentinel_addr = &(cp->sentinel);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
+			  cp, sizeof(*cp),
+			  0);
+  GASNET_BLOCKUNTIL(cp->sentinel);
+
+  /* local store */
+  memcpy(retval, &(cp->value), nbytes);
+
+  free(cp);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 

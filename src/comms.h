@@ -59,4 +59,9 @@ extern void __comms_poll(void);
 extern void  __comms_swap_request(void *target, void *value, size_t nbytes, int pe,
 				  void *retval);
 
+extern void  __comms_cswap_request(void *target,
+				   void *cond, void *value, size_t nbytes,
+				   int pe,
+				   void *retval);
+
 #endif /* _COMMS_H */

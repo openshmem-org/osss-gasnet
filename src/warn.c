@@ -108,7 +108,7 @@ __shmem_warnings_init(void)
 void
 __shmem_warn(int msg_type, char *fmt, ...)
 {
-  if (! __is_warn_enabled(msg_type)) {
+  if (! __warn_is_enabled(msg_type)) {
     return;
   }
 

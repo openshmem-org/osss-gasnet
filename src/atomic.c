@@ -85,15 +85,7 @@ _Pragma("weak shmem_swap=shmem_long_swap")
       retval = __atomic_cmpxchg64((volatile int64_t *)target, cond, value); \
     }									\
     else {								\
-      Type *oldtarget = (Type *) shmalloc( sizeof(*oldtarget) );	\
-      shmem_##Name##_get(oldtarget, target, 1, pe);			\
-      if (cond == *oldtarget) {						\
-	shmem_##Name##_put(target, &value, 1, pe);			\
-	shmem_barrier_all();						\
-      }									\
-      retval = *oldtarget;						\
-      shmem_barrier_all();						\
-      shfree(oldtarget);						\
+      __comms_cswap_request(target, &cond, &value, sizeof(value), pe, &retval); \
       return retval;							\
     }									\
   }
@@ -110,8 +102,10 @@ _Pragma("weak pshmem_long_swap=shmem_long_swap")
 _Pragma("weak pshmem_longlong_swap=shmem_longlong_swap")
 _Pragma("weak pshmem_float_swap=shmem_float_swap")
 _Pragma("weak pshmem_double_swap=shmem_double_swap")
+_Pragma("weak pshmem_swap=shmem_long_swap")
 
 _Pragma("weak pshmem_int_cswap=shmem_int_cswap")
 _Pragma("weak pshmem_long_cswap=shmem_long_cswap")
 _Pragma("weak pshmem_longlong_cswap=shmem_longlong_cswap")
+_Pragma("weak pshmem_cswap=shmem_long_cswap")
 #endif /* HAVE_PSHMEM_SUPPORT */
