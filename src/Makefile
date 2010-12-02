@@ -27,7 +27,14 @@ DEBUG_AND_OPT    = -g -O3
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
-SHMEM_SOURCES    = $(wildcard *.c)
+SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
+			cache.c comms.c dispatch.c env.c fcollect.c \
+			fence.c fortran-mem.c fortran.c hooks.c lock.c \
+			memalloc.c ptr.c putget.c query.c reduce-and.c \
+			reduce-common.c reduce-max.c state.c stats.c \
+			strided.c symmem.c updown.c waituntil.c warn.c \
+			version.c
+
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
 SHMEM_LIBRARY    = libopenshmem.so
@@ -89,6 +96,9 @@ comms.o:	comms.c
 		$(COMMON_FLAGS) -c -o $@ $<
 
 # -- end GASNet --------------------------------------------
+
+version.c:
+	./set-version.sh
 
 fortran.o:	fortran.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
