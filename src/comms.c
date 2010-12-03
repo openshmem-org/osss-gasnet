@@ -316,28 +316,28 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 #define GASNET_HANDLER_SETUP_OUT     128
 #define GASNET_HANDLER_SETUP_BAK     129
 
-void handler_segsetup_out();
-void handler_segsetup_bak();
+static void handler_segsetup_out();
+static void handler_segsetup_bak();
 
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
 #define GASNET_HANDLER_GLOBALVAR_BAK 131
 
-void handler_globalvar_out();
-void handler_globalvar_bak();
+static void handler_globalvar_out();
+static void handler_globalvar_bak();
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
 #define GASNET_HANDLER_SWAP_OUT      132
 #define GASNET_HANDLER_SWAP_BAK      133
 
-void handler_swap_out();
-void handler_swap_bak();
+static void handler_swap_out();
+static void handler_swap_bak();
 
 #define GASNET_HANDLER_CSWAP_OUT     134
 #define GASNET_HANDLER_CSWAP_BAK     135
 
-void handler_cswap_out();
-void handler_cswap_bak();
+static void handler_cswap_out();
+static void handler_cswap_bak();
 
 static gasnet_handlerentry_t handlers[] =
   {
@@ -432,7 +432,7 @@ static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 /*
  * unpack buf from sender PE and store seg info locally.  Ack. receipt.
  */
-void
+static void
 handler_segsetup_out(gasnet_token_t token,
 		     void *buf, size_t bufsiz,
 		     gasnet_handlerarg_t unused)
@@ -461,7 +461,7 @@ handler_segsetup_out(gasnet_token_t token,
 /*
  * record receipt ack.  We only need to count the number of replies
  */
-void
+static void
 handler_segsetup_bak(gasnet_token_t token,
 		     void *buf, size_t bufsiz,
 		     gasnet_handlerarg_t unused)
@@ -667,7 +667,7 @@ typedef struct {
 /*
  * called by remote PE to do the swap.  Store new value, send back old value
  */
-void
+static void
 handler_swap_out(gasnet_token_t token,
 		 void *buf, size_t bufsiz,
 		 gasnet_handlerarg_t unused)
@@ -700,7 +700,7 @@ handler_swap_out(gasnet_token_t token,
 /*
  * called by swap invoker when old value returned by remote PE
  */
-void
+static void
 handler_swap_bak(gasnet_token_t token,
 		 void *buf, size_t bufsiz,
 		 gasnet_handlerarg_t unused)
@@ -731,6 +731,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
+  p->value = 0LL;
   p->value = *(long long *) value;
   p->sentinel = 0;
   p->sentinel_addr = &(p->sentinel);
@@ -751,7 +752,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
-void
+static void
 handler_cswap_out(gasnet_token_t token,
 		  void *buf, size_t bufsiz,
 		  gasnet_handlerarg_t unused)
@@ -778,9 +779,9 @@ handler_cswap_out(gasnet_token_t token,
 
 /*
  * called by swap invoker when old value returned by remote PE
- * (same as swap_bak)
+ * (same as swap_bak for now)
  */
-void
+static void
 handler_cswap_bak(gasnet_token_t token,
 		  void *buf, size_t bufsiz,
 		  gasnet_handlerarg_t unused)
@@ -813,7 +814,9 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   cp->s_symm_addr = target;
   cp->r_symm_addr = __symmetric_var_offset(target, pe);
   cp->nbytes = nbytes;
+  cp->value = 0LL;
   cp->value = *(long long *) value;
+  cp->cond = 0LL;
   cp->cond = *(long long *) cond;
   cp->sentinel = 0;
   cp->sentinel_addr = &(cp->sentinel);
@@ -871,7 +874,7 @@ typedef struct {
 /*
  * called by remote PE to grab and write to its variable
  */
-void
+static void
 handler_globalvar_out(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
@@ -892,7 +895,7 @@ handler_globalvar_out(gasnet_token_t token,
  * called by sender PE after remote has set up temp buffer.
  * Sends data across to remote.
  */
-void
+static void
 handler_globalvar_bak(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
