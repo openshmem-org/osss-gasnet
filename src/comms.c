@@ -63,6 +63,12 @@ static struct unit_lookup units[] =
   };
 static const int nunits = sizeof(units) / sizeof(units[0]);
 
+/*
+ * work out how big the symmetric segment areas should be.
+ *
+ * Either from environment setting, or default value from
+ * implementation
+ */
 static size_t
 __comms_get_segment_size(void)
 {
@@ -159,6 +165,9 @@ __comms_poll(void)
   gasnet_AMPoll();
 }
 
+/*
+ * make sure everyone finishes stuff, then exit.
+ */
 void
 __comms_shutdown(int status)
 {
@@ -166,18 +175,28 @@ __comms_shutdown(int status)
   gasnet_exit(status);
 }
 
+/*
+ * can't just call getenv, it might not pass through environment
+ * info to other nodes from launch.
+ */
 char *
 __comms_getenv(const char *name)
 {
   return gasnet_getenv(name);
 }
 
+/*
+ * which node (PE) am I?
+ */
 int
 __comms_mynode(void)
 {
   return (int) gasnet_mynode();
 }
 
+/*
+ * how many nodes (Pes) take part in this program?
+ */
 int
 __comms_nodes(void)
 {

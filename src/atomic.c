@@ -44,7 +44,9 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
 }
 
 /*
- * TODO: spin on retval being set by reply handler
+ * shmem_swap performs an atomic swap operation. It writes value value
+ * into target on processing element (PE) pe and returns the previous
+ * contents of target as an atomic operation.
  */
 
 #define SHMEM_TYPE_SWAP(Name, Type)					\
@@ -71,8 +73,12 @@ SHMEM_TYPE_SWAP(float, float)
 
 _Pragma("weak shmem_swap=shmem_long_swap") 
 
+
+
 /*
- * this is an utterly stupid attempt.  Just so you know :-)
+ * The conditional swap routines conditionally update a target data
+ * object on an arbitrary processing element (PE) and return the prior
+ * contents of the data object in one atomic operation.
  */
 
 #define SHMEM_TYPE_CSWAP(Name, Type)					\
