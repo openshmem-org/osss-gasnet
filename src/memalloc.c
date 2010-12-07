@@ -1,12 +1,15 @@
 /*
  * Layer to sit on top of the malloc library, exposed to the shmem runtime.
- * This is PE-local.
+ * This is PE-local and sits just below SHMEM itself.
  */
 
 #include <sys/types.h>
 
 #include "dlmalloc.h"
 
+/*
+ * the memory area we manage in this unit.  Not visible to anyone else
+ */
 static mspace myspace;
 
 /*

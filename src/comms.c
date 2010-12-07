@@ -536,18 +536,6 @@ __symmetric_memory_init(void)
 	       great_big_heap, __state.heapsize
 	       );
 
-  /*
-   * store my own heap entry
-   */
-  seginfo_table[__state.mype].addr = great_big_heap;
-  seginfo_table[__state.mype].size = __state.heapsize;
-
-  /*
-   * initializem my heap
-   */
-  __mem_init(seginfo_table[__state.mype].addr,
-	     seginfo_table[__state.mype].size);
-
   {
     gasnet_seginfo_t gsp;
     int pe;
@@ -563,13 +551,26 @@ __symmetric_memory_init(void)
 				0);
       }
     }
-    /* messages swirl around... */
+    /* messages swirl around...do local init then wait for responses */
+
+    /*
+     * store my own heap entry
+     */
+    seginfo_table[__state.mype].addr = great_big_heap;
+    seginfo_table[__state.mype].size = __state.heapsize;
+
+    /*
+     * initializem my heap
+     */
+    __mem_init(seginfo_table[__state.mype].addr,
+	       seginfo_table[__state.mype].size);
+
     {
       /* now wait on the AM replies */
-      int got_all = __state.numpes - 1; /* 0-based AND don't count myself */
+      int got_all = __state.numpes - 2; /* 0-based AND don't count myself */
       do {
 	__comms_poll();
-      } while (seg_setup_replies_received < got_all);
+      } while (seg_setup_replies_received <= got_all);
     }
   }
 
@@ -782,7 +783,7 @@ handler_cswap_out(gasnet_token_t token,
   gasnet_hsl_lock(& cswap_out_lock);
 
   /* save current target */
-  memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  old = *(long long *) pp->r_symm_addr;
   /* update value if cond matches */
   if (memcmp(&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
     memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
