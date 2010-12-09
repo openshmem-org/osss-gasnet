@@ -10,7 +10,7 @@
 #include "comms.h"
 
 typedef struct {
-  const int level;
+  const shmem_warn_t level;
   const char *text;
   int on;
 } __warn_table_t;
@@ -50,7 +50,7 @@ __warn_enable(char *w)
 }
 
 static const char *
-__level_to_string(int level)
+__level_to_string(shmem_warn_t level)
 {
   int i;
   __warn_table_t *t = warnings;
@@ -68,7 +68,7 @@ __level_to_string(int level)
 /* -- end of static -- */
 
 int
-__warn_is_enabled(int level)
+__warn_is_enabled(shmem_warn_t level)
 {
   int i;
   __warn_table_t *t = warnings;
@@ -106,7 +106,7 @@ __shmem_warnings_init(void)
 #define BUF_SIZE 256
 
 void
-__shmem_warn(int msg_type, char *fmt, ...)
+__shmem_warn(shmem_warn_t msg_type, char *fmt, ...)
 {
   if (! __warn_is_enabled(msg_type)) {
     return;

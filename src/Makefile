@@ -16,6 +16,7 @@ CPPFLAGS        += -I../include
 CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CPPFLAGS        += -MMD
 
+# CFLAGS          += -Wall
 CFLAGS          += -fPIC
  
 #

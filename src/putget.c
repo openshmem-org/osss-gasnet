@@ -214,3 +214,13 @@ SHMEM_TYPE_PUT_NB(longdouble, long double)
 SHMEM_TYPE_PUT_NB(longlong, long long)
 SHMEM_TYPE_PUT_NB(double, double)
 SHMEM_TYPE_PUT_NB(float, float)
+
+#ifdef HAVE_PSHMEM_SUPPORT
+_Pragma("weak pshmem_short_put_nb=shmem_short_put_nb")
+_Pragma("weak pshmem_int_put_nb=shmem_int_put_nb")
+_Pragma("weak pshmem_long_put_nb=shmem_long_put_nb")
+_Pragma("weak pshmem_longdouble_put_nb=shmem_longdouble_put_nb")
+_Pragma("weak pshmem_longlong_put_nb=shmem_longlong_put_nb")
+_Pragma("weak pshmem_double_put_nb=shmem_double_g")
+_Pragma("weak pshmem_float_put_nb=shmem_float_put_nb")
+#endif /* HAVE_PSHMEM_SUPPORT */

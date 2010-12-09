@@ -161,7 +161,6 @@ __comms_set_waitmode(int mode)
 void
 __comms_poll(void)
 {
-  GASNET_BEGIN_FUNCTION();
   gasnet_AMPoll();
 }
 
@@ -377,6 +376,9 @@ static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
  * end of handlers
  */
 
+/*
+ * This is where the communications layer gets set up
+ */
 void
 __comms_init(void)
 {
@@ -424,6 +426,8 @@ __comms_init(void)
   __shmem_warn(SHMEM_LOG_INIT,
 	       "initialization complete"
 	       );
+
+  /* Up and running! */
 }
 
 /*
@@ -456,7 +460,7 @@ handler_segsetup_out(gasnet_token_t token,
 		     void *buf, size_t bufsiz,
 		     gasnet_handlerarg_t unused)
 {
-  int src_pe;
+  gasnet_node_t src_pe;
   gasnet_seginfo_t *gsp = (gasnet_seginfo_t *) buf;
 
   /*
@@ -468,8 +472,8 @@ handler_segsetup_out(gasnet_token_t token,
 
   GASNET_SAFE( gasnet_AMGetMsgSource(token, &src_pe) );
 
-  seginfo_table[src_pe].addr = gsp->addr;
-  seginfo_table[src_pe].size = gsp->size;
+  seginfo_table[(int) src_pe].addr = gsp->addr;
+  seginfo_table[(int) src_pe].size = gsp->size;
 
   // gasnet_hsl_unlock(& setup_out_lock);
 

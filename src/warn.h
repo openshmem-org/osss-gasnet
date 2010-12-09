@@ -5,16 +5,18 @@ extern void __shmem_warnings_init(void);
 
 #include <stdarg.h>
 
-extern void __shmem_warn(int msg_type, char *fmt, ...);
-extern int  __warn_is_enabled(int level);
+typedef enum {
+  SHMEM_LOG_FATAL=0,		/* unrecoverable problem */
+  SHMEM_LOG_DEBUG,		/* debugging information */
+  SHMEM_LOG_INFO,		/* informational */
+  SHMEM_LOG_NOTICE,		/* serious, but non-fatal */
+  SHMEM_LOG_AUTH,		/* something not authorized */
+  SHMEM_LOG_INIT,		/* during OpenSHMEM initialization */
+  SHMEM_LOG_MEMORY,		/* symmetric memory operations */
+  SHMEM_LOG_CACHE		/* cache flushing ops */
+} shmem_warn_t;
 
-#define SHMEM_LOG_FATAL   0	/* unrecoverable problem */
-
-#define SHMEM_LOG_DEBUG   1	/* debugging information */
-#define SHMEM_LOG_INFO    2	/* informational */
-#define SHMEM_LOG_NOTICE  3	/* serious informational (but not fatal) */
-#define SHMEM_LOG_AUTH    4	/* something not authorized */
-#define SHMEM_LOG_INIT    5	/* during OpenSHMEM initialization */
-#define SHMEM_LOG_MEMORY  6	/* symmetric memory operations */
+extern void __shmem_warn(shmem_warn_t msg_type, char *fmt, ...);
+extern int  __warn_is_enabled(shmem_warn_t level);
 
 #endif /* _WARN_H */

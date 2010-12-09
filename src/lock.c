@@ -8,6 +8,7 @@
  * return 1 if not.
  */
 
+#include "comms.h"
 #include "warn.h"
 
 static void

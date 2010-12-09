@@ -4,45 +4,61 @@
  * to let them all be empty
  */
 
-/* api@ */
+#include "warn.h"
+
+static void inline
+cache_no_op(void)
+{
+  __shmem_warn(SHMEM_LOG_DEBUG,
+	       "cache operations are a no-op"
+	       );
+}
+
+/* @api@ */
 void
 shmem_clear_cache_inv(void)
 {
+  cache_no_op();
   return;
 }
 
-/* api@ */
+/* @api@ */
 void
 shmem_set_cache_inv(void)
 {
+  cache_no_op();
   return;
 }
 
-/* api@ */
+/* @api@ */
 void
 shmem_clear_cache_line_inv(void *target)
 {
+  cache_no_op();
   return;
 }
 
-/* api@ */
+/* @api@ */
 void
 shmem_set_cache_line_inv(void *target)
 {
+  cache_no_op();
   return;
 }
 
-/* api@ */
+/* @api@ */
 void
 shmem_udcflush(void)
 {
+  cache_no_op();
   return;
 }
 
-/* api@ */
+/* @api@ */
 void
 shmem_udcflush_line(void *target)
 {
+  cache_no_op();
   return;
 }
 
