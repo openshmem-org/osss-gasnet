@@ -560,7 +560,7 @@ __symmetric_memory_init(void)
     seginfo_table[__state.mype].size = __state.heapsize;
 
     /*
-     * initializem my heap
+     * initialize my heap
      */
     __mem_init(seginfo_table[__state.mype].addr,
 	       seginfo_table[__state.mype].size);
@@ -707,8 +707,8 @@ handler_swap_out(gasnet_token_t token,
 #endif
 
   /* save and update */
-  memcpy(&old, pp->r_symm_addr, pp->nbytes);
-  memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
   pp->value = old;
 
   gasnet_hsl_unlock(& swap_out_lock);
@@ -730,7 +730,7 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_lock(& swap_bak_lock);
 
   /* save returned value */
-  memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
+  (void) memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
 
   /* done it */
   *(pp->sentinel_addr) = 1;
@@ -751,7 +751,6 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   p->s_symm_addr = target;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
-  p->value = 0LL;
   p->value = *(long long *) value;
   p->sentinel = 0;
   p->sentinel_addr = &(p->sentinel);
@@ -763,7 +762,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   GASNET_BLOCKUNTIL(p->sentinel);
 
   /* local store */
-  memcpy(retval, &(p->value), nbytes);
+  (void) memcpy(retval, &(p->value), nbytes);
 
   free(p);
 }
@@ -785,8 +784,8 @@ handler_cswap_out(gasnet_token_t token,
   /* save current target */
   old = *(long long *) pp->r_symm_addr;
   /* update value if cond matches */
-  if (memcmp(&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
-    memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  if ( *(long long *) pp->cond == *(long long *) pp->r_symm_addr) {
+    *(long long *) pp->r_symm_addr = pp->value;
   }
   /* return value */
   pp->value = old;
@@ -811,7 +810,7 @@ handler_cswap_bak(gasnet_token_t token,
   gasnet_hsl_lock(& cswap_bak_lock);
 
   /* save returned value */
-  memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
+  (void) memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
 
   /* done it */
   *(pp->sentinel_addr) = 1;
@@ -834,9 +833,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   cp->s_symm_addr = target;
   cp->r_symm_addr = __symmetric_var_offset(target, pe);
   cp->nbytes = nbytes;
-  cp->value = 0LL;
   cp->value = *(long long *) value;
-  cp->cond = 0LL;
   cp->cond = *(long long *) cond;
   cp->sentinel = 0;
   cp->sentinel_addr = &(cp->sentinel);
@@ -848,7 +845,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   GASNET_BLOCKUNTIL(cp->sentinel);
 
   /* local store */
-  memcpy(retval, &(cp->value), nbytes);
+  (void) memcpy(retval, &(cp->value), nbytes);
 
   free(cp);
 }
