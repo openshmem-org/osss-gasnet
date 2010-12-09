@@ -9,7 +9,7 @@
 static void inline
 cache_no_op(void)
 {
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_warn(SHMEM_LOG_CACHE,
 	       "cache operations are a no-op"
 	       );
 }
