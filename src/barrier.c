@@ -1,5 +1,4 @@
 #include "state.h"
-#include "stats.h"
 #include "comms.h"
 #include "warn.h"
 #include "dispatch.h"
@@ -28,7 +27,6 @@ shmem_barrier_all(void)
 
   // __hooks_post_barrier();
 
-  SHMEM_STATS_BARRIER();
 }
 
 _Pragma("weak barrier=shmem_barrier_all")

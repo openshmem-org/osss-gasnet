@@ -11,7 +11,6 @@
 
 #include "state.h"
 #include "warn.h"
-#include "stats.h"
 
 static long *put_count;
 static long *get_count;

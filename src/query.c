@@ -1,7 +1,6 @@
 #include <stdio.h>               /* NULL                           */
 
 #include "state.h"
-#include "stats.h"
 
 /* ----------------------------------------------------------------- */
 
@@ -9,7 +8,6 @@
   int			     \
   Variant (void)	     \
   {			     \
-    SHMEM_STATS_MY_PE();     \
     return __state.mype;     \
   }
 
@@ -21,7 +19,6 @@ SHMEM_MY_PE(_my_pe)
   int						\
   Variant (void)				\
   {						\
-    SHMEM_STATS_NUM_PES();			\
     return __state.numpes;			\
   }
 
@@ -33,6 +30,5 @@ SHMEM_NUM_PES(_num_pes)
 char *
 shmem_nodename(void)
 {
-  SHMEM_STATS_NODENAME();
   return __state.loc.nodename;
 }

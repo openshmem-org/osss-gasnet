@@ -31,7 +31,7 @@ SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
 			cache.c comms.c dispatch.c env.c fcollect.c \
 			fence.c fortran-mem.c fortran.c hooks.c lock.c \
 			memalloc.c ptr.c putget.c query.c reduce-and.c \
-			reduce-common.c reduce-max.c state.c stats.c \
+			reduce-common.c reduce-max.c state.c \
 			strided.c symmem.c updown.c waituntil.c warn.c \
 			version.c
 

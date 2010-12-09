@@ -6,7 +6,6 @@
 
 #include "comms.h"
 #include "state.h"
-#include "stats.h"
 #include "warn.h"
 #include "atomic.h"
 #include "env.h"
@@ -20,9 +19,6 @@ __shmem_exit(int status)
 {
   __shmem_atomic_finalize();
   __symmetric_memory_finalize();
-
-  SHMEM_STATS_REPORT();
-  SHMEM_STATS_CLEANUP();
 
   __state.initialized = 0;
 
@@ -79,8 +75,6 @@ shmem_init(void)
   __symmetric_memory_init();
 
   __shmem_atomic_init();
-
-  SHMEM_STATS_INIT();
 
   atexit(__shmem_exit_handler);
 

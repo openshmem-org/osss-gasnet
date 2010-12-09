@@ -5,7 +5,6 @@
 #include "state.h"
 #include "symmem.h"
 #include "comms.h"
-#include "stats.h"
 #include "updown.h"
 #include "warn.h"
 
@@ -28,7 +27,6 @@
       void *rdest = __symmetric_var_offset(dest, pe);			\
       __comms_put(rdest, (Type *) src, typed_len, pe);			\
     }									\
-    SHMEM_STATS_PUT(pe);						\
   }
 
 SHMEM_TYPE_PUT(short, short)
@@ -73,7 +71,6 @@ _Pragma("weak pshmem_put128=shmem_put128")
       void *their_src = __symmetric_var_offset((Type *) src, pe);	\
       __comms_get(dest, their_src, typed_len, pe);			\
     }									\
-    SHMEM_STATS_GET(pe);						\
   }
 
 SHMEM_TYPE_GET(short, short)
@@ -137,7 +134,6 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
       __comms_put_val(rdest, value, typed_len, pe);			\
     }									\
-    SHMEM_STATS_PUT(pe);						\
   }
 
 SHMEM_TYPE_P(short, short)
@@ -182,7 +178,6 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
       retval = (Type) __comms_get_val(their_src, typed_len, pe);	\
     }									\
-    SHMEM_STATS_GET(pe);						\
     return retval;							\
   }
 
