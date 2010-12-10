@@ -92,8 +92,8 @@ _Pragma("weak shmem_swap=shmem_long_swap")
     }									\
     else {								\
       __comms_cswap_request(target, &cond, &value, sizeof(value), pe, &retval); \
-      return retval;							\
     }									\
+    return retval;							\
   }
 
 SHMEM_TYPE_CSWAP(int, int)

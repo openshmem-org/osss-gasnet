@@ -16,7 +16,6 @@ CPPFLAGS        += -I../include
 CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CPPFLAGS        += -MMD
 
-# CFLAGS          += -Wall
 CFLAGS          += -fPIC
  
 #
@@ -108,7 +107,7 @@ fortran-mem.o:	fortran-mem.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
 %.o:	%.c
-	$(CC) $(COMMON_FLAGS) -c -o $@ $<
+	$(CC) -Wall $(COMMON_FLAGS) -c -o $@ $<
 
 wrappers:	c-wrapper f-wrapper
 
