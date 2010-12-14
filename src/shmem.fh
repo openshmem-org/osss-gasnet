@@ -1,2 +1,15 @@
+! Emacs: -*- mode: f90; -*-
 !        TODO: Fortran header -- will get round to it sometime
 
+integer SHMEM_MALLOC_OK
+parameter ( SHMEM_MALLOC_OK=0 )
+integer SHMEM_MALLOC_FAIL
+parameter ( SHMEM_MALLOC_FAIL=-1 )
+integer SHMEM_MALLOC_ALREADY_FREE
+parameter ( SHMEM_MALLOC_ALREADY_FREE=-2 )
+integer SHMEM_MALLOC_MEMALIGN_FAILED
+parameter ( SHMEM_MALLOC_MEMALIGN_FAILED=-3 )
+integer SHMEM_MALLOC_REALLOC_FAILED
+parameter ( SHMEM_MALLOC_REALLOC_FAILED=-4 )
+integer SHMEM_MALLOC_SYMMSIZE_FAILED
+parameter ( SHMEM_MALLOC_SYMMSIZE_FAILED=-5 )

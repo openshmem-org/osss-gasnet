@@ -129,10 +129,8 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       *dest = value;							\
     }									\
     else {								\
-      int typed_len = sizeof(Type);					\
-      size_t offset = (Type *)dest - (Type *)__symmetric_var_base(__state.mype); \
-      void *rdest = (Type *)__symmetric_var_base(pe) + offset;		\
-      __comms_put_val(rdest, value, typed_len, pe);			\
+      void *rdest = __symmetric_var_offset(dest, pe);			\
+      __comms_put_val(rdest, value, sizeof(Type), pe);			\
     }									\
   }
 
