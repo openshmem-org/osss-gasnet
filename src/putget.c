@@ -171,10 +171,8 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       retval = *src;							\
     }									\
     else {								\
-      int typed_len = sizeof(Type);					\
-      size_t offset = (Type *)src - (Type *)__symmetric_var_base(__state.mype); \
-      void *their_src = (Type *)__symmetric_var_base(pe) + offset;	\
-      retval = (Type) __comms_get_val(their_src, typed_len, pe);	\
+      void *their_src = __symmetric_var_offset((Type *) src, pe);	\
+      retval = __comms_get_val(their_src, sizeof(Type), pe);	\
     }									\
     return retval;							\
   }
