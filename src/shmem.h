@@ -125,6 +125,38 @@ extern void shmem_longlong_iput(long long *target, const long long *source,
 extern void  shmem_short_iput(short *target, const short *source, ptrdiff_t tst,
 			      ptrdiff_t sst, size_t len, int pe);
 
+
+extern void  shmem_double_iget(double *target, const double *source,
+			       ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_float_iget(float *target, const float *source,
+			      ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_int_iget(int *target, const int *source,  ptrdiff_t  tst,
+			    ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_iget32(void  *target, const void *source, ptrdiff_t tst,
+			  ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_iget64(void *target, const void *source,  ptrdiff_t  tst,
+			  ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_iget128(void *target, const void *source, ptrdiff_t tst,
+			   ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_long_iget(long *target, const long *source, ptrdiff_t tst,
+			     ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_longdouble_iget(long double *target, const long double *source,
+				   ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+
+extern void shmem_longlong_iget(long long *target, const long long *source,
+				ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+
+extern void  shmem_short_iget(short *target, const short *source, ptrdiff_t tst,
+			      ptrdiff_t sst, size_t len, int pe);
+
+
 /*
  * barriers
  */
