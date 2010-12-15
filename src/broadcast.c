@@ -21,7 +21,6 @@
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\
 	if (this_pe != root) {						\
-	  fprintf(stderr, "broadcast: put from %d to %d\n", __state.mype, this_pe); \
 	  shmem_##Type##_put(target, source, nlong, this_pe);		\
 	}								\
 	this_pe += step;						\

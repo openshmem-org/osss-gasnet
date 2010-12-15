@@ -255,13 +255,16 @@ _Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
 void
 __comms_wait_nb(void *h)
 {
-  gasnet_wait_syncnb((gasnet_handle_t ) h);
+  gasnet_wait_syncnb((gasnet_handle_t) h);
+
+  LOAD_STORE_FENCE();
 }
 
 void
 __comms_fence(void)
 {
   gasnet_wait_syncnbi_all();
+  LOAD_STORE_FENCE();
 }
 
 #if 1
@@ -288,7 +291,7 @@ __comms_barrier_all(void)
 #else
 
 void
-__comms_barrrier_all(void)
+__comms_barrier_all(void)
 {
   __comms_barrier(0, 0, __state.numpes, syncit);
 }
@@ -303,23 +306,28 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   __comms_fence();
 
   if (__state.mype == PE_start) {
-    int step = 1 << logPE_stride;
+    const int step = 1 << logPE_stride;
     int i;
-    int thispe = PE_start;
-    for (i = 1; i < PE_size; i+= 1) {
-      thispe += step;
-      shmem_wait(& pSync[thispe], _SHMEM_SYNC_VALUE);
-      pSync[thispe] = _SHMEM_SYNC_VALUE;
-      shmem_long_p(& pSync[thispe], _SHMEM_SYNC_VALUE, thispe);
+    int thatpe;
+    /* root signals everyone else */
+    for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
+      thatpe += step;
+      shmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
+    }
+    /* root waits for ack from everyone else */
+    for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
+      thatpe += step;
+      shmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
     }
   }
   else {
-    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE + 1, PE_start);
-    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE + 1);
+    /* non-root waits for root to signal, then tell root we're ready */
+    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
+    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
   }
-
   __comms_fence();
-
+  /* restore pSync values */
+  pSync[__state.mype] = _SHMEM_SYNC_VALUE;
 }
 
 
