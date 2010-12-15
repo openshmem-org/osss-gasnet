@@ -25,6 +25,7 @@ main()
     printf("%d: target = %d, swapped = %d\n", me, *target, swapped_val);
   }
 
+  shfree(target);
 
   return 0;
 }

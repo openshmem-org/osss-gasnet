@@ -10,6 +10,7 @@ TESTS = \
 		bcast1.c bcast2.c \
 		fcollect.c \
 		dip.c fip.c iip.c lip.c \
+		iput.x iget.x \
 		sping.c swap.c version.c
 
 EXES = $(TESTS:.c=.x)

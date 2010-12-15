@@ -5,10 +5,13 @@
 int
 main(int argc, char **argv)
 {
-  shmem_init();
+  start_pes(0);
 
-  printf("Hello from SHMEM library version \"%s\"\n",
-         shmem_version());
+  if (_my_pe() == 0) {
+    printf("Hello from SHMEM library version \"%s\"\n",
+           shmem_version()
+          );
+  }
 
   return 0;
 }
