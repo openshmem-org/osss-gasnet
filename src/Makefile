@@ -17,6 +17,7 @@ CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CPPFLAGS        += -MMD
 
 CFLAGS          += -fPIC
+CFLAGS          += -std=c99
  
 #
 # in case we ever want complex math support in C

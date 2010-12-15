@@ -325,9 +325,9 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
     shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
     shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
   }
-  __comms_fence();
   /* restore pSync values */
   pSync[__state.mype] = _SHMEM_SYNC_VALUE;
+  __comms_fence();
 }
 
 
@@ -552,7 +552,7 @@ __symmetric_memory_init(void)
     gasnet_seginfo_t gsp;
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
-      /* I've recorded my own heap above, send to everyone else */
+      /* send to everyone else */
       if (__state.mype != pe) {
 
 	gsp.addr = great_big_heap;
