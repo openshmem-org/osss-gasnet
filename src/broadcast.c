@@ -21,6 +21,7 @@
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\
 	if (this_pe != root) {						\
+	  fprintf(stderr, "broadcast: put from %d to %d\n", __state.mype, this_pe); \
 	  shmem_##Type##_put(target, source, nlong, this_pe);		\
 	}								\
 	this_pe += step;						\
@@ -38,16 +39,16 @@ _Pragma("weak pshmem_broadcast64=shmem_broadcast64")
 #endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
-int
-shmem_sync_init(long **sync)
+long *
+shmem_sync_init(void)
 {
-  if (*sync == (long *) NULL) {
-    return 0;
-  }
+  long *sync;
+  const int nb = _SHMEM_BCAST_SYNC_SIZE * sizeof(*sync);
 
-  memset(*sync, _SHMEM_SYNC_VALUE, _SHMEM_BCAST_SYNC_SIZE * sizeof(**sync));
+  sync = shmalloc(nb);
+  memset(sync, _SHMEM_SYNC_VALUE, nb);
   shmem_barrier_all();
-  return 1;
+  return sync;
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT

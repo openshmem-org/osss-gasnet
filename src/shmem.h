@@ -300,7 +300,7 @@ extern void shmem_broadcast64(void *target, const void *source, size_t nlong,
                               int PE_root, int PE_start, int logPE_stride, int PE_size,
                               long *pSync);
 
-extern int shmem_sync_init(long **);
+extern long * shmem_sync_init(void);
 
 /*
  * fixed collects

@@ -18,17 +18,23 @@ long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
  * correct symmetry
  */
 
-static long shmalloc_remote_size;
-
 static int
 shmalloc_symmetry_check(size_t size)
 {
   int pe;
   int any_failed_pe = -1;
   long shmalloc_received_size;
+  long *shmalloc_remote_size;
 
   /* record for everyone else to see */
-  shmalloc_remote_size = size;
+  shmalloc_remote_size = (long *) __mem_alloc(sizeof(*shmalloc_remote_size));
+  if (shmalloc_remote_size == (long *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: couldn't allocate memory for symmetry check"
+		 );
+    /* NOT REACHED */
+  }
+  *shmalloc_remote_size = size;
   shmem_barrier_all();
 
   /* everyone checks everyone else's sizes, barf if mis-match */
@@ -36,7 +42,7 @@ shmalloc_symmetry_check(size_t size)
     if (pe == __state.mype) {
       continue;
     }
-    shmalloc_received_size = shmem_long_g(&shmalloc_remote_size, pe);
+    shmalloc_received_size = shmem_long_g(shmalloc_remote_size, pe);
     if (shmalloc_received_size != size) {
       __shmem_warn(SHMEM_LOG_NOTICE,
 		   "shmalloc expected %ld, but saw %ld on PE %d",
@@ -47,6 +53,7 @@ shmalloc_symmetry_check(size_t size)
       break;
     }
   }
+  __mem_free(shmalloc_remote_size);
   return any_failed_pe;
 }
 

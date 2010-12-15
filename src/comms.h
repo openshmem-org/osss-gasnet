@@ -22,7 +22,6 @@ extern void __comms_get(void *dst, void *src, size_t len, int pe);
 extern void __comms_put_val(void *dst, long src, size_t len, int pe);
 extern long __comms_get_val(void *src, size_t len, int pe);
 
-
 extern void * __comms_short_put_nb(short *target, short *source,
 				   size_t len, int pe);
 extern void * __comms_int_put_nb(int *target, int *source,
