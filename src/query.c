@@ -4,11 +4,14 @@
 
 /* ----------------------------------------------------------------- */
 
-#define SHMEM_MY_PE(Variant) \
-  int			     \
-  Variant (void)	     \
-  {			     \
-    return __state.mype;     \
+#define SHMEM_MY_PE(Variant)			\
+  int						\
+  Variant (void)				\
+  {						\
+    if (! __state.initialized) {		\
+      return -1;				\
+    }						\
+    return __state.mype;			\
   }
 
 SHMEM_MY_PE(shmem_my_pe)
@@ -19,6 +22,9 @@ SHMEM_MY_PE(_my_pe)
   int						\
   Variant (void)				\
   {						\
+    if (! __state.initialized) {		\
+      return -1;				\
+    }						\
     return __state.numpes;			\
   }
 
@@ -30,6 +36,9 @@ SHMEM_NUM_PES(_num_pes)
 char *
 shmem_nodename(void)
 {
+  if (! __state.initialized) {
+    return (char *) NULL;
+  }
   return __state.loc.nodename;
 }
 

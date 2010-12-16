@@ -399,7 +399,8 @@ __comms_init(void)
   argv = (char **) malloc(argc * sizeof(*argv));
   if (argv == (char **) NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
-                 "could not allocate memory for GASNet initialization");
+                 "could not allocate memory for GASNet initialization"
+		 );
     /* NOT REACHED */
   }
   argv[0] = "shmem";

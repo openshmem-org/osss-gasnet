@@ -70,6 +70,7 @@ __barrier_dispatch_init()
 		   "unknown barrier algorithm \"%s\"",
 		   ba
 		   );
+      /* NOT REACHED */
     }
   }
 }

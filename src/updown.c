@@ -66,6 +66,7 @@ shmem_init(void)
     __shmem_warn(SHMEM_LOG_FATAL,
                  "shmem has already been initialized"
                 );
+    /* NOT REACHED */
   }
 
   __comms_init();
