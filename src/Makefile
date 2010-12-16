@@ -19,11 +19,6 @@ CPPFLAGS        += -MMD
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
  
-#
-# in case we ever want complex math support in C
-#
-# CFLAGS          += -std=c99
-
 DEBUG_AND_OPT    = -g -O3
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
