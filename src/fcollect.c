@@ -7,33 +7,37 @@
 #include "shmem.h"
 
 /*
- * should be using pSync for point-to-point sync, barrier here would be wrong
- * (but sort of works for some initial testing :-)
+ * fcollect puts nelems from source on each PE in the set to
+ * target on all PEs in the set.  source -> target is done
+ * in PE order.
+ *
  */
 
-#define SHMEM_FCOLLECT_TYPE(Size, Type)					\
+#define FCOLLECT_EMIT(Size, Type)					\
   /* @api@ */								\
-  void shmem_fcollect##Size (void *target, const void *source, size_t nlong, \
-			      int PE_start, int logPE_stride, int PE_size, \
-			      long *pSync)				\
+  void									\
+  shmem_fcollect##Size (void *target, const void *source, size_t nelems, \
+			int PE_start, int logPE_stride, int PE_size,	\
+			long *pSync)					\
   {									\
-    int i;								\
     const int step = 1 << logPE_stride;					\
-    const int typed_len = nlong * sizeof(Type);				\
-    void *walk = target;						\
-    register int this_pe = PE_start;					\
-    if (__state.mype == this_pe) {					\
-      for (i = 0; i < PE_size; i += 1) {				\
-	shmem_##Type##_get(walk, source, nlong, this_pe);		\
-	walk += typed_len;						\
-	this_pe += step;						\
-      }									\
+    const int tidx = nelems * sizeof(Type) * __state.mype;		\
+    int pe = PE_start;							\
+    int i;								\
+    for (i = 0; i < PE_size; i += 1) {					\
+      shmem_put##Size (target + tidx, source, nelems, pe);		\
+      pe += step;							\
     }									\
-    shmem_broadcast##Size (target, target, nlong * PE_size, 0, PE_start, logPE_stride, PE_size, pSync); \
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+    __shmem_warn(SHMEM_LOG_COLLECT,					\
+		 "\"fcollect%d\" completed barrier",			\
+		 Size							\
+		 );							\
   }
 
-SHMEM_FCOLLECT_TYPE(32, int)
-SHMEM_FCOLLECT_TYPE(64, long)
+FCOLLECT_EMIT(32, int)
+FCOLLECT_EMIT(64, long)
+
 
 #ifdef HAVE_PSHMEM_SUPPORT
 _Pragma("weak pshmem_fcollect32=shmem_fcollect32")

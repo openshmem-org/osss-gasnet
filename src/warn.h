@@ -13,7 +13,9 @@ typedef enum {
   SHMEM_LOG_AUTH,		/* something not authorized */
   SHMEM_LOG_INIT,		/* during OpenSHMEM initialization */
   SHMEM_LOG_MEMORY,		/* symmetric memory operations */
-  SHMEM_LOG_CACHE		/* cache flushing ops */
+  SHMEM_LOG_CACHE,		/* cache flushing ops */
+  SHMEM_LOG_BARRIER,		/* barrier ops */
+  SHMEM_LOG_COLLECT		/* [f]collect ops */
 } shmem_warn_t;
 
 extern void __shmem_warn(shmem_warn_t msg_type, char *fmt, ...);
