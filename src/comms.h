@@ -51,7 +51,8 @@ extern int    __symmetric_var_in_range(void *addr, int pe);
 extern void * __symmetric_var_offset(void *dest, int pe);
 
 extern void __comms_barrier_all(void);
-extern void __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync);
+extern void __comms_barrier(int PE_start, int logPE_stride,
+			    int PE_size, long *pSync);
 
 extern void __comms_poll(void);
 

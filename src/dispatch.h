@@ -3,9 +3,14 @@
 
 #include <stdio.h>
 
-typedef void (* __shmem_dispatch_t)(void);
+typedef void (* __shmem_dispatch_t)();
 
-#define DISPATCH_NULL (__shmem_dispatch_t)NULL
+typedef struct {
+  const char *name;
+  __shmem_dispatch_t func;
+} barrier_dispatches_t;
+
+#define DISPATCH_NULL (__shmem_dispatch_t) NULL
 
 extern __shmem_dispatch_t __shmem_dispatch[];
 

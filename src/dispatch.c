@@ -24,19 +24,13 @@ __dispatch_init(void)
   __shmem_dispatch[SHMEM_BARRIER_DISPATCH] = DISPATCH_NULL;
 }
 
-#define BARRIER_TABLE_ENTRY(n) { #n , __shmem_barrier_all_##n }
-
-typedef struct {
-  const char *name;
-  __shmem_dispatch_t func;
-} __barrier_dispatches_t;
-
-static __barrier_dispatches_t  __barrier_table[] =
+static barrier_dispatches_t  barrier_table[] =
   {
-    BARRIER_TABLE_ENTRY(basic)
+    { "basic", __shmem_barrier_all_basic },
+    { "basic", __shmem_barrier_basic     }
   };
 static const int n_dispatches =
-  sizeof(__barrier_table) / sizeof(__barrier_table[0]);
+  sizeof(barrier_table) / sizeof(barrier_table[0]);
 
 static const char *shmem_barrier_algorithm_envvar = "SHMEM_BARRIER_ALGORITHM";
 static char *shmem_default_barrier_algorithm = "basic";
@@ -53,12 +47,13 @@ __barrier_dispatch_init()
   {
     int i = 0;
     int found = 0;
-    __barrier_dispatches_t *dmp = __barrier_table;
+    barrier_dispatches_t *dmp = barrier_table;
 
-    for ( ; !found && i < n_dispatches; i += 1){
+    for ( ; i < n_dispatches; i += 1){
       if (strcasecmp(ba, dmp->name) == 0) {
 	__shmem_dispatch[SHMEM_BARRIER_DISPATCH] = dmp->func;
 	found = 1;
+	break;
       }
       else {
 	dmp += 1;

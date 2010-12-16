@@ -8,5 +8,5 @@ void
 __shmem_environment_init()
 {
   __shmem_warnings_init();
-  __barrier_dispatch_init();
+  /* TODO: remove this for now....   __barrier_dispatch_init(); */
 }

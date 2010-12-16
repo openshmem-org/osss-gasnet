@@ -267,8 +267,6 @@ __comms_fence(void)
   LOAD_STORE_FENCE();
 }
 
-#if 1
-
 static int barcount = 0;
 static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
 
@@ -287,17 +285,6 @@ __comms_barrier_all(void)
   // barcount = 1 - barcount;
   barcount += 1;
 }
-
-#else
-
-void
-__comms_barrier_all(void)
-{
-  __comms_barrier(0, 0, __state.numpes, syncit);
-}
-
-#endif
-
 
 
 void
