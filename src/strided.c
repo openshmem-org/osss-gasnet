@@ -34,20 +34,20 @@ SHMEM_EMIT_IPUT(float, float)
 SHMEM_EMIT_IPUT(longdouble, long double)
 SHMEM_EMIT_IPUT(longlong, long long)
 
-_Pragma("weak shmem_iput32=shmem_int_iput")
-_Pragma("weak shmem_iput64=shmem_long_iput")
-_Pragma("weak shmem_iput128=shmem_longdouble_iput")
+#pragma weak shmem_iput32 = shmem_int_iput
+#pragma weak shmem_iput64 = shmem_long_iput
+#pragma weak shmem_iput128 = shmem_longdouble_iput
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_short_iput=shmem_short_iput")
-_Pragma("weak pshmem_int_iput=shmem_int_iput")
-_Pragma("weak pshmem_long_iput=shmem_long_iput")
-_Pragma("weak pshmem_double_iput=shmem_double_iput")
-_Pragma("weak pshmem_longdouble_iput=shmem_longdouble_iput")
-_Pragma("weak pshmem_longlong_iput=shmem_longlong_iput")
-_Pragma("weak pshmem_iput32=shmem_iput32")
-_Pragma("weak pshmem_iput64=shmem_iput64")
-_Pragma("weak pshmem_iput128=shmem_iput128")
+#pragma weak pshmem_short_iput = shmem_short_iput
+#pragma weak pshmem_int_iput = shmem_int_iput
+#pragma weak pshmem_long_iput = shmem_long_iput
+#pragma weak pshmem_double_iput = shmem_double_iput
+#pragma weak pshmem_longdouble_iput = shmem_longdouble_iput
+#pragma weak pshmem_longlong_iput = shmem_longlong_iput
+#pragma weak pshmem_iput32 = shmem_iput32
+#pragma weak pshmem_iput64 = shmem_iput64
+#pragma weak pshmem_iput128 = shmem_iput128
 #endif /* HAVE_PSHMEM_SUPPORT */
 
 
@@ -85,18 +85,18 @@ SHMEM_EMIT_IGET(float, float)
 SHMEM_EMIT_IGET(longdouble, long double)
 SHMEM_EMIT_IGET(longlong, long long)
 
-_Pragma("weak shmem_iget32=shmem_int_iget")
-_Pragma("weak shmem_iget64=shmem_long_iget")
-_Pragma("weak shmem_iget128=shmem_longdouble_iget")
+#pragma weak shmem_iget32 = shmem_int_iget
+#pragma weak shmem_iget64 = shmem_long_iget
+#pragma weak shmem_iget128 = shmem_longdouble_iget
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_short_iget=shmem_short_iget")
-_Pragma("weak pshmem_int_iget=shmem_int_iget")
-_Pragma("weak pshmem_long_iget=shmem_long_iget")
-_Pragma("weak pshmem_double_iget=shmem_double_iget")
-_Pragma("weak pshmem_longdouble_iget=shmem_longdouble_iget")
-_Pragma("weak pshmem_longlong_iget=shmem_longlong_iget")
-_Pragma("weak pshmem_iget32=shmem_iget32")
-_Pragma("weak pshmem_iget64=shmem_iget64")
-_Pragma("weak pshmem_iget128=shmem_iget128")
+#pragma weak pshmem_short_iget = shmem_short_iget
+#pragma weak pshmem_int_iget = shmem_int_iget
+#pragma weak pshmem_long_iget = shmem_long_iget
+#pragma weak pshmem_double_iget = shmem_double_iget
+#pragma weak pshmem_longdouble_iget = shmem_longdouble_iget
+#pragma weak pshmem_longlong_iget = shmem_longlong_iget
+#pragma weak pshmem_iget32 = shmem_iget32
+#pragma weak pshmem_iget64 = shmem_iget64
+#pragma weak pshmem_iget128 = shmem_iget128
 #endif /* HAVE_PSHMEM_SUPPORT */

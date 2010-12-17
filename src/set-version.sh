@@ -14,6 +14,6 @@ shmem_version(void)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_version=shmem_version")
+#pragma weak pshmem_version = shmem_version
 #endif /* HAVE_PSHMEM_SUPPORT */
 EOT

@@ -250,7 +250,7 @@ COMMS_TYPE_PUT_NB(longlong, long long)
 COMMS_TYPE_PUT_NB(double, double)
 COMMS_TYPE_PUT_NB(float, float)
 
-_Pragma("weak __comms_putmem_nb=__comms_long_put_nb")
+#pragma weak __comms_putmem_nb = __comms_long_put_nb
 
 void
 __comms_wait_nb(void *h)

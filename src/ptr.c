@@ -29,5 +29,5 @@ shmem_ptr(void *target, int pe)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_ptr=shmem_ptr")
+#pragma weak pshmem_ptr = shmem_ptr
 #endif /* HAVE_PSHMEM_SUPPORT */

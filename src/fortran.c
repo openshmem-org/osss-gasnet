@@ -167,8 +167,8 @@ FORTRANIFY_WAIT(int, int)
 FORTRANIFY_WAIT(long, long)
 FORTRANIFY_WAIT(longlong, long long)
 
-_Pragma("weak shmem_wait_until_=shmem_long_wait_until_")
-_Pragma("weak shmem_wait_=shmem_long_wait_")
+#pragma weak shmem_wait_until_ = shmem_long_wait_until_
+#pragma weak shmem_wait_ = shmem_long_wait_
 
 /*
  * cache flushing

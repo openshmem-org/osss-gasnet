@@ -95,7 +95,7 @@ shmalloc(size_t size)
 
   return addr;
 }
-_Pragma("weak shmem_malloc=shmalloc")
+#pragma weak shmem_malloc = shmalloc
 
 /* @api@ */
 void
@@ -120,7 +120,7 @@ shfree(void *addr)
 
   shmem_barrier_all();
 }
-_Pragma("weak shmem_free=shfree")
+#pragma weak shmem_free = shfree
 
 /* @api@ */
 void *
@@ -158,7 +158,7 @@ shrealloc(void *addr, size_t size)
 
   return newaddr;
 }
-_Pragma("weak shmem_realloc=shrealloc")
+#pragma weak shmem_realloc = shrealloc
 
 /*
  * The shmemalign function allocates a block in the symmetric heap that
@@ -192,7 +192,7 @@ shmemalign(size_t alignment, size_t size)
 
   return addr;
 }
-_Pragma("weak shmem_memalign=shmemalign")
+#pragma weak shmem_memalign = shmemalign
 
 /*
  * readable error message for error code "e"
@@ -237,15 +237,15 @@ sherror(void)
 
   return "unknown error";
 }
-_Pragma("weak shmem_error=sherror")
+#pragma weak shmem_error = sherror
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmalloc=shmalloc")
-_Pragma("weak pshmem_malloc=shmem_malloc")
-_Pragma("weak pshfree=shfree")
-_Pragma("weak pshmem_free=shmem_free")
-_Pragma("weak pshrealloc=shrealloc")
-_Pragma("weak pshmem_realloc=shmem_realloc")
-_Pragma("weak pshmemalign=shmemalign")
-_Pragma("weak pshmem_memalignloc=shmem_memalign")
+#pragma weak pshmalloc = shmalloc
+#pragma weak pshmem_malloc = shmem_malloc
+#pragma weak pshfree = shfree
+#pragma weak pshmem_free = shmem_free
+#pragma weak pshrealloc = shrealloc
+#pragma weak pshmem_realloc = shmem_realloc
+#pragma weak pshmemalign = shmemalign
+#pragma weak pshmem_memalignloc = shmem_memalign
 #endif /* HAVE_PSHMEM_SUPPORT */

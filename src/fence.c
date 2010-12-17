@@ -16,6 +16,6 @@ shmem_quiet(void)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_fence=shmem_fence")
-_Pragma("weak pshmem_quiet=shmem_quiet")
+#pragma weak pshmem_fence = shmem_fence
+#pragma weak pshmem_quiet = shmem_quiet
 #endif /* HAVE_PSHMEM_SUPPORT */

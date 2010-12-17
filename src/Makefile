@@ -24,7 +24,7 @@ DEBUG_AND_OPT    = -g -O3
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
 SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
-			cache.c comms.c env.c fcollect.c \
+			cache.c collect.c comms.c env.c fcollect.c \
 			fence.c fortran-mem.c fortran.c hooks.c lock.c \
 			memalloc.c ptr.c putget.c query.c reduce-and.c \
 			reduce-common.c reduce-max.c state.c \

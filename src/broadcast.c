@@ -33,8 +33,8 @@ SHMEM_BROADCAST_TYPE(32, int)
 SHMEM_BROADCAST_TYPE(64, long)
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_broadcast32=shmem_broadcast32")
-_Pragma("weak pshmem_broadcast64=shmem_broadcast64")
+#pragma weak pshmem_broadcast32 = shmem_broadcast32
+#pragma weak pshmem_broadcast64 = shmem_broadcast64
 #endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
@@ -51,5 +51,5 @@ shmem_sync_init(void)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_sync_init=shmem_sync_init")
+#pragma weak pshmem_sync_init = shmem_sync_init
 #endif /* HAVE_PSHMEM_SUPPORT */

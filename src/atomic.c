@@ -71,7 +71,7 @@ SHMEM_TYPE_SWAP(longlong, long long)
 SHMEM_TYPE_SWAP(double, double)
 SHMEM_TYPE_SWAP(float, float)
 
-_Pragma("weak shmem_swap=shmem_long_swap") 
+#pragma weak shmem_swap = shmem_long_swap
 
 
 
@@ -100,18 +100,18 @@ SHMEM_TYPE_CSWAP(int, int)
 SHMEM_TYPE_CSWAP(long, long)
 SHMEM_TYPE_CSWAP(longlong, long long)
 
-_Pragma("weak shmem_cswap=shmem_long_cswap")
+#pragma weak shmem_cswap = shmem_long_cswap
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_int_swap=shmem_int_swap")
-_Pragma("weak pshmem_long_swap=shmem_long_swap")
-_Pragma("weak pshmem_longlong_swap=shmem_longlong_swap")
-_Pragma("weak pshmem_float_swap=shmem_float_swap")
-_Pragma("weak pshmem_double_swap=shmem_double_swap")
-_Pragma("weak pshmem_swap=shmem_long_swap")
+#pragma weak pshmem_int_swap = shmem_int_swap
+#pragma weak pshmem_long_swap = shmem_long_swap
+#pragma weak pshmem_longlong_swap = shmem_longlong_swap
+#pragma weak pshmem_float_swap = shmem_float_swap
+#pragma weak pshmem_double_swap = shmem_double_swap
+#pragma weak pshmem_swap = shmem_long_swap
 
-_Pragma("weak pshmem_int_cswap=shmem_int_cswap")
-_Pragma("weak pshmem_long_cswap=shmem_long_cswap")
-_Pragma("weak pshmem_longlong_cswap=shmem_longlong_cswap")
-_Pragma("weak pshmem_cswap=shmem_long_cswap")
+#pragma weak pshmem_int_cswap = shmem_int_cswap
+#pragma weak pshmem_long_cswap = shmem_long_cswap
+#pragma weak pshmem_longlong_cswap = shmem_longlong_cswap
+#pragma weak pshmem_cswap = shmem_long_cswap
 #endif /* HAVE_PSHMEM_SUPPORT */

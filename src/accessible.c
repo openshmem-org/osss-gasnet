@@ -25,6 +25,6 @@ shmem_addr_accessible(void *addr, int pe)
 
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_pe_accessible=shmem_pe_accessible")
-_Pragma("weak pshmem_addr_accessible=shmem_addr_accessible")
+#pragma weak pshmem_pe_accessible = shmem_pe_accessible
+#pragma weak pshmem_addr_accessible = shmem_addr_accessible
 #endif /* HAVE_PSHMEM_SUPPORT */

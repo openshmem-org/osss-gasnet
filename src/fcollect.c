@@ -21,7 +21,7 @@
 			long *pSync)					\
   {									\
     const int step = 1 << logPE_stride;					\
-    const int tidx = nelems * sizeof(Type) * __state.mype;		\
+    const size_t tidx = nelems * sizeof(Type) * __state.mype;		\
     int pe = PE_start;							\
     int i;								\
     for (i = 0; i < PE_size; i += 1) {					\
@@ -40,6 +40,6 @@ FCOLLECT_EMIT(64, long)
 
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_fcollect32=shmem_fcollect32")
-_Pragma("weak pshmem_fcollect64=shmem_fcollect64")
+#pragma weak pshmem_fcollect32 = shmem_fcollect32
+#pragma weak pshmem_fcollect64 = shmem_fcollect64
 #endif /* HAVE_PSHMEM_SUPPORT */

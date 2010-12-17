@@ -28,10 +28,10 @@ CACHE_NO_OP(shmem_udcflush_line, void *target)
 
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_clear_cache_inv=shmem_clear_cache_inv")
-_Pragma("weak pshmem_set_cache_inv=shmem_set_cache_inv")
-_Pragma("weak pshmem_clear_cache_line_inv=shmem_clear_cache_line_inv")
-_Pragma("weak pshmem_set_cache_line_inv=shmem_set_cache_line_inv")
-_Pragma("weak pshmem_udcflush=shmem_udcflush")
-_Pragma("weak pshmem_udcflush_line=shmem_udcflush_line")
+#pragma weak pshmem_clear_cache_inv = shmem_clear_cache_inv
+#pragma weak pshmem_set_cache_inv = shmem_set_cache_inv
+#pragma weak pshmem_clear_cache_line_inv = shmem_clear_cache_line_inv
+#pragma weak pshmem_set_cache_line_inv = shmem_set_cache_line_inv
+#pragma weak pshmem_udcflush = shmem_udcflush
+#pragma weak pshmem_udcflush_line = shmem_udcflush_line
 #endif /* HAVE_PSHMEM_SUPPORT */

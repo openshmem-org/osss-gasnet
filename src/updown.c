@@ -102,6 +102,6 @@ start_pes(int npes)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_init=shmem_init")
-_Pragma("weak pstart_pes=start_pes")
+#pragma weak pshmem_init = shmem_init
+#pragma weak pstart_pes = start_pes
 #endif /* HAVE_PSHMEM_SUPPORT */

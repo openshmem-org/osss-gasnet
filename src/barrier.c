@@ -11,7 +11,7 @@ shmem_barrier_all(void)
 {
   __comms_barrier_all();
 }
-_Pragma("weak barrier=shmem_barrier_all")
+#pragma weak barrier = shmem_barrier_all
 
 /* @api */
 void
@@ -21,8 +21,8 @@ shmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
-_Pragma("weak pshmem_barrier_all=shmem_barrier_all")
-_Pragma("weak pshmem_barrier_all=shmem_barrier_all")
-_Pragma("weak pshmem_barrier=shmem_barrier")
-_Pragma("weak pbarrier=barrier")
+#pragma weak pshmem_barrier_all = shmem_barrier_all
+#pragma weak pshmem_barrier_all = shmem_barrier_all
+#pragma weak pshmem_barrier = shmem_barrier
+#pragma weak pbarrier = barrier
 #endif /* HAVE_PSHMEM_SUPPORT */
