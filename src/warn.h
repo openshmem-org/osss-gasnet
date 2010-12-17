@@ -4,6 +4,7 @@
 extern void __shmem_warnings_init(void);
 
 #include <stdarg.h>
+#include <stdio.h>
 
 typedef enum {
   SHMEM_LOG_FATAL=0,		/* unrecoverable problem */

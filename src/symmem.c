@@ -59,19 +59,9 @@ shmalloc_symmetry_check(size_t size)
 
 /* @api@ */
 void *
-shmalloc(size_t size)
+__shmalloc_no_check(size_t size)
 {
   void *addr;
-
-  if (shmalloc_symmetry_check(size) != -1) {
-    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
-    return (void *) NULL;
-  }
-
-  __shmem_warn(SHMEM_LOG_MEMORY,
-	       "shmalloc(%ld bytes) passed symmetry check",
-	       size
-	       );
 
   addr = __mem_alloc(size);
 
@@ -94,6 +84,23 @@ shmalloc(size_t size)
   shmem_barrier_all();		/* so say the SGI docs */
 
   return addr;
+}
+
+/* @api@ */
+void *
+shmalloc(size_t size)
+{
+  if (shmalloc_symmetry_check(size) != -1) {
+    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+    return (void *) NULL;
+  }
+
+  __shmem_warn(SHMEM_LOG_MEMORY,
+	       "shmalloc(%ld bytes) passed symmetry check",
+	       size
+	       );
+
+  return __shmalloc_no_check(size);
 }
 #pragma weak shmem_malloc = shmalloc
 

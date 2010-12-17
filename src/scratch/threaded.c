@@ -82,7 +82,7 @@ SHMEM_TYPE_WAIT_UNTIL(int, int)
 SHMEM_TYPE_WAIT_UNTIL(long, long)
 SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
 
-_Pragma("weak shmem_wait_until=shmem_long_wait_until")
+#pragma weak shmem_wait_until = shmem_long_wait_until
 
 #define SHMEM_TYPE_WAIT(Name, Type)			\
 void							\
@@ -96,4 +96,4 @@ SHMEM_TYPE_WAIT(int, int)
 SHMEM_TYPE_WAIT(long, long)
 SHMEM_TYPE_WAIT(longlong, long long)
 
-_Pragma("weak shmem_wait=shmem_long_wait")
+#pragma weak shmem_wait = shmem_long_wait
