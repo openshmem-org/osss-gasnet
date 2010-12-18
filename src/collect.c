@@ -27,19 +27,11 @@ shmem_collect32(void *target, const void *source, size_t nelems,
 {
   const int step = 1 << logPE_stride;
   const int last_pe = PE_start + step * (PE_size - 1);
-  long *acc_off = (long *) __shmalloc_no_check(sizeof(*acc_off));
-
-  if (acc_off == (long *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
-		 "internal error during memory allocation for collect"
-		 /* NOT REACHED */
-		 );
-  }
+  long save = pSync[0];
+  long *acc_off = & (pSync[0]);
 
   /* make sure accumulator has been initialized on all active PEs */
-  *acc_off = (__state.mype == PE_start) ? 0 : -1;
-
-  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
+  *acc_off = (__state.mype > PE_start) ? -1 : 0;
 
   /*
    * wait for left neighbor (if it exists) to send accumulated
@@ -73,8 +65,8 @@ shmem_collect32(void *target, const void *source, size_t nelems,
   }
 
   /* wait for everyone to finish and clean up */
+  *acc_off = save;
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
-  shfree(acc_off);
 }
 
 /*

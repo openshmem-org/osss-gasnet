@@ -5,9 +5,10 @@
 #include "state.h"
 #include "comms.h"
 #include "warn.h"
+#include "memalloc.h"
+
 #include "shmem.h"
 
-#include "memalloc.h"
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 
@@ -64,7 +65,6 @@ shmalloc_symmetry_check(size_t size)
  *
  */
 
-/* @api@ */
 void *
 __shmalloc_no_check(size_t size)
 {
