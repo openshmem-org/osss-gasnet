@@ -43,7 +43,7 @@ shmem_collect32(void *target, const void *source, size_t nelems,
 
   /*
    * wait for left neighbor (if it exists) to send accumulated
-   * indexes
+   * offsets
    */
   if (__state.mype > PE_start) {
     shmem_long_wait(acc_off, -1);
