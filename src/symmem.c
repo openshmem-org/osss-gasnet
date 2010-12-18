@@ -57,6 +57,13 @@ shmalloc_symmetry_check(size_t size)
   return any_failed_pe;
 }
 
+/*
+ * this call avoids the symmetry check that the real shmalloc() has to
+ * do and is thus cheaper.  Intended for internal use when we know in
+ * advance the supplied size is symmetric.
+ *
+ */
+
 /* @api@ */
 void *
 __shmalloc_no_check(size_t size)

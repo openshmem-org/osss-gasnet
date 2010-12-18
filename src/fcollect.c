@@ -7,9 +7,9 @@
 #include "shmem.h"
 
 /*
- * fcollect puts nelems from source on each PE in the set to
- * target on all PEs in the set.  source -> target is done
- * in PE order.
+ * fcollect puts nelems (*same* value on all PEs) from source on each
+ * PE in the set to target on all PEs in the set.  source -> target is
+ * done in PE order.
  *
  */
 
@@ -30,8 +30,7 @@
     }									\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
     __shmem_warn(SHMEM_LOG_COLLECT,					\
-		 "\"fcollect%d\" completed barrier",			\
-		 Size							\
+		 "completed barrier"					\
 		 );							\
   }
 
