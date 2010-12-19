@@ -13,30 +13,40 @@
  *
  */
 
-#define FCOLLECT_EMIT(Size, Type)					\
-  /* @api@ */								\
-  void									\
-  shmem_fcollect##Size (void *target, const void *source, size_t nelems, \
-			int PE_start, int logPE_stride, int PE_size,	\
-			long *pSync)					\
-  {									\
-    const int step = 1 << logPE_stride;					\
-    const size_t tidx = nelems * sizeof(Type) * __state.mype;		\
-    int pe = PE_start;							\
-    int i;								\
-    for (i = 0; i < PE_size; i += 1) {					\
-      shmem_put##Size (target + tidx, source, nelems, pe);		\
-      pe += step;							\
-    }									\
-    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-    __shmem_warn(SHMEM_LOG_COLLECT,					\
-		 "completed barrier"					\
-		 );							\
+/* @api@ */
+void
+shmem_fcollect32(void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size,
+		 long *pSync)
+{
+  const int step = 1 << logPE_stride;
+  const size_t tidx = nelems * sizeof(int) * __state.mype;
+  int pe = PE_start;
+  int i;
+  for (i = 0; i < PE_size; i += 1) {
+    shmem_put32(target + tidx, source, nelems, pe);
+    pe += step;
   }
+  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
+  __shmem_warn(SHMEM_LOG_COLLECT,
+	       "completed barrier"
+	       );
+}
 
-FCOLLECT_EMIT(32, int)
-FCOLLECT_EMIT(64, long)
+/*
+ * just twice the size
+ */
 
+/* @api@ */
+void
+shmem_fcollect64(void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size,
+		 long *pSync)
+{
+  shmem_fcollect32(target, source,
+		   nelems + nelems,
+		   PE_start, logPE_stride, PE_size, pSync);
+}
 
 #ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak pshmem_fcollect32 = shmem_fcollect32

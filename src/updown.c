@@ -77,7 +77,12 @@ shmem_init(void)
 
   __shmem_atomic_init();
 
-  atexit(__shmem_exit_handler);
+  if (atexit(__shmem_exit_handler) != 0) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+                 "cannot register shutdown handler"
+                );
+    /* NOT REACHED */
+  }
 
   /*
    * and we're up and running
