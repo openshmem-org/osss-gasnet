@@ -1,13 +1,13 @@
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(int argc, char **argv)
 {
   long L;
 
-  shmem_init();
+  start_pes(0);
 
   shmem_set_lock(&L);
 

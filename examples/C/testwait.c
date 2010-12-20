@@ -4,7 +4,7 @@
  */
 
 #include <stdio.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(void)
@@ -18,9 +18,9 @@ main(void)
     srand( now + getpid() );
   }
 
-  shmem_init();
-  me = shmem_my_pe();
-  npes = shmem_num_pes();
+  start_pes(0);
+  me = _my_pe();
+  npes = _num_pes();
 
   dest = (long *) shmalloc( sizeof(*dest) );
 

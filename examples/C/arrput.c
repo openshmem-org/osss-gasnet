@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #define N 7
 
@@ -18,9 +18,9 @@ main(int argc, char **argv)
   long src[N];
   long *dest;
 
-  shmem_init();
-  me = shmem_my_pe();
-  npes = shmem_num_pes();
+  start_pes(0);
+  me = _my_pe();
+  npes = _num_pes();
 
   dest = (long *)shmalloc( N * sizeof(*dest) );
 

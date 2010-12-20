@@ -8,7 +8,8 @@ TESTS = \
 		bad-malloc.c \
 		testwait.c testwaituntil.c \
 		bcast1.c bcast2.c \
-		fcollect.c \
+		collect32.c collect64.c \
+		fcollect32.c fcollect64.c \
 		dip.c fip.c iip.c lip.c \
 		iput.x iget.x \
 		sping.c swap.c version.c

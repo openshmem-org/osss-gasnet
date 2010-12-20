@@ -4,11 +4,11 @@
 
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(int argc, char *argv[])
 {
-  shmem_init();
+  start_pes(0);
   return 0;
 }

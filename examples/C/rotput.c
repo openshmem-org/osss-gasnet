@@ -6,7 +6,7 @@
 #include <time.h>
 #include <assert.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(int argc, char **argv)
@@ -16,9 +16,9 @@ main(int argc, char **argv)
   int src;
   int *dest;
 
-  shmem_init();
-  me = shmem_my_pe();
-  npes = shmem_num_pes();
+  start_pes(0);
+  me = _my_pe();
+  npes = _num_pes();
 
   nextpe = (me + 1) % npes;
 

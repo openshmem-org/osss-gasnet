@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 #include <unistd.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int getSize (char *str)
 {
@@ -102,7 +102,7 @@ int main (int argc, char *argv[])
   long          *rbuf;
   long          *tbuf;
    
-  shmem_init();
+  start_pes(0);
 
   proc = _my_pe();
   nproc = _num_pes();

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(void)
@@ -8,8 +8,8 @@ main(void)
   int *f;
   int me;
 
-  shmem_init();
-  me = shmem_my_pe();
+  start_pes(0);
+  me = _my_pe();
 
   f = (int *) shmalloc( sizeof(*f) );
 

@@ -1,16 +1,16 @@
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(int argc, char **argv)
 {
   int me, npes;
 
-  shmem_init();
+  start_pes(0);
 
-  me   = my_pe();
-  npes = num_pes();
+  me   = _my_pe();
+  npes = _num_pes();
 
   printf("Hello from node %4d of %4d\n", me, npes); 
 

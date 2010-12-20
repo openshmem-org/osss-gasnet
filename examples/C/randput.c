@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main(int argc, char **argv)
@@ -14,10 +14,10 @@ main(int argc, char **argv)
   long *dest;
   int me, npes;
 
-  shmem_init();
+  start_pes(0);
 
-  me = shmem_my_pe();
-  npes = shmem_num_pes();
+  me = _my_pe();
+  npes = _num_pes();
 
   {
     time_t now;
