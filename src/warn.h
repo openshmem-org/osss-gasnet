@@ -1,8 +1,6 @@
 #ifndef _WARN_H
 #define _WARN_H 1
 
-extern void __shmem_warnings_init(void);
-
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -19,7 +17,10 @@ typedef enum {
   SHMEM_LOG_COLLECT		/* [f]collect ops */
 } shmem_warn_t;
 
+extern void __shmem_warnings_init(void);
+
 extern void __shmem_warn(shmem_warn_t msg_type, char *fmt, ...);
+
 extern int  __warn_is_enabled(shmem_warn_t level);
 
 #endif /* _WARN_H */

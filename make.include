@@ -2,14 +2,18 @@
 # common install defs.  should come from GNU configure at some point
 #
 
-
-
+#
+# installation root
+#
 PREFIX           = $(HOME)/SHMEM
 
 # ---------------------------------------------------------
 
 GASNET_SEGMENT_STYLE = everything
 
+#
+# GASNet installation root, and setup
+#
 GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
 GASNET_CONDUIT   = mpi
 

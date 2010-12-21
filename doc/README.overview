@@ -1,11 +1,11 @@
 The SHMEM development area is split up as follows:
 
     SHMEM
-    |-- bin             executables to wrap underlying compilers and libraries
+    |
+    |-- Makefile        build everything
+    |-- make.include    common make settings for sub-directories
     |-- doc             this README and other things
     |-- examples        test and demo programs
-    |-- include         SHMEM API header files for C and Fortran
-    |-- lib             SHMEM API libraries
     `-- src             source of SHMEM library
 
 -------------------------------------------------------------------------
@@ -13,7 +13,7 @@ The SHMEM development area is split up as follows:
 Implementation:
 
 The library has an abstraction layer so we can plug in other
-communication libraries, such as ARMCI, in place of GASNet currently.
+communication libraries, such as ARMCI, in place of GASNet.
 
                   GASNet                           Abstracted
         
@@ -48,7 +48,9 @@ shmalloc().
 
 When you GASNet-attach and ask for segment information, each PE has
 access to an array of segments, 1 segment per PE.  Each PE initializes
-a memory pool within its own segment.
+a memory pool within its own segment.  The set up is handled either by
+GASNet internally ("fast"/"large" model) or by SHMEM ("everything"
+model).
 
 If the platform allows it, GASNet can align all the segments at the
 same address, which means that all PEs see the same address for
@@ -59,9 +61,20 @@ security measure like process address space randomization by the OS).
 However, each PE can see the addresses of the segments of the other
 PEs locally, and can therefore do address translation.
 
-The library should at some point introduce code that differentiates
-between aligned and non-aligned environments with optimized code for
-the former case (GASNet provides a macro you can test against).
+Currently alignment is not checked for, so we're coding to the "worst
+case scenario".  That just adds a *small* overhead if the segments are
+in fact aligned.  The library should at some point introduce code that
+differentiates between aligned and non-aligned environments with
+optimized code for the former case (GASNet provides a macro you can
+test against).
+
+-------------------------------------------------------------------------
+
+Starting SHMEM:
+
+We provide both the SGI start_pes(int n) and shmem_init(void)
+interfaces.  The parameter to start_pes is completely ignored
+(consistent with SGI behavior).
 
 -------------------------------------------------------------------------
 
@@ -72,8 +85,9 @@ Using the dlmalloc library:
   http://gee.cs.oswego.edu/dl/html/malloc.html
 
 Seems to have fixed up all the bizarre problems I was seeing with the
-TLSF library (used in the SiCortex implementation.  Probably works
-nicer with the MIPS architecture and the SiCortex environment).
+TLSF library (used in the SiCortex implementation).  I think (from
+valgrind analysis) the issues were related to OpenMPI intercepting
+malloc-related calls.
 
 -------------------------------------------------------------------------
 
@@ -82,26 +96,72 @@ Put/Get:
 In src/putget.c we manage the simple shmem_<type>_put and get
 routines.  I've included a short-circuit check for local-local
 transfers, and a trap to detect attempted use of non-symmetric
-variables in the wrong place.
+variables in the wrong place could be useful too.
 
-Need to work out how SGI handle non-stack globals/statics and whether
-this is portable.
+Using the GASNet "everything" model, I can now put to both classes of
+data.  Code stubs in place for "fast"/"large" model but concentrating
+on the "everything" setup to get things closer to completion.
+Handling different cases is a nice addition.
 
-Using the GASNet EVERYTHING model, I can now put to both classes of data.
+Strided put/get just builds on the point put/gets.
 
 -------------------------------------------------------------------------
 
 Broadcast:
 
 src/broadcast.c has a simple implementation of shmem_broadcast().  In
-the future, expect to include more scalable versions, and potentially
-allow runtime (or launchtime) choice of algorithm.
+the future, expect to include more scalable versions
+(e.g. tree-based), and potentially allow runtime (or launchtime)
+choice of algorithm.
+
+-------------------------------------------------------------------------
+
+Barrier:
+
+src/barrier.c and src/comms.c have a simple implementation of
+shmem_barrier().  In the future, expect to include more scalable
+versions (e.g. tree-based), and potentially allow runtime (or
+launchtime) choice of algorithm.
 
 -------------------------------------------------------------------------
 
 Collects:
 
-src/fcollect.c has a simple implementation of the fixed collect.
+src/fcollect.c and src/collect.c implement the collector routines
+(concatenating arrays on a set of PEs into a target array on all of
+those PEs).
+
+fcollect is pretty easy since all the PEs must contribute the same
+amount of data.  This means we can just pre-compute where each PE
+writes to their targets.
+
+collect is harder because each PE can write different amounts.
+Thought of 2 ways of handling this:
+
+1. initial exchange of sizes "from the left" so each PE can compute
+its write locations; then same as fcollect
+
+2. wavefront: PEs wait for notification from PEs before them in the
+set (lower numbered).  This passes the offsets across the set.
+
+I used #2.  #1 potentially generates a network storm as all PEs wait
+to work out where to write, then all go mad.  #2 staggers the offset
+notification with a wave of writes moving up the PE numbers.
+
+-------------------------------------------------------------------------
+
+Reductions:
+
+Still getting my head around how best to do these.  Basically what the
+shmem_<type>_<op>_to_all routines do is take a slice of a source array
+of indexes 0 .. n-1, and then do
+
+  target[0]     = map <op>   source[0] @ each PE in active set
+  target[1]     = map <op>   source[1] @ each PE in active set
+  ...
+  target[n-1]   = map <op> source[n-1] @ each PE in active set
+
+  on all PEs
 
 -------------------------------------------------------------------------
 
@@ -110,10 +170,11 @@ API Header File:
 src/shmem.h (and .fh) are the public APIs and installed into the
 target include directory.  Currently written by hand, should probably
 be generated from per-module headers, e.g. by marking API symbols as
-"public" or similar.
+"public" or similar.  Have set up both <shmem.h> and <mpp/shmem.h> so
+that we're both SGI-conformant and friendly to other SHMEM versions.
 
 -------------------------------------------------------------------------
 
 Swaps:
 
-Done with Active Messages
+Done with Active Messages.
