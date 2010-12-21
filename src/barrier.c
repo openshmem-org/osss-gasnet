@@ -1,7 +1,7 @@
 #include "state.h"
 #include "comms.h"
 #include "warn.h"
-#include "dispatch.h"
+/* #include "dispatch.h" */
 #include "comms.h"
 #include "hooks.h"
 

@@ -2,7 +2,7 @@
 #include <strings.h>
 
 #include "warn.h"
-#include "dispatch.h"
+/* #include "dispatch.h" */
 
 void
 __shmem_environment_init()

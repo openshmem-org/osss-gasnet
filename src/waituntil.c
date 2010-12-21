@@ -73,3 +73,16 @@ SHMEM_TYPE_WAIT(long, long)
 SHMEM_TYPE_WAIT(longlong, long long)
 
 #pragma weak shmem_wait = shmem_long_wait
+
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak pshmem_short_wait_until = shmem_short_wait_until
+#pragma weak pshmem_int_wait_until = shmem_int_wait_until
+#pragma weak pshmem_long_wait_until = shmem_long_wait_until
+#pragma weak pshmem_longlong_wait_until = shmem_longlong_wait_until
+#pragma weak pshmem_wait_until = shmem_wait_until
+#pragma weak pshmem_short_wait = shmem_short_wait
+#pragma weak pshmem_int_wait = shmem_int_wait
+#pragma weak pshmem_long_wait = shmem_long_wait
+#pragma weak pshmem_longlong_wait = shmem_longlong_wait
+#pragma weak pshmem_wait = shmem_wait
+#endif /* HAVE_PSHMEM_SUPPORT */
