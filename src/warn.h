@@ -14,7 +14,8 @@ typedef enum {
   SHMEM_LOG_MEMORY,		/* symmetric memory operations */
   SHMEM_LOG_CACHE,		/* cache flushing ops */
   SHMEM_LOG_BARRIER,		/* barrier ops */
-  SHMEM_LOG_COLLECT		/* [f]collect ops */
+  SHMEM_LOG_COLLECT,		/* [f]collect ops */
+  SHMEM_LOG_REDUCE		/* reduction ops */
 } shmem_warn_t;
 
 extern void __shmem_warnings_init(void);

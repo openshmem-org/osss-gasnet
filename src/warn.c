@@ -32,7 +32,8 @@ __warn_table_t warnings[] =
     INIT_LEVEL(MEMORY, 	   0),
     INIT_LEVEL(CACHE,  	   0),
     INIT_LEVEL(BARRIER,    0),
-    INIT_LEVEL(COLLECT,    0)
+    INIT_LEVEL(COLLECT,    0),
+    INIT_LEVEL(REDUCE,     0)
   };
 static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
 

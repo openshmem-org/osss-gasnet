@@ -352,6 +352,12 @@ static void handler_swap_bak();
 static void handler_cswap_out();
 static void handler_cswap_bak();
 
+#define GASNET_HANDLER_FADD_OUT      136
+#define GASNET_HANDLER_FADD_BAK      137
+
+static void handler_fadd_out();
+static void handler_fadd_bak();
+
 static gasnet_handlerentry_t handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
@@ -363,7 +369,9 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
     { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
     { GASNET_HANDLER_CSWAP_OUT,     handler_cswap_out     },
-    { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     }
+    { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     },
+    { GASNET_HANDLER_FADD_OUT,      handler_fadd_out      },
+    { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      }
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -663,26 +671,13 @@ static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
  */
 
 typedef struct {
-  void *s_symm_addr;		/* sender symmetric var */
+  void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
   int sentinel;			/* end of transaction marker */
   int *sentinel_addr;	        /* addr of marker for copied payload */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
 } swap_payload_t;
-
-static gasnet_hsl_t cswap_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
-
-typedef struct {
-  void *s_symm_addr;		/* sender symmetric var */
-  void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
-  size_t nbytes;		/* how big the value is */
-  long long value;		/* value to be swapped */
-  long long cond;		/* conditional value */
-} cswap_payload_t;
 
 /*
  * called by remote PE to do the swap.  Store new value, send back old value
@@ -696,15 +691,6 @@ handler_swap_out(gasnet_token_t token,
   swap_payload_t *pp = (swap_payload_t *) buf;
 
   gasnet_hsl_lock(& swap_out_lock);
-
-#if 0
-  /* debugging */
-  fprintf(stderr, "PP: pp->s_symm_addr = %p\n", pp->s_symm_addr);
-  fprintf(stderr, "PP: pp->r_symm_addr = %p\n", pp->r_symm_addr);
-  fprintf(stderr, "PP: pp->value       = %p\n", pp->value);
-  fprintf(stderr, "PP: pp->sentinel    = %d\n", pp->sentinel);
-  fprintf(stderr, "PP: pp->nbytes      = %ld\n", pp->nbytes);
-#endif
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
@@ -730,7 +716,7 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_lock(& swap_bak_lock);
 
   /* save returned value */
-  (void) memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
+  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
   *(pp->sentinel_addr) = 1;
@@ -748,7 +734,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
 		 );
   }
   /* build payload to send */
-  p->s_symm_addr = target;
+  p->local_store = retval;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
@@ -761,11 +747,21 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
 			  0);
   GASNET_BLOCKUNTIL(p->sentinel);
 
-  /* local store */
-  (void) memcpy(retval, &(p->value), nbytes);
-
   free(p);
 }
+
+static gasnet_hsl_t cswap_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
+
+typedef struct {
+  void *local_store;		/* sender saves here */
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be swapped */
+  long long cond;		/* conditional value */
+} cswap_payload_t;
 
 /*
  * called by remote PE to do the swap.  Store new value if cond
@@ -810,7 +806,7 @@ handler_cswap_bak(gasnet_token_t token,
   gasnet_hsl_lock(& cswap_bak_lock);
 
   /* save returned value */
-  (void) memcpy(pp->s_symm_addr, &(pp->value), pp->nbytes);
+  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
   *(pp->sentinel_addr) = 1;
@@ -830,7 +826,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 		 );
   }
   /* build payload to send */
-  cp->s_symm_addr = target;
+  cp->local_store = retval;
   cp->r_symm_addr = __symmetric_var_offset(target, pe);
   cp->nbytes = nbytes;
   cp->value = *(long long *) value;
@@ -844,11 +840,99 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 			  0);
   GASNET_BLOCKUNTIL(cp->sentinel);
 
-  /* local store */
-  (void) memcpy(retval, &(cp->value), nbytes);
-
   free(cp);
 }
+
+/*
+ * fetch/add
+ */
+
+typedef struct {
+  void *local_store;		/* sender saves here */
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be added */
+} fadd_payload_t;
+
+static gasnet_hsl_t fadd_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t fadd_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE to do the swap.  Store new value, send back old value
+ */
+static void
+handler_fadd_out(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  long long old = 0;
+  long long plus = 0;
+  fadd_payload_t *pp = (fadd_payload_t *) buf;
+
+  gasnet_hsl_lock(& fadd_out_lock);
+
+  /* save and update */
+  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + pp->value;
+  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  pp->value = old;
+
+  gasnet_hsl_unlock(& fadd_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_FADD_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by fadd invoker when old value returned by remote PE
+ */
+static void
+handler_fadd_bak(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  fadd_payload_t *pp = (fadd_payload_t *) buf;
+
+  gasnet_hsl_lock(& fadd_bak_lock);
+
+  /* save returned value */
+  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+
+  /* done it */
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& fadd_bak_lock);
+}
+
+void
+__comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *retval)
+{
+  fadd_payload_t *p = (fadd_payload_t *) malloc(sizeof(*p));
+  if (p == (fadd_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate fetch-and-add payload memory"
+		 );
+  }
+  /* build payload to send */
+  p->local_store = retval;
+  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->nbytes = nbytes;
+  p->value = *(long long *) value;
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
+			  p, sizeof(*p),
+			  0);
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+}
+
+
 
 /*
  * ---------------------------------------------------------------------------

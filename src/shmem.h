@@ -236,6 +236,17 @@ extern long long   shmem_longlong_cswap(long long *target,
 					long long cond, long long value, int pe);
 
 /*
+ * atomic fetch/add/inc
+ */
+
+extern int       shmem_int_fadd(int *target, int value, int pe);
+extern long      shmem_long_fadd(long *target, long value, int pe);
+extern long long shmem_longlong_fadd(long long *target, long long value, int pe);
+extern int       shmem_int_finc(int *target, int pe);
+extern long      shmem_long_finc(long *target, int pe);
+extern long long shmem_longlong_finc(long long *target, int pe);
+
+/*
  * cache flushing
  */
 
@@ -252,6 +263,7 @@ extern void         shmem_udcflush_line(void *target);
 
 #define _SHMEM_BCAST_SYNC_SIZE 1024
 #define _SHMEM_SYNC_VALUE 0
+#define _SHMEM_REDUCE_SYNC_SIZE 2
 
 extern void shmem_int_and_to_all(int *target, int *source, int nreduce,
                           int PE_start, int logPE_stride, int PE_size,

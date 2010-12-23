@@ -29,7 +29,8 @@ SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
 			memalloc.c ptr.c putget.c query.c reduce-and.c \
 			reduce-common.c reduce-max.c state.c \
 			strided.c symmem.c updown.c waituntil.c warn.c \
-			version.c
+			version.c \
+			reduce-sum.c
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)

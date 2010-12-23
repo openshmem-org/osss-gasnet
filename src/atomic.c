@@ -115,3 +115,42 @@ SHMEM_TYPE_CSWAP(longlong, long long)
 #pragma weak pshmem_longlong_cswap = shmem_longlong_cswap
 #pragma weak pshmem_cswap = shmem_long_cswap
 #endif /* HAVE_PSHMEM_SUPPORT */
+
+#define SHMEM_TYPE_FADD(Name, Type)					\
+  Type									\
+  shmem_##Name##_fadd(Type *target, Type value, int pe)			\
+  {									\
+    Type retval;							\
+    if (__state.mype == pe) {						\
+      retval = __sync_fetch_and_add(target, value);			\
+    }									\
+    else {								\
+      __comms_fadd_request(target, &value, sizeof(value), pe, &retval);	\
+    }									\
+    return retval;							\
+  }
+  
+SHMEM_TYPE_FADD(int, int)
+SHMEM_TYPE_FADD(long, long)
+SHMEM_TYPE_FADD(longlong, long long)
+
+#define SHMEM_TYPE_FINC(Name, Type)			\
+  Type							\
+  shmem_##Name##_finc(Type *target, int pe)		\
+  {							\
+    return shmem_##Name##_fadd(target, (Type) 1, pe);	\
+  }
+
+SHMEM_TYPE_FINC(int, int)
+SHMEM_TYPE_FINC(long, long)
+SHMEM_TYPE_FINC(longlong, long long)
+
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak pshmem_int_fadd = shmem_int_fadd
+#pragma weak pshmem_long_fadd = shmem_long_fadd
+#pragma weak pshmem_longlong_fadd = shmem_longlong_fadd
+
+#pragma weak pshmem_int_finc = shmem_int_finc
+#pragma weak pshmem_long_finc = shmem_long_finc
+#pragma weak pshmem_longlong_finc = shmem_longlong_finc
+#endif /* HAVE_PSHMEM_SUPPORT */

@@ -175,6 +175,9 @@ that we're both SGI-conformant and friendly to other SHMEM versions.
 
 -------------------------------------------------------------------------
 
-Swaps:
+Swaps/Atomics:
 
-Done with Active Messages.
+Done with Active Messages.  Locks in the implementation (e.g. GASNet)
+provide atomicity and the handler functions provide access to local
+storage.  We use the payload of AMs to shuttle addresses and values
+around between PEs.

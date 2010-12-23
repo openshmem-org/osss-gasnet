@@ -5,17 +5,16 @@
 
 extern void __comms_init(void);
 extern void __comms_shutdown(int status);
+extern int  __comms_mynode(void);
+extern int  __comms_nodes(void);
 
 extern char * __comms_getenv(const char *name);
-
-extern void __comms_set_waitmode(int mode);
 
 #define SHMEM_COMMS_SPINBLOCK 0
 #define SHMEM_COMMS_SPIN      1
 #define SHMEM_COMMS_BLOCK     2
 
-extern int __comms_mynode(void);
-extern int __comms_nodes(void);
+extern void __comms_set_waitmode(int mode);
 
 extern void __comms_put(void *dst, void *src, size_t len, int pe);
 extern void __comms_get(void *dst, void *src, size_t len, int pe);
@@ -56,12 +55,17 @@ extern void __comms_barrier(int PE_start, int logPE_stride,
 
 extern void __comms_poll(void);
 
-extern void  __comms_swap_request(void *target, void *value, size_t nbytes, int pe,
+extern void  __comms_swap_request(void *target, void *value, size_t nbytes,
+				  int pe,
 				  void *retval);
 
 extern void  __comms_cswap_request(void *target,
 				   void *cond, void *value, size_t nbytes,
 				   int pe,
 				   void *retval);
+
+extern void  __comms_fadd_request(void *target, void *value, size_t nbytes,
+				  int pe,
+				  void *retval);
 
 #endif /* _COMMS_H */
