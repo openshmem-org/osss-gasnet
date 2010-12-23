@@ -276,7 +276,7 @@ __comms_barrier_all(void)
   // GASNET_BEGIN_FUNCTION();
 
   /* wait for gasnet to finish pending puts/gets */
-  gasnet_wait_syncnbi_all();
+  __comms_fence();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);

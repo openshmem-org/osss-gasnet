@@ -134,6 +134,13 @@ SHMEM_TYPE_FADD(int, int)
 SHMEM_TYPE_FADD(long, long)
 SHMEM_TYPE_FADD(longlong, long long)
 
+/*
+ * TODO: should think about setting up specific request for finc
+ * instead of leaching off fadd.  Dedicated handlers would shrink the
+ * payload.
+ *
+ */
+
 #define SHMEM_TYPE_FINC(Name, Type)			\
   Type							\
   shmem_##Name##_finc(Type *target, int pe)		\
