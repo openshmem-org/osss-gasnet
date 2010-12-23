@@ -11,10 +11,11 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 # ---------------------------------------------------------
 
 CC               = gcc
+
 CPPFLAGS        += -I../include
-# CPPFLAGS        += -DSHMEM_COLLECT_STATS
-CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CPPFLAGS        += -MMD
+
+CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
@@ -44,6 +45,7 @@ SHMEM_RUN        = oshrun
 
 .PHONY: c-wrapper f-wrapper wrappers
 .PHONY: install install-lib install-bin install-include
+.PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
 .PHONY: do-deps
 
@@ -64,6 +66,23 @@ install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
 	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
 	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do rm -f $$f; ln -s ../$$f; done)
+
+uninstall:	uninstall-lib uninstall-bin uninstall-include
+	- rmdir $(PREFIX)
+
+uninstall-lib:
+	rm -f $(PREFIX)/lib/$(SHMEM_LIBRARY)
+	- rmdir $(PREFIX)/lib
+
+uninstall-bin:
+	rm -f $(PREFIX)/bin/$(SHMEM_CC) $(PREFIX)/bin/$(SHMEM_FC)
+	rm -f $(PREFIX)/bin/$(SHMEM_RUN)
+	- rmdir $(PREFIX)/bin
+
+uninstall-include:
+	for h in $(SHMEM_HEADERS); do rm -f $(PREFIX)/include/mpp/$$h; rm -f $(PREFIX)/include/$$h; done
+	- rmdir $(PREFIX)/include/mpp
+	- rmdir $(PREFIX)/include
 
 # -- start dlmalloc ----------------------------------------
 
