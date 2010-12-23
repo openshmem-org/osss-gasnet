@@ -10,11 +10,13 @@ extern int  __comms_nodes(void);
 
 extern char * __comms_getenv(const char *name);
 
-#define SHMEM_COMMS_SPINBLOCK 0
-#define SHMEM_COMMS_SPIN      1
-#define SHMEM_COMMS_BLOCK     2
+typedef enum {
+  SHMEM_COMMS_SPINBLOCK=0,
+  SHMEM_COMMS_SPIN,
+  SHMEM_COMMS_BLOCK
+} comms_spinmode_t;
 
-extern void __comms_set_waitmode(int mode);
+extern void __comms_set_waitmode(comms_spinmode_t mode);
 
 extern void __comms_put(void *dst, void *src, size_t len, int pe);
 extern void __comms_get(void *dst, void *src, size_t len, int pe);

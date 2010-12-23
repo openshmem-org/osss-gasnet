@@ -123,7 +123,7 @@ __comms_get_segment_size(void)
  * would allow adaptivity
  */
 void
-__comms_set_waitmode(int mode)
+__comms_set_waitmode(comms_spinmode_t mode)
 {
   int gm;
   const char *mstr;
@@ -143,7 +143,7 @@ __comms_set_waitmode(int mode)
     break;
   default:
     __shmem_warn(SHMEM_LOG_FATAL,
-		 "tried to set unknown wait mode %d", mode);
+		 "tried to set unknown wait mode %d", (int) mode);
     /* NOT REACHED */
     break;
   }
