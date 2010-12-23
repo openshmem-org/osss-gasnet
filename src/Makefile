@@ -49,6 +49,8 @@ SHMEM_RUN        = oshrun
 .PHONY: tidy clean
 .PHONY: do-deps
 
+# ---------------------------------------------------------
+
 all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
 install:	install-lib install-bin install-include
@@ -66,6 +68,10 @@ install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
 	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
 	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do rm -f $$f; ln -s ../$$f; done)
+
+# we may be sharing the install area with other packages, so don't
+# blindly zap directories when uninstalling, allow them to remain
+# there gracefully.
 
 uninstall:	uninstall-lib uninstall-bin uninstall-include
 	- rmdir $(PREFIX)
@@ -95,9 +101,6 @@ $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
 memalloc.o:	memalloc.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
-putget.o:	putget.c
-	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
-
 # -- end dlmalloc ------------------------------------------
 
 # -- start GASNet ------------------------------------------
@@ -114,7 +117,7 @@ comms.o:	comms.c
 # -- end GASNet --------------------------------------------
 
 version.c:
-	./set-version.sh
+	./set-version.sh > $@
 
 fortran.o:	fortran.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
