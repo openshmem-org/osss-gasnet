@@ -4,6 +4,8 @@
  * non-static that starts with "__comms_"
  */
 
+#include <assert.h>
+
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
@@ -261,10 +263,20 @@ __comms_wait_nb(void *h)
 }
 
 void
-__comms_fence(void)
+__comms_quiet(void)
 {
   gasnet_wait_syncnbi_all();
   LOAD_STORE_FENCE();
+}
+
+/*
+ * TODO: is this right?  Not sure.  May have to turn fence into
+ * barrier
+ */
+void
+__comms_fence(void)
+{
+  __comms_quiet();
 }
 
 static int barcount = 0;
@@ -276,7 +288,7 @@ __comms_barrier_all(void)
   // GASNET_BEGIN_FUNCTION();
 
   /* wait for gasnet to finish pending puts/gets */
-  __comms_fence();
+  __comms_quiet();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
@@ -284,13 +296,15 @@ __comms_barrier_all(void)
 
   // barcount = 1 - barcount;
   barcount += 1;
+
+  __comms_quiet();
 }
 
 
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  __comms_fence();
+  __comms_quiet();
 
   if (__state.mype == PE_start) {
     const int step = 1 << logPE_stride;
@@ -314,7 +328,8 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   }
   /* restore pSync values */
   pSync[__state.mype] = _SHMEM_SYNC_VALUE;
-  __comms_fence();
+
+  __comms_quiet();
 }
 
 
@@ -539,6 +554,12 @@ __symmetric_memory_init(void)
     /* NOT REACHED */
   }
 
+  /*
+   * need to make sure everyone has segment table allocated before
+   * exchanging messages
+   */
+  __comms_barrier_all();
+
   __shmem_warn(SHMEM_LOG_MEMORY,
 	       "symmetric heap @ %p, size is %ld bytes",
 	       great_big_heap, __state.heapsize
@@ -547,6 +568,7 @@ __symmetric_memory_init(void)
   {
     gasnet_seginfo_t gsp;
     int pe;
+
     for (pe = 0; pe < __state.numpes; pe += 1) {
       /* send to everyone else */
       if (__state.mype != pe) {
@@ -559,6 +581,7 @@ __symmetric_memory_init(void)
 				0);
       }
     }
+
     /* messages swirl around...do local init then wait for responses */
 
     /*

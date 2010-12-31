@@ -6,13 +6,10 @@ shmem_fence(void)
   __comms_fence();
 }
 
-/*
- * This is probably OK
- */
 void
 shmem_quiet(void)
 {
-  __comms_fence();
+  __comms_quiet();
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT

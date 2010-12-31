@@ -20,7 +20,7 @@ CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
  
-DEBUG_AND_OPT    = -g -O3
+DEBUG_AND_OPT    = -ggdb -O3
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
