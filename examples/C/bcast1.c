@@ -27,7 +27,7 @@ main(void)
   }
   shmem_barrier_all();
 
-  pSync = shmem_sync_init();
+  shmem_sync_init(pSync);
 
   shmem_broadcast64(target, source, npes, 0, 0, 0, npes, pSync);
 

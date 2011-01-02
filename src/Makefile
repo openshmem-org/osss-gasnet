@@ -27,11 +27,10 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT)
 SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
 			cache.c collect.c comms.c env.c fcollect.c \
 			fence.c fortran-mem.c fortran.c hooks.c lock.c \
-			memalloc.c ptr.c putget.c query.c reduce-and.c \
-			reduce-common.c reduce-max.c state.c \
+			memalloc.c ptr.c putget.c query.c reduce-op.c \
+			state.c \
 			strided.c symmem.c updown.c waituntil.c warn.c \
-			version.c \
-			reduce-sum.c
+			version.c
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
@@ -40,6 +39,9 @@ SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_CC         = oshcc
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
+
+INSTALL          = install -c
+REMOVE           = rm -f
 
 # ---------------------------------------------------------
 
@@ -57,17 +59,17 @@ install:	install-lib install-bin install-include
 
 install-lib:	all
 	mkdir -p $(PREFIX)/lib
-	install -c  $(SHMEM_LIBRARY) $(PREFIX)/lib
+	$(INSTALL) $(SHMEM_LIBRARY) $(PREFIX)/lib
 
 install-bin:	all
 	mkdir -p $(PREFIX)/bin
-	install -c -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
-	install -c -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
-	install -c  $(SHMEM_HEADERS) $(PREFIX)/include
-	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do rm -f $$f; ln -s ../$$f; done)
+	$(INSTALL) $(SHMEM_HEADERS) $(PREFIX)/include
+	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do $(REMOVE) $$f; ln -s ../$$f; done)
 
 # we may be sharing the install area with other packages, so don't
 # blindly zap directories when uninstalling, allow them to remain
@@ -77,16 +79,17 @@ uninstall:	uninstall-lib uninstall-bin uninstall-include
 	- rmdir $(PREFIX)
 
 uninstall-lib:
-	rm -f $(PREFIX)/lib/$(SHMEM_LIBRARY)
+	$(REMOVE) $(PREFIX)/lib/$(SHMEM_LIBRARY)
 	- rmdir $(PREFIX)/lib
 
 uninstall-bin:
-	rm -f $(PREFIX)/bin/$(SHMEM_CC) $(PREFIX)/bin/$(SHMEM_FC)
-	rm -f $(PREFIX)/bin/$(SHMEM_RUN)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
 	- rmdir $(PREFIX)/bin
 
 uninstall-include:
-	for h in $(SHMEM_HEADERS); do rm -f $(PREFIX)/include/mpp/$$h; rm -f $(PREFIX)/include/$$h; done
+	for h in $(SHMEM_HEADERS); do $(REMOVE) $(PREFIX)/include/mpp/$$h; $(REMOVE) $(PREFIX)/include/$$h; done
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
 
@@ -119,19 +122,25 @@ comms.o:	comms.c
 version.c:
 	./set-version.sh > $@
 
+# ---------------------------------------------------------
+
 fortran.o:	fortran.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
 fortran-mem.o:	fortran-mem.c
 	$(CC) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
+# ---------------------------------------------------------
+
 %.o:	%.c
 	$(CC) -Wall $(COMMON_FLAGS) -c -o $@ $<
+
+# ---------------------------------------------------------
 
 wrappers:	c-wrapper f-wrapper
 
 c-wrapper:
-	@ rm -f  $(SHMEM_CC)
+	@ $(REMOVE)  $(SHMEM_CC)
 	@ echo "#!/bin/sh" >> $(SHMEM_CC)
 	@ echo "#" >> $(SHMEM_CC)
 	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_CC)
@@ -142,7 +151,7 @@ c-wrapper:
 	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_CC)
 
 f-wrapper:
-	@ rm -f  $(SHMEM_FC)
+	@ $(REMOVE)  $(SHMEM_FC)
 	@ echo "#!/bin/sh" >> $(SHMEM_FC)
 	@ echo "#" >> $(SHMEM_FC)
 	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_FC)
@@ -151,18 +160,22 @@ f-wrapper:
 	@ echo "SHMEM_LIB=\"-lopenshmem\"" >> $(SHMEM_FC)
 	@ echo "SHMEM_INCLUDE_DIR=\"$(PREFIX)/include\"" >> $(SHMEM_FC)
 	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_FC)
-	TMP=`mktemp`; cp $(SHMEM_FC) $$TMP; sed -e 's%bin/mpicc%bin/mpif90%' $$TMP > $(SHMEM_FC) ; rm -f $$TMP
+	TMP=`mktemp`; cp $(SHMEM_FC) $$TMP; sed -e 's%bin/mpicc%bin/mpif90%' $$TMP > $(SHMEM_FC) ; $(REMOVE) $$TMP
+
+# ---------------------------------------------------------
 
 tidy:
-	rm -f $(SHMEM_OBJECTS)
-	rm -f $(SHMEM_DEPFILES)
+	$(REMOVE) $(SHMEM_OBJECTS)
+	$(REMOVE) $(SHMEM_DEPFILES)
 
 clean:	tidy
 	$(MAKE) -C $(DLMALLOC_DIR) $@
-	rm -f $(SHMEM_LIBRARY) $(SHMEM_CC)
-	rm -f Makedeps
+	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC)
+	$(REMOVE) Makedeps
 
 do-deps: $(SHMEM_OBJECTS)
 	- cat $(SHMEM_DEPFILES) > Makedeps
+
+# ---------------------------------------------------------
 
 -include Makedeps

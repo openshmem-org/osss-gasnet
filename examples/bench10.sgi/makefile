@@ -13,9 +13,9 @@ CC	  = oshcc
 # for Alpha Sierra Cluster
 #CFLAGS    = -fast -arch host -tune host
 # for Cray X1
-# CFLAGS    = -O3 -DCRAY -I.
+CFLAGS    = -O3 -DCRAY -I.
 
-CFLAGS = -DDEBUG=1
+CFLAGS   += -DDEBUG=1
 OBJS      = m10.o p10.o c10.o r10.o util.o
 HEADERS   = b10defs.h
 

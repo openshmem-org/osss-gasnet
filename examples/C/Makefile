@@ -12,7 +12,8 @@ TESTS = \
 		fcollect32.c fcollect64.c \
 		dip.c fip.c iip.c lip.c \
 		iput.x iget.x \
-		sping.c swap.c version.c
+		sping.c swap.c version.c \
+		reduce-sum.c reduce-max.c
 
 EXES = $(TESTS:.c=.x)
 

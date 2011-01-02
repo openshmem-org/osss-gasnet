@@ -11,7 +11,7 @@
 #ifdef CRAY
 #define my_pe()           shmem_my_pe()
 #define num_pes()         shmem_n_pes()
-#define shmem_init()
+/* #define shmem_init() */
 #define barrier()         shmem_barrier_all()
 #endif
 

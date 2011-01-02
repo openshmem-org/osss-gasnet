@@ -106,7 +106,14 @@ __shmem_warnings_init(void)
   }
 }
 
-/* big enough?  I reckon so, we're not writing a novel... */
+/*
+ * big enough?  I reckon so, we're not writing a novel...
+ *
+ * TODO: alternatively, can loop on increasing buffer size on
+ * overflow...better way to do it
+ *
+ */
+
 #define BUF_SIZE 256
 
 void

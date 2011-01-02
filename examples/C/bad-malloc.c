@@ -12,7 +12,8 @@ main(int argc, char *argv[])
   me = _my_pe();
   npes = _num_pes();
 
-  x = (long *) shmalloc(8 * me);      /* deliberately pass different values */
+  /* deliberately pass different values */
+  x = (long *) shmalloc((me + 1) * 2);
   if (x == (long *) NULL) {
     fprintf(stderr, "%d/%d: %s\n", me, npes, sherror());
     return 1;

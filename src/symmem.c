@@ -245,6 +245,7 @@ sherror(void)
   for (i = 0; i < nerrors; i+= 1) {
     if (malloc_error == etp->code) {
       return etp->msg;
+      /* NOT REACHED */
     }
     etp += 1;
   }

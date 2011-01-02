@@ -38,16 +38,13 @@ SHMEM_BROADCAST_TYPE(64, long)
 #endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
-long *
-shmem_sync_init(void)
+void
+shmem_sync_init(long *pSync)
 {
-  long *sync;
-  const int nb = _SHMEM_BCAST_SYNC_SIZE * sizeof(*sync);
+  const int nb = _SHMEM_BCAST_SYNC_SIZE * sizeof(*pSync);
 
-  sync = shmalloc(nb);
-  memset(sync, _SHMEM_SYNC_VALUE, nb);
+  memset(pSync, _SHMEM_SYNC_VALUE, nb);
   shmem_barrier_all();
-  return sync;
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT

@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 
-typedef struct __state {
+typedef struct {
   int initialized;              /* up and running yet?             */
   int numpes;                   /* # of processing elements        */
   int mype;                     /* individual processing element   */
