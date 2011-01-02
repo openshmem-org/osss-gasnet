@@ -6,6 +6,10 @@ static char cvs_info[] = "BMARKGRP $Date: 2005/01/10 21:17:26 $ $Revision: 1.2 $
 /* use macros to address multi-dim arrays with variable dim's like Fortran */
 #define A(I,J)		A[ (J) + nw * (I) ]
 
+#ifdef SW_POPCNT
+extern int popcnt();
+#endif /* SW_POPCNT */
+
 void
 solve(	uint64 * eqs,	/* eqs[neqs][nw] == eqs(m,*,*) - m-th set of eqs */
 	uint64 * x,	/* x[nw] == sols(m,*) - returns solution */

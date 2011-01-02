@@ -6,6 +6,7 @@
  * TODO: what kind of tests could we do to really check this?
  *       (maybe send a test ping-pong message)
  */
+
 /* @api@ */
 int
 shmem_pe_accessible(int pe)
@@ -15,7 +16,11 @@ shmem_pe_accessible(int pe)
 
 /*
  * only true if address has been allocated by shmem routine
+ *
+ * or TODO: true if variable global (ELF check?)
+ *
  */
+
 /* @api@ */
 int
 shmem_addr_accessible(void *addr, int pe)

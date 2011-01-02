@@ -1,8 +1,11 @@
-#include <stdio.h>               /* NULL                           */
-
 #include "state.h"
 
-/* ----------------------------------------------------------------- */
+/*
+ * these routines handle the questions "how many PEs?" and "which PE
+ * am I?".  Also added an initial thought about locality with the
+ * nodename query
+ *
+ */
 
 #define SHMEM_MY_PE(Variant)			\
   int						\
@@ -43,4 +46,6 @@ shmem_nodename(void)
 #pragma weak pshmem_n_pes = shmem_n_pes
 #pragma weak pnum_pes = num_pes
 #pragma weak p_num_pes = _num_pes
+
+#pragma weak pshmem_nodename = shmem_nodename
 #endif /* HAVE_PSHMEM_SUPPORT */

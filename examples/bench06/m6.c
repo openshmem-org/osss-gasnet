@@ -103,11 +103,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "bench6.h"
 #include <string.h>
 
+#include <stdlib.h> /* exit() */
+
+#include <assert.h>
+
 static char cvs_info[] = "BMARKGRP $Date: 2005/01/10 21:17:26 $ $Revision: 1.2 $ $RCSfile: m6.c,v $ $Name:  $";
 
 
+#include <mpp/shmem.h>
+#if 0
 int _num_pes(void);
 int _my_pe(void);
+#endif
+
+extern void c6(), p6(), r6(), s6();
+extern void initpc();
 
 /*-------------------------------------------------------------------------
 *  arrays defined here are not on stack so remotely accessible by shmem ops
@@ -140,16 +150,15 @@ int _my_pe(void);
    uint64	firstsol [ EQNW0 ];
 
 
+int
 main(int argc, char**argv)
 {
-/* The S-stream */
-   uint64 s [ SNWMAX ];
+  /* malloc these instead to get them off the stack (they're too big) */
 
-/* Array of sets of equations corresponding to pattern matches */
-   uint64 eqs [ MAXMATCH0 * MSIZE0 * EQNW0 ];
+   uint64 *s;         /* The S-stream */
+   uint64 *eqs;       /* sets of equations corresponding to pattern matches */
+   uint64 *sols;      /* Solutions to independent sets of equations, packed */
 
-/* Solutions to independent sets of equations, packed */
-   uint64 sols [ MAXMATCH0 * EQNW0 ];
 
 /*-------------------------------------------------------------------------*/
 
@@ -174,12 +183,27 @@ main(int argc, char**argv)
    int maxmatch;
 
 /* This should come before any other executed code */
-#ifdef __alpha
+#ifdef CRAY
    shmem_init();
-#endif
+#endif /* CRAY */
+#ifdef _SGI
+   start_pes(0);
+#endif /* _SICORTEX */
+
    npes = _num_pes();
    mype = _my_pe();
-     
+
+/*-------------------------------------------------------------------------*/
+
+   s = (uint64 *) shmalloc( SNWMAX );
+   assert(s != NULL);
+   eqs = (uint64 *) shmalloc( MAXMATCH0 * MSIZE0 * EQNW0 );
+   assert(eqs != NULL);
+   sols = (uint64 *) shmalloc( MAXMATCH0 * EQNW0 );
+   assert(sols != NULL);
+
+/*-------------------------------------------------------------------------*/
+
    maxmatch = MAXMATCH0;
    iseed = ISEED0;
 
@@ -220,7 +244,7 @@ main(int argc, char**argv)
       exit(1); 
    }
    if (slen > SLENMAX)
-   {
+  {
       if (mype == 0)
          printf("\nInput value of SLEN too big, Max = %d\n", SLENMAX);
       exit(1); 
@@ -373,5 +397,6 @@ main(int argc, char**argv)
 		cset, wset, crun, wrun, cchk, wchk );
 
    shmem_barrier_all();
-}
 
+  return 0;
+}

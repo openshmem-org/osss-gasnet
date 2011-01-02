@@ -5,48 +5,20 @@
 #include <math.h>
 #include <unistd.h>
 
-#ifdef CRAY
 #include <mpp/shmem.h>
-#else
-#include <shmem.h>
-#endif
-
-#ifdef CRAY
-#define my_pe()           shmem_my_pe()
-#define num_pes()         shmem_n_pes()
-#define shmem_init()
-#define barrier()         shmem_barrier_all()
-#define _my_pe()           shmem_my_pe()
-#define _num_pes()         shmem_n_pes()
-#endif
-
-#ifdef CRAY
-#ifdef MPP
-# include <intrinsics.h>
-# define popcnt  _popcnt
-/*# define int64		int*/
-/*# define uint64		unsigned int*/
-# define int64		long
-# define uint64		unsigned long
-#endif
-
-# define int64		long
-# define uint64		unsigned long
-# define MY_INT64	MPI_INT
-
-#else
+#include <mpi.h>
 
 # include <sys/types.h>
-# include <shmem.h>
-# define int64		long
-# define uint64		unsigned long
-# define MY_INT64	MPI_LONG
+/* already handled above
+ * # include <shmem.h>
+ */
+#define int64		long
+#define uint64		unsigned long
+#define MY_INT64	MPI_LONG
 
 #ifndef SW_POPCNT
 # define popcnt  _popcnt
 # include <machine/builtins.h>
-#endif
-
 #endif
 
 #define MAXPES		64

@@ -163,6 +163,11 @@ of indexes 0 .. n-1, and then do
 
   on all PEs
 
+Initial implementation pulls pWrk-sized chunks (plus any remainder)
+into pWrk on each PE, adds this into the target.  target is
+initialized from home PE's source.  Written as a macro to spit out
+different type/operator combinations.
+
 -------------------------------------------------------------------------
 
 API Header File:

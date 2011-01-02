@@ -16,8 +16,8 @@
 /* defined here to make them "symmetric" so remotely accessible by shmem ops */
 int solerrs = 0;
 int all;
-/*int pWrk[_SHMEM_REDUCE_MIN_WRKDATA_SIZE];*/
-int pWrk[MAXMATCH0/2 + 1];
+int pWrk[_SHMEM_REDUCE_SYNC_SIZE];
+/* int pWrk[MAXMATCH0/2 + 1]; */
 long pSync[_SHMEM_REDUCE_SYNC_SIZE];
 
 /* use macros to address multi-dim arrays with variable dim's like Fortran */
@@ -29,7 +29,9 @@ long pSync[_SHMEM_REDUCE_SYNC_SIZE];
 
 static char cvs_info[] = "BMARKGRP $Date: 2005/09/20 14:55:38 $ $Revision: 1.3 $ $RCSfile: c6.c,v $ $Name:  $";
 
+extern int popcnt(); /* utils.c */
 
+void
 c6( int loop, int slen,
 	uint64 * eqs,
 	uint64 * sols,

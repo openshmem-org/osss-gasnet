@@ -5,7 +5,7 @@
 #
 # installation root
 #
-PREFIX           = $(HOME)/OpenSHMEM
+PREFIX           = $(HOME)/SHMEM
 
 # ---------------------------------------------------------
 

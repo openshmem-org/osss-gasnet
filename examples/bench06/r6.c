@@ -45,6 +45,7 @@ int pWrk[MAXMATCH0/2 + 1];	/* big enough for indep, checks */
 long pSync[_SHMEM_REDUCE_SYNC_SIZE];
 
 
+void
 r6 ( int slen, char * pattern, int msize, int nloops, int matches,
 	int * starts,	/* starts[matches] */		/* SYMMETRIC */
 	int * indep,	/* indep [matches] */		/* SYMMETRIC */

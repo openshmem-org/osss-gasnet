@@ -10,6 +10,7 @@
 
 #include "warn.h"
 
+/* @api@ */
 void *
 shmem_ptr(void *target, int pe)
 {

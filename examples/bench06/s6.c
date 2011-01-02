@@ -9,6 +9,9 @@
 static char cvs_info[] = "BMARKGRP $Date: 2005/01/10 21:17:26 $ $Revision: 1.2 $ $RCSfile: s6.c,v $ $Name:  $";
 
 
+extern void get_my_bdata64();
+
+void
 s6 (	uint64* s,
 	uint64* startbits,
 	int slen, int snw, int plen, int iseed, int loop )
@@ -51,8 +54,7 @@ s6 (	uint64* s,
 #ifdef PrintBits
    if ( slen < 10000 )
    {
-      printf("3210987654321098765432109876543210987654321098765432109876543210\n
-\n");
+      printf("3210987654321098765432109876543210987654321098765432109876543210\n\n");
 #ifdef CRAY
       for ( i=0; i<snw; ++i )
          printf( "%064B\n", s[i] );

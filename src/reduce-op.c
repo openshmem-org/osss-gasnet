@@ -3,6 +3,11 @@
 
 #include "shmem.h"
 
+/*
+ * these are the arithmetic operations
+ *
+ */
+
 #define SHMEM_MATH_FUNC(Name, Type)		\
   static inline Type				\
   sum_##Name##_func(Type a, Type b)		\
@@ -24,6 +29,11 @@ SHMEM_MATH_FUNC(longlong, long long)
 SHMEM_MATH_FUNC(longdouble, long double)
 SHMEM_MATH_FUNC(complexd, double complex)
 SHMEM_MATH_FUNC(complexf, float complex)
+
+/*
+ * these are the logical operations
+ *
+ */
 
 #define SHMEM_LOGIC_FUNC(Name, Type)		\
   static inline Type				\
@@ -47,6 +57,11 @@ SHMEM_LOGIC_FUNC(int, int)
 SHMEM_LOGIC_FUNC(long, long)
 SHMEM_LOGIC_FUNC(longlong, long long)
 
+/*
+ * these are the minima/maxima operations
+ *
+ */
+
 #define SHMEM_MINIMAX_FUNC(Name, Type)		\
   static inline Type				\
   min_##Name##_func(Type a, Type b)		\
@@ -66,6 +81,12 @@ SHMEM_MINIMAX_FUNC(longlong, long long)
 SHMEM_MINIMAX_FUNC(double, double)
 SHMEM_MINIMAX_FUNC(float, float)
 SHMEM_MINIMAX_FUNC(longdouble, long double)
+
+/*
+ * common reduce code.  Pass in type/operation, macro builds the
+ * reduction function as defined above
+ *
+ */
 
 #define SHMEM_REDUCE_TYPE_OP(Name, Type, OpCall)			\
   void									\

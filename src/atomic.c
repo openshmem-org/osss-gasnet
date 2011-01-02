@@ -117,6 +117,7 @@ SHMEM_TYPE_CSWAP(longlong, long long)
 #endif /* HAVE_PSHMEM_SUPPORT */
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
+  /* @api@ */								\
   Type									\
   shmem_##Name##_fadd(Type *target, Type value, int pe)			\
   {									\
@@ -142,6 +143,7 @@ SHMEM_TYPE_FADD(longlong, long long)
  */
 
 #define SHMEM_TYPE_FINC(Name, Type)			\
+  /* @api@ */						\
   Type							\
   shmem_##Name##_finc(Type *target, int pe)		\
   {							\

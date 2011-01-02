@@ -12,6 +12,13 @@ long pSync[_SHMEM_BCAST_SYNC_SIZE];
 #define sols(I,J)	sols[ (J) + (eqnw * (I)) ]
 
 
+#ifdef SW_POPCNT
+extern int popcnt();
+#endif /* SW_POPCNT */
+extern void solve();
+extern void setupeqs();
+
+void
 p6 (	uint64 * s,		/* s        [snw] */
 	uint64 * startbits,	/* startbits[snw] */
 	uint64 * eqs,		/* eqs   [maxmatch][msize][eqnw] */
@@ -258,14 +265,14 @@ if ( mype < mpes )
    {
       shmem_barrier_all();
 
-      shmem_broadcast ( &matchinfo, &matchinfo, 1, 0, 0, 0, npes, pSync );
+      shmem_broadcast32 ( &matchinfo, &matchinfo, 1, 0, 0, 0, npes, pSync );
 
       if ( mype > 0 )
       {  *matches  = matchinfo & 0xFFFF;
          *gmatches = matchinfo >> 16;
       }
 
-      shmem_broadcast ( starts, starts, *gmatches, 0, 0, 0, npes, pSync );
+      shmem_broadcast32 ( starts, starts, *gmatches, 0, 0, 0, npes, pSync );
    }
 
 #ifdef Timer
