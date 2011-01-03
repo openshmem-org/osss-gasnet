@@ -347,12 +347,6 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 static void handler_segsetup_out();
 static void handler_segsetup_bak();
 
-#define GASNET_HANDLER_GLOBALVAR_OUT 130
-#define GASNET_HANDLER_GLOBALVAR_BAK 131
-
-static void handler_globalvar_out();
-static void handler_globalvar_bak();
-
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
 #define GASNET_HANDLER_SWAP_OUT      132
@@ -373,20 +367,32 @@ static void handler_cswap_bak();
 static void handler_fadd_out();
 static void handler_fadd_bak();
 
+#if defined(HAVE_MANAGED_SEGMENTS)
+
+#define GASNET_HANDLER_GLOBALVAR_OUT 130
+#define GASNET_HANDLER_GLOBALVAR_BAK 131
+
+static void handler_globalvar_out();
+static void handler_globalvar_bak();
+
+#endif /* HAVE_MANAGED_SEGMENTS */
+
 static gasnet_handlerentry_t handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
     { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
-    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
 #endif /* ! HAVE_MANAGED_SEGMENTS */
     { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
     { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
     { GASNET_HANDLER_CSWAP_OUT,     handler_cswap_out     },
     { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     },
     { GASNET_HANDLER_FADD_OUT,      handler_fadd_out      },
-    { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      }
+    { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      },
+#if defined(HAVE_MANAGED_SEGMENTS)
+    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
+    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
+#endif /* HAVE_MANAGED_SEGMENTS */
   };
 static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
 
@@ -961,7 +967,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
  * ---------------------------------------------------------------------------
  */
 
-#if ! defined(HAVE_MANAGED_SEGMENTS)
+#if defined(HAVE_MANAGED_SEGMENTS)
 
 /*
  * global variable put/get handlers (for non-everything cases):
@@ -985,7 +991,8 @@ static gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
   void *var_addr;		/* address of global var to be written to on remote PE */
-  long var_size;		/* size of data to be written (so we can allocate remotely) */
+  long var_size;		/* size of data to be written (so we
+				   can allocate remotely) */
   long offset;		        /* where we are in the write process */
   void *data;			/* the actual data to be sent */
   int sentinel;			/* completion marker */
@@ -1003,7 +1010,6 @@ handler_globalvar_out(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
 {
-#if 0
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   gasnet_hsl_lock(& globalvar_out_lock);
@@ -1011,20 +1017,14 @@ handler_globalvar_out(gasnet_token_t token,
   gasnet_hsl_unlock(& globalvar_out_lock);
 
   /* return the updated payload */
-  gasnet_AMReplyLong(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
-#endif
+  gasnet_AMReplyLong1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
 }
 
-/*
- * called by sender PE after remote has set up temp buffer.
- * Sends data across to remote.
- */
 static void
 handler_globalvar_bak(gasnet_token_t token,
 		      void *buf, size_t bufsiz,
 		      gasnet_handlerarg_t unused)
 {
-#if 0
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   gasnet_hsl_lock(& globalvar_bak_lock);
@@ -1032,13 +1032,11 @@ handler_globalvar_bak(gasnet_token_t token,
   *(pp->sentinel_addr) = 1;
 
   gasnet_hsl_unlock(& globalvar_bak_lock);
-#endif
 }
 
 void
 __comms_globalvar_translation(void *target, long value, int pe)
 {
-#if 0
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
 
   if (p == (globalvar_payload_t *) NULL) {
@@ -1057,7 +1055,6 @@ __comms_globalvar_translation(void *target, long value, int pe)
   GASNET_BLOCKUNTIL(p->sentinel);
 
   free(p);
-#endif
 }
 
-#endif /* ! HAVE_MANAGED_SEGMENTS */
+#endif /* HAVE_MANAGED_SEGMENTS */

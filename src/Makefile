@@ -19,8 +19,11 @@ CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
- 
+
 DEBUG_AND_OPT    = -ggdb -O3
+
+WARNINGS         = -Wall
+# WARNINGS        += -pedantic
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
@@ -112,7 +115,7 @@ memalloc.o:	memalloc.c
 #
 
 comms.o:	comms.c
-	$(GASNET_CC) \
+	$(CC) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(COMMON_FLAGS) -c -o $@ $<
@@ -133,7 +136,7 @@ fortran-mem.o:	fortran-mem.c
 # ---------------------------------------------------------
 
 %.o:	%.c
-	$(CC) -Wall $(COMMON_FLAGS) -c -o $@ $<
+	$(CC) $(WARNINGS) $(COMMON_FLAGS) -c -o $@ $<
 
 # ---------------------------------------------------------
 

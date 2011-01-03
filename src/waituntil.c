@@ -20,6 +20,7 @@
  */
 
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
+  /* @api@ */								\
   void									\
   shmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
@@ -60,11 +61,12 @@ SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
 /*
  * wait is just wait_until with equality test
  */
-#define SHMEM_TYPE_WAIT(Name, Type)				\
-  void						\
-  shmem_##Name##_wait(Type *ivar, Type cmp_value)		\
-  {								\
-    shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);	\
+#define SHMEM_TYPE_WAIT(Name, Type)					\
+  /* @api@ */								\
+  void									\
+  shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
+  {									\
+    shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);		\
   }
 
 SHMEM_TYPE_WAIT(short, short)

@@ -1,0 +1,15 @@
+Message output:
+
+Messages belong to categories.  These are defined in "warn.h" as an enum.  The
+first parameter to __shmem_warn() is one of these values.
+
+All categories are disabled initially, except for "FATAL".
+
+To add a category:
+
+1. add a value to the enum in "warn.h"
+
+2. add a table entry to warnings[] in warn.c.
+   0/1 means default disabled/enabled resp.
+
+3. use it
