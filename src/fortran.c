@@ -74,13 +74,78 @@ SHMEM_FORTRAN_GET_SIZE(4,    int, int)
 SHMEM_FORTRAN_GET_SIZE(8,    long, long)
 SHMEM_FORTRAN_GET_SIZE(32,   int, int)
 SHMEM_FORTRAN_GET_SIZE(64,   long, long)
-SHMEM_FORTRAN_GET_SIZE(128,  longlong, void)
+SHMEM_FORTRAN_GET_SIZE(128,  longdouble, long double)
 
 void
 FORTRANIFY(shmem_getmem)(long *target, const long *src, size_t *size, int *pe)
 {
   shmem_getmem(target, src, *size, *pe);
 }
+
+/*
+ * strided puts and gets
+ *
+ * TODO: complex types
+ *
+ */
+
+#define SHMEM_FORTRAN_IPUT(Name, CType)					\
+  void									\
+  FORTRANIFY(shmem_##Name##_iput)(CType *target, const CType *src,	\
+				  ptrdiff_t *tst, ptrdiff_t *sst,	\
+				  size_t *size, int *pe)		\
+  {									\
+    shmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);		\
+  }
+
+#define SHMEM_FORTRAN_IPUT_SIZE(Size, Name, CType)			\
+  void									\
+  FORTRANIFY(shmem_iput##Size) (CType *target, const CType *src,	\
+				ptrdiff_t *tst, ptrdiff_t *sst,		\
+				size_t *size, int *pe)			\
+  {									\
+    shmem_##Name##_iput(target, src, *tst, *sst, *size, *pe);		\
+  }
+
+SHMEM_FORTRAN_IPUT(double,    double)
+SHMEM_FORTRAN_IPUT(integer,   int)
+SHMEM_FORTRAN_IPUT(logical,   long)
+SHMEM_FORTRAN_IPUT(real,      double)
+
+SHMEM_FORTRAN_IPUT_SIZE(4,    int, int)
+SHMEM_FORTRAN_IPUT_SIZE(8,    long, long)
+SHMEM_FORTRAN_IPUT_SIZE(32,   int, int)
+SHMEM_FORTRAN_IPUT_SIZE(64,   long, long)
+SHMEM_FORTRAN_IPUT_SIZE(128,  longdouble, long double)
+
+#define SHMEM_FORTRAN_IGET(Name, CType)					\
+  void									\
+  FORTRANIFY(shmem_##Name##_iget)(CType *target, const CType *src,	\
+				ptrdiff_t *tst, ptrdiff_t *sst,		\
+				  size_t *size, int *pe)		\
+  {									\
+    shmem_##CType##_iget(target, src, *tst, *sst, *size, *pe);		\
+  }
+
+#define SHMEM_FORTRAN_IGET_SIZE(Size, Name, CType)			\
+  void									\
+  FORTRANIFY(shmem_iget##Size) (CType *target, const CType *src,	\
+				ptrdiff_t *tst, ptrdiff_t *sst,		\
+				size_t *size, int *pe)			\
+  {									\
+    shmem_##Name##_iget(target, src, *tst, *sst, *size, *pe);		\
+  }
+
+SHMEM_FORTRAN_IGET(double,    double)
+SHMEM_FORTRAN_IGET(integer,   int)
+SHMEM_FORTRAN_IGET(logical,   long)
+SHMEM_FORTRAN_IGET(real,      double)
+
+SHMEM_FORTRAN_IGET_SIZE(4,    int, int)
+SHMEM_FORTRAN_IGET_SIZE(8,    long, long)
+SHMEM_FORTRAN_IGET_SIZE(32,   int, int)
+SHMEM_FORTRAN_IGET_SIZE(64,   long, long)
+SHMEM_FORTRAN_IGET_SIZE(128,  longdouble, long double)
 
 /*
  * query functions

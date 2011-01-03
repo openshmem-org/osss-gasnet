@@ -15,9 +15,9 @@ shmem_pe_accessible(int pe)
 }
 
 /*
- * only true if address has been allocated by shmem routine
+ * only true if address can be accessed through SHMEM
  *
- * or TODO: true if variable global (ELF check?)
+ * TODO: global (ELF check?)
  *
  */
 
@@ -25,7 +25,12 @@ shmem_pe_accessible(int pe)
 int
 shmem_addr_accessible(void *addr, int pe)
 {
-  return __symmetric_var_in_range(addr, pe);
+  if (__symmetric_var_in_range(addr, pe)) {
+    return 1;
+  }
+
+  /* global check? */
+  return 1;
 }
 
 
