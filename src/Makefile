@@ -59,11 +59,11 @@ REMOVE           = rm -f
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
-.PHONY: do-deps
+.PHONY: set-version do-deps
 
 # ---------------------------------------------------------
 
-all default:	do-deps $(SHMEM_LIBRARY) wrappers
+all default:	set-version do-deps $(SHMEM_LIBRARY) wrappers
 
 install:	install-lib install-bin install-include
 
@@ -129,8 +129,8 @@ comms.o:	comms.c
 
 # -- end GASNet --------------------------------------------
 
-version.c:
-	./set-version.sh $@
+set-version:
+	if [ -d .svn ]; then ./set-version.sh version.c; fi
 
 # ---------------------------------------------------------
 

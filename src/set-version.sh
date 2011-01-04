@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# only do this update if we're in an SVN tree
-[ -d .svn ] || exit 0
-
-
 svn update
 
 rev="`svn info | grep '^Revision:'`"
