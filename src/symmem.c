@@ -262,5 +262,4 @@ sherror(void)
 #pragma weak pshrealloc = shrealloc
 #pragma weak pshmem_realloc = shmem_realloc
 #pragma weak pshmemalign = shmemalign
-#pragma weak pshmem_memalignloc = shmem_memalign
 #endif /* HAVE_PSHMEM_SUPPORT */

@@ -13,10 +13,10 @@ install:	install-man1	install-man3
 
 install-man1:	all
 	mkdir -p $(PREFIX)/man/man1
-	install -c  $(SHMEM_MANPAGES_1) $(PREFIX)/man/man1
+	install -c -m 644 $(SHMEM_MANPAGES_1) $(PREFIX)/man/man1
 
 install-man3:	all
 	mkdir -p $(PREFIX)/man/man3
-	# install -c  $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
+	# install -c -m 644 $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
 
 clean:

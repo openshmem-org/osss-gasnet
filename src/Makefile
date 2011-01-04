@@ -78,7 +78,7 @@ install-bin:	all
 
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
-	$(INSTALL) $(SHMEM_HEADERS) $(PREFIX)/include
+	$(INSTALL) -m 644 $(SHMEM_HEADERS) $(PREFIX)/include
 	(cd $(PREFIX)/include/mpp; for f in $(SHMEM_HEADERS); do $(REMOVE) $$f; ln -s ../$$f; done)
 
 # we may be sharing the install area with other packages, so don't
