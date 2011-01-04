@@ -163,3 +163,48 @@ SHMEM_TYPE_FINC(longlong, long long)
 #pragma weak pshmem_long_finc = shmem_long_finc
 #pragma weak pshmem_longlong_finc = shmem_longlong_finc
 #endif /* HAVE_PSHMEM_SUPPORT */
+
+/*
+ * remote increment/add
+ *
+ * Let's do this the naughty way for now!  Just throw away the
+ * finc/fadd result
+ *
+ * TODO: dedicated handler to avoid moving the unwanted former value
+ * around
+ *
+ */
+
+#define SHMEM_TYPE_ADD(Name, Type)					\
+  /* @api@ */								\
+  void									\
+  shmem_##Name##_add(Type *target, Type value, int pe)			\
+  {									\
+    Type trash = shmem_##Name##_fadd(target, value, pe);		\
+  }
+  
+SHMEM_TYPE_ADD(int, int)
+SHMEM_TYPE_ADD(long, long)
+SHMEM_TYPE_ADD(longlong, long long)
+
+#define SHMEM_TYPE_INC(Name, Type)			\
+  /* @api@ */						\
+  void							\
+  shmem_##Name##_inc(Type *target, int pe)		\
+  {							\
+    Type trash = shmem_##Name##_finc(target, pe);	\
+  }
+
+SHMEM_TYPE_INC(int, int)
+SHMEM_TYPE_INC(long, long)
+SHMEM_TYPE_INC(longlong, long long)
+
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak pshmem_int_add = shmem_int_add
+#pragma weak pshmem_long_add = shmem_long_add
+#pragma weak pshmem_longlong_add = shmem_longlong_add
+
+#pragma weak pshmem_int_inc = shmem_int_inc
+#pragma weak pshmem_long_inc = shmem_long_inc
+#pragma weak pshmem_longlong_inc = shmem_longlong_inc
+#endif /* HAVE_PSHMEM_SUPPORT */

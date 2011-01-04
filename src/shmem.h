@@ -237,7 +237,7 @@ extern long long   shmem_longlong_cswap(long long *target,
 					long long cond, long long value, int pe);
 
 /*
- * atomic fetch/add/inc
+ * atomic fetch-{add,inc} & add,inc
  */
 
 extern int       shmem_int_fadd(int *target, int value, int pe);
@@ -246,6 +246,13 @@ extern long long shmem_longlong_fadd(long long *target, long long value, int pe)
 extern int       shmem_int_finc(int *target, int pe);
 extern long      shmem_long_finc(long *target, int pe);
 extern long long shmem_longlong_finc(long long *target, int pe);
+
+extern void      shmem_int_add(int *target, int value, int pe);
+extern void      shmem_long_add(long *target, long value, int pe);
+extern void      shmem_longlong_add(long long *target, long long value, int pe);
+extern void      shmem_int_inc(int *target, int pe);
+extern void      shmem_long_inc(long *target, int pe);
+extern void      shmem_longlong_inc(long long *target, int pe);
 
 /*
  * cache flushing
