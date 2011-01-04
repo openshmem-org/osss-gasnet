@@ -180,7 +180,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   void									\
   shmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
-    Type trash = shmem_##Name##_fadd(target, value, pe);		\
+    (void) shmem_##Name##_fadd(target, value, pe);			\
   }
   
 SHMEM_TYPE_ADD(int, int)
@@ -192,7 +192,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   void							\
   shmem_##Name##_inc(Type *target, int pe)		\
   {							\
-    Type trash = shmem_##Name##_finc(target, pe);	\
+    (void) shmem_##Name##_finc(target, pe);		\
   }
 
 SHMEM_TYPE_INC(int, int)

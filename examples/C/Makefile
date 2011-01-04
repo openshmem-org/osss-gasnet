@@ -11,7 +11,8 @@ TESTS = \
 		collect32.c collect64.c \
 		fcollect32.c fcollect64.c \
 		dip.c fip.c iip.c lip.c \
-		iput.x iget.x \
+		iput.c iget.c \
+		add.c fadd.c \
 		sping.c swap.c version.c \
 		reduce-sum.c reduce-max.c
 

@@ -1,5 +1,5 @@
 /*
- * just do a shmalloc and a free
+ * just do a shmalloc and a free, no output to be expected
  */
 
 #include <mpp/shmem.h>

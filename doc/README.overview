@@ -186,3 +186,16 @@ Done with Active Messages.  Locks in the implementation (e.g. GASNet)
 provide atomicity and the handler functions provide access to local
 storage.  We use the payload of AMs to shuttle addresses and values
 around between PEs.
+
+Right now, fetch-increment is just layered on top of fetch-add:
+
+    finc = fadd 1
+
+but a better way is to write a customized AM handler as this will have
+a smaller payload (not by much of course, but over 100s or 1000s of
+PEs it could all add up).
+
+Similarly, add and increment (without the fetch of the old value) sit
+on top of fadd and finc, and just throw away the returned value.  This
+clearly can be improved in the same manner to avoid the unnecessary
+return value.

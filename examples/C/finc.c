@@ -2,7 +2,7 @@
  * expected output on 2 PEs:
  *
  * 0: old = 22, dst = 22
- * 1: old = -1, dst = 66
+ * 1: old = -1, dst = 23
  *
  */
 
@@ -26,7 +26,7 @@ main()
   shmem_barrier_all();
 
   if (me == 0) {
-    old = shmem_int_fadd(&dst, 44, 1);
+    old = shmem_int_finc(&dst, 1);
   }
   shmem_barrier_all();
 
