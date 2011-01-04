@@ -89,6 +89,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
  */
 
 #define SHMEM_REDUCE_TYPE_OP(Name, Type, OpCall)			\
+  /* @api@ */								\
   void									\
   shmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
 				   int PE_start, int logPE_stride, int PE_size, \

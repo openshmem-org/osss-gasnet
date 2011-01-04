@@ -27,11 +27,18 @@ WARNINGS         = -Wall
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 
-SHMEM_SOURCES    = accessible.c atomic.c barrier.c broadcast.c \
-			cache.c collect.c comms.c env.c fcollect.c \
-			fence.c fortran-mem.c fortran.c hooks.c lock.c \
-			memalloc.c ptr.c putget.c query.c reduce-op.c \
-			state.c \
+# communication library dependent
+SHMEM_SOURCES    =	comms.c
+# internal
+SHMEM_SOURCES   +=	env.c hooks.c state.c memalloc.c
+# Fortran API
+SHMEM_SOURCES   +=	fortran-mem.c fortran.c
+# API
+SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
+			atomic.c fence.c \
+			barrier.c broadcast.c collect.c fcollect.c \
+			lock.c \
+			putget.c query.c reduce-op.c \
 			strided.c symmem.c updown.c waituntil.c warn.c \
 			version.c
 
@@ -123,7 +130,7 @@ comms.o:	comms.c
 # -- end GASNet --------------------------------------------
 
 version.c:
-	./set-version.sh > $@
+	./set-version.sh $@
 
 # ---------------------------------------------------------
 
