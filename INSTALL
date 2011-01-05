@@ -7,7 +7,7 @@ The library installs on top of MPI & GASNet.  MPI is used purely for
 process launch.  GASNet provides a portable communications layer for
 OpenSHMEM to work on top of.
 
-The development version of MPI is OpenMPI 1.4.2 but I suspect any
+The development version of MPI is OpenMPI 1.4.3 but I suspect any
 version that adheres to the "mpi" prefix for the command-line tools
 will slot right in.
 
@@ -23,3 +23,15 @@ There's a file called make.include in this top-level directory where
 you can change the GASNet conduit.  By default I'm using "mpi" for
 development on an SMP platform, but for a Infiniband cluster, just
 change this to "ibv".
+
+Testing Environment
+-------------------
+
+1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" conduit,
+   OpenMPI 1.4.3
+
+2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
+   conduit, OpenMPI 1.4.2 with slurm integration
+
+3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
+   conduit, OpenMPI 1.4.3 with pbs (tm) integration
