@@ -5,7 +5,7 @@
 char *
 shmem_version(void)
 {
-  return "Super Happy Fun OpenSHMEM, Revision: 1340";
+  return "Super Happy Fun OpenSHMEM, Revision: 1361";
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT
