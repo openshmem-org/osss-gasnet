@@ -10,22 +10,31 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 
 # ---------------------------------------------------------
 
+#
+# this is where the C compiler gets chosen along with the various
+# flags that do PIC, dependency, debug/optimize and C99 compliance
+#
+
 CC               = gcc
-
-CPPFLAGS        += -I../include
 CPPFLAGS        += -MMD
-
-CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
-
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
-
 DEBUG_AND_OPT    = -ggdb -O3
-
 WARNINGS         = -Wall
 # WARNINGS        += -pedantic
 
+# ---------------------------------------------------------
+
+#
+# compiler-independent options
+#
+
+CPPFLAGS        += -I../include
+CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
+
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
+
+# ---------------------------------------------------------
 
 # communication library dependent
 SHMEM_SOURCES    =	comms.c
