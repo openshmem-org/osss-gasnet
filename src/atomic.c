@@ -135,13 +135,28 @@ SHMEM_TYPE_FADD(int, int)
 SHMEM_TYPE_FADD(long, long)
 SHMEM_TYPE_FADD(longlong, long long)
 
-/*
- * TODO: should think about setting up specific request for finc
- * instead of leaching off fadd.  Dedicated handlers would shrink the
- * payload.
- *
- */
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak pshmem_int_fadd = shmem_int_fadd
+#pragma weak pshmem_long_fadd = shmem_long_fadd
+#pragma weak pshmem_longlong_fadd = shmem_longlong_fadd
+#endif /* HAVE_PSHMEM_SUPPORT */
 
+#define SHMEM_TYPE_FINC(Name, Type)					\
+  /* @api@ */								\
+  Type									\
+  shmem_##Name##_finc(Type *target, int pe)				\
+  {									\
+    Type retval;							\
+    if (__state.mype == pe) {						\
+      retval = __sync_fetch_and_add(target, (Type) 1);			\
+    }									\
+    else {								\
+      __comms_finc_request(target, sizeof(retval), pe, &retval);	\
+    }									\
+    return retval;							\
+  }
+
+#if 0
 #define SHMEM_TYPE_FINC(Name, Type)			\
   /* @api@ */						\
   Type							\
@@ -149,16 +164,13 @@ SHMEM_TYPE_FADD(longlong, long long)
   {							\
     return shmem_##Name##_fadd(target, (Type) 1, pe);	\
   }
+#endif
 
 SHMEM_TYPE_FINC(int, int)
 SHMEM_TYPE_FINC(long, long)
 SHMEM_TYPE_FINC(longlong, long long)
 
 #ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_int_fadd = shmem_int_fadd
-#pragma weak pshmem_long_fadd = shmem_long_fadd
-#pragma weak pshmem_longlong_fadd = shmem_longlong_fadd
-
 #pragma weak pshmem_int_finc = shmem_int_finc
 #pragma weak pshmem_long_finc = shmem_long_finc
 #pragma weak pshmem_longlong_finc = shmem_longlong_finc

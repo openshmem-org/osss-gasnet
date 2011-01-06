@@ -1,6 +1,8 @@
 #ifndef _SHMEM_H
 #define _SHMEM_H 1
 
+#define SHMEM_VERSION 1.0
+
 #include <sys/types.h>
 #include <complex.h>
 

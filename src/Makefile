@@ -139,7 +139,7 @@ comms.o:	comms.c
 # -- end GASNet --------------------------------------------
 
 set-version:
-	if [ -d .svn ]; then ./set-version.sh version.c; fi
+	if [ -d .svn ]; then ./set-version.sh verion.c; fi
 
 # ---------------------------------------------------------
 

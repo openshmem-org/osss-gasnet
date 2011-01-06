@@ -71,4 +71,8 @@ extern void  __comms_fadd_request(void *target, void *value, size_t nbytes,
 				  int pe,
 				  void *retval);
 
+extern void  __comms_finc_request(void *target, size_t nbytes,
+				  int pe,
+				  void *retval);
+
 #endif /* _COMMS_H */

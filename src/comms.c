@@ -367,6 +367,12 @@ static void handler_cswap_bak();
 static void handler_fadd_out();
 static void handler_fadd_bak();
 
+#define GASNET_HANDLER_FINC_OUT      138
+#define GASNET_HANDLER_FINC_BAK      139
+
+static void handler_finc_out();
+static void handler_finc_bak();
+
 #if defined(HAVE_MANAGED_SEGMENTS)
 
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
@@ -389,6 +395,8 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     },
     { GASNET_HANDLER_FADD_OUT,      handler_fadd_out      },
     { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      },
+    { GASNET_HANDLER_FINC_OUT,      handler_finc_out      },
+    { GASNET_HANDLER_FINC_BAK,      handler_finc_bak      },
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
@@ -882,14 +890,15 @@ typedef struct {
   int sentinel;			/* end of transaction marker */
   int *sentinel_addr;	        /* addr of marker for copied payload */
   size_t nbytes;		/* how big the value is */
-  long long value;		/* value to be added */
+  long long value;		/* value to be added & then return old */
 } fadd_payload_t;
 
 static gasnet_hsl_t fadd_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t fadd_bak_lock = GASNET_HSL_INITIALIZER;
 
 /*
- * called by remote PE to do the swap.  Store new value, send back old value
+ * called by remote PE to do the fetch and add.  Store new value, send
+ * back old value
  */
 static void
 handler_fadd_out(gasnet_token_t token,
@@ -954,6 +963,95 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
+			  p, sizeof(*p),
+			  0);
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+}
+
+/*
+ * fetch/increment
+ */
+
+typedef struct {
+  void *local_store;		/* sender saves here */
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be returned */
+} finc_payload_t;
+
+static gasnet_hsl_t finc_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t finc_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE to do the fetch and increment.  Store new
+ * value, send back old value
+ */
+static void
+handler_finc_out(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  long long old = 0;
+  long long plus = 1;
+  finc_payload_t *pp = (finc_payload_t *) buf;
+
+  gasnet_hsl_lock(& finc_out_lock);
+
+  /* save and update */
+  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + 1;
+  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  pp->value = old;
+
+  gasnet_hsl_unlock(& finc_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_FINC_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by finc invoker when old value returned by remote PE
+ */
+static void
+handler_finc_bak(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  finc_payload_t *pp = (finc_payload_t *) buf;
+
+  gasnet_hsl_lock(& finc_bak_lock);
+
+  /* save returned value */
+  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+
+  /* done it */
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& finc_bak_lock);
+}
+
+void
+__comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
+{
+  finc_payload_t *p = (finc_payload_t *) malloc(sizeof(*p));
+  if (p == (finc_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate fetch-and-increment payload memory"
+		 );
+  }
+  /* build payload to send */
+  p->local_store = retval;
+  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->nbytes = nbytes;
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
 			  p, sizeof(*p),
 			  0);
   GASNET_BLOCKUNTIL(p->sentinel);
