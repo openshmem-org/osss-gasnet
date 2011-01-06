@@ -75,4 +75,10 @@ extern void  __comms_finc_request(void *target, size_t nbytes,
 				  int pe,
 				  void *retval);
 
+extern void  __comms_add_request(void *target, void *value, size_t nbytes,
+				 int pe);
+
+extern void  __comms_inc_request(void *target, size_t nbytes,
+				 int pe);
+
 #endif /* _COMMS_H */

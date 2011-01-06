@@ -373,6 +373,18 @@ static void handler_fadd_bak();
 static void handler_finc_out();
 static void handler_finc_bak();
 
+#define GASNET_HANDLER_ADD_OUT       140
+#define GASNET_HANDLER_ADD_BAK       141
+
+static void handler_add_out();
+static void handler_add_bak();
+
+#define GASNET_HANDLER_INC_OUT       142
+#define GASNET_HANDLER_INC_BAK       143
+
+static void handler_inc_out();
+static void handler_inc_bak();
+
 #if defined(HAVE_MANAGED_SEGMENTS)
 
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
@@ -397,6 +409,10 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      },
     { GASNET_HANDLER_FINC_OUT,      handler_finc_out      },
     { GASNET_HANDLER_FINC_BAK,      handler_finc_bak      },
+    { GASNET_HANDLER_ADD_OUT,       handler_add_out       },
+    { GASNET_HANDLER_ADD_BAK,       handler_add_bak       },
+    { GASNET_HANDLER_INC_OUT,       handler_inc_out       },
+    { GASNET_HANDLER_INC_BAK,       handler_inc_bak       },
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
@@ -1052,6 +1068,170 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
+			  p, sizeof(*p),
+			  0);
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+}
+
+/*
+ * remote add
+ */
+
+typedef struct {
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* value to be returned */
+} add_payload_t;
+
+static gasnet_hsl_t add_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t add_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE to do the remote add.
+ */
+static void
+handler_add_out(gasnet_token_t token,
+		void *buf, size_t bufsiz,
+		gasnet_handlerarg_t unused)
+{
+  long long old = 0;
+  long long plus = 0;
+  add_payload_t *pp = (add_payload_t *) buf;
+
+  gasnet_hsl_lock(& add_out_lock);
+
+  /* save and update */
+  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + pp->value;
+  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+
+  gasnet_hsl_unlock(& add_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_ADD_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by remote add invoker when store done
+ */
+static void
+handler_add_bak(gasnet_token_t token,
+		void *buf, size_t bufsiz,
+		gasnet_handlerarg_t unused)
+{
+  add_payload_t *pp = (add_payload_t *) buf;
+
+  gasnet_hsl_lock(& add_bak_lock);
+
+  /* done it */
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& add_bak_lock);
+}
+
+void
+__comms_add_request(void *target, void *value, size_t nbytes, int pe)
+{
+  add_payload_t *p = (add_payload_t *) malloc(sizeof(*p));
+  if (p == (add_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate remote add payload memory"
+		 );
+  }
+  /* build payload to send */
+  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->nbytes = nbytes;
+  p->value = *(long long *) value;
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_ADD_OUT,
+			  p, sizeof(*p),
+			  0);
+  GASNET_BLOCKUNTIL(p->sentinel);
+
+  free(p);
+}
+
+/*
+ * remote increment
+ */
+
+typedef struct {
+  void *r_symm_addr;		/* recipient symmetric var */
+  int sentinel;			/* end of transaction marker */
+  int *sentinel_addr;	        /* addr of marker for copied payload */
+  size_t nbytes;		/* how big the value is */
+} inc_payload_t;
+
+static gasnet_hsl_t inc_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t inc_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE to do the remote increment
+ */
+static void
+handler_inc_out(gasnet_token_t token,
+		void *buf, size_t bufsiz,
+		gasnet_handlerarg_t unused)
+{
+  long long old = 0;
+  long long plus = 1;
+  inc_payload_t *pp = (inc_payload_t *) buf;
+
+  gasnet_hsl_lock(& inc_out_lock);
+
+  /* save and update */
+  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + 1;
+  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+
+  gasnet_hsl_unlock(& inc_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_INC_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by remote increment invoker when store done
+ */
+static void
+handler_inc_bak(gasnet_token_t token,
+		void *buf, size_t bufsiz,
+		gasnet_handlerarg_t unused)
+{
+  inc_payload_t *pp = (inc_payload_t *) buf;
+
+  gasnet_hsl_lock(& inc_bak_lock);
+
+  /* done it */
+  *(pp->sentinel_addr) = 1;
+
+  gasnet_hsl_unlock(& inc_bak_lock);
+}
+
+void
+__comms_inc_request(void *target, size_t nbytes, int pe)
+{
+  inc_payload_t *p = (inc_payload_t *) malloc(sizeof(*p));
+  if (p == (inc_payload_t *) NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: unable to allocate remote increment payload memory"
+		 );
+  }
+  /* build payload to send */
+  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->nbytes = nbytes;
+  p->sentinel = 0;
+  p->sentinel_addr = &(p->sentinel);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_INC_OUT,
 			  p, sizeof(*p),
 			  0);
   GASNET_BLOCKUNTIL(p->sentinel);
