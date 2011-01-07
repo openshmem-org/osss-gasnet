@@ -1,11 +1,13 @@
 #include "comms.h"
 
+/* @api@ */
 void
 shmem_fence(void)
 {
   __comms_fence();
 }
 
+/* @api@ */
 void
 shmem_quiet(void)
 {

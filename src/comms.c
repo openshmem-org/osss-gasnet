@@ -258,25 +258,26 @@ void
 __comms_wait_nb(void *h)
 {
   gasnet_wait_syncnb((gasnet_handle_t) h);
-
-  LOAD_STORE_FENCE();
-}
-
-void
-__comms_quiet(void)
-{
-  gasnet_wait_syncnbi_all();
   LOAD_STORE_FENCE();
 }
 
 /*
- * TODO: is this right?  Not sure.  May have to turn fence into
- * barrier
+ * TODO: this should be OK for quiet.  Is it overkill?  Correct?  Is
+ * there a better way?
+ *
  */
+
+void
+__comms_quiet(void)
+{
+  __comms_barrier_all();
+}
+
 void
 __comms_fence(void)
 {
-  __comms_quiet();
+  gasnet_wait_syncnbi_all();
+  LOAD_STORE_FENCE();
 }
 
 static int barcount = 0;
@@ -288,7 +289,7 @@ __comms_barrier_all(void)
   // GASNET_BEGIN_FUNCTION();
 
   /* wait for gasnet to finish pending puts/gets */
-  __comms_quiet();
+  __comms_fence();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
@@ -297,14 +298,14 @@ __comms_barrier_all(void)
   // barcount = 1 - barcount;
   barcount += 1;
 
-  __comms_quiet();
+  __comms_fence();
 }
 
 
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  __comms_quiet();
+  __comms_fence();
 
   if (__state.mype == PE_start) {
     const int step = 1 << logPE_stride;
@@ -329,7 +330,7 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   /* restore pSync values */
   pSync[__state.mype] = _SHMEM_SYNC_VALUE;
 
-  __comms_quiet();
+  __comms_fence();
 }
 
 

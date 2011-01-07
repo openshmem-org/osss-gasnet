@@ -2,13 +2,20 @@
 
 #include <mpp/shmem.h>
 
-long pSync[4];
+#define NPES 4
+
+long pSync[NPES];
 int x = 10101;
 
 int
 main()
 {
   int me, npes;
+  int i;
+
+  for (i = 0; i < NPES; i += 1) {
+    pSync[i] = _SHMEM_SYNC_VALUE;
+  }
 
   start_pes(0);
   me = _my_pe();
