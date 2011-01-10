@@ -181,6 +181,13 @@ extern void   shmem_quiet(void);
 #define SHMEM_MALLOC_REALLOC_FAILED       (-4L)
 #define SHMEM_MALLOC_SYMMSIZE_FAILED      (-5L)
 
+#define	_SHMEM_MALLOC_OK SHMEM_MALLOC_OK
+#define	_SHMEM_MALLOC_FAIL SHMEM_MALLOC_FAIL
+#define	_SHMEM_MALLOC_ALREADY_FREE SHMEM_MALLOC_ALREADY_FREE
+#define	_SHMEM_MALLOC_MEMALIGN_FAILED SHMEM_MALLOC_MEMALIGN_FAILED
+#define	_SHMEM_MALLOC_REALLOC_FAILED SHMEM_MALLOC_REALLOC_FAILED
+#define	_SHMEM_MALLOC_SYMMSIZE_FAILED SHMEM_MALLOC_SYMMSIZE_FAILED
+
 extern long   malloc_error;
 
 extern void * shmalloc(size_t size);
@@ -209,6 +216,13 @@ extern char * shmem_error(void);
 #define SHMEM_CMP_LE 3
 #define SHMEM_CMP_LT 4
 #define SHMEM_CMP_GE 5
+
+#define _SHMEM_CMP_EQ SHMEM_CMP_EQ
+#define _SHMEM_CMP_NE SHMEM_CMP_NE
+#define _SHMEM_CMP_GT SHMEM_CMP_GT
+#define _SHMEM_CMP_LE SHMEM_CMP_LE
+#define _SHMEM_CMP_LT SHMEM_CMP_LT
+#define _SHMEM_CMP_GE SHMEM_CMP_GE
 
 extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
 extern void   shmem_int_wait_until(int *ivar, int cmp, int cmp_value);
@@ -271,10 +285,13 @@ extern void         shmem_udcflush_line(void *target);
  * reductions
  */
 
-#define _SHMEM_BCAST_SYNC_SIZE 1024
-#define _SHMEM_SYNC_VALUE 0
-#define _SHMEM_REDUCE_SYNC_SIZE 128
+#define SHMEM_BCAST_SYNC_SIZE 1024
+#define SHMEM_SYNC_VALUE 0
+#define SHMEM_REDUCE_SYNC_SIZE 128
 
+#define _SHMEM_BCAST_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_SYNC_VALUE SHMEM_SYNC_VALUE
+#define _SHMEM_REDUCE_SYNC_SIZE SHMEM_REDUCE_SYNC_SIZE
 
 extern void shmem_complexd_sum_to_all(double complex *target,
 				      double complex *source,
