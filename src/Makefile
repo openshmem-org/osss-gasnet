@@ -53,8 +53,14 @@ SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
-SHMEM_LIBRARY    = libopenshmem.so
+SHMEM_LIBNAME    = openshmem
+SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
+SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
 SHMEM_HEADERS    = shmem.h shmem.fh
+SHMEM_INC_DIR    = $(PREFIX)/include
+SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+
+SHMEM_WRAPPER    = osh-compiler.in
 SHMEM_CC         = oshcc
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
@@ -159,27 +165,27 @@ fortran-mem.o:	fortran-mem.c
 wrappers:	c-wrapper f-wrapper
 
 c-wrapper:
-	@ $(REMOVE)  $(SHMEM_CC)
-	@ echo "#!/bin/sh" >> $(SHMEM_CC)
-	@ echo "#" >> $(SHMEM_CC)
-	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_CC)
-	@ echo "#" >> $(SHMEM_CC)
-	@ echo "SHMEM_LDFLAGS=\"-L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib\"" >> $(SHMEM_CC)
-	@ echo "SHMEM_LIB=\"-lopenshmem\"" >> $(SHMEM_CC)
-	@ echo "SHMEM_INCLUDE_DIR=\"$(PREFIX)/include\"" >> $(SHMEM_CC)
-	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_CC)
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		< $(SHMEM_WRAPPER) > $(SHMEM_CC)
 
 f-wrapper:
-	@ $(REMOVE)  $(SHMEM_FC)
-	@ echo "#!/bin/sh" >> $(SHMEM_FC)
-	@ echo "#" >> $(SHMEM_FC)
-	@ echo "# generated from OpenSHMEM src directory, don't edit installed version" >> $(SHMEM_FC)
-	@ echo "#" >> $(SHMEM_FC)
-	@ echo "SHMEM_LDFLAGS=\"-L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib\"" >> $(SHMEM_FC)
-	@ echo "SHMEM_LIB=\"-lopenshmem\"" >> $(SHMEM_FC)
-	@ echo "SHMEM_INCLUDE_DIR=\"$(PREFIX)/include\"" >> $(SHMEM_FC)
-	@ echo exec $(GASNET_LD) -I\$$SHMEM_INCLUDE_DIR $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) $$\@ \$$SHMEM_LDFLAGS \$$SHMEM_LIB $(GASNET_LDFLAGS) $(GASNET_LIBS) >> $(SHMEM_FC)
-	TMP=`mktemp`; cp $(SHMEM_FC) $$TMP; sed -e 's%bin/mpicc%bin/mpif90%' $$TMP > $(SHMEM_FC) ; $(REMOVE) $$TMP
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpif90%' \
+		< $(SHMEM_WRAPPER) > $(SHMEM_FC)
 
 # ---------------------------------------------------------
 
@@ -189,7 +195,7 @@ tidy:
 
 clean:	tidy
 	$(MAKE) -C $(DLMALLOC_DIR) $@
-	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC)
+	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_FC)
 	$(REMOVE) Makedeps
 
 do-deps: $(SHMEM_OBJECTS)

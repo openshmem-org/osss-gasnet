@@ -15,7 +15,7 @@ GASNET_CFLAGS='-O3 --param max-inline-insns-single=35000 --param inline-unit-gro
 
 GASNET_LDFLAGS='-O3 --param max-inline-insns-single=35000 --param inline-unit-growth=10000 --param large-function-growth=200000 -Winline    '
 
-GASNET_LD='/opt/openmpi/gnu/1.4.3/bin/mpif90 '
+GASNET_LD='/opt/openmpi/gnu/1.4.3/bin/mpicc '
 
 GASNET_LIBS='-L/home/tonyc/gasnet/everything/lib   -lgasnet-mpi-par -lammpi   -lpthread -lm '
 
