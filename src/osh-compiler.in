@@ -19,6 +19,20 @@ GASNET_LD='@GASNET_LD@'
 
 GASNET_LIBS='@GASNET_LIBS@'
 
+# check to see if linking required: if not, throw away link args
+for c in $@
+do
+  case $c in
+    -[cE])
+      SHMEM_LDFLAGS=''
+      SHMEM_LIBS=''
+      GASNET_LDFLAGS=''
+      GASNET_LIBS=''
+      ;;
+    *)
+      ;;
+  esac
+done
 
 
 exec $GASNET_LD -I$SHMEM_INC_DIR \
