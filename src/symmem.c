@@ -231,7 +231,13 @@ malloc_error_code_t error_table[] =
     { SHMEM_MALLOC_REALLOC_FAILED,
       "attempt to reallocate symmetric memory address failed" },
     { SHMEM_MALLOC_SYMMSIZE_FAILED,
-      "asymmetric sizes passed to symmetric memory allocator" }
+      "asymmetric sizes passed to symmetric memory allocator" },
+    { SHMEM_MALLOC_BAD_SIZE,
+      "size of data to allocate can not be negative"          },
+    { SHMEM_MALLOC_NOT_ALIGNED,
+      "address is not block-aligned"                          },
+    { SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
+      "address falls outside of symmetric heap"               },
   };
 static const int nerrors = sizeof(error_table) / sizeof(error_table[0]);
 
@@ -250,7 +256,7 @@ sherror(void)
     etp += 1;
   }
 
-  return "unknown error";
+  return "unknown memory error";
 }
 #pragma weak shmem_error = sherror
 
