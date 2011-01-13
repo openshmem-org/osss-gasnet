@@ -53,7 +53,7 @@ __shmem_place_init(void)
 
 /* @api@ */
 void
-shmem_init(void)
+start_pes(int npes)
 {
 
   /* has to happen early to enable warn */
@@ -85,6 +85,17 @@ shmem_init(void)
   }
 
   /*
+   * SGI man page says npes *should* be zero, so just make
+   * this check informational
+   */
+  if (npes != 0) {
+    __shmem_warn(SHMEM_LOG_INFO,
+		 "start_pes() has argument %d, should be 0",
+		 npes
+		 );
+  }
+
+  /*
    * and we're up and running
    */
 
@@ -101,9 +112,9 @@ shmem_init(void)
  */
 /* @api@ */
 void
-start_pes(int npes)
+shmem_init(void)
 {
-  shmem_init();
+  start_pes(0);
 }
 
 #ifdef HAVE_PSHMEM_SUPPORT

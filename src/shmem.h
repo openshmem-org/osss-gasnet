@@ -6,7 +6,18 @@
 #include <sys/types.h>
 #include <complex.h>
 
-#define _WUR __attribute__((__warn_unused_result__))
+/*
+ * not all compilers support this annotation
+ *
+ * Yes: GNU, PGI, Intel   (others?)
+ * No: Sun/Oracle Studio
+ *
+ */
+#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER)
+# define _WUR __attribute__((__warn_unused_result__))
+#else
+# define _WUR
+#endif
 
 /*
  * init & query
