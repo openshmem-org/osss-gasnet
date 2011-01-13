@@ -15,6 +15,16 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 # flags that do PIC, dependency, debug/optimize and C99 compliance
 #
 
+# Sun/Oracle Studio: state = testing
+#CC               = suncc
+#CPPFLAGS        += -xMMD
+#CFLAGS          += -PIC
+#CFLAGS          += -xc99=all
+#DEBUG_AND_OPT    = -ggdb -xO3
+#WARNINGS         =
+# WARNINGS        += -pedantic
+
+# GNU C: requires >= 4.1.0 version
 CC               = gcc
 CPPFLAGS        += -MMD
 CFLAGS          += -fPIC

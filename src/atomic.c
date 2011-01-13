@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <atomic_ops.h>
 
 #include "state.h"
 #include "comms.h"
@@ -56,7 +57,7 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = __atomic_xchg64((volatile int64_t *)target, value);	\
+      retval = __atomic_xchg64((volatile int64_t *) target, value);	\
     }									\
     else {								\
       __comms_swap_request(target, &value, sizeof(Type), pe, &retval);	\
@@ -88,7 +89,7 @@ SHMEM_TYPE_SWAP(float, float)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = __atomic_cmpxchg64((volatile int64_t *)target, cond, value); \
+      retval = __atomic_cmpxchg64((volatile int64_t *) target, cond, value); \
     }									\
     else {								\
       __comms_cswap_request(target, &cond, &value, sizeof(Type), pe, &retval); \
@@ -123,7 +124,7 @@ SHMEM_TYPE_CSWAP(longlong, long long)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = __sync_fetch_and_add(target, value);			\
+      retval = AO_fetch_and_add_full((volatile AO_t *) target, value);	\
     }									\
     else {								\
       __comms_fadd_request(target, &value, sizeof(Type), pe, &retval);	\
@@ -148,7 +149,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = __sync_fetch_and_add(target, (Type) 1);			\
+      retval = AO_fetch_and_add_full((volatile AO_t *) target, (Type) 1); \
     }									\
     else {								\
       __comms_finc_request(target, sizeof(Type), pe, &retval);		\
@@ -187,7 +188,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   shmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
     if (__state.mype == pe) {						\
-      (void) __sync_fetch_and_add(target, value);			\
+      (void) AO_fetch_and_add_full((volatile AO_t *) target, value);	\
     }									\
     else {								\
       __comms_add_request(target, &value, sizeof(Type), pe);		\
@@ -210,7 +211,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   shmem_##Name##_inc(Type *target, int pe)				\
   {									\
     if (__state.mype == pe) {						\
-      (void) __sync_fetch_and_add(target, (Type) 1);			\
+      (void) AO_fetch_and_add_full((volatile AO_t *) target, (Type) 1);	\
     }									\
     else {								\
       __comms_inc_request(target, sizeof(Type), pe);			\

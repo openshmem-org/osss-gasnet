@@ -5,7 +5,7 @@
 #
 # installation root
 #
-PREFIX           = $(HOME)/SHMEM
+PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
 
@@ -15,6 +15,6 @@ GASNET_SEGMENT_STYLE = everything
 # GASNet installation root, and setup
 #
 GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
-GASNET_CONDUIT   = mpi
+GASNET_CONDUIT   = @CONDUIT@
 
 include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 

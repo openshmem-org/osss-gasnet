@@ -1,0 +1,53 @@
+#!/bin/sh
+
+#
+# NB: this will turn into the GNU autotools setup at some point.
+#
+
+progname="`basename $0`"
+
+# -- defaults --
+prefix=/usr/local
+conduit=mpi
+# -- end defaults --
+
+show_usage()
+{
+  if [ $# -gt 0 ]
+  then
+    echo ""
+    echo "$progname: unknown option \"$@\""
+    echo ""
+  fi
+  echo "Usage: $progname [options]"
+  echo ""
+  echo "    --prefix=PREFIX         Install to directory root PREFIX"
+  echo "    --conduit=C             Use GASNet conduit C"
+  echo "    --help                  Show this summary and exit"
+  echo ""
+}
+
+for o in $@
+do
+  case $o in
+    --prefix=*)
+      prefix="`echo $o | sed 's/--prefix=//'`"
+      ;;
+    --conduit=*)
+      conduit="`echo $o | sed 's/--conduit=//'`"
+      ;;
+    --help)
+      show_usage
+      exit 0
+      ;;
+    *)
+      show_usage $o
+      exit 1
+      ;;
+  esac
+done
+
+sed -e "s%@PREFIX@%$prefix%" \
+    -e "s%@CONDUIT@%conduit%" \
+    < make.include.in > make.include
+echo "$progname: wrote make.include settings"
