@@ -265,14 +265,14 @@ if ( mype < mpes )
    {
       shmem_barrier_all();
 
-      shmem_broadcast32 ( &matchinfo, &matchinfo, 1, 0, 0, 0, npes, pSync );
+      shmem_broadcast64 ( &matchinfo, &matchinfo, 1, 0, 0, 0, npes, pSync );
 
       if ( mype > 0 )
       {  *matches  = matchinfo & 0xFFFF;
          *gmatches = matchinfo >> 16;
       }
 
-      shmem_broadcast32 ( starts, starts, *gmatches, 0, 0, 0, npes, pSync );
+      shmem_broadcast64 ( starts, starts, *gmatches, 0, 0, 0, npes, pSync );
    }
 
 #ifdef Timer

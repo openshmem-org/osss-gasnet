@@ -6,25 +6,27 @@
 #include <sys/types.h>
 #include <complex.h>
 
+#define _WUR __attribute__((__warn_unused_result__))
+
 /*
  * init & query
  */
 
 extern void   shmem_init(void);
-extern void   start_pes(int npes);     /* synonym for shmem_init() */
+extern void   start_pes(int npes);
 
-extern int    shmem_my_pe(void);
-extern int    my_pe(void);
-extern int    _my_pe(void);            /* synonyms */
+extern int    shmem_my_pe(void) _WUR;
+extern int    my_pe(void) _WUR;
+extern int    _my_pe(void) _WUR;
 
-extern int    shmem_num_pes(void);
-extern int    shmem_n_pes(void);
-extern int    num_pes(void);
-extern int    _num_pes(void);          /* synonyms */
+extern int    shmem_num_pes(void) _WUR;
+extern int    shmem_n_pes(void) _WUR;
+extern int    num_pes(void) _WUR;
+extern int    _num_pes(void) _WUR;
 
-extern char * shmem_nodename(void);    /* where the PE is running */
+extern char * shmem_nodename(void) _WUR;
 
-extern char * shmem_version(void);
+extern char * shmem_version(void) _WUR;
 
 /*
  * I/O
@@ -63,14 +65,14 @@ extern void   shmem_float_p(float *addr, float value, int pe);
 extern void   shmem_double_p(double *addr, double value, int pe);
 extern void   shmem_longdouble_p(long double *addr, long double value, int pe);
 
-extern char        shmem_char_g(char *addr, int pe);
-extern short       shmem_short_g(short *addr, int pe);
-extern int         shmem_int_g(int *addr, int pe);
-extern long        shmem_long_g(long *addr, int pe);
-extern long long   shmem_longlong_g(long long *addr, int pe);
-extern float       shmem_float_g(float *addr, int pe);
-extern double      shmem_double_g(double *addr, int pe);
-extern long double shmem_longdouble_g(long double *addr, int pe);
+extern char        shmem_char_g(char *addr, int pe) _WUR;
+extern short       shmem_short_g(short *addr, int pe) _WUR;
+extern int         shmem_int_g(int *addr, int pe) _WUR;
+extern long        shmem_long_g(long *addr, int pe) _WUR;
+extern long long   shmem_longlong_g(long long *addr, int pe) _WUR;
+extern float       shmem_float_g(float *addr, int pe) _WUR;
+extern double      shmem_double_g(double *addr, int pe) _WUR;
+extern long double shmem_longdouble_g(long double *addr, int pe) _WUR;
 
 
 #if 0
@@ -78,17 +80,17 @@ extern long double shmem_longdouble_g(long double *addr, int pe);
  * non-blocking I/O
  */
 
-extern void * shmem_short_put_nb(short *dest, const short *src, size_t len, int pe);
-extern void * shmem_int_put_nb(int *dest, const int *src, size_t len, int pe);
-extern void * shmem_long_put_nb(long *dest, const long *src, size_t len, int pe);
-extern void * shmem_longlong_put_nb(long long *dest, const long long *src, size_t len, int pe);
-extern void * shmem_longdouble_put_nb(long double *dest, const long double *src, size_t len, int pe);
-extern void * shmem_double_put_nb(double *dest, const double *src, size_t len, int pe);
-extern void * shmem_float_put_nb(float *dest, const float *src, size_t len, int pe);
-extern void * shmem_putmem_nb(void *dest, const void *src, size_t len, int pe);
-extern void * shmem_put32_nb(void *dest, const void *src, size_t len, int pe);
-extern void * shmem_put64_nb(void *dest, const void *src, size_t len, int pe);
-extern void * shmem_put128_nb(void *dest, const void *src, size_t len, int pe);
+extern void * shmem_short_put_nb(short *dest, const short *src, size_t len, int pe) _WUR;
+extern void * shmem_int_put_nb(int *dest, const int *src, size_t len, int pe) _WUR;
+extern void * shmem_long_put_nb(long *dest, const long *src, size_t len, int pe) _WUR;
+extern void * shmem_longlong_put_nb(long long *dest, const long long *src, size_t len, int pe) _WUR;
+extern void * shmem_longdouble_put_nb(long double *dest, const long double *src, size_t len, int pe) _WUR;
+extern void * shmem_double_put_nb(double *dest, const double *src, size_t len, int pe) _WUR;
+extern void * shmem_float_put_nb(float *dest, const float *src, size_t len, int pe) _WUR;
+extern void * shmem_putmem_nb(void *dest, const void *src, size_t len, int pe) _WUR;
+extern void * shmem_put32_nb(void *dest, const void *src, size_t len, int pe) _WUR;
+extern void * shmem_put64_nb(void *dest, const void *src, size_t len, int pe) _WUR;
+extern void * shmem_put128_nb(void *dest, const void *src, size_t len, int pe) _WUR;
 
 #endif /* NOTYET */
 
@@ -200,18 +202,18 @@ extern void   shmem_quiet(void);
 
 extern long   malloc_error;
 
-extern void * shmalloc(size_t size);
+extern void * shmalloc(size_t size) _WUR;
 extern void   shfree(void *ptr);
-extern void * shrealloc(void *ptr, size_t size);
-extern void * shmemalign(size_t alignment, size_t size);
+extern void * shrealloc(void *ptr, size_t size) _WUR;
+extern void * shmemalign(size_t alignment, size_t size) _WUR;
 
-extern void * shmem_malloc(size_t size);
+extern void * shmem_malloc(size_t size) _WUR;
 extern void   shmem_free(void *ptr);
-extern void * shmem_realloc(void *ptr, size_t size);
-extern void * shmem_memalign(size_t alignment, size_t size);
+extern void * shmem_realloc(void *ptr, size_t size) _WUR;
+extern void * shmem_memalign(size_t alignment, size_t size) _WUR;
 
-extern char * sherror(void);
-extern char * shmem_error(void);
+extern char * sherror(void) _WUR;
+extern char * shmem_error(void) _WUR;
 
 /*
  * wait operations
@@ -250,28 +252,28 @@ extern void   shmem_wait(long *ivar, long cmp_value);
  * atomic swaps
  */
 
-extern int         shmem_int_swap(int *target, int value, int pe);
-extern long        shmem_long_swap(long *target, long value, int pe);
-extern long long   shmem_longlong_swap(long long *target, long long value, int pe);
-extern float       shmem_float_swap(float *target, float value, int pe);
-extern double      shmem_double_swap(double *target, double value, int pe);
-extern long        shmem_swap(long *target, long value, int pe);
+extern int         shmem_int_swap(int *target, int value, int pe) _WUR;
+extern long        shmem_long_swap(long *target, long value, int pe) _WUR;
+extern long long   shmem_longlong_swap(long long *target, long long value, int pe) _WUR;
+extern float       shmem_float_swap(float *target, float value, int pe) _WUR;
+extern double      shmem_double_swap(double *target, double value, int pe) _WUR;
+extern long        shmem_swap(long *target, long value, int pe) _WUR;
 
-extern int         shmem_int_cswap(int *target, int cond, int value, int pe);
-extern long        shmem_long_cswap(long *target, long cond, long value, int pe);
+extern int         shmem_int_cswap(int *target, int cond, int value, int pe) _WUR;
+extern long        shmem_long_cswap(long *target, long cond, long value, int pe) _WUR;
 extern long long   shmem_longlong_cswap(long long *target,
-					long long cond, long long value, int pe);
+					long long cond, long long value, int pe) _WUR;
 
 /*
  * atomic fetch-{add,inc} & add,inc
  */
 
-extern int       shmem_int_fadd(int *target, int value, int pe);
-extern long      shmem_long_fadd(long *target, long value, int pe);
-extern long long shmem_longlong_fadd(long long *target, long long value, int pe);
-extern int       shmem_int_finc(int *target, int pe);
-extern long      shmem_long_finc(long *target, int pe);
-extern long long shmem_longlong_finc(long long *target, int pe);
+extern int       shmem_int_fadd(int *target, int value, int pe) _WUR;
+extern long      shmem_long_fadd(long *target, long value, int pe) _WUR;
+extern long long shmem_longlong_fadd(long long *target, long long value, int pe) _WUR;
+extern int       shmem_int_finc(int *target, int pe) _WUR;
+extern long      shmem_long_finc(long *target, int pe) _WUR;
+extern long long shmem_longlong_finc(long long *target, int pe) _WUR;
 
 extern void      shmem_int_add(int *target, int value, int pe);
 extern void      shmem_long_add(long *target, long value, int pe);
@@ -612,7 +614,7 @@ extern void shmem_collect64(void *target, const void *source, size_t nlong,
 
 extern void shmem_set_lock(long *lock);
 extern void shmem_clear_lock(long *lock);
-extern int  shmem_test_lock(long *lock);
+extern int  shmem_test_lock(long *lock) _WUR;
 
 
 #endif /* _SHMEM_H */

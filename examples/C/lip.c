@@ -20,7 +20,7 @@ main(void)
   *f = 3;
   shmem_barrier_all();
 
-  printf("BEFORE %d: f = %d\n", me, *f);
+  printf("%d: before put, f = %d\n", me, *f);
 
   if (me == 0) {
     shmem_long_p(f, 42, 1);
@@ -28,5 +28,5 @@ main(void)
 
   shmem_barrier_all();
 
-  printf("AFTER %d: f = %d\n", me, *f);
+  printf("%d:  after put, f = %d\n", me, *f);
 }

@@ -195,11 +195,11 @@ main(int argc, char**argv)
 
 /*-------------------------------------------------------------------------*/
 
-   s = (uint64 *) shmalloc( SNWMAX );
+   s = (uint64 *) malloc( SNWMAX );
    assert(s != NULL);
-   eqs = (uint64 *) shmalloc( MAXMATCH0 * MSIZE0 * EQNW0 );
+   eqs = (uint64 *) malloc( MAXMATCH0 * MSIZE0 * EQNW0 );
    assert(eqs != NULL);
-   sols = (uint64 *) shmalloc( MAXMATCH0 * EQNW0 );
+   sols = (uint64 *) malloc( MAXMATCH0 * EQNW0 );
    assert(sols != NULL);
 
 /*-------------------------------------------------------------------------*/

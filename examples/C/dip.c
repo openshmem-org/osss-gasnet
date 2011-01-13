@@ -16,7 +16,7 @@ main(void)
   *f = 3.1415927;
   shmem_barrier_all();
 
-  printf("BEFORE %d: f = %f\n", me, *f);
+  printf("%d: before put, f = %f\n", me, *f);
 
   if (me == 0) {
     shmem_double_p(f, 2.71828182, 1);
@@ -24,5 +24,5 @@ main(void)
 
   shmem_barrier_all();
 
-  printf("AFTER %d: f = %f\n", me, *f);
+  printf("%d:  after put, f = %f\n", me, *f);
 }
