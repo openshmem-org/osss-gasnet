@@ -48,6 +48,6 @@ do
 done
 
 sed -e "s%@PREFIX@%$prefix%" \
-    -e "s%@CONDUIT@%conduit%" \
+    -e "s%@CONDUIT@%$conduit%" \
     < make.include.in > make.include
 echo "$progname: wrote make.include settings"
