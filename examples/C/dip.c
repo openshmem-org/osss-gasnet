@@ -32,10 +32,9 @@ main(void)
 
   shmem_barrier_all();
 
+
   if (me == 1) {
-    if (fabs(*f - e) > epsilon) {
-      printf("FAIL\n");
-    }
+    printf("%s\n", (fabs(*f - e) < epsilon) ? "OK" : "FAIL");
   }
 
   return 0;

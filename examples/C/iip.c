@@ -29,8 +29,8 @@ main(void)
 
   /* now check */
 
-  if (me == 1 && n != 42) {
-    printf("FAIL\n");
+  if (me == 1) {
+    printf("%s\n", (n == 42) ? "OK" : "FAIL");
   }
 
   return 0;
