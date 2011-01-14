@@ -13,7 +13,7 @@
  * No: Sun/Oracle Studio
  *
  */
-#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER)
+#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER) || defined(__OPEN64__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR

@@ -1,6 +1,16 @@
+/*
+ * float value put to shmalloc'ed variable
+ *
+ */
+
 #include <stdio.h>
+#include <math.h>
 
 #include <mpp/shmem.h>
+
+static const float e       = 2.71828182;
+
+static const float epsilon = 0.00000001;
 
 int
 main(void)
@@ -16,13 +26,17 @@ main(void)
   *f = 3.1415927;
   shmem_barrier_all();
 
-  printf("%d: before put, f = %f\n", me, *f);
-
   if (me == 0) {
-    shmem_float_p(f, 2.71828182, 1);
+    shmem_float_p(f, e, 1);
   }
 
   shmem_barrier_all();
 
-  printf("%d:  after put, f = %f\n", me, *f);
+  if (me == 1) {
+    if (fabs(*f - e) > epsilon) {
+      printf("FAIL\n");
+    }
+  }
+
+  return 0;
 }

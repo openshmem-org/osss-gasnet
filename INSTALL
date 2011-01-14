@@ -20,10 +20,15 @@ series), but there's a relatively small number of changes that need to
 be made to change that (e.g. debugging and optimization flags,
 dependency generation, PIC option, C99 compliance).
 
-There's a file called make.include in this top-level directory where
-you can change the GASNet conduit.  By default I'm using "mpi" for
-development on an SMP platform, but for an Infiniband cluster, just
-change this to "ibv".
+There's now a configure script.  This will eventually be the GNU
+autotools setup, but for now it's just a basic shell script to give
+the same kind of look-and-feel.  Accepts a --help option.
+
+configure writes a file called make.include in this top-level
+directory where you can change the GASNet conduit.  By default I'm
+using "mpi" for development on an SMP platform, but for an Infiniband
+cluster, just change this to "ibv" by choosing a different conduit in
+the configure command.
 
 Testing Environment
 -------------------

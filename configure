@@ -22,7 +22,8 @@ show_usage()
   echo "Usage: $progname [options]"
   echo ""
   echo "    --prefix=PREFIX         Install to directory root PREFIX"
-  echo "    --conduit=C             Use GASNet conduit C"
+  echo "    --conduit=C             Use GASNet conduit \"C\""
+  echo ""
   echo "    --help                  Show this summary and exit"
   echo ""
 }
@@ -47,7 +48,10 @@ do
   esac
 done
 
+MI=make.include
+
 sed -e "s%@PREFIX@%$prefix%" \
     -e "s%@CONDUIT@%$conduit%" \
-    < make.include.in > make.include
-echo "$progname: wrote make.include settings"
+    < ${MI}.in > $MI
+
+echo "$progname: wrote $MI settings"

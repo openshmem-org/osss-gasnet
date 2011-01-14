@@ -1,29 +1,37 @@
+/*
+ * integer value put to global
+ *
+ */
+
 #include <stdio.h>
 
 #include <mpp/shmem.h>
 
+int n;
+
 int
 main(void)
 {
-  int *f;
   int me;
 
   start_pes(0);
   me = _my_pe();
 
-  f = (int *) shmalloc( sizeof(*f) );
+  n = 3;
 
   shmem_barrier_all();
 
-  *f = 3;
-
-  printf("%d: before put, f = %d\n", me, *f);
-
   if (me == 0) {
-    shmem_int_p(f, 42, 1);
+    shmem_int_p(&n, 42, 1);
   }
 
   shmem_barrier_all();
 
-  printf("%d:  after put, f = %d\n", me, *f);
+  /* now check */
+
+  if (me == 1 && n != 42) {
+    printf("FAIL\n");
+  }
+
+  return 0;
 }
