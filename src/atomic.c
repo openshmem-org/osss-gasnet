@@ -1,9 +1,10 @@
 #include <sys/types.h>
-#include <atomic_ops.h>
 
 #include "state.h"
 #include "comms.h"
 #include "shmem.h"
+
+#include "atomic.h"
 
 /*
  * placeholders: no init/final required (so far)
@@ -124,7 +125,7 @@ SHMEM_TYPE_CSWAP(longlong, long long)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = AO_fetch_and_add_full((volatile AO_t *) target, value);	\
+      retval = SYNC_FETCH_AND_ADD(target, value);			\
     }									\
     else {								\
       __comms_fadd_request(target, &value, sizeof(Type), pe, &retval);	\
@@ -149,7 +150,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   {									\
     Type retval;							\
     if (__state.mype == pe) {						\
-      retval = AO_fetch_and_add_full((volatile AO_t *) target, (Type) 1); \
+      retval = SYNC_FETCH_AND_ADD(target, (Type) 1);			\
     }									\
     else {								\
       __comms_finc_request(target, sizeof(Type), pe, &retval);		\
@@ -188,7 +189,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   shmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
     if (__state.mype == pe) {						\
-      (void) AO_fetch_and_add_full((volatile AO_t *) target, value);	\
+      (void) SYNC_FETCH_AND_ADD(target, value);				\
     }									\
     else {								\
       __comms_add_request(target, &value, sizeof(Type), pe);		\
@@ -211,7 +212,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   shmem_##Name##_inc(Type *target, int pe)				\
   {									\
     if (__state.mype == pe) {						\
-      (void) AO_fetch_and_add_full((volatile AO_t *) target, (Type) 1);	\
+      (void) SYNC_FETCH_AND_ADD(target, (Type) 1);			\
     }									\
     else {								\
       __comms_inc_request(target, sizeof(Type), pe);			\

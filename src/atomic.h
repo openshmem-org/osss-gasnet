@@ -13,12 +13,14 @@ extern void __shmem_atomic_finalize(void);
 
 /* # define LOAD_STORE_FENCE() __asm__ volatile("mfence":::"memory") */
 # define LOAD_STORE_FENCE() __sync_synchronize()
+# define SYNC_FETCH_AND_ADD(t, v) __sync_fetch_and_add(t, v)
 
 #elif defined(__SUNPRO_C)
 
 # include <mbarrier.h>
 
 # define LOAD_STORE_FENCE __machine_rw_barrier()
+# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
 
 #else
 
