@@ -8,7 +8,7 @@ progname="`basename $0`"
 
 # -- defaults --
 prefix=/usr/local
-conduit=mpi
+gasnet_conduit=mpi
 # -- end defaults --
 
 show_usage()
@@ -22,7 +22,7 @@ show_usage()
   echo "Usage: $progname [options]"
   echo ""
   echo "    --prefix=PREFIX         Install to directory root PREFIX"
-  echo "    --conduit=C             Use GASNet conduit \"C\""
+  echo "    --gasnet-conduit=C      Use GASNet conduit \"C\""
   echo ""
   echo "    --help                  Show this summary and exit"
   echo ""
@@ -34,8 +34,8 @@ do
     --prefix=*)
       prefix="`echo $o | sed 's/--prefix=//'`"
       ;;
-    --conduit=*)
-      conduit="`echo $o | sed 's/--conduit=//'`"
+    --gasnet-conduit=*)
+      gasnet_conduit="`echo $o | sed 's/--gasnet-conduit=//'`"
       ;;
     --help)
       show_usage
@@ -48,10 +48,24 @@ do
   esac
 done
 
-MI=make.include
-
-sed -e "s%@PREFIX@%$prefix%" \
-    -e "s%@CONDUIT@%$conduit%" \
-    < ${MI}.in > $MI
+echo "$progname: installing to directory \"$prefix\""
+echo "$progname: using conduit \"$gasnet_conduit\""
 
 echo "$progname: wrote $MI settings"
+
+DIRS=". doc src"
+
+for d in $DIRS
+do
+  mf="$d/Makefile"
+  sed -e "s%@PREFIX@%$prefix%g" \
+      -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+      < ${mf}.in > $mf
+  echo "$progname: created $mf"
+done
+
+cat > config.status <<_EOT_
+#!/bin/sh
+$0 $@
+_EOT_
+chmod +x config.status

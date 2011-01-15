@@ -1,4 +1,4 @@
-PREFIX = /home/tonyc/SHMEM
+PREFIX = @PREFIX@
 
 SHMEM_MANPAGES_1 = $(wildcard *.1)
 SHMEM_MANPAGES_3 = $(wildcard *.3)
