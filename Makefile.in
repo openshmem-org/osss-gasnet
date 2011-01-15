@@ -35,3 +35,4 @@ clean-src:
 
 distclean:	clean
 	rm -f config.status
+	rm -f src/Makefile doc/Makefile

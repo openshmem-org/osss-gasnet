@@ -51,8 +51,6 @@ done
 echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 
-echo "$progname: wrote $MI settings"
-
 DIRS=". doc src"
 
 for d in $DIRS
@@ -64,8 +62,10 @@ do
   echo "$progname: created $mf"
 done
 
-cat > config.status <<_EOT_
+cs=config.status
+cat > $cs <<_EOT_
 #!/bin/sh
 $0 $@
 _EOT_
-chmod +x config.status
+chmod +x $cs
+echo "$progname: wrote $cs"
