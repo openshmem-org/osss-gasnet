@@ -22,7 +22,7 @@ static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 static
 __warn_table_t warnings[] =
   {
-    INIT_LEVEL(FATAL,  1),
+    INIT_LEVEL(FATAL,      1),
 
     INIT_LEVEL(DEBUG,  	   0),
     INIT_LEVEL(INFO,   	   0),
@@ -110,7 +110,7 @@ __shmem_warnings_init(void)
  * big enough?  I reckon so, we're not writing a novel...
  *
  * TODO: alternatively, can loop on increasing buffer size on
- * overflow...better way to do it
+ * overflow...better way to do it?  Or is it worth it?
  *
  */
 
@@ -124,23 +124,23 @@ __shmem_warn(shmem_warn_t msg_type, char *fmt, ...)
   }
 
   {
-    char *prefix_fmt = "SHMEM(PE %d): %s: ";
     char tmp1[BUF_SIZE];
     char tmp2[BUF_SIZE];
     va_list ap;
   
-    strncpy(tmp1, prefix_fmt, BUF_SIZE);
-  
-    snprintf(tmp2, BUF_SIZE, tmp1, __state.mype, __level_to_string(msg_type));
+    snprintf(tmp1, BUF_SIZE,
+	     "SHMEM(PE %d): %s: ",
+	     __state.mype, __level_to_string(msg_type)
+	     );
   
     va_start(ap, fmt);
-    vsnprintf(tmp1, BUF_SIZE, fmt, ap);
+    vsnprintf(tmp2, BUF_SIZE, fmt, ap);
     va_end(ap);
   
-    strncat(tmp2, tmp1, BUF_SIZE);
-    strncat(tmp2, "\n", BUF_SIZE);
+    strncat(tmp1, tmp2, BUF_SIZE);
+    strncat(tmp1, "\n", BUF_SIZE);
   
-    fputs(tmp2, stderr);
+    fputs(tmp1, stderr);
     fflush(stderr);		/* make sure this all goes out in 1 burst */
   }
 
