@@ -21,7 +21,6 @@ typedef enum {
 extern void __shmem_warnings_init(void);
 
 extern void __shmem_warn(shmem_warn_t msg_type, char *fmt, ...);
-
 extern int  __warn_is_enabled(shmem_warn_t level);
 
 #endif /* _WARN_H */
