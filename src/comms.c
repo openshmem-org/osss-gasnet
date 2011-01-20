@@ -662,7 +662,9 @@ void
 __symmetric_memory_finalize(void)
 {
   __mem_finalize();
+#if ! defined(HAVE_MANAGED_SEGMENTS)
   free(great_big_heap);
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -714,7 +716,7 @@ __symmetric_var_offset(void *dest, int pe)
 }
 
 /*
- * -- swap handlers --
+ * -- swap handlers ---------------------------------------------------------
  */
 static gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
@@ -727,8 +729,8 @@ static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
 } swap_payload_t;
@@ -773,7 +775,7 @@ handler_swap_bak(gasnet_token_t token,
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& swap_bak_lock);
 }
@@ -792,14 +794,14 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel);
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }
@@ -810,8 +812,8 @@ static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
   long long cond;		/* conditional value */
@@ -863,7 +865,7 @@ handler_cswap_bak(gasnet_token_t token,
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& cswap_bak_lock);
 }
@@ -885,14 +887,14 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   cp->nbytes = nbytes;
   cp->value = *(long long *) value;
   cp->cond = *(long long *) cond;
-  cp->sentinel = 0;
-  cp->sentinel_addr = &(cp->sentinel);
+  cp->completed = 0;
+  cp->completed_addr = &(cp->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
 			  cp, sizeof(*cp),
 			  0);
-  GASNET_BLOCKUNTIL(cp->sentinel);
+  GASNET_BLOCKUNTIL(cp->completed);
 
   free(cp);
 }
@@ -904,8 +906,8 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be added & then return old */
 } fadd_payload_t;
@@ -956,7 +958,7 @@ handler_fadd_bak(gasnet_token_t token,
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& fadd_bak_lock);
 }
@@ -975,14 +977,14 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel);
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }
@@ -994,8 +996,8 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } finc_payload_t;
@@ -1046,7 +1048,7 @@ handler_finc_bak(gasnet_token_t token,
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& finc_bak_lock);
 }
@@ -1064,14 +1066,14 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   p->local_store = retval;
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel);
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }
@@ -1082,8 +1084,8 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } add_payload_t;
@@ -1129,7 +1131,7 @@ handler_add_bak(gasnet_token_t token,
   gasnet_hsl_lock(& add_bak_lock);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& add_bak_lock);
 }
@@ -1147,14 +1149,14 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel);
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_ADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }
@@ -1165,8 +1167,8 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
 
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
-  int sentinel;			/* end of transaction marker */
-  int *sentinel_addr;	        /* addr of marker for copied payload */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
 } inc_payload_t;
 
@@ -1211,7 +1213,7 @@ handler_inc_bak(gasnet_token_t token,
   gasnet_hsl_lock(& inc_bak_lock);
 
   /* done it */
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& inc_bak_lock);
 }
@@ -1228,14 +1230,14 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
   /* build payload to send */
   p->r_symm_addr = __symmetric_var_offset(target, pe);
   p->nbytes = nbytes;
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel);
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_INC_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }
@@ -1269,13 +1271,12 @@ static gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
-  void *var_addr;		/* address of global var to be written to on remote PE */
-  long var_size;		/* size of data to be written (so we
-				   can allocate remotely) */
+  void *store_addr;		/* address of global var to be written to on remote PE */
   long offset;		        /* where we are in the write process */
-  void *data;			/* the actual data to be sent */
-  int sentinel;			/* completion marker */
-  int *sentinel_addr;		/* addr of symmetric completion marker */
+  long bytes_left;		/* how much data remains to be written */
+  void *send_data;		/* the actual data to be sent */
+  int completed;		/* completion marker */
+  int *completed_addr;		/* addr of completion marker */
 } globalvar_payload_t;
 
 
@@ -1296,7 +1297,7 @@ handler_globalvar_out(gasnet_token_t token,
   gasnet_hsl_unlock(& globalvar_out_lock);
 
   /* return the updated payload */
-  gasnet_AMReplyLong1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
 }
 
 static void
@@ -1308,7 +1309,7 @@ handler_globalvar_bak(gasnet_token_t token,
 
   gasnet_hsl_lock(& globalvar_bak_lock);
 
-  *(pp->sentinel_addr) = 1;
+  *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& globalvar_bak_lock);
 }
@@ -1324,14 +1325,14 @@ __comms_globalvar_translation(void *target, long value, int pe)
 		 );
   }
 
-  p->sentinel = 0;
-  p->sentinel_addr = &(p->sentinel); /* this one, not the copy */
+  p->completed = 0;
+  p->completed_addr = &(p->completed); /* this one, not the copy */
 
-  gasnet_AMRequestLong1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
-			p, sizeof(*p),
-			0);
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
+			  p, sizeof(*p),
+			  0);
 
-  GASNET_BLOCKUNTIL(p->sentinel);
+  GASNET_BLOCKUNTIL(p->completed);
 
   free(p);
 }

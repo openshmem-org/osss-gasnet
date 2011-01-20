@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ $# -lt 1 ]
+then
+  echo "Usage: $0 version-source-file"
+  exit 1
+fi
+
 svn update
 
 rev="`svn info | grep '^Revision:'`"

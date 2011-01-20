@@ -136,28 +136,26 @@ uninstall-include:
 $(DLMALLOC_OBJECT):
 	$(MAKE) -C $(DLMALLOC_DIR)
 
-$(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
-	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
-
 memalloc.o:	memalloc.c
 	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
 
 # -- end dlmalloc ------------------------------------------
+
+$(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
+	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
 
 # -- start GASNet ------------------------------------------
 # eventually, we'll migrate gasnet dependencies to a
 # separate transport directory
 #
 
-GASNET_SEGMENT_STYLE = everything
-
 #
 # GASNet installation root, and setup
 #
-GASNET           = $(HOME)/gasnet/$(GASNET_SEGMENT_STYLE)
+GASNET_ROOT      = @GASNET_ROOT@
 GASNET_CONDUIT   = @GASNET_CONDUIT@
 
-include $(GASNET)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
 comms.o:	comms.c
 	$(CC) \
