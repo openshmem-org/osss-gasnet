@@ -8,7 +8,7 @@ progname="`basename $0`"
 
 # -- defaults --
 prefix=/usr/local
-gasnet_root=usr/local
+gasnet_root=$prefix
 gasnet_conduit=mpi
 # -- end defaults --
 
@@ -53,6 +53,12 @@ do
   esac
 done
 
+if [ ! -r "$gasnet_root/include/gasnet.h" ]
+then
+  echo "$progname: can't find GASNet installation in \"$gasnet_root\""
+  exit 1
+fi
+
 echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
@@ -75,4 +81,4 @@ cat > $cs <<_EOT_
 $0 $@
 _EOT_
 chmod +x $cs
-echo "$progname: wrote $cs"
+echo "$progname: saved configuration in $cs"
