@@ -41,6 +41,7 @@ __warn_table_t warnings[] =
     INIT_LEVEL(BARRIER,    OFF),
     INIT_LEVEL(COLLECT,    OFF),
     INIT_LEVEL(REDUCE,     OFF),
+    INIT_LEVEL(SYMBOLS,    OFF),
   };
 static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
 

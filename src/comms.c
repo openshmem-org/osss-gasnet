@@ -487,23 +487,32 @@ addr_sort(globalvar_t *a, globalvar_t *b)
   return ( (char *) (a->addr) - (char *) (b->addr) );
 }
 
-void
-print_global_var_table(void)
+static void
+print_global_var_table(shmem_warn_t msgtype)
 {
   globalvar_t *g;
   globalvar_t *tmp;
 
-  printf("-- start hash table ------------------------------------------\n");
+  if (! __warn_is_enabled(msgtype)) {
+    return;
+  }
+
+  __shmem_warn(msgtype,
+	       "-- start hash table --"
+	       );
 
   HASH_SORT(gvp, addr_sort);
 
   HASH_ITER(hh, gvp, g, tmp) {
-    printf("address %p: name \"%s\", size %ld\n",
-	   g->addr, g->name, g->size
-	   );
+    __shmem_warn(msgtype,
+		 "address %p: name \"%s\", size %ld",
+		 g->addr, g->name, g->size
+		 );
   }
-  printf("-- end hash table --------------------------------------------\n");
-  printf("\n");
+
+  __shmem_warn(msgtype,
+	       "-- end hash table --"
+	       );
 }
 
 static void
@@ -515,6 +524,8 @@ __comms_globalvar_table_init(void)
 		 );
     /* NOT REACHED */
   }
+
+  print_global_var_table(SHMEM_LOG_SYMBOLS);
 }
 
 static void

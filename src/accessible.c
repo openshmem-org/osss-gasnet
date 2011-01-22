@@ -23,14 +23,18 @@ shmem_pe_accessible(int pe)
 int
 shmem_addr_accessible(void *addr, int pe)
 {
+  void *raddr = __symmetric_var_offset(addr, pe);
+
   /* explicitly managed? */
-  if (__symmetric_var_in_range(addr, pe)) {
+  if (__symmetric_var_in_range(raddr, pe)) {
     return 1;
   }
+
   /* global, visible symbol? */
   if (__comms_is_globalvar(addr)) {
     return 1;
   }
+
   /* otherwise, no */
   return 0;
 }

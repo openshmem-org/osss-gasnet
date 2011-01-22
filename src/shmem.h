@@ -187,8 +187,8 @@ extern void   shmem_quiet(void);
  * accessibility
  */
 
-extern int shmem_pe_accessible(int pe);
-extern int shmem_addr_accessible(void *addr, int pe);
+extern int shmem_pe_accessible(int pe) _WUR;
+extern int shmem_addr_accessible(void *addr, int pe) _WUR;
 
 /*
  * symmetric memory management
