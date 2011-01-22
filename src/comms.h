@@ -41,10 +41,12 @@ extern void * __comms_double_put_nb(double *target, double *source,
 				    size_t len, int pe);
 extern void * __comms_float_put_nb(float *target, float *source,
 				   size_t len, int pe);
-extern void __comms_wait_nb(void *h);
+extern void   __comms_wait_nb(void *h);
 
-extern void __comms_fence(void);
-extern void __comms_quiet(void);
+extern void   __comms_fence(void);
+extern void   __comms_quiet(void);
+
+extern int    __comms_is_globalvar(void *addr);
 
 extern void   __symmetric_memory_init(void);
 extern void   __symmetric_memory_finalize(void);

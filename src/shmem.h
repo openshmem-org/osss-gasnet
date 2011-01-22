@@ -184,6 +184,13 @@ extern void   shmem_fence(void);
 extern void   shmem_quiet(void);
 
 /*
+ * accessibility
+ */
+
+extern int shmem_pe_accessible(int pe);
+extern int shmem_addr_accessible(void *addr, int pe);
+
+/*
  * symmetric memory management
  */
 

@@ -23,7 +23,7 @@ show_usage()
   echo "Usage: $progname [options]"
   echo ""
   echo "    --prefix=PREFIX         Install to directory root PREFIX"
-  echo "    --gasnet-root=R         GASNet installed under directory \"R\""
+  echo "    --gasnet-root=G         GASNet installed under directory \"G\""
   echo "    --gasnet-conduit=C      Use GASNet conduit \"C\""
   echo ""
   echo "    --help                  Show this summary and exit"
@@ -68,7 +68,8 @@ DIRS=". doc src"
 for d in $DIRS
 do
   mf="$d/Makefile"
-  sed -e "s%@PREFIX@%$prefix%g" \
+  sed \
+      -e "s%@PREFIX@%$prefix%g" \
       -e "s%@GASNET_ROOT@%$gasnet_root%g" \
       -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
       < ${mf}.in > $mf

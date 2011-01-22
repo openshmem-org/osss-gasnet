@@ -17,20 +17,22 @@ shmem_pe_accessible(int pe)
 /*
  * only true if address can be accessed through SHMEM
  *
- * TODO: global (ELF check?)
- *
  */
 
 /* @api@ */
 int
 shmem_addr_accessible(void *addr, int pe)
 {
+  /* explicitly managed? */
   if (__symmetric_var_in_range(addr, pe)) {
     return 1;
   }
-
-  /* global check? */
-  return 1;
+  /* global, visible symbol? */
+  if (__comms_is_globalvar(addr)) {
+    return 1;
+  }
+  /* otherwise, no */
+  return 0;
 }
 
 

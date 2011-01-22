@@ -23,6 +23,11 @@
 
 #include "shmem.h"
 
+/*
+ * gasnet model choice
+ *
+ */
+
 #if defined(GASNET_SEGMENT_FAST) || defined(GASNET_SEGMENT_LARGE)
 #  define HAVE_MANAGED_SEGMENTS 1
 #elif defined(GASNET_SEGMENT_EVERYTHING)
@@ -30,7 +35,6 @@
 #else
 #  error "I don't know what kind of GASNet segment model you're trying to use"
 #endif
-
 
 static gasnet_seginfo_t *seginfo_table;
 
@@ -301,7 +305,6 @@ __comms_barrier_all(void)
   __comms_fence();
 }
 
-
 void
 __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
@@ -333,6 +336,202 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
   __comms_fence();
 }
 
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * handling lookups of global variables
+ */
+
+/*
+ * map of global symbols
+ *
+ */
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <libelf.h>
+#include <gelf.h>
+#include "uthash.h"
+
+typedef struct {
+  void *addr;                   /* symbol's address is the key */
+  char *name;                   /* name of symbol (for debugging) */
+  size_t size;                  /* bytes to represent symbol */
+  UT_hash_handle hh;            /* structure is hashable */
+} globalvar_t;
+
+static globalvar_t *gvp = NULL; /* our hash table */
+
+static int
+table_init_helper(void)
+{
+  Elf *e;
+  GElf_Ehdr ehdr;
+  char *shstr_name;
+  size_t shstrndx;
+  Elf_Scn *scn;
+  GElf_Shdr shdr;
+  Elf_Data *data;
+  int fd;
+  int ret = -1;
+
+  fd = open("/proc/self/exe", O_RDONLY, 0);
+  if (fd < 0) {
+    return ret;
+  }
+
+  /* unrecognized format */
+  if (elf_version(EV_CURRENT) == EV_NONE) {
+    return ret;
+  }
+
+  /* get the ELF object */
+  e = elf_begin(fd, ELF_C_READ, NULL);
+  if (e == NULL) {
+    goto bail;
+  }
+
+  /* do some sanity checks */
+  if (elf_kind(e) != ELF_K_ELF) {
+    goto bail;
+  }
+  if (gelf_getehdr(e, &ehdr) == NULL) {
+    goto bail;
+  }
+  if (gelf_getclass(e) == ELFCLASSNONE) {
+    goto bail;
+  }
+  if (elf_getshstrndx(e, &shstrndx) != 0) {
+    goto bail;
+  }
+
+  /* walk sections, look for symbol table */
+  scn = NULL;
+
+  while ((scn = elf_nextscn(e, scn)) != NULL) {
+
+    if (gelf_getshdr(scn, &shdr) != &shdr) {
+      goto bail;
+    }
+    if ((shstr_name = elf_strptr(e, shstrndx, shdr.sh_name)) == NULL) {
+      goto bail;
+    }
+
+    if (shdr.sh_type != SHT_SYMTAB) {
+      continue;
+    }
+
+    /* found valid-looking symbol table */
+    data = NULL;
+    while ((data = elf_getdata(scn, data)) != NULL) {
+      GElf_Sym *es;
+      GElf_Sym *last_es;
+
+      es = (GElf_Sym *) data->d_buf;
+      if (es == NULL) {
+	continue;
+      }
+
+      last_es = (GElf_Sym *) ((char *) data->d_buf + data->d_size);
+
+      for (; es < last_es; es += 1) {
+	char *name;
+
+	/* need visible global object with some kind of content */
+	if (es->st_value == 0 || es->st_size == 0) {
+	  continue;
+	}
+	if (GELF_ST_BIND(es->st_info) != STB_GLOBAL &&
+	    GELF_ST_TYPE(es->st_info) != STT_OBJECT &&
+	    GELF_ST_VISIBILITY(es->st_info) != STV_DEFAULT) {
+	  continue;
+	}
+	name = elf_strptr(e, shdr.sh_link, (size_t) es->st_name);
+	if (name == NULL || *name == '\0') {
+	  continue;
+	}
+	{
+	  globalvar_t *gv = (globalvar_t *) malloc(sizeof(*gv));
+	  if (gv == NULL) {
+	    goto bail;
+	  }
+	  gv->addr = (void *) es->st_value;
+	  gv->size = es->st_size;
+	  gv->name = strdup(name);
+	  HASH_ADD_PTR(gvp, addr, gv);
+	}
+      }
+    }
+  }
+  /* pulled out all the global symbols => success */
+  ret = 0;
+
+ bail:
+
+  /* let's be relaxed about whether these succeed */
+  elf_end(e);
+  close(fd);
+
+  return ret;
+}
+
+/* ======================================================================== */
+
+static int
+addr_sort(globalvar_t *a, globalvar_t *b)
+{
+  return ( (char *) (a->addr) - (char *) (b->addr) );
+}
+
+void
+print_global_var_table(void)
+{
+  globalvar_t *g;
+  globalvar_t *tmp;
+
+  printf("-- start hash table ------------------------------------------\n");
+
+  HASH_SORT(gvp, addr_sort);
+
+  HASH_ITER(hh, gvp, g, tmp) {
+    printf("address %p: name \"%s\", size %ld\n",
+	   g->addr, g->name, g->size
+	   );
+  }
+  printf("-- end hash table --------------------------------------------\n");
+  printf("\n");
+}
+
+static void
+__comms_globalvar_table_init(void)
+{
+  if (table_init_helper() != 0) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "internal error: could'nt read global symbols in executable"
+		 );
+    /* NOT REACHED */
+  }
+}
+
+static void
+__comms_globalvar_table_finalize(void)
+{
+  /* could free hash table here */
+}
+
+int
+__comms_is_globalvar(void *addr)
+{
+  globalvar_t *gp;
+
+  HASH_FIND_PTR(gvp, &addr, gp);
+
+  return (gp != NULL);
+}
 
 /*
  * ---------------------------------------------------------------------------
@@ -466,6 +665,8 @@ __comms_init(void)
 	      );
 
   __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
+
+  __comms_globalvar_table_init();
 
   /*
    * make sure all nodes are up to speed before "declaring"
