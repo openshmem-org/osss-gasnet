@@ -5,6 +5,11 @@ PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
 
+HASH_DIR     = ./uthash
+HASH_CFLAGS  = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
 DLMALLOC_DIR     = ./dlmalloc
 DLMALLOC_CFLAGS  = -I$(DLMALLOC_DIR)
 DLMALLOC_OBJECT  = $(DLMALLOC_DIR)/dlmalloc.o
@@ -72,6 +77,8 @@ SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
 SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_INC_DIR    = $(PREFIX)/include
 SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+
+LIBS             = -lelf
 
 SHMEM_WRAPPER    = osh-compiler.in
 SHMEM_CC         = oshcc
@@ -142,7 +149,7 @@ memalloc.o:	memalloc.c
 # -- end dlmalloc ------------------------------------------
 
 $(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
-	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^
+	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^ $(LIBS)
 
 # -- start GASNet ------------------------------------------
 # eventually, we'll migrate gasnet dependencies to a
@@ -161,6 +168,7 @@ comms.o:	comms.c
 	$(CC) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
+		$(HASH_CFLAGS) \
 		$(COMMON_FLAGS) -c -o $@ $<
 
 # -- end GASNet --------------------------------------------
