@@ -1,3 +1,5 @@
+# Emacs: -*- mode: text; mode: auto-fill; -*-
+
 The SHMEM development area is split up as follows:
 
     SHMEM
@@ -50,7 +52,11 @@ When you GASNet-attach and ask for segment information, each PE has
 access to an array of segments, 1 segment per PE.  Each PE initializes
 a memory pool within its own segment.  The set up is handled either by
 GASNet internally ("fast"/"large" model) or by SHMEM ("everything"
-model).
+model).  Future work could look at scalability issues in this segment
+exchange: clearly, large SHMEM programs are going to storm the network
+with segment information and that could make initialization a heavy
+operation.  One thought is the use of lazy/on-demand exchange or
+directory-based lookups.
 
 If the platform allows it, GASNet can align all the segments at the
 same address, which means that all PEs see the same address for
@@ -73,8 +79,19 @@ test against).
 Starting SHMEM:
 
 We provide both the SGI start_pes(int n) and shmem_init(void)
-interfaces.  The parameter to start_pes is completely ignored
-(consistent with SGI behavior).
+interfaces.  The parameter to start_pes isn't used but should be set
+to zero (consistent with SGI behavior).  An informational message is
+issued if it's non-zero (but we continue execution).
+
+-------------------------------------------------------------------------
+
+API Header File:
+
+src/shmem.h (and .fh) are the public APIs and installed into the
+target include directory.  Currently written by hand, should probably
+be generated from per-module headers, e.g. by marking API symbols as
+"public" or similar.  Have set up both <shmem.h> and <mpp/shmem.h> so
+that we're both SGI-conformant and friendly to other SHMEM versions.
 
 -------------------------------------------------------------------------
 
@@ -86,8 +103,8 @@ Using the dlmalloc library:
 
 Seems to have fixed up all the bizarre problems I was seeing with the
 TLSF library (used in the SiCortex implementation).  I think (from
-valgrind analysis) the issues were related to OpenMPI intercepting
-malloc-related calls.
+valgrind analysis and local discussions) the issues were related to
+Open MPI intercepting malloc-related calls.
 
 -------------------------------------------------------------------------
 
@@ -120,7 +137,7 @@ Barrier:
 
 src/barrier.c and src/comms.c have a simple implementation of
 shmem_barrier().  In the future, expect to include more scalable
-versions (e.g. tree-based), and potentially allow runtime (or
+versions (e.g. tree-based), and potentially allow runtime (and/or
 launchtime) choice of algorithm.
 
 -------------------------------------------------------------------------
@@ -170,16 +187,6 @@ different type/operator combinations.
 
 -------------------------------------------------------------------------
 
-API Header File:
-
-src/shmem.h (and .fh) are the public APIs and installed into the
-target include directory.  Currently written by hand, should probably
-be generated from per-module headers, e.g. by marking API symbols as
-"public" or similar.  Have set up both <shmem.h> and <mpp/shmem.h> so
-that we're both SGI-conformant and friendly to other SHMEM versions.
-
--------------------------------------------------------------------------
-
 Swaps/Atomics:
 
 Done with Active Messages.  Locks in the implementation (e.g. GASNet)
@@ -198,3 +205,15 @@ optimize the individual payloads and handlers.
 Similarly, add and increment (without the fetch of the old value) sat
 on top of fadd and finc, and just threw away the returned value.  Now
 they have handlers of their own that don't bother with a return value.
+
+-------------------------------------------------------------------------
+
+Accessibility
+
+Have now included parsing of the ELF symbol table.  We build a hash
+table of global symbols at init, throwing away ones that don't look
+promising (e.g. hidden/empty ones).  Then accessibility checks are
+done with hash lookups.  Using the "uthash" library (BSD license).
+
+Of course, I'm assuming the target architecture uses ELF.  Other
+formats could be added later (e.g. ECOFF).
