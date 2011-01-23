@@ -386,7 +386,7 @@ table_init_helper(void)
 
   /* unrecognized format */
   if (elf_version(EV_CURRENT) == EV_NONE) {
-    return ret;
+    goto bail;
   }
 
   /* get the ELF object */
