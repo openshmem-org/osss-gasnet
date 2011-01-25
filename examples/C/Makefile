@@ -1,4 +1,5 @@
 SHMEM_CC = oshcc
+SHMEM_CFLAGS = -ggdb -O3
 
 TESTS = $(wildcard *.c)
 
@@ -11,7 +12,7 @@ all default:	$(EXES)
 .SUFFIXES: .x
 
 %.x:	%.c
-	$(SHMEM_CC) -g -o $@ $^
+	$(SHMEM_CC) $(SHMEM_CFLAGS) -o $@ $^
 
 clean:
 	rm -f $(EXES)
