@@ -65,8 +65,6 @@ int main(int argc,char *argv[])
 
   shmem_double_sum_to_all(&pi, &mypi, 1, 0, 0, numprocs, pWrk, pSync);
 
-  shmem_barrier_all();
-
   if (myid == 0) {
     time(&endwtime);
     printf("pi is approximately %.16f, Error is %.16f\n",
