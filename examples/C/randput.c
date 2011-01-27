@@ -28,16 +28,18 @@ main(int argc, char **argv)
   src = rand() % 1000;
 
   dest = (long *)shmalloc(sizeof(*dest));
+  *dest = -1;
+  shmem_barrier_all();
 
   if (me == 0) {
     int other_pe = rand() % npes;
-    printf("Random destination PE is %d, sending value %ld\n", other_pe, src);
+    printf("%d: -> %d, sending value %ld\n", me, other_pe, src);
     shmem_long_put(dest, &src, 1, other_pe);
   }
 
   shmem_barrier_all();
 
-  printf("%d @ %s: %ld\n", me, shmem_nodename(), *dest);
+  printf("Result: %d @ %s: %ld\n", me, shmem_nodename(), *dest);
 
   return 0;
 }
