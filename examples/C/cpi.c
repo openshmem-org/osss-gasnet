@@ -9,6 +9,7 @@
 
 #include <mpp/shmem.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <stdio.h>
 #include <math.h>
@@ -23,6 +24,7 @@ double f(double a)
 int n;
 
 long pSync[SHMEM_BCAST_SYNC_SIZE];
+int sync_size = sizeof(pSync) / sizeof(pSync[0]);
 
 double mypi, pi;
 double pWrk[SHMEM_REDUCE_SYNC_SIZE];
@@ -31,7 +33,7 @@ int main(int argc,char *argv[])
 {
   int    myid, numprocs, i;
   double h, sum, x;
-  double startwtime = 0.0, endwtime;
+  struct timeval startwtime, endwtime;
 
   start_pes(0);
   numprocs = _num_pes();
@@ -43,9 +45,10 @@ int main(int argc,char *argv[])
     n = 10000;			/* default # of rectangles */
 
   if (myid == 0)
-    time(&startwtime);
+    gettimeofday(&startwtime, NULL);
 
-  shmem_sync_init(pSync);
+  for (i = 0; i < sync_size; i += 1)
+    pSync[i] = SHMEM_SYNC_VALUE;
 
   shmem_barrier_all();
 
@@ -66,10 +69,13 @@ int main(int argc,char *argv[])
   shmem_double_sum_to_all(&pi, &mypi, 1, 0, 0, numprocs, pWrk, pSync);
 
   if (myid == 0) {
-    time(&endwtime);
+    double elapsed;
+    gettimeofday(&endwtime, NULL);
+    elapsed = (endwtime.tv_sec - startwtime.tv_sec) * 1000.0;      // sec to ms
+    elapsed += (endwtime.tv_usec - startwtime.tv_usec) / 1000.0;   // us to ms
     printf("pi is approximately %.16f, Error is %.16f\n",
 	   pi, fabs(pi - PI25DT));
-    printf("wall clock time = %f\n", endwtime-startwtime);	       
+    printf("run time = %f ms\n", elapsed);	       
     fflush(stdout);
   }
 
