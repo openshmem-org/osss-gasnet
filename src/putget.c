@@ -24,7 +24,14 @@
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      void *rdest = __symmetric_var_offset(dest, pe);			\
+      void *rdest = __symmetric_addr_lookup(dest, pe);			\
+      if (rdest == NULL) {						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
+		     "attempted symmetric use of non-symmetric address %p", \
+		     dest						\
+		     );							\
+	/* NOT REACHED */						\
+      }									\
       __comms_put(rdest, (Type *) src, typed_len, pe);			\
     }									\
   }
@@ -68,7 +75,7 @@ SHMEM_TYPE_PUT(float, float)
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      void *their_src = __symmetric_var_offset((Type *) src, pe);	\
+      void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
       __comms_get(dest, their_src, typed_len, pe);			\
     }									\
   }
@@ -129,7 +136,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       *dest = value;							\
     }									\
     else {								\
-      void *rdest = __symmetric_var_offset(dest, pe);			\
+      void *rdest = __symmetric_addr_lookup(dest, pe);			\
       __comms_put_val(rdest, value, sizeof(Type), pe);			\
     }									\
   }
@@ -173,7 +180,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       retval = *src;							\
     }									\
     else {								\
-      void *their_src = __symmetric_var_offset(src, pe);		\
+      void *their_src = __symmetric_addr_lookup(src, pe);		\
       retval = (Type) __comms_get_val(their_src, sizeof(retval), pe);	\
     }									\
     return retval;							\

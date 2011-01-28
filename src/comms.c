@@ -4,13 +4,13 @@
  * non-static that starts with "__comms_"
  */
 
-#include <assert.h>
-
+#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/mman.h>
 #include <stdlib.h>
+#include <values.h>
 
 #include "gasnet_safe.h"
 
@@ -366,6 +366,9 @@ typedef struct {
 
 static globalvar_t *gvp = NULL; /* our hash table */
 
+static size_t bss_start;
+static size_t bss_end;
+
 static int
 table_init_helper(void)
 {
@@ -419,6 +422,19 @@ table_init_helper(void)
     }
     if ((shstr_name = elf_strptr(e, shstrndx, shdr.sh_name)) == NULL) {
       goto bail;
+    }
+
+    if (shdr.sh_type == SHT_NOBITS &&
+	strcmp(shstr_name, ".bss") == 0) {
+
+      bss_start = shdr.sh_addr;
+      bss_end = bss_start + shdr.sh_size;
+
+      __shmem_warn(SHMEM_LOG_SYMBOLS,
+		   "BSS = 0x%lX -> 0x%lX",
+		   bss_start, bss_end
+		   );
+      continue;
     }
 
     if (shdr.sh_type != SHT_SYMTAB) {
@@ -534,6 +550,7 @@ __comms_globalvar_table_finalize(void)
   /* could free hash table here */
 }
 
+#if 0
 int
 __comms_is_globalvar(void *addr)
 {
@@ -542,6 +559,15 @@ __comms_is_globalvar(void *addr)
   HASH_FIND_PTR(gvp, &addr, gp);
 
   return (gp != NULL);
+}
+#endif
+
+int
+__comms_is_globalvar(void *addr)
+{
+  size_t a = (size_t) addr;
+
+  return (bss_start <= a) && (a <= bss_end);
 }
 
 /*
@@ -913,10 +939,18 @@ __symmetric_var_in_range(void *addr, int pe)
  * translate my "dest" to corresponding address on PE "pe"
  */
 void *
-__symmetric_var_offset(void *dest, int pe)
+__symmetric_addr_lookup(void *dest, int pe)
 {
   size_t offset;
   char *rdest;
+
+  if (dest == NULL) {
+    return NULL;
+  }
+
+  if (__comms_is_globalvar(dest)) {
+    return dest;
+  }
 
   offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
   rdest = (char *) __symmetric_var_base(pe) + offset;
@@ -925,11 +959,7 @@ __symmetric_var_offset(void *dest, int pe)
     return (void *) rdest;
   }
 
-  /*
-   * TODO: can't just check dest in global symbols, because array
-   * offsets won't show up properly (a, yes; a[1], no)
-  */
-  return dest;
+  return NULL;
 }
 
 /*
@@ -938,9 +968,9 @@ __symmetric_var_offset(void *dest, int pe)
  */
 
 int
-__comms_var_accessible(void *addr, int pe)
+__comms_addr_accessible(void *addr, int pe)
 {
-  return (__symmetric_var_offset(addr, pe) != NULL);
+  return (__symmetric_addr_lookup(addr, pe) != NULL);
 }
 
 /*
@@ -1019,7 +1049,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1111,7 +1141,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   }
   /* build payload to send */
   cp->local_store = retval;
-  cp->r_symm_addr = __symmetric_var_offset(target, pe);
+  cp->r_symm_addr = __symmetric_addr_lookup(target, pe);
   cp->nbytes = nbytes;
   cp->value = *(long long *) value;
   cp->cond = *(long long *) cond;
@@ -1202,7 +1232,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1292,7 +1322,7 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
@@ -1374,7 +1404,7 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
 		 );
   }
   /* build payload to send */
-  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1456,7 +1486,7 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
 		 );
   }
   /* build payload to send */
-  p->r_symm_addr = __symmetric_var_offset(target, pe);
+  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);

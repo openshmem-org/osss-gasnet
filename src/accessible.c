@@ -23,7 +23,7 @@ shmem_pe_accessible(int pe)
 int
 shmem_addr_accessible(void *addr, int pe)
 {
-  return __comms_var_accessible(addr, pe);
+  return __comms_addr_accessible(addr, pe);
 }
 
 

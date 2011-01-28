@@ -52,9 +52,9 @@ extern void   __symmetric_memory_init(void);
 extern void   __symmetric_memory_finalize(void);
 extern void * __symmetric_var_base(int pe);
 extern int    __symmetric_var_in_range(void *addr, int pe);
-extern void * __symmetric_var_offset(void *dest, int pe);
+extern void * __symmetric_addr_lookup(void *dest, int pe);
 
-extern int    __comms_var_accessible(void *addr, int pe);
+extern int    __comms_addr_accessible(void *addr, int pe);
 
 extern void __comms_barrier_all(void);
 extern void __comms_barrier(int PE_start, int logPE_stride,
