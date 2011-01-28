@@ -21,6 +21,9 @@ double f(double a)
   return (4.0 / (1.0 + a*a));
 }
 
+/*
+ * these all need to be symmetric as shmem targets
+ */
 int n;
 
 long pSync[SHMEM_BCAST_SYNC_SIZE];
@@ -28,6 +31,10 @@ int sync_size = sizeof(pSync) / sizeof(pSync[0]);
 
 double mypi, pi;
 double pWrk[SHMEM_REDUCE_SYNC_SIZE];
+
+/*
+ *
+ */
 
 int main(int argc,char *argv[])
 {
@@ -39,21 +46,24 @@ int main(int argc,char *argv[])
   numprocs = _num_pes();
   myid = _my_pe();
 
-  if (argc > 1)
-    n = atoi(argv[1]);		/* # rectangles on command line */
-  else
-    n = 10000;			/* default # of rectangles */
+  if (myid == 0) {
+    if (argc > 1)
+      n = atoi(argv[1]);		/* # rectangles on command line */
+    else
+      n = 10000;			/* default # of rectangles */
 
-  if (myid == 0)
     gettimeofday(&startwtime, NULL);
+  }
 
+  /* initialize sync array */
   for (i = 0; i < sync_size; i += 1)
     pSync[i] = SHMEM_SYNC_VALUE;
-
   shmem_barrier_all();
 
+  /* send "n" out to everyone */
   shmem_broadcast32(&n, &n, 1, 0, 0, 0, numprocs, pSync);
 
+  /* do partial computation */
   h   = 1.0 / (double) n;
   sum = 0.0;
   /* A slightly better approach starts from large i and works back */
@@ -64,10 +74,13 @@ int main(int argc,char *argv[])
     }
   mypi = h * sum;
 
+  /* wait for everyone to finish */
   shmem_barrier_all();
 
+  /* add up partial pi computations into PI */
   shmem_double_sum_to_all(&pi, &mypi, 1, 0, 0, numprocs, pWrk, pSync);
 
+  /* "master" PE summarizes */
   if (myid == 0) {
     double elapsed;
     gettimeofday(&endwtime, NULL);
