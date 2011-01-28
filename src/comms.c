@@ -915,16 +915,32 @@ __symmetric_var_in_range(void *addr, int pe)
 void *
 __symmetric_var_offset(void *dest, int pe)
 {
-  size_t offset = (size_t) dest - (size_t) __symmetric_var_base(__state.mype);
-  char *rdest = (char *) __symmetric_var_base(pe) + offset;
+  size_t offset;
+  char *rdest;
+
+  offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
+  rdest = (char *) __symmetric_var_base(pe) + offset;
 
   if (__symmetric_var_in_range(rdest, pe)) {
     return (void *) rdest;
   }
-  else {
-    /* TODO: assume remotely accessible global for now, but should ELF check */
-    return dest;
-  }
+
+  /*
+   * TODO: can't just check dest in global symbols, because array
+   * offsets won't show up properly (a, yes; a[1], no)
+  */
+  return dest;
+}
+
+/*
+ * check that the address is accessible to shmem on that PE
+ *
+ */
+
+int
+__comms_var_accessible(void *addr, int pe)
+{
+  return (__symmetric_var_offset(addr, pe) != NULL);
 }
 
 /*

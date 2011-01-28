@@ -150,10 +150,12 @@ SHMEM_TYPE_P(long, long)
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
   /* @api@ */								\
-  void									\
-  shmem_##Name##_g(Type *dest, Type value, int pe)			\
+  Type									\
+  shmem_##Name##_g(Type *dest, int pe)					\
   {									\
-    shmem_##Name##_get(dest, &value, sizeof(value), pe);		\
+    Type retval;							\
+    shmem_##Name##_get(dest, &retval, sizeof(retval), pe);		\
+    return retval;							\
   }
 
 SHMEM_TYPE_G_WRAPPER(float, float)
