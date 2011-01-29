@@ -7,8 +7,6 @@
  *      See COPYRIGHT in top-level directory (of MPICH distribution).
  */
 
-static volatile int looping = 0;
-
 #include <mpp/shmem.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -56,8 +54,6 @@ int main(int argc,char *argv[])
 
     gettimeofday(&startwtime, NULL);
   }
-
-while (looping);
 
   /* initialize sync array */
   for (i = 0; i < sync_size; i += 1)

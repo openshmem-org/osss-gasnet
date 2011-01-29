@@ -42,8 +42,11 @@ void
 shmem_sync_init(long *pSync)
 {
   const int nb = _SHMEM_BCAST_SYNC_SIZE * sizeof(*pSync);
+  int i;
 
-  memset(pSync, _SHMEM_SYNC_VALUE, nb);
+  for (i = 0; i < nb; i += 1) {
+    pSync[i] = _SHMEM_SYNC_VALUE;
+  }
   shmem_barrier_all();
 }
 
