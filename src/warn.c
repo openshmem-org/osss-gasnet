@@ -68,8 +68,20 @@ __warn_enable_text(char *warning)
   return 0;
 }
 
+static void
+__warn_enable_all(void)
+{
+  int i;
+  __warn_table_t *t = warnings;
+
+  for (i = 0; i < n_warnings; i += 1) {
+    t->state = ON;
+    t += 1;
+  }
+}
+
 /*
- * translate the messag level to text description
+ * translate the message level to text description
  *
  */
 
@@ -149,13 +161,19 @@ __shmem_warnings_init(void)
     char *opt = strtok(shll, delims);
 
     while (opt != (char *) NULL) {
+      if (strcasecmp(opt, "all") == 0) {
+	__warn_enable_all();
+	goto bail;
+	/* NOT REACHED */
+      }
       (void) __warn_enable_text(opt);
       opt = strtok((char *) NULL, delims);
     }
   }
 
-  logging_filestream_init();
+ bail:
 
+  logging_filestream_init();
 }
 
 /*

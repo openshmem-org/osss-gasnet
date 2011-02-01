@@ -367,7 +367,7 @@ typedef struct {
 static globalvar_t *gvp = NULL; /* our hash table */
 
 static size_t bss_start;
-static size_t bss_end;
+static size_t bss_end;		/* area storing global variables */
 
 static int
 table_init_helper(void)
@@ -431,9 +431,10 @@ table_init_helper(void)
       bss_end = bss_start + shdr.sh_size;
 
       __shmem_warn(SHMEM_LOG_SYMBOLS,
-		   "BSS = 0x%lX -> 0x%lX",
+		   "ELF section .bss for global variables = 0x%lX -> 0x%lX",
 		   bss_start, bss_end
 		   );
+
       continue;
     }
 
@@ -541,7 +542,7 @@ __comms_globalvar_table_init(void)
     /* NOT REACHED */
   }
 
-  print_global_var_table(SHMEM_LOG_SYMBOLS);
+  /* print_global_var_table(SHMEM_LOG_SYMBOLS); */
 }
 
 static void
