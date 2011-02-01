@@ -27,7 +27,7 @@
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
       if (rdest == NULL) {						\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_put: attempted symmetric use of non-symmetric address %p", \
+		     "shmem_%s_put: address at %p is not symmetric", \
 		     #Name,						\
 		     dest						\
 		     );							\
@@ -79,7 +79,7 @@ SHMEM_TYPE_PUT(float, float)
       void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
       if (their_src == NULL) {						\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_get: attempted symmetric use of non-symmetric address %p", \
+		     "shmem_%s_get: address at %p is not symmetric", \
 		     #Name,						\
 		     src						\
 		     );							\
@@ -148,7 +148,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
       if (rdest == NULL) {						\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_p: attempted symmetric use of non-symmetric address %p", \
+		     "shmem_%s_p: address at %p is not symmetric", \
 		     #Name,						\
 		     dest						\
 		     );							\
@@ -200,7 +200,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       void *their_src = __symmetric_addr_lookup(src, pe);		\
       if (their_src == NULL) {						\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_g: attempted symmetric use of non-symmetric address %p", \
+		     "shmem_%s_g: address at %p is not symmetric", \
 		     #Name,						\
 		     src						\
 		     );							\

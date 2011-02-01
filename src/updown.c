@@ -14,6 +14,12 @@
 
 /* ----------------------------------------------------------------- */
 
+/*
+ * shut down shmem, and then hand off to the comms layer to shut
+ * itself down
+ *
+ */
+
 void
 __shmem_exit(int status)
 {
@@ -29,6 +35,11 @@ __shmem_exit(int status)
   __comms_shutdown(status);
 }
 
+/*
+ * registered by start_pes() to trigger shut down at exit
+ *
+ */
+
 static void
 __shmem_exit_handler(void)
 {
@@ -37,6 +48,7 @@ __shmem_exit_handler(void)
 
 /*
  * find the short & (potentially) long host/node name
+ *
  */
 static void
 __shmem_place_init(void)
@@ -50,6 +62,11 @@ __shmem_place_init(void)
                 );
   }
 }
+
+/*
+ * this is where we get everything up and running
+ *
+ */
 
 /* @api@ */
 void
@@ -79,7 +96,7 @@ start_pes(int npes)
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_warn(SHMEM_LOG_FATAL,
-                 "cannot register shutdown handler"
+                 "internal error: cannot register shutdown handler"
                 );
     /* NOT REACHED */
   }
@@ -90,7 +107,7 @@ start_pes(int npes)
    */
   if (npes != 0) {
     __shmem_warn(SHMEM_LOG_INFO,
-		 "start_pes() has argument %d, should be 0",
+		 "start_pes() was passed %d, should be 0",
 		 npes
 		 );
   }
@@ -117,7 +134,17 @@ shmem_init(void)
   start_pes(0);
 }
 
+/*
+ * does nothing here (just for compatibility with other shmems)
+ */
+/* @api@ */
+void
+shmem_finalize(void)
+{
+}
+
 #ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_init = shmem_init
 #pragma weak pstart_pes = start_pes
+#pragma weak pshmem_init = shmem_init
+#pragma weak pshmem_finalize = shmem_finalize
 #endif /* HAVE_PSHMEM_SUPPORT */

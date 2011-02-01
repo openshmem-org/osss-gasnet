@@ -412,7 +412,7 @@ table_init_helper(void)
     goto bail;
   }
 
-  /* walk sections, look for symbol table */
+  /* walk sections, look for BSS and symbol table */
   scn = NULL;
 
   while ((scn = elf_nextscn(e, scn)) != NULL) {
@@ -424,6 +424,7 @@ table_init_helper(void)
       goto bail;
     }
 
+    /* found the .bss section */
     if (shdr.sh_type == SHT_NOBITS &&
 	strcmp(shstr_name, ".bss") == 0) {
 
@@ -438,6 +439,7 @@ table_init_helper(void)
       continue;
     }
 
+    /* keep looking until we find the symbol table */
     if (shdr.sh_type != SHT_SYMTAB) {
       continue;
     }

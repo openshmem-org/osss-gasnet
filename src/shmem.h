@@ -23,8 +23,9 @@
  * init & query
  */
 
-extern void   shmem_init(void);
 extern void   start_pes(int npes);
+extern void   shmem_init(void);
+extern void   shmem_finalize(void);
 
 extern int    shmem_my_pe(void) _WUR;
 extern int    my_pe(void) _WUR;
