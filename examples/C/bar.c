@@ -4,7 +4,7 @@
 
 #define NPES 4
 
-long pSync[NPES];
+long pSync[_SHMEM_BCAST_SYNC_SIZE];
 int x = 10101;
 
 int

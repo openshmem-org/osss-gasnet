@@ -101,6 +101,33 @@ __level_to_string(shmem_warn_t level)
   return "?";
 }
 
+/*
+ * spit out which message levels are active
+ *
+ * OK to use public API here since we're only called when initialized
+ *
+ */
+
+static void
+maybe_show_warn_levels(void)
+{
+  char buf[256];
+  char *p = buf;
+  int i;
+  __warn_table_t *t = warnings;
+
+  strcpy(p, "Enabled Messages: ");
+
+  for (i = 0; i < n_warnings; i += 1) {
+    strncat(p, t->text, strlen(t->text));
+    strncat(p, " ", 1);
+    t += 1;
+  }
+  __shmem_warn(SHMEM_LOG_INIT,
+	       p
+	       );
+}
+
 /* -- end of static -- */
 
 int
@@ -141,39 +168,42 @@ logging_filestream_init(void)
   }
 
   fp = fopen(shlf, "a");
-  if (fp == (FILE *) NULL) {
-    return;
+  if (fp != (FILE *) NULL) {
+    warn_log_stream = fp;
   }
-
-  warn_log_stream = fp;
 }
+
+/*
+ * parse any environment settings and set up logging output
+ *
+ */
 
 void
 __shmem_warnings_init(void)
 {
   char *shll = __comms_getenv(shmem_loglevels_envvar);
-  if (shll == (char *) NULL) {
-    return;
-  }
 
-  {
+  logging_filestream_init();
+
+  if (shll != (char *) NULL) {
+
     const char *delims = ",:;";
     char *opt = strtok(shll, delims);
 
     while (opt != (char *) NULL) {
       if (strcasecmp(opt, "all") == 0) {
 	__warn_enable_all();
-	goto bail;
+	break;
 	/* NOT REACHED */
       }
       (void) __warn_enable_text(opt);
       opt = strtok((char *) NULL, delims);
     }
+
   }
 
- bail:
-
-  logging_filestream_init();
+  maybe_show_warn_levels();
+    
 }
 
 /*
