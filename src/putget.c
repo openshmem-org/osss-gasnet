@@ -27,7 +27,8 @@
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
       if (rdest == NULL) {						\
 	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "attempted symmetric use of non-symmetric address %p", \
+		     "shmem_%s_put: attempted symmetric use of non-symmetric address %p", \
+		     #Name,						\
 		     dest						\
 		     );							\
 	/* NOT REACHED */						\
@@ -76,6 +77,14 @@ SHMEM_TYPE_PUT(float, float)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
+      if (their_src == NULL) {						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
+		     "shmem_%s_get: attempted symmetric use of non-symmetric address %p", \
+		     #Name,						\
+		     src						\
+		     );							\
+	/* NOT REACHED */						\
+      }									\
       __comms_get(dest, their_src, typed_len, pe);			\
     }									\
   }
@@ -137,6 +146,14 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
     }									\
     else {								\
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
+      if (rdest == NULL) {						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
+		     "shmem_%s_p: attempted symmetric use of non-symmetric address %p", \
+		     #Name,						\
+		     dest						\
+		     );							\
+	/* NOT REACHED */						\
+      }									\
       __comms_put_val(rdest, value, sizeof(Type), pe);			\
     }									\
   }
@@ -181,6 +198,14 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup(src, pe);		\
+      if (their_src == NULL) {						\
+	__shmem_warn(SHMEM_LOG_FATAL,					\
+		     "shmem_%s_g: attempted symmetric use of non-symmetric address %p", \
+		     #Name,						\
+		     src						\
+		     );							\
+	/* NOT REACHED */						\
+      }									\
       retval = (Type) __comms_get_val(their_src, sizeof(retval), pe);	\
     }									\
     return retval;							\
