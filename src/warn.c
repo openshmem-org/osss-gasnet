@@ -9,22 +9,22 @@
 #include "updown.h"
 #include "comms.h"
 
-typedef enum {
-  OFF=0,
-  ON,
-} __warn_state_t;
-
-typedef struct {
-  const shmem_warn_t level;
-  const char *text;
-  __warn_state_t state;
-} __warn_table_t;
-
-#define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
-
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 
 static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
+
+typedef enum {
+  OFF=0,
+  ON,
+} __warn_state_t;		/* warning states */
+
+typedef struct {
+  const shmem_warn_t level;	/* SHMEM_LOG_XXX symbol for logging */
+  const char *text;		/* human readable name */
+  __warn_state_t state;		/* off or on */
+} __warn_table_t;
+
+#define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
 static
 __warn_table_t warnings[] =
