@@ -82,6 +82,7 @@ LIBS             = -lelf
 
 SHMEM_WRAPPER    = osh-compiler.in
 SHMEM_CC         = oshcc
+SHMEM_CXX        = oshCC
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
 
@@ -90,7 +91,7 @@ REMOVE           = rm -f
 
 # ---------------------------------------------------------
 
-.PHONY: c-wrapper f-wrapper wrappers
+.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
@@ -108,7 +109,9 @@ install-lib:	all
 
 install-bin:	all
 	mkdir -p $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CC) $(SHMEM_FC) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
 install-include:	all
@@ -129,6 +132,7 @@ uninstall-lib:
 
 uninstall-bin:
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
 	- rmdir $(PREFIX)/bin
@@ -191,7 +195,7 @@ fortran-mem.o:	fortran-mem.c
 
 # ---------------------------------------------------------
 
-wrappers:	c-wrapper f-wrapper
+wrappers:	c-wrapper cxx-wrapper f-wrapper
 
 c-wrapper:
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
@@ -203,6 +207,18 @@ c-wrapper:
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		< $(SHMEM_WRAPPER) > $(SHMEM_CC)
+
+cxx-wrapper:
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpiCC%' \
+		< $(SHMEM_WRAPPER) > $(SHMEM_CXX)
 
 f-wrapper:
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
