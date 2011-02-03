@@ -41,7 +41,7 @@ SHMEM_BROADCAST_TYPE(64, long)
 void
 shmem_sync_init(long *pSync)
 {
-  const int nb = _SHMEM_BCAST_SYNC_SIZE * sizeof(*pSync);
+  const int nb = _SHMEM_BCAST_SYNC_SIZE;
   int i;
 
   for (i = 0; i < nb; i += 1) {

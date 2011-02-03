@@ -8,6 +8,21 @@
 #include "updown.h"
 #include "warn.h"
 
+static void
+symmetric_test_with_abort(void *remote_addr,
+			  void *local_addr,
+			  const char *name)
+{
+  if (remote_addr == NULL) {
+    __shmem_warn(SHMEM_LOG_FATAL,
+		 "shmem_%s_put: address at %p is not symmetric",
+		 name,
+		 local_addr
+		 );
+    /* NOT REACHED */
+  }
+}
+
 /*
  * short-circuit local puts/gets, otherwise translate between
  * local/remote addresses
@@ -25,14 +40,7 @@
     }									\
     else {								\
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
-      if (rdest == NULL) {						\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_put: address at %p is not symmetric", \
-		     #Name,						\
-		     dest						\
-		     );							\
-	/* NOT REACHED */						\
-      }									\
+      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name);	\
       __comms_put(rdest, (Type *) src, typed_len, pe);			\
     }									\
   }
@@ -77,14 +85,7 @@ SHMEM_TYPE_PUT(float, float)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
-      if (their_src == NULL) {						\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_get: address at %p is not symmetric", \
-		     #Name,						\
-		     src						\
-		     );							\
-	/* NOT REACHED */						\
-      }									\
+      symmetric_test_with_abort((void *) their_src, (void *) src, #Name); \
       __comms_get(dest, their_src, typed_len, pe);			\
     }									\
   }
@@ -146,14 +147,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
     }									\
     else {								\
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
-      if (rdest == NULL) {						\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_p: address at %p is not symmetric", \
-		     #Name,						\
-		     dest						\
-		     );							\
-	/* NOT REACHED */						\
-      }									\
+      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name);	\
       __comms_put_val(rdest, value, sizeof(Type), pe);			\
     }									\
   }
@@ -198,14 +192,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup(src, pe);		\
-      if (their_src == NULL) {						\
-	__shmem_warn(SHMEM_LOG_FATAL,					\
-		     "shmem_%s_g: address at %p is not symmetric", \
-		     #Name,						\
-		     src						\
-		     );							\
-	/* NOT REACHED */						\
-      }									\
+      symmetric_test_with_abort((void *) their_src, (void *) src, #Name); \
       retval = (Type) __comms_get_val(their_src, sizeof(retval), pe);	\
     }									\
     return retval;							\
