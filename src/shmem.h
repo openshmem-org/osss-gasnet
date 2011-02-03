@@ -1,6 +1,10 @@
 #ifndef _SHMEM_H
 #define _SHMEM_H 1
 
+#ifdef __cplusplus 
+extern "C" {
+#endif /* __cplusplus */
+
 #define SHMEM_VERSION 1.0
 
 #include <sys/types.h>
@@ -635,5 +639,8 @@ extern void shmem_set_lock(long *lock);
 extern void shmem_clear_lock(long *lock);
 extern int  shmem_test_lock(long *lock) _WUR;
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* _SHMEM_H */
