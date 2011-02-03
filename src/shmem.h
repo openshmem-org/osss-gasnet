@@ -1,14 +1,21 @@
 #ifndef _SHMEM_H
 #define _SHMEM_H 1
 
+#include <sys/types.h>
+
+#ifdef __cplusplus 
+# include <complex>
+# define COMPLEXIFY(T) complex<T>
+#else /* _cplusplus */
+# include <complex.h>
+# define COMPLEXIFY(T) T complex
+#endif /* __cplusplus */
+
 #ifdef __cplusplus 
 extern "C" {
 #endif /* __cplusplus */
 
 #define SHMEM_VERSION 1.0
-
-#include <sys/types.h>
-#include <complex.h>
 
 /*
  * not all compilers support this annotation
@@ -328,17 +335,17 @@ extern void         shmem_udcflush_line(void *target);
 #define _SHMEM_SYNC_VALUE SHMEM_SYNC_VALUE
 #define _SHMEM_REDUCE_SYNC_SIZE SHMEM_REDUCE_SYNC_SIZE
 
-extern void shmem_complexd_sum_to_all(double complex *target,
-				      double complex *source,
+extern void shmem_complexd_sum_to_all(COMPLEXIFY(double) *target,
+				      COMPLEXIFY(double) *source,
 				      int nreduce,
 				      int PE_start, int logPE_stride, int PE_size,
-				      double complex *pWrk,
+				      COMPLEXIFY(double) *pWrk,
 				      long *pSync);
-extern void shmem_complexf_sum_to_all(float complex *target,
-				      float complex *source,
+extern void shmem_complexf_sum_to_all(COMPLEXIFY(float) *target,
+				      COMPLEXIFY(float) *source,
 				      int nreduce,
 				      int PE_start, int logPE_stride, int PE_size,
-				      float complex *pWrk,
+				      COMPLEXIFY(float) *pWrk,
 				      long *pSync);
 extern void shmem_double_sum_to_all(double *target,
 				    double *source,
@@ -383,17 +390,17 @@ extern void shmem_short_sum_to_all(short *target,
 				   short *pWrk,
 				   long *pSync);
 
-extern void shmem_complexd_prod_to_all(double complex *target,
-				       double complex *source,
+extern void shmem_complexd_prod_to_all(COMPLEXIFY(double) *target,
+				       COMPLEXIFY(double) *source,
 				       int nreduce,
 				       int PE_start, int logPE_stride, int PE_size,
-				       double complex *pWrk,
+				       COMPLEXIFY(double) *pWrk,
 				       long *pSync);
-extern void shmem_complexf_prod_to_all(float complex *target,
-				       float complex *source,
+extern void shmem_complexf_prod_to_all(COMPLEXIFY(float) *target,
+				       COMPLEXIFY(float) *source,
 				       int nreduce,
 				       int PE_start, int logPE_stride, int PE_size,
-				       float complex *pWrk,
+				       COMPLEXIFY(float) *pWrk,
 				       long *pSync);
 extern void shmem_double_prod_to_all(double *target,
 				     double *source,
