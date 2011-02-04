@@ -23,8 +23,8 @@ show_usage()
   echo "Usage: $progname [options]"
   echo ""
   echo "    --prefix=PREFIX         Install to directory root PREFIX"
-  echo "    --gasnet-root=G         GASNet installed under directory \"G\""
-  echo "    --gasnet-conduit=C      Use GASNet conduit \"C\""
+  echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
+  echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
   echo ""
   echo "    --help                  Show this summary and exit"
   echo ""
@@ -36,11 +36,11 @@ do
     --prefix=*)
       prefix="`echo $o | sed 's/--prefix=//'`"
       ;;
-    --gasnet-root=*)
-      gasnet_root="`echo $o | sed 's/--gasnet-root=//'`"
+    --with-gasnet-root=*)
+      gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
       ;;
-    --gasnet-conduit=*)
-      gasnet_conduit="`echo $o | sed 's/--gasnet-conduit=//'`"
+    --with-gasnet-conduit=*)
+      gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
       ;;
     --help)
       show_usage
@@ -56,6 +56,7 @@ done
 if [ ! -r "$gasnet_root/include/gasnet.h" ]
 then
   echo "$progname: can't find GASNet installation in \"$gasnet_root\""
+  echo "$progname: (no gasnet.h header file)"
   exit 1
 fi
 
