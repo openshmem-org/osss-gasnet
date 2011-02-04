@@ -35,16 +35,16 @@ Configure Usage
 
 Here is how configure might be called on a cluster using Infiniband:
 
-    ./configure --prefix=$HOME/SHMEM     \
-                --gasnet-conduit=ibv     \
-                --gasnet_root=/usr
+    ./configure --prefix=$HOME/SHMEM          \
+                --with-gasnet-conduit=ibv     \
+                --with-gasnet_root=/usr
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
 
-    ./configure --prefix=$HOME/SHMEM     \
-                --gasnet-conduit=mpi     \
-                --gasnet_root=/usr
+    ./configure --prefix=$HOME/SHMEM          \
+                --with-gasnet-conduit=mpi     \
+                --with-gasnet_root=/usr
 
 
 Testing Environment
