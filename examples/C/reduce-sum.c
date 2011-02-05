@@ -12,7 +12,7 @@ int dst;
 int
 main()
 {
-  memset(pSync, _SHMEM_BCAST_SYNC_SIZE, 0);
+  memset(pSync, _SHMEM_BCAST_SYNC_SIZE, _SHMEM_SYNC_VALUE);
 
   start_pes(0);
 

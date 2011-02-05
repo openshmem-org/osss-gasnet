@@ -80,10 +80,11 @@ SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 LIBS             = -lelf
 
-SHMEM_WRAPPER    = osh-compiler.in
+COMP_WRAPPER     = osh-compiler.in
 SHMEM_CC         = oshcc
 SHMEM_CXX        = oshCC
 SHMEM_FC         = oshfort
+RUN_WRAPPER      = oshrun.in
 SHMEM_RUN        = oshrun
 
 INSTALL          = install -c
@@ -91,7 +92,7 @@ REMOVE           = rm -f
 
 # ---------------------------------------------------------
 
-.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper
+.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper run-wrapper
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
@@ -195,7 +196,7 @@ fortran-mem.o:	fortran-mem.c
 
 # ---------------------------------------------------------
 
-wrappers:	c-wrapper cxx-wrapper f-wrapper
+wrappers:	c-wrapper cxx-wrapper f-wrapper run-wrapper
 
 c-wrapper:
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
@@ -206,7 +207,7 @@ c-wrapper:
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
-		< $(SHMEM_WRAPPER) > $(SHMEM_CC)
+		< $(COMP_WRAPPER) > $(SHMEM_CC)
 
 cxx-wrapper:
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
@@ -218,7 +219,7 @@ cxx-wrapper:
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e 's%bin/mpicc%bin/mpiCC%' \
-		< $(SHMEM_WRAPPER) > $(SHMEM_CXX)
+		< $(COMP_WRAPPER) > $(SHMEM_CXX)
 
 f-wrapper:
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
@@ -230,7 +231,12 @@ f-wrapper:
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e 's%bin/mpicc%bin/mpif90%' \
-		< $(SHMEM_WRAPPER) > $(SHMEM_FC)
+		< $(COMP_WRAPPER) > $(SHMEM_FC)
+
+run-wrapper:
+	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpirun%' \
+		< $(RUN_WRAPPER) > $(SHMEM_RUN)
 
 # ---------------------------------------------------------
 
@@ -240,7 +246,7 @@ tidy:
 
 clean:	tidy
 	$(MAKE) -C $(DLMALLOC_DIR) $@
-	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_FC)
+	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_FC) $(SHMEM_RUN)
 	$(REMOVE) Makedeps
 
 do-deps: $(SHMEM_OBJECTS)
