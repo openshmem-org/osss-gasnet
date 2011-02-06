@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# generated from OpenSHMEM src directory, don't edit installed version
+#
+prog="`basename $0`"
+case $# in
+  0)
+    echo "Usage: $prog [MPI options] -np PEs program"
+    exit 1
+    ;;
+  *)
+    ;;
+esac
+
+RUN_IT='@GASNET_LD@'
+
+exec $RUN_IT $@
