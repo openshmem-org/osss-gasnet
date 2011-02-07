@@ -3,6 +3,11 @@
 
 #include <sys/types.h>
 
+/*
+ * C and C++ do complex numbers differently
+ *
+ */
+
 #ifdef __cplusplus 
 # include <complex>
 # define COMPLEXIFY(T) complex<T>

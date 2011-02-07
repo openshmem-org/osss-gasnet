@@ -11,12 +11,13 @@
 static void
 symmetric_test_with_abort(void *remote_addr,
 			  void *local_addr,
-			  const char *name)
+			  const char *name,
+			  const char *routine)
 {
   if (remote_addr == NULL) {
     __shmem_warn(SHMEM_LOG_FATAL,
-		 "shmem_%s_put: address at %p is not symmetric",
-		 name,
+		 "shmem_%s_%s: address at %p is not symmetric",
+		 name, routine,
 		 local_addr
 		 );
     /* NOT REACHED */
@@ -40,7 +41,7 @@ symmetric_test_with_abort(void *remote_addr,
     }									\
     else {								\
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
-      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name);	\
+      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "put");	\
       __comms_put(rdest, (Type *) src, typed_len, pe);			\
     }									\
   }
@@ -85,7 +86,7 @@ SHMEM_TYPE_PUT(float, float)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
-      symmetric_test_with_abort((void *) their_src, (void *) src, #Name); \
+      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "get"); \
       __comms_get(dest, their_src, typed_len, pe);			\
     }									\
   }
@@ -147,7 +148,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
     }									\
     else {								\
       void *rdest = __symmetric_addr_lookup(dest, pe);			\
-      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name);	\
+      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "p");	\
       __comms_put_val(rdest, value, sizeof(Type), pe);			\
     }									\
   }
@@ -192,7 +193,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
     }									\
     else {								\
       void *their_src = __symmetric_addr_lookup(src, pe);		\
-      symmetric_test_with_abort((void *) their_src, (void *) src, #Name); \
+      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "p"); \
       retval = (Type) __comms_get_val(their_src, sizeof(retval), pe);	\
     }									\
     return retval;							\
