@@ -3,13 +3,14 @@
 
 #include <mpp/shmem.h>
 
+long pSync[_SHMEM_BCAST_SYNC_SIZE];
+
 int
 main(void)
 {
   int i;
   long *target;
   long *source;
-  long *pSync;
   int me, npes;
 
   source = (long *) malloc( npes * sizeof(*source) );
@@ -40,7 +41,6 @@ main(void)
   shmem_barrier_all();
   
   shfree(target);
-  shfree(pSync);
   free(source);
 
   return 0;
