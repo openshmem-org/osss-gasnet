@@ -20,7 +20,7 @@
     size_t ti = 0, si = 0;						\
     size_t i;								\
     for (i = 0; i < nelems; i += 1) {					\
-      pshmem_##Name##_p(& (target[ti]), source[si], pe);			\
+      shmem_##Name##_p(& (target[ti]), source[si], pe);			\
       ti += tst;							\
       si += sst;							\
     }									\
