@@ -16,12 +16,10 @@ cat <<_EOT_    > $1
  */
 
 char *
-shmem_version(void)
+pshmem_version(void)
 {
   return "Super Happy Fun OpenSHMEM, $rev";
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_version = shmem_version
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_version = pshmem_version
 _EOT_

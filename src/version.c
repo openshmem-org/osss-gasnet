@@ -3,11 +3,9 @@
  */
 
 char *
-shmem_version(void)
+pshmem_version(void)
 {
-  return "Super Happy Fun OpenSHMEM, Revision: 1529";
+  return "Super Happy Fun OpenSHMEM, Revision: 1530";
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_version = shmem_version
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_version = pshmem_version

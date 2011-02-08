@@ -95,7 +95,7 @@ __shmalloc_no_check(size_t size)
 
 /* @api@ */
 void *
-shmalloc(size_t size)
+pshmalloc(size_t size)
 {
   if (shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
@@ -109,11 +109,11 @@ shmalloc(size_t size)
 
   return __shmalloc_no_check(size);
 }
-#pragma weak shmem_malloc = shmalloc
+#pragma weak pshmem_malloc = pshmalloc
 
 /* @api@ */
 void
-shfree(void *addr)
+pshfree(void *addr)
 {
   if (addr == (void *) NULL) {
     __shmem_warn(SHMEM_LOG_MEMORY,
@@ -134,11 +134,11 @@ shfree(void *addr)
 
   shmem_barrier_all();
 }
-#pragma weak shmem_free = shfree
+#pragma weak pshmem_free = pshfree
 
 /* @api@ */
 void *
-shrealloc(void *addr, size_t size)
+pshrealloc(void *addr, size_t size)
 {
   void *newaddr;
 
@@ -172,7 +172,7 @@ shrealloc(void *addr, size_t size)
 
   return newaddr;
 }
-#pragma weak shmem_realloc = shrealloc
+#pragma weak pshmem_realloc = pshrealloc
 
 /*
  * The shmemalign function allocates a block in the symmetric heap that
@@ -180,7 +180,7 @@ shrealloc(void *addr, size_t size)
  */
 /* @api@ */
 void *
-shmemalign(size_t alignment, size_t size)
+pshmemalign(size_t alignment, size_t size)
 {
   void *addr;
 
@@ -206,7 +206,7 @@ shmemalign(size_t alignment, size_t size)
 
   return addr;
 }
-#pragma weak shmem_memalign = shmemalign
+#pragma weak pshmem_memalign = pshmemalign
 
 /*
  * readable error message for error code "e"
@@ -243,7 +243,7 @@ static const int nerrors = sizeof(error_table) / sizeof(error_table[0]);
 
 /* @api@ */
 char *
-sherror(void)
+psherror(void)
 {
   malloc_error_code_t *etp = error_table;
   int i;
@@ -258,14 +258,12 @@ sherror(void)
 
   return "unknown memory error";
 }
-#pragma weak shmem_error = sherror
+#pragma weak pshmem_error = psherror
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmalloc = shmalloc
-#pragma weak pshmem_malloc = shmem_malloc
-#pragma weak pshfree = shfree
-#pragma weak pshmem_free = shmem_free
-#pragma weak pshrealloc = shrealloc
-#pragma weak pshmem_realloc = shmem_realloc
-#pragma weak pshmemalign = shmemalign
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmalloc = pshmalloc
+#pragma weak shmem_malloc = pshmem_malloc
+#pragma weak shfree = pshfree
+#pragma weak shmem_free = pshmem_free
+#pragma weak shrealloc = pshrealloc
+#pragma weak shmem_realloc = pshmem_realloc
+#pragma weak shmemalign = pshmemalign

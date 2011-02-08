@@ -22,7 +22,7 @@
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
   /* @api@ */								\
   void									\
-  shmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
+  pshmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
     if (cmp == SHMEM_CMP_EQ) {						\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==);				\
@@ -56,7 +56,7 @@ SHMEM_TYPE_WAIT_UNTIL(int, int)
 SHMEM_TYPE_WAIT_UNTIL(long, long)
 SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
 
-#pragma weak shmem_wait_until = shmem_long_wait_until
+#pragma weak pshmem_wait_until = pshmem_long_wait_until
 
 /*
  * wait is just wait_until with equality test
@@ -64,7 +64,7 @@ SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
 #define SHMEM_TYPE_WAIT(Name, Type)					\
   /* @api@ */								\
   void									\
-  shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
+  pshmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\
     shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);		\
   }
@@ -74,17 +74,15 @@ SHMEM_TYPE_WAIT(int, int)
 SHMEM_TYPE_WAIT(long, long)
 SHMEM_TYPE_WAIT(longlong, long long)
 
-#pragma weak shmem_wait = shmem_long_wait
+#pragma weak pshmem_wait = pshmem_long_wait
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_short_wait_until = shmem_short_wait_until
-#pragma weak pshmem_int_wait_until = shmem_int_wait_until
-#pragma weak pshmem_long_wait_until = shmem_long_wait_until
-#pragma weak pshmem_longlong_wait_until = shmem_longlong_wait_until
-#pragma weak pshmem_wait_until = shmem_wait_until
-#pragma weak pshmem_short_wait = shmem_short_wait
-#pragma weak pshmem_int_wait = shmem_int_wait
-#pragma weak pshmem_long_wait = shmem_long_wait
-#pragma weak pshmem_longlong_wait = shmem_longlong_wait
-#pragma weak pshmem_wait = shmem_wait
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_short_wait_until = pshmem_short_wait_until
+#pragma weak shmem_int_wait_until = pshmem_int_wait_until
+#pragma weak shmem_long_wait_until = pshmem_long_wait_until
+#pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
+#pragma weak shmem_wait_until = pshmem_wait_until
+#pragma weak shmem_short_wait = pshmem_short_wait
+#pragma weak shmem_int_wait = pshmem_int_wait
+#pragma weak shmem_long_wait = pshmem_long_wait
+#pragma weak shmem_longlong_wait = pshmem_longlong_wait
+#pragma weak shmem_wait = pshmem_wait

@@ -10,9 +10,10 @@
 
 #define SHMEM_BROADCAST_TYPE(Size, Type)				\
   /* @api */								\
-  void shmem_broadcast##Size (void *target, const void *source, size_t nlong, \
-			      int PE_root, int PE_start, int logPE_stride, int PE_size, \
-			      long *pSync)				\
+  void									\
+  pshmem_broadcast##Size (void *target, const void *source, size_t nlong, \
+			  int PE_root, int PE_start, int logPE_stride, int PE_size, \
+			  long *pSync)					\
   {									\
     const int step = 1 << logPE_stride;					\
     const int root = PE_root + PE_start;				\
@@ -32,14 +33,12 @@
 SHMEM_BROADCAST_TYPE(32, int)
 SHMEM_BROADCAST_TYPE(64, long)
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_broadcast32 = shmem_broadcast32
-#pragma weak pshmem_broadcast64 = shmem_broadcast64
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_broadcast32 = pshmem_broadcast32
+#pragma weak shmem_broadcast64 = pshmem_broadcast64
 
 /* @api@ */
 void
-shmem_sync_init(long *pSync)
+pshmem_sync_init(long *pSync)
 {
   const int nb = _SHMEM_BCAST_SYNC_SIZE;
   int i;
@@ -50,6 +49,4 @@ shmem_sync_init(long *pSync)
   shmem_barrier_all();
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_sync_init = shmem_sync_init
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_sync_init = pshmem_sync_init

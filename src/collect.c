@@ -21,9 +21,9 @@
 
 /* @api@ */
 void
-shmem_collect32(void *target, const void *source, size_t nelems,
-		int PE_start, int logPE_stride, int PE_size,
-		long *pSync)
+pshmem_collect32(void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size,
+		 long *pSync)
 {
   const int step = 1 << logPE_stride;
   const int last_pe = PE_start + step * (PE_size - 1);
@@ -75,16 +75,14 @@ shmem_collect32(void *target, const void *source, size_t nelems,
 
 /* @api@ */
 void
-shmem_collect64(void *target, const void *source, size_t nelems,
-		int PE_start, int logPE_stride, int PE_size,
-		long *pSync)
+pshmem_collect64(void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size,
+		 long *pSync)
 {
   shmem_collect32(target, source,
 		  nelems + nelems,
 		  PE_start, logPE_stride, PE_size, pSync);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_collect32 = shmem_collect32
-#pragma weak pshmem_collect64 = shmem_collect64
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_collect32 = pshmem_collect32
+#pragma weak shmem_collect64 = pshmem_collect64

@@ -5,9 +5,9 @@
 #include "comms.h"
 #include "hooks.h"
 
-/* @api */
+/* @api@ */
 void
-shmem_barrier_all(void)
+pshmem_barrier_all(void)
 {
   __comms_barrier_all();
 }
@@ -21,22 +21,18 @@ shmem_barrier_all(void)
  *
  */
 
-#pragma weak barrier = shmem_barrier_all
+#pragma weak barrier = pshmem_barrier_all
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pbarrier = barrier
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak barrier = pbarrier
 
 #endif /* 0 */
 
-/* @api */
+/* @api@ */
 void
-shmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
+pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   __comms_barrier(PE_start, logPE_stride, PE_size, pSync);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_barrier_all = shmem_barrier_all
-#pragma weak pshmem_barrier = shmem_barrier
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_barrier_all = pshmem_barrier_all
+#pragma weak shmem_barrier = pshmem_barrier

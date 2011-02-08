@@ -9,7 +9,7 @@
 
 /* @api@ */
 int
-shmem_pe_accessible(int pe)
+pshmem_pe_accessible(int pe)
 {
   return 1;
 }
@@ -21,13 +21,10 @@ shmem_pe_accessible(int pe)
 
 /* @api@ */
 int
-shmem_addr_accessible(void *addr, int pe)
+pshmem_addr_accessible(void *addr, int pe)
 {
   return __comms_addr_accessible(addr, pe);
 }
 
-
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_pe_accessible = shmem_pe_accessible
-#pragma weak pshmem_addr_accessible = shmem_addr_accessible
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_pe_accessible = pshmem_pe_accessible
+#pragma weak shmem_addr_accessible = pshmem_addr_accessible

@@ -48,7 +48,6 @@ WARNINGS         = -Wall
 #
 
 CPPFLAGS        += -I../include
-CPPFLAGS        += -DHAVE_PSHMEM_SUPPORT
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
 

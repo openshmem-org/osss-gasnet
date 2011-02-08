@@ -2,19 +2,17 @@
 
 /* @api@ */
 void
-shmem_fence(void)
+pshmem_fence(void)
 {
   __comms_fence();
 }
 
 /* @api@ */
 void
-shmem_quiet(void)
+pshmem_quiet(void)
 {
   __comms_quiet();
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_fence = shmem_fence
-#pragma weak pshmem_quiet = shmem_quiet
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_fence = pshmem_fence
+#pragma weak shmem_quiet = pshmem_quiet

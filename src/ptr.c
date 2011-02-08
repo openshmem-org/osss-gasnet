@@ -12,7 +12,7 @@
 
 /* @api@ */
 void *
-shmem_ptr(void *target, int pe)
+pshmem_ptr(void *target, int pe)
 {
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
@@ -28,6 +28,4 @@ shmem_ptr(void *target, int pe)
 #endif /* SHMEM_PUTGET_SHARED_MEMORY*/
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_ptr = shmem_ptr
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_ptr = pshmem_ptr

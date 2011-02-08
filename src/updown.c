@@ -70,7 +70,7 @@ __shmem_place_init(void)
 
 /* @api@ */
 void
-start_pes(int npes)
+pstart_pes(int npes)
 {
 
   /* has to happen early to enable warn */
@@ -129,7 +129,7 @@ start_pes(int npes)
  */
 /* @api@ */
 void
-shmem_init(void)
+pshmem_init(void)
 {
   start_pes(0);
 }
@@ -139,12 +139,10 @@ shmem_init(void)
  */
 /* @api@ */
 void
-shmem_finalize(void)
+pshmem_finalize(void)
 {
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pstart_pes = start_pes
-#pragma weak pshmem_init = shmem_init
-#pragma weak pshmem_finalize = shmem_finalize
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak start_pes = pstart_pes
+#pragma weak shmem_init = pshmem_init
+#pragma weak shmem_finalize = pshmem_finalize

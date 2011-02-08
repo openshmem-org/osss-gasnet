@@ -14,8 +14,8 @@
 #define SHMEM_EMIT_IPUT(Name, Type)					\
   /* @api@ */								\
   void									\
-  shmem_##Name##_iput(Type *target, const Type *source,			\
-		      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
+  pshmem_##Name##_iput(Type *target, const Type *source,		\
+		       ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
   {									\
     size_t ti = 0, si = 0;						\
     size_t i;								\
@@ -34,21 +34,19 @@ SHMEM_EMIT_IPUT(float, float)
 SHMEM_EMIT_IPUT(longdouble, long double)
 SHMEM_EMIT_IPUT(longlong, long long)
 
-#pragma weak shmem_iput32 = shmem_int_iput
-#pragma weak shmem_iput64 = shmem_long_iput
-#pragma weak shmem_iput128 = shmem_longdouble_iput
+#pragma weak pshmem_iput32 = pshmem_int_iput
+#pragma weak pshmem_iput64 = pshmem_long_iput
+#pragma weak pshmem_iput128 = pshmem_longdouble_iput
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_short_iput = shmem_short_iput
-#pragma weak pshmem_int_iput = shmem_int_iput
-#pragma weak pshmem_long_iput = shmem_long_iput
-#pragma weak pshmem_double_iput = shmem_double_iput
-#pragma weak pshmem_longdouble_iput = shmem_longdouble_iput
-#pragma weak pshmem_longlong_iput = shmem_longlong_iput
-#pragma weak pshmem_iput32 = shmem_iput32
-#pragma weak pshmem_iput64 = shmem_iput64
-#pragma weak pshmem_iput128 = shmem_iput128
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_short_iput = pshmem_short_iput
+#pragma weak shmem_int_iput = pshmem_int_iput
+#pragma weak shmem_long_iput = pshmem_long_iput
+#pragma weak shmem_double_iput = pshmem_double_iput
+#pragma weak shmem_longdouble_iput = pshmem_longdouble_iput
+#pragma weak shmem_longlong_iput = pshmem_longlong_iput
+#pragma weak shmem_iput32 = pshmem_iput32
+#pragma weak shmem_iput64 = pshmem_iput64
+#pragma weak shmem_iput128 = pshmem_iput128
 
 
 
@@ -65,8 +63,8 @@ SHMEM_EMIT_IPUT(longlong, long long)
 #define SHMEM_EMIT_IGET(Name, Type)					\
   /* @api@ */								\
   void									\
-  shmem_##Name##_iget(Type *target, const Type *source,			\
-		      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
+  pshmem_##Name##_iget(Type *target, const Type *source,		\
+		       ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
   {									\
     size_t ti = 0, si = 0;						\
     size_t i;								\
@@ -85,18 +83,16 @@ SHMEM_EMIT_IGET(float, float)
 SHMEM_EMIT_IGET(longdouble, long double)
 SHMEM_EMIT_IGET(longlong, long long)
 
-#pragma weak shmem_iget32 = shmem_int_iget
-#pragma weak shmem_iget64 = shmem_long_iget
-#pragma weak shmem_iget128 = shmem_longdouble_iget
+#pragma weak pshmem_iget32 = pshmem_int_iget
+#pragma weak pshmem_iget64 = pshmem_long_iget
+#pragma weak pshmem_iget128 = pshmem_longdouble_iget
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_short_iget = shmem_short_iget
-#pragma weak pshmem_int_iget = shmem_int_iget
-#pragma weak pshmem_long_iget = shmem_long_iget
-#pragma weak pshmem_double_iget = shmem_double_iget
-#pragma weak pshmem_longdouble_iget = shmem_longdouble_iget
-#pragma weak pshmem_longlong_iget = shmem_longlong_iget
-#pragma weak pshmem_iget32 = shmem_iget32
-#pragma weak pshmem_iget64 = shmem_iget64
-#pragma weak pshmem_iget128 = shmem_iget128
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_short_iget = pshmem_short_iget
+#pragma weak shmem_int_iget = pshmem_int_iget
+#pragma weak shmem_long_iget = pshmem_long_iget
+#pragma weak shmem_double_iget = pshmem_double_iget
+#pragma weak shmem_longdouble_iget = pshmem_longdouble_iget
+#pragma weak shmem_longlong_iget = pshmem_longlong_iget
+#pragma weak shmem_iget32 = pshmem_iget32
+#pragma weak shmem_iget64 = pshmem_iget64
+#pragma weak shmem_iget128 = pshmem_iget128

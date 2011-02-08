@@ -9,7 +9,7 @@
 
 #define SHMEM_MY_PE(Variant)			\
   int						\
-  Variant (void)				\
+  p##Variant (void)				\
   {						\
     return __state.mype;			\
   }
@@ -20,7 +20,7 @@ SHMEM_MY_PE(_my_pe)
 
 #define SHMEM_NUM_PES(Variant)			\
   int						\
-  Variant (void)				\
+  p##Variant (void)				\
   {						\
     return __state.numpes;			\
   }
@@ -31,21 +31,19 @@ SHMEM_NUM_PES(num_pes)
 SHMEM_NUM_PES(_num_pes)
 
 char *
-shmem_nodename(void)
+pshmem_nodename(void)
 {
   return __state.loc.nodename;
 }
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_my_pe = shmem_my_pe
-#pragma weak pmy_pe = my_pe
-#pragma weak p_my_pe = _my_pe
+#pragma weak shmem_my_pe = pshmem_my_pe
+#pragma weak my_pe = pmy_pe
+#pragma weak _my_pe = p_my_pe
 
-#pragma weak pshmem_num_pes = shmem_num_pes
-#pragma weak pshmem_n_pes = shmem_n_pes
-#pragma weak pnum_pes = num_pes
-#pragma weak p_num_pes = _num_pes
+#pragma weak shmem_num_pes = pshmem_num_pes
+#pragma weak shmem_n_pes = pshmem_n_pes
+#pragma weak num_pes = pnum_pes
+#pragma weak _num_pes = p_num_pes
 
-#pragma weak pshmem_nodename = shmem_nodename
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_nodename = pshmem_nodename

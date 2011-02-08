@@ -9,7 +9,7 @@
 #define CACHE_NO_OP(Name, Params)			\
   /* @api@ */						\
   void							\
-  Name ( Params )					\
+  p##Name ( Params )					\
   {							\
     __shmem_warn(SHMEM_LOG_CACHE,			\
 		 "operation \"%s\" is a no-op",		\
@@ -27,11 +27,9 @@ CACHE_NO_OP(shmem_udcflush, void)
 CACHE_NO_OP(shmem_udcflush_line, void *target)
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
-#pragma weak pshmem_clear_cache_inv = shmem_clear_cache_inv
-#pragma weak pshmem_set_cache_inv = shmem_set_cache_inv
-#pragma weak pshmem_clear_cache_line_inv = shmem_clear_cache_line_inv
-#pragma weak pshmem_set_cache_line_inv = shmem_set_cache_line_inv
-#pragma weak pshmem_udcflush = shmem_udcflush
-#pragma weak pshmem_udcflush_line = shmem_udcflush_line
-#endif /* HAVE_PSHMEM_SUPPORT */
+#pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
+#pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
+#pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
+#pragma weak shmem_set_cache_line_inv = pshmem_set_cache_line_inv
+#pragma weak shmem_udcflush = pshmem_udcflush
+#pragma weak shmem_udcflush_line = pshmem_udcflush_line
