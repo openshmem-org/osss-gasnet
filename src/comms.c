@@ -955,8 +955,14 @@ __symmetric_addr_lookup(void *dest, int pe)
     return dest;
   }
 
-  offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
-  rdest = (char *) __symmetric_var_base(pe) + offset;
+  /* short-circuit a lookup on myself */
+  if (__state.mype == pe) {
+    rdest = dest;
+  }
+  else {
+    offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
+    rdest = (char *) __symmetric_var_base(pe) + offset;
+  }
 
   if (__symmetric_var_in_range(rdest, pe)) {
     return (void *) rdest;

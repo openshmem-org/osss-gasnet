@@ -12,4 +12,9 @@ extern void __shmem_float_put_nbi(float *target, float *source, size_t len, int 
 
 extern void __shmem_wait_syncnbi_puts(void);
 
+extern void  symmetric_test_with_abort(void *remote_addr,
+				       void *local_addr,
+				       const char *name,
+				       const char *routine);
+
 #endif /* _PUTGET_H */

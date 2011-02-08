@@ -8,7 +8,7 @@
 #include "updown.h"
 #include "warn.h"
 
-static void
+void
 symmetric_test_with_abort(void *remote_addr,
 			  void *local_addr,
 			  const char *name,
