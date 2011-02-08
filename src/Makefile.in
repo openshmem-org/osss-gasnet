@@ -245,7 +245,7 @@ tidy:
 
 clean:	tidy
 	$(MAKE) -C $(DLMALLOC_DIR) $@
-	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_FC) $(SHMEM_RUN)
+	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
 	$(REMOVE) Makedeps
 
 do-deps: $(SHMEM_OBJECTS)
