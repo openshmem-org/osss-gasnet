@@ -1,0 +1,808 @@
+#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+OpenSHMEM Reference Library Implementation
+\end_layout
+
+\begin_layout Author
+Tony Curtis and Swaroop Pophale
+\end_layout
+
+\begin_layout Right Address
+Computer Science Department, University of Houston
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Sponsorship
+\end_layout
+
+\begin_layout Standard
+Work on the OpenSHMEM project is sponsored by Oak Ridge National Laboratory
+ and the U.S.
+ Department of Energy.
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+This document is an overview of the implementation strategy for the initial,
+ reference version of what will become OpenSMHEM.
+ We will discuss the concept of a partitioned global address space for completen
+ess.
+\end_layout
+
+\begin_layout Section
+Terminology
+\end_layout
+
+\begin_layout Standard
+A SHMEM program consists of a number of processors executing separate processes.
+ A processor is referred to as a 
+\begin_inset Quotes eld
+\end_inset
+
+processing element
+\begin_inset Quotes erd
+\end_inset
+
+, or PE.
+ All PEs run the same program in the SPMD model, although they can discover
+ which position, or rank, they occupy within the program and diverge in
+ behavior.
+ Communication occurs through point-to-point one-sided routines and collective
+ operations.
+ A one-sided operation is a communication in which the 
+\begin_inset Quotes eld
+\end_inset
+
+other
+\begin_inset Quotes erd
+\end_inset
+
+ PE does not participate: the data transfer does not cause the other PE
+ to be interrupted to acknowledge the transfer.
+\end_layout
+
+\begin_layout Section
+Partitioned Global Address Space
+\end_layout
+
+\begin_layout Standard
+Parallel programs running in a distributed environment access both local
+ and remote data.
+ The model used to construct the program can either expose or hide this
+ distribution.
+ Exposed models include that of MPI and PVM, in which explicit messages
+ are required to pass data between processors participating in a parallel
+ program.
+ Hidden models include those with a Global Address Space (GAS), in which
+ there appears to be memory accessible from all processors.
+ This memory may in fact be directly accessible, or may be made available
+ through I/O operations over network interconnects.
+\end_layout
+
+\begin_layout Standard
+SHMEM provides a symmetric view of memory, in which processors allocate
+ variables in concert but have their own copies.
+ A processor can then 
+\begin_inset Quotes eld
+\end_inset
+
+put
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+get
+\begin_inset Quotes erd
+\end_inset
+
+ data to or from other processors by requesting a specific variable on another
+ processor.
+ SHMEM provides for address translation when required to allow a variable
+ allocated by one processor to be accessed by another.
+ This allocation-in-concert of separate variables is termed Partitioned
+ Global Address Space (PGAS).
+\end_layout
+
+\begin_layout Standard
+Clusers that use interconnects with remote direct memory access (rDMA) are
+ of particular interest to the PGAS community as they provide hardware off-load
+ capability to avoid interrupting one-side communications.
+\end_layout
+
+\begin_layout Section
+SHMEM History and OpenSHMEM
+\end_layout
+
+\begin_layout Standard
+The SHMEM communications library was originally developed as a proprietary
+ application interface by Cray for their T3D systems and subsequently the
+ T3E models.
+ These systems typically consisted of a memory subsystem with a logically
+ shared address space over physically distributed memories, a memory interconnec
+t network, a set of processing elements (PEs), a set of input-output gateways,
+ and a host subsystem.
+ The systems were designed to support latency hiding mechanisms such as
+ prefetch queues, remote stores and the Block Transfer Engine (BLT).
+ The prefetch queues allowed the users to issue multiple asynchronous single-wor
+d reads which could overlap with computation.
+ Remote stores enabled PEs to directly write to other PE's memory asynchronously
+, while the BLT could hide latency while transferring blocks of data efficiently
+ between local memory and remote memory locations.
+ The explicit shared memory programming method allowed strucured communication
+ via shared memory on Cray MPP systems.
+ 
+\end_layout
+
+\begin_layout Standard
+Since then different vendors have come up with variations of the SHMEM library
+ implementation to match their individual requirements.
+ By adding proprietary hardware support some vendors have managed to make
+ the communication faster but have sacrificed portability.
+ Some existing SHMEM implementations include those by Cray, Quadrics’ QsNet,
+ SGI’s versions for their IRIX and Altix platforms, HP, IBM and those that
+ were developed for the SiCortex platforms, and the more portable but older
+ GPSHMEM.
+ These implementations have over the years diverged because of the lack
+ of a standard specification.
+ We aim to form a community that will unify all SHMEM library development
+ effort and lead to the formulation of a standardized library to be called
+ OpenSHMEM.
+ OpenSHMEM will be a community-driven, open process.
+\end_layout
+
+\begin_layout Standard
+[ MPT, SMA and MPI-based launch ]
+\end_layout
+
+\begin_layout Section
+The SHMEM Library
+\end_layout
+
+\begin_layout Standard
+The overall structure of the reference library is shown below.
+ We use an intermediate library such as GASNet or ARMCI to abstract away
+ from a particular interconnect/platform, although there is nothing to stop
+ a more direct approach being used.
+ Internally, SHMEM provides private APIs for memory management, the communicatio
+ns layer, tracing/debugging and (eventually) support for adaptivity to choose
+ things like barrier algorithm at run-time.
+\end_layout
+
+\begin_layout Title
+\begin_inset Graphics
+	filename Slide17.png
+	lyxscale 50
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Implementation Strategy
+\end_layout
+
+\begin_layout Standard
+Where we talk about how the library has been written.
+\end_layout
+
+\begin_layout Subsection
+GASNet
+\end_layout
+
+\begin_layout Standard
+GASNet provides the symmetric memory areas.
+ The dlmalloc library provides management of these areas during allocation
+ and freeing of symmetric variables in user code, usually through a call
+ like shmalloc().
+\end_layout
+
+\begin_layout Standard
+When you GASNet-attach and ask for segment information, each PE has access
+ to an array of segments, 1 segment per PE.
+ Each PE initializes a memory pool within its own segment.
+ The set up is handled either by GASNet internally (
+\begin_inset Quotes eld
+\end_inset
+
+fast
+\begin_inset Quotes erd
+\end_inset
+
+/
+\begin_inset Quotes erd
+\end_inset
+
+large
+\begin_inset Quotes erd
+\end_inset
+
+ model) or by SHMEM (
+\begin_inset Quotes eld
+\end_inset
+
+everything
+\begin_inset Quotes erd
+\end_inset
+
+ model).
+ The table of segments allows any PE to know the virtual location and size
+ of the segment belonging to any other PE.
+\end_layout
+
+\begin_layout Standard
+If the platform allows it, GASNet can align all the segments at the same
+ address, which means that all PEs see the same address for symmetric variables
+ and there's no address translation.
+\end_layout
+
+\begin_layout Standard
+In the general case though, segments are not aligned (e.g.
+ due to a security measure like process address space randomization by the
+ OS).
+ However, each PE can see the addresses of the segments of the other PEs
+ locally, and can therefore do address translation.
+\end_layout
+
+\begin_layout Standard
+Currently alignment is not checked for, so we're coding to the 
+\begin_inset Quotes eld
+\end_inset
+
+worst case scenario
+\begin_inset Quotes erd
+\end_inset
+
+.
+ That just adds a 
+\emph on
+small
+\emph default
+ overhead if the segments are in fact aligned.
+ The library should at some point introduce code that differentiates between
+ aligned and non-aligned environments with optimized code for the former
+ case (GASNet provides a macro you can test against).
+ Initialization
+\end_layout
+
+\begin_layout Subsection
+Initialization
+\end_layout
+
+\begin_layout Standard
+In src/updown.c we handle setting up the SHMEM runtime, and eventual shutdown.
+ Shutdown is implicit in user code, there is no call to do this in SGI SHMEM,
+ so we register a handler to be called when main() exits.
+ Cray SHMEM has an explicit finalize call.
+\end_layout
+
+\begin_layout Subsection
+Incorporating SHMEM into Program
+\end_layout
+
+\begin_layout Standard
+For C, the appropriate header file must be included: both the SGI-compliant
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <mpp/shmem.h>
+\end_layout
+
+\end_inset
+
+and the Quadrics-like
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <shmem.h>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align left
+are handled for portability.
+\end_layout
+
+\begin_layout Standard
+\align left
+We provide both the SGI
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+start_pes(int npes)
+\end_layout
+
+\end_inset
+
+ and
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+shmem_init(void)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align left
+interfaces, again for portability.
+ The calls are synonyms.
+ start_pes() just ignores its argument (consistent with SGI behavior.
+ SGI indicates 
+\begin_inset Quotes eld
+\end_inset
+
+npes
+\begin_inset Quotes erd
+\end_inset
+
+ should be set to zero but we don't enforce that, merely note it).
+\end_layout
+
+\begin_layout Subsection
+Communications Substrate
+\end_layout
+
+\begin_layout Standard
+The OpenSHMEM library has been written to sit on top of any communications
+ library that can provide the required functionalty.
+ Initially we have targetted GASNet, and an ARMCI version is also planned.
+ The file 
+\family typewriter
+trunk/src/comms.c
+\family default
+ provides the internal API.
+ All subsequent references to GASNet should be read with an eye on the abstracti
+on process.
+\end_layout
+
+\begin_layout Subsection
+Memory Management
+\end_layout
+
+\begin_layout Standard
+Initially we tried to use the TLSF library:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://rtportal.upv.es/rtmalloc/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+but this proved to have weird interactions with Open-MPI.
+ Tracking program progress with valgrind suggested that system memory calls
+ were being intercepted.
+\end_layout
+
+\begin_layout Standard
+So, following the Chapel lead,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://chapel.cray.com/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+we now use the 
+\begin_inset Quotes eld
+\end_inset
+
+dlmalloc
+\begin_inset Quotes erd
+\end_inset
+
+ library
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://g.oswego.edu/dl/html/malloc.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+to manage allocations in the symmetric memory space.
+\end_layout
+
+\begin_layout Subsection
+Point-to-point routines
+\end_layout
+
+\begin_layout Standard
+Point-to-point operations are a thin layer on top of GASNet.
+ The non-blocking put operations with implicit handles provide a way to
+ subsequently fence and barrier.
+ However, tracking individual handles explicitly may give better performance.
+ The Quadrics extensions that add non-blocking calls into the API proper
+ have already been requested for the OpenSHMEM development.
+\end_layout
+
+\begin_layout Subsection
+Atomic Operations
+\end_layout
+
+\begin_layout Standard
+Atomic operations include swaps, fetch-and-add and locks.
+ The first two are handled via GASNet's Active Messages.
+ Increment was originally layered on top of add (increment = add 1, after
+ all) but was rewritten with its own handlers.
+ The payload for increment is ever so slightly smaller than for add since
+ there's no need to pass the value to add.
+ In large applications, even such a small saving could add up (if you'll
+ pardon the pun).
+\end_layout
+
+\begin_layout Standard
+The current implementation has a single handler lock variable per operation
+ (add, increment, etc).
+ However, allocating and managing a separate lock variable for each remotely
+ accessed address might scale better to large systems.
+\end_layout
+
+\begin_layout Standard
+SHMEM API locks are based heavily on the Quadrics implementation (which
+ is layered on top of SHMEM primitives and thus not tied to Elan).
+ 
+\end_layout
+
+\begin_layout Subsection
+Broadcast
+\end_layout
+
+\begin_layout Standard
+The initial version is naive, making the root of the broadcast a bottleneck.
+ This is partly intentional, to allow Swaroop to explore better algorithms
+ and work out how to demonstrate and document the improvements.
+ Would like to collect some locality information inside the library to help
+ decide communication order inside these algorithms: PEs that differ in
+ rank by large amounts are likely to be further away topologically too,
+ so by sending to more distant PEs first, we can stagger the network traffic
+ and balance the latencies better.
+ A proper measurement of 
+\begin_inset Quotes eld
+\end_inset
+
+distance
+\begin_inset Quotes erd
+\end_inset
+
+ is needed here.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+hwloc
+\begin_inset Quotes erd
+\end_inset
+
+ provides a per-system distance metric in NUMA terms.
+ A simple extension could e.g.
+ just multiply the distance by some constant when moving off-node to penalize
+ network traffic.
+\end_layout
+
+\begin_layout Subsection
+Collects
+\end_layout
+
+\begin_layout Standard
+The files src/fcollect.c and src/collect.c implement the collector routines
+ (concatenating arrays on a set of PEs into a target array on all of those
+ PEs).
+\end_layout
+
+\begin_layout Standard
+fcollect is pretty easy since all the PEs must contribute the same amount
+ of data.
+ This means we can just pre-compute where each PE writes to their targets.
+\end_layout
+
+\begin_layout Standard
+collect is harder because each PE can write different amounts.
+ Thought of 2 ways of handling this:
+\end_layout
+
+\begin_layout Enumerate
+initial exchange of sizes 
+\begin_inset Quotes eld
+\end_inset
+
+from the left
+\begin_inset Quotes erd
+\end_inset
+
+ so each PE can compute its write locations; then same as fcollect
+\end_layout
+
+\begin_layout Enumerate
+wavefront: PEs wait for notification from PEs before them in the set (lower
+ numbered).
+ This passes the offsets across the set.
+\end_layout
+
+\begin_layout Standard
+I used #2.
+ #1 potentially generates a network storm as all PEs wait to work out where
+ to write, then all write at once.
+ #2 staggers the offset notification with a wave of writes moving up the
+ PE numbers.
+ 
+\end_layout
+
+\begin_layout Subsection
+Reductions
+\end_layout
+
+\begin_layout Standard
+Reductions coalesce data from a number of PEs into either a single variable
+ or array on all participating PEs.
+ The coalescing involves some kind of arithmetic or logic operation (e.g.
+ sum, product, exclusive-or).
+ Currently probably naive, using gets.
+ A version with puts that can overlap communication and the computation
+ of the reduction operation should be more scalable.
+ However, the code is rather compact and all ops use the same template.
+\end_layout
+
+\begin_layout Section
+Compiling and Running Programs
+\end_layout
+
+\begin_layout Standard
+In order to abstract the compilation and launching process we have provided
+ 4 wrapper programs:
+\end_layout
+
+\begin_layout Enumerate
+oshcc: for compiling and linking C programs.
+\end_layout
+
+\begin_layout Enumerate
+oshCC: for compiling and linking C++ programs.
+\end_layout
+
+\begin_layout Enumerate
+oshfort: for compiling and linking F77/F90 programs.
+\end_layout
+
+\begin_layout Enumerate
+oshrun: to launch programs.
+\end_layout
+
+\begin_layout Standard
+The similarity to the style of wrappers found in many MPI implementations
+ is obvious and intentional.
+ Currently these wrappers do handle a few situations (e.g.
+ oshcc/CC and oshfort detect that they shouldn't do linking and stop the
+ underlying compiler complaining about link options being present, but unused).
+ The compiler scripts are generated from a common template.
+\end_layout
+
+\begin_layout Section
+Tracing Facility
+\end_layout
+
+\begin_layout Standard
+This library contains 
+\begin_inset Quotes eld
+\end_inset
+
+trace points
+\begin_inset Quotes erd
+\end_inset
+
+ with categorized messages.
+ Which ones are enabled is controlled by an environment variable: SHMEM_LOG_LEVE
+LS.
+ The value is a comma-, space- or semi-colon-separated case-insensitive
+ list of categories to monitor.
+ Categories include (but are not limited to) 
+\begin_inset Quotes eld
+\end_inset
+
+debug
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+init
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+memory
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+barrier
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+info
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The special value 
+\begin_inset Quotes eld
+\end_inset
+
+all
+\begin_inset Quotes erd
+\end_inset
+
+ enables all message categories.
+\end_layout
+
+\begin_layout Section
+Configuration and Installation
+\end_layout
+
+\begin_layout Standard
+There is a 
+\family typewriter
+trunk/configure
+\family default
+ script that is a simplified version of the GNU autotools.
+ This script will eventually become the GNU setup and will do lots more
+ feature tests.
+ So the usual procedure applies: configure, make, make install.
+\end_layout
+
+\begin_layout Section
+Future Plans
+\end_layout
+
+\begin_layout Standard
+Ideas for extensions to SHMEM to go into OpenSHMEM need to be requested
+ and evaluated from the SHMEM user and vendor community.
+ A decision process will determine which ideas are eventually implemented.
+ The library that this document refers to is hopefully a good platform for
+ these developments.
+\end_layout
+
+\end_body
+\end_document
