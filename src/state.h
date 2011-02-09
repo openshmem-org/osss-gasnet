@@ -12,7 +12,7 @@ typedef enum {
 } pe_status_t;
 
 
-extern char * __shmem_state_as_string(pe_status_t s);
+extern const char * __shmem_state_as_string(pe_status_t s);
 
 typedef struct {
   pe_status_t pe_status;	/* up and running yet?             */
