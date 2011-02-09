@@ -4,8 +4,18 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 
+typedef enum {
+  PE_UNINITIALIZED=0,		/* start like this */
+  PE_RUNNING,			/* after start_pes() */
+  PE_SHUTDOWN,			/* clean exit */
+  PE_FAILED,			/* something went wrong */
+} pe_status_t;
+
+
+extern char * __shmem_state_as_string(pe_status_t s);
+
 typedef struct {
-  int initialized;              /* up and running yet?             */
+  pe_status_t pe_status;	/* up and running yet?             */
   int numpes;                   /* # of processing elements        */
   int mype;                     /* individual processing element   */
   size_t heapsize;		/* size of symmetric heap (bytes)  */

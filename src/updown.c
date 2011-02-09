@@ -26,7 +26,7 @@ __shmem_exit(int status)
   __shmem_atomic_finalize();
   __symmetric_memory_finalize();
 
-  __state.initialized = 0;
+  __state.pe_status = PE_SHUTDOWN;
 
   /*
    * strictly speaking should free alloc'ed things,
@@ -76,12 +76,11 @@ pstart_pes(int npes)
   /* has to happen early to enable warn */
   __shmem_environment_init();
 
-  __state.initialized += 1;
-
   /* I shouldn't really call this more than once */
-  if (__state.initialized > 1) {
+  if (__state.pe_status != PE_UNINITIALIZED) {
     __shmem_warn(SHMEM_LOG_FATAL,
-                 "shmem has already been initialized"
+                 "shmem has already been initialized (%s)",
+		 __shmem_state_as_string(__state.pe_status)
                 );
     /* NOT REACHED */
   }
@@ -115,6 +114,8 @@ pstart_pes(int npes)
   /*
    * and we're up and running
    */
+
+  __state.pe_status = PE_RUNNING;
 
   __shmem_warn(SHMEM_LOG_INIT,
 	       "version \"%s\" running on %d PE%s",
