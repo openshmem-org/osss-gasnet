@@ -17,8 +17,8 @@ pshmem_ptr(void *target, int pe)
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
   __shmem_trace(SHMEM_LOG_NOTICE,
-	       "shmem_ptr() not implemented yet"
-	       );
+		"shmem_ptr() not implemented yet"
+		);
   return (void *) NULL;
 
 #else  /* ! SHMEM_PUTGET_SHARED_MEMORY */

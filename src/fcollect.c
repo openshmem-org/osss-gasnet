@@ -4,7 +4,7 @@
 #include "putget.h"
 #include "trace.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 /*
  * fcollect puts nelems (*same* value on all PEs) from source on each
@@ -24,13 +24,13 @@ pshmem_fcollect32(void *target, const void *source, size_t nelems,
   int pe = PE_start;
   int i;
   for (i = 0; i < PE_size; i += 1) {
-    shmem_put32(target + tidx, source, nelems, pe);
+    pshmem_put32(target + tidx, source, nelems, pe);
     pe += step;
   }
-  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
+  pshmem_barrier(PE_start, logPE_stride, PE_size, pSync);
   __shmem_trace(SHMEM_LOG_COLLECT,
-	       "completed barrier"
-	       );
+		"completed barrier"
+		);
 }
 
 /*
@@ -43,9 +43,10 @@ pshmem_fcollect64(void *target, const void *source, size_t nelems,
 		  int PE_start, int logPE_stride, int PE_size,
 		  long *pSync)
 {
-  shmem_fcollect32(target, source,
-		   nelems + nelems,
-		   PE_start, logPE_stride, PE_size, pSync);
+  pshmem_fcollect32(target, source,
+		    nelems + nelems,
+		    PE_start, logPE_stride, PE_size, pSync
+		    );
 }
 
 #pragma weak shmem_fcollect32 = pshmem_fcollect32

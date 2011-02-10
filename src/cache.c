@@ -12,9 +12,9 @@
   p##Name ( Params )					\
   {							\
     __shmem_trace(SHMEM_LOG_CACHE,			\
-		 "operation \"%s\" is a no-op",		\
-		 #Name					\
-		 );					\
+		  "operation \"%s\" is a no-op",	\
+		  #Name					\
+		  );					\
     return;						\
   }
 

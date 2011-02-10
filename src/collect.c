@@ -5,7 +5,7 @@
 #include "trace.h"
 #include "symmem.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 /*
  * collect puts nelems (can vary from PE to PE) from source on each
@@ -38,7 +38,7 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
    * offsets
    */
   if (__state.mype > PE_start) {
-    shmem_long_wait(acc_off, -1);
+    pshmem_long_wait(acc_off, -1);
   }
 
   /*
@@ -49,7 +49,7 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
     const long next_off = *acc_off + nelems;
     const int rnei = __state.mype + step;
 
-    shmem_long_p(acc_off, next_off, rnei);
+    pshmem_long_p(acc_off, next_off, rnei);
   }
 
   /* send my array slice to target everywhere */
@@ -59,14 +59,14 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
     int pe = PE_start;
 
     for (i = 0; i < PE_size; i += 1) {
-      shmem_put32(target + tidx, source, nelems, pe);
+      pshmem_put32(target + tidx, source, nelems, pe);
       pe += step;
     }
   }
 
   /* wait for everyone to finish and clean up */
   *acc_off = save;
-  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
+  pshmem_barrier(PE_start, logPE_stride, PE_size, pSync);
 }
 
 /*
@@ -79,9 +79,10 @@ pshmem_collect64(void *target, const void *source, size_t nelems,
 		 int PE_start, int logPE_stride, int PE_size,
 		 long *pSync)
 {
-  shmem_collect32(target, source,
-		  nelems + nelems,
-		  PE_start, logPE_stride, PE_size, pSync);
+  pshmem_collect32(target, source,
+		   nelems + nelems,
+		   PE_start, logPE_stride, PE_size, pSync
+		   );
 }
 
 #pragma weak shmem_collect32 = pshmem_collect32

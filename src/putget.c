@@ -16,10 +16,10 @@ symmetric_test_with_abort(void *remote_addr,
 {
   if (remote_addr == NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "shmem_%s_%s: address at %p is not symmetric",
-		 name, routine,
-		 local_addr
-		 );
+		  "shmem_%s_%s: address at %p is not symmetric",
+		  name, routine,
+		  local_addr
+		  );
     /* NOT REACHED */
   }
 }

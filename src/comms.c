@@ -21,7 +21,7 @@
 #include "atomic.h"
 #include "comms.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 /*
  * gasnet model choice
@@ -116,8 +116,8 @@ __comms_get_segment_size(void)
     }
     if (! foundit) {
       __shmem_trace(SHMEM_LOG_FATAL,
-		   "unknown data size unit \"%c\" in symmetric heap specification",
-		   unit);
+		    "unknown data size unit \"%c\" in symmetric heap specification",
+		    unit);
     }
   }
 
@@ -149,7 +149,9 @@ __comms_set_waitmode(comms_spinmode_t mode)
     break;
   default:
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "tried to set unknown wait mode %d", (int) mode);
+		  "tried to set unknown wait mode %d",
+		  (int) mode
+		  );
     /* NOT REACHED */
     break;
   }
@@ -157,8 +159,8 @@ __comms_set_waitmode(comms_spinmode_t mode)
   GASNET_SAFE( gasnet_set_waitmode(gm) );
 
   __shmem_trace(SHMEM_LOG_DEBUG,
-	       "set waitmode to %s",
-	       mstr);
+		"set waitmode to %s",
+		mstr);
 }
 
 /*
@@ -317,18 +319,18 @@ __comms_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
     /* root signals everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      shmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
+      pshmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
     }
     /* root waits for ack from everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      shmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
+      pshmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
     }
   }
   else {
     /* non-root waits for root to signal, then tell root we're ready */
-    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
-    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
+    pshmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
+    pshmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
   }
   /* restore pSync values */
   pSync[__state.mype] = _SHMEM_SYNC_VALUE;
@@ -432,9 +434,9 @@ table_init_helper(void)
       bss_end = bss_start + shdr.sh_size;
 
       __shmem_trace(SHMEM_LOG_SYMBOLS,
-		   "ELF section .bss for global variables = 0x%lX -> 0x%lX",
-		   bss_start, bss_end
-		   );
+		    "ELF section .bss for global variables = 0x%lX -> 0x%lX",
+		    bss_start, bss_end
+		    );
 
       continue;
     }
@@ -517,21 +519,21 @@ print_global_var_table(shmem_trace_t msgtype)
   }
 
   __shmem_trace(msgtype,
-	       "-- start hash table --"
-	       );
+		"-- start hash table --"
+		);
 
   HASH_SORT(gvp, addr_sort);
 
   HASH_ITER(hh, gvp, g, tmp) {
     __shmem_trace(msgtype,
-		 "address %p: name \"%s\", size %ld",
-		 g->addr, g->name, g->size
-		 );
+		  "address %p: name \"%s\", size %ld",
+		  g->addr, g->name, g->size
+		  );
   }
 
   __shmem_trace(msgtype,
-	       "-- end hash table --"
-	       );
+		"-- end hash table --"
+		);
 }
 
 static void
@@ -539,8 +541,8 @@ __comms_globalvar_table_init(void)
 {
   if (table_init_helper() != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: could'nt read global symbols in executable"
-		 );
+		  "internal error: could'nt read global symbols in executable"
+		  );
     /* NOT REACHED */
   }
 
@@ -679,8 +681,8 @@ __comms_init(void)
   argv = (char **) malloc(argc * sizeof(*argv));
   if (argv == (char **) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-                 "could not allocate memory for GASNet initialization"
-		 );
+		  "could not allocate memory for GASNet initialization"
+		  );
     /* NOT REACHED */
   }
   argv[0] = "shmem";
@@ -715,8 +717,8 @@ __comms_init(void)
   __comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_INIT,
-	       "initialization complete"
-	       );
+		"initialization complete"
+		);
 
   /* Up and running! */
 }
@@ -799,9 +801,9 @@ __symmetric_memory_init(void)
 					      sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-                 "could not allocate GASNet segments (%s)",
-		 strerror(errno)
-		 );
+		  "could not allocate GASNet segments (%s)",
+		  strerror(errno)
+		  );
     /* NOT REACHED */
   }
 
@@ -821,8 +823,8 @@ __symmetric_memory_init(void)
   if (posix_memalign(& great_big_heap,
 		     GASNET_PAGESIZE, __state.heapsize) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "unable to allocate symmetric heap"
-		 );
+		  "unable to allocate symmetric heap"
+		  );
     /* NOT REACHED */
   }
 
@@ -833,9 +835,9 @@ __symmetric_memory_init(void)
   __comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_MEMORY,
-	       "symmetric heap @ %p, size is %ld bytes",
-	       great_big_heap, __state.heapsize
-	       );
+		"symmetric heap @ %p, size is %ld bytes",
+		great_big_heap, __state.heapsize
+		);
 
   {
     gasnet_seginfo_t gsp;
@@ -890,11 +892,11 @@ __symmetric_memory_init(void)
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
       __shmem_trace(SHMEM_LOG_INIT,
-		   "seginfo_table[%d] = ( addr = %p, size = %ld )",
-		   pe,
-		   seginfo_table[pe].addr,
-		   seginfo_table[pe].size
-		   );
+		    "seginfo_table[%d] = ( addr = %p, size = %ld )",
+		    pe,
+		    seginfo_table[pe].addr,
+		    seginfo_table[pe].size
+		    );
     }
   }
 }
@@ -1053,8 +1055,8 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   if (p == (swap_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate swap payload memory"
-		 );
+		  "internal error: unable to allocate swap payload memory"
+		  );
   }
   /* build payload to send */
   p->local_store = retval;
@@ -1145,8 +1147,8 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   cswap_payload_t *cp = (cswap_payload_t *) malloc(sizeof(*cp));
   if (cp == (cswap_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate conditional swap payload memory"
-		 );
+		  "internal error: unable to allocate conditional swap payload memory"
+		  );
   }
   /* build payload to send */
   cp->local_store = retval;
@@ -1236,8 +1238,8 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   fadd_payload_t *p = (fadd_payload_t *) malloc(sizeof(*p));
   if (p == (fadd_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate fetch-and-add payload memory"
-		 );
+		  "internal error: unable to allocate fetch-and-add payload memory"
+		  );
   }
   /* build payload to send */
   p->local_store = retval;
@@ -1326,8 +1328,8 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   finc_payload_t *p = (finc_payload_t *) malloc(sizeof(*p));
   if (p == (finc_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate fetch-and-increment payload memory"
-		 );
+		  "internal error: unable to allocate fetch-and-increment payload memory"
+		  );
   }
   /* build payload to send */
   p->local_store = retval;
@@ -1409,8 +1411,8 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
   add_payload_t *p = (add_payload_t *) malloc(sizeof(*p));
   if (p == (add_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate remote add payload memory"
-		 );
+		  "internal error: unable to allocate remote add payload memory"
+		  );
   }
   /* build payload to send */
   p->r_symm_addr = __symmetric_addr_lookup(target, pe);
@@ -1491,8 +1493,8 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
   inc_payload_t *p = (inc_payload_t *) malloc(sizeof(*p));
   if (p == (inc_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate remote increment payload memory"
-		 );
+		  "internal error: unable to allocate remote increment payload memory"
+		  );
   }
   /* build payload to send */
   p->r_symm_addr = __symmetric_addr_lookup(target, pe);
@@ -1588,8 +1590,8 @@ __comms_globalvar_translation(void *target, long value, int pe)
 
   if (p == (globalvar_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		 "internal error: unable to allocate heap variable payload memory"
-		 );
+		  "internal error: unable to allocate heap variable payload memory"
+		  );
   }
 
   p->completed = 0;

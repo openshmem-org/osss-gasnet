@@ -58,8 +58,8 @@ __shmem_place_init(void)
   s = uname(& __state.loc);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-                 "can't find any node information"
-                );
+		  "can't find any node information"
+		  );
   }
 }
 
@@ -79,9 +79,9 @@ pstart_pes(int npes)
   /* I shouldn't really call this more than once */
   if (__state.pe_status != PE_UNINITIALIZED) {
     __shmem_trace(SHMEM_LOG_FATAL,
-                 "shmem has already been initialized (%s)",
-		 __shmem_state_as_string(__state.pe_status)
-                );
+		  "shmem has already been initialized (%s)",
+		  __shmem_state_as_string(__state.pe_status)
+		  );
     /* NOT REACHED */
   }
 
@@ -95,8 +95,8 @@ pstart_pes(int npes)
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-                 "internal error: cannot register shutdown handler"
-                );
+		  "internal error: cannot register shutdown handler"
+		  );
     /* NOT REACHED */
   }
 
@@ -106,9 +106,9 @@ pstart_pes(int npes)
    */
   if (npes != 0) {
     __shmem_trace(SHMEM_LOG_INFO,
-		 "start_pes() was passed %d, should be 0",
-		 npes
-		 );
+		  "start_pes() was passed %d, should be 0",
+		  npes
+		  );
   }
 
   /*
@@ -118,11 +118,11 @@ pstart_pes(int npes)
   __state.pe_status = PE_RUNNING;
 
   __shmem_trace(SHMEM_LOG_INIT,
-	       "version \"%s\" running on %d PE%s",
-	       shmem_version(),
-	       __state.numpes,
-	       __state.numpes == 1 ? "" : "s"
-	       );
+		"version \"%s\" running on %d PE%s",
+		shmem_version(),
+		__state.numpes,
+		__state.numpes == 1 ? "" : "s"
+		);
 }
 
 /*

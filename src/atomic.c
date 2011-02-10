@@ -159,7 +159,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   Type							\
   pshmem_##Name##_finc(Type *target, int pe)		\
   {							\
-    return shmem_##Name##_fadd(target, (Type) 1, pe);	\
+    return pshmem_##Name##_fadd(target, (Type) 1, pe);	\
   }
 #endif
 
@@ -236,7 +236,7 @@ SHMEM_TYPE_INC(longlong, long long)
   void									\
   pshmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
-    (void) shmem_##Name##_fadd(target, value, pe);			\
+    (void) pshmem_##Name##_fadd(target, value, pe);			\
   }
   
 SHMEM_TYPE_ADD(int, int)
@@ -252,7 +252,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   void							\
   pshmem_##Name##_inc(Type *target, int pe)		\
   {							\
-    (void) shmem_##Name##_finc(target, pe);		\
+    (void) pshmem_##Name##_finc(target, pe);		\
   }
 
 SHMEM_TYPE_INC(int, int)

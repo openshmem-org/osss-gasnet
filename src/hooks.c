@@ -23,14 +23,14 @@ void
 __hooks_pre_barrier(void)
 {
   __shmem_trace(SHMEM_LOG_DEBUG,
-	       "pre-barrier hook call-chain"
-	       );
+		"pre-barrier hook call-chain"
+		);
 }
 
 void
 __hooks_post_barrier(void)
 {
   __shmem_trace(SHMEM_LOG_DEBUG,
-	       "post-barrier hook call-chain"
-	       );
+		"post-barrier hook call-chain"
+		);
 }

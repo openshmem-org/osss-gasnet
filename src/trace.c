@@ -124,8 +124,8 @@ maybe_show_trace_levels(void)
     t += 1;
   }
   __shmem_trace(SHMEM_LOG_INIT,
-	       p
-	       );
+		p
+		);
 }
 
 /* -- end of static -- */
