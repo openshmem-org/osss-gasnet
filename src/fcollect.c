@@ -2,7 +2,7 @@
 
 #include "state.h"
 #include "putget.h"
-#include "warn.h"
+#include "trace.h"
 
 #include "shmem.h"
 
@@ -28,7 +28,7 @@ pshmem_fcollect32(void *target, const void *source, size_t nelems,
     pe += step;
   }
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
-  __shmem_warn(SHMEM_LOG_COLLECT,
+  __shmem_trace(SHMEM_LOG_COLLECT,
 	       "completed barrier"
 	       );
 }

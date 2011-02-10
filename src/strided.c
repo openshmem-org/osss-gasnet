@@ -1,6 +1,6 @@
 #include "shmem.h"
 
-#include "warn.h"
+#include "trace.h"
 
 /*
  *

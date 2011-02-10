@@ -3,7 +3,7 @@
 #include "shmem.h"
 #include "state.h"
 #include "comms.h"
-#include "warn.h"
+#include "trace.h"
 
 /*
  * this waits for the variable to change but also dispatches
@@ -43,7 +43,7 @@
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=);				\
     }									\
     else {								\
-      __shmem_warn(SHMEM_LOG_FATAL,					\
+      __shmem_trace(SHMEM_LOG_FATAL,					\
 		   "unknown operator (code %d) in shmem_%s_wait_until()", \
 		   cmp,							\
 		   #Name						\

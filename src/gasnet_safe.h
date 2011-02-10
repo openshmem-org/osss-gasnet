@@ -3,12 +3,12 @@
 
 #include <gasnet.h>
 
-#include "warn.h"
+#include "trace.h"
 
 #define GASNET_SAFE(fncall) do {                                        \
     int _retval;                                                        \
     if ((_retval = fncall) != GASNET_OK) {                              \
-      __shmem_warn(SHMEM_LOG_FATAL,					\
+      __shmem_trace(SHMEM_LOG_FATAL,					\
 		   "error calling: %s at %s:%i, %s (%s)\n",		\
 		   #fncall, __FILE__, __LINE__,				\
 		   gasnet_ErrorName(_retval),				\

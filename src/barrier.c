@@ -1,6 +1,6 @@
 #include "state.h"
 #include "comms.h"
-#include "warn.h"
+#include "trace.h"
 /* #include "dispatch.h" */
 #include "comms.h"
 #include "hooks.h"

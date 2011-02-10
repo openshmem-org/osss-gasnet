@@ -6,7 +6,7 @@
 
 #include "comms.h"
 #include "state.h"
-#include "warn.h"
+#include "trace.h"
 #include "atomic.h"
 #include "env.h"
 
@@ -57,7 +57,7 @@ __shmem_place_init(void)
 
   s = uname(& __state.loc);
   if (s != 0) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
                  "can't find any node information"
                 );
   }
@@ -78,7 +78,7 @@ pstart_pes(int npes)
 
   /* I shouldn't really call this more than once */
   if (__state.pe_status != PE_UNINITIALIZED) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
                  "shmem has already been initialized (%s)",
 		 __shmem_state_as_string(__state.pe_status)
                 );
@@ -94,7 +94,7 @@ pstart_pes(int npes)
   __shmem_atomic_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
                  "internal error: cannot register shutdown handler"
                 );
     /* NOT REACHED */
@@ -105,7 +105,7 @@ pstart_pes(int npes)
    * this check informational
    */
   if (npes != 0) {
-    __shmem_warn(SHMEM_LOG_INFO,
+    __shmem_trace(SHMEM_LOG_INFO,
 		 "start_pes() was passed %d, should be 0",
 		 npes
 		 );
@@ -117,7 +117,7 @@ pstart_pes(int npes)
 
   __state.pe_status = PE_RUNNING;
 
-  __shmem_warn(SHMEM_LOG_INIT,
+  __shmem_trace(SHMEM_LOG_INIT,
 	       "version \"%s\" running on %d PE%s",
 	       shmem_version(),
 	       __state.numpes,

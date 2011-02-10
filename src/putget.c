@@ -6,7 +6,7 @@
 #include "symmem.h"
 #include "comms.h"
 #include "updown.h"
-#include "warn.h"
+#include "trace.h"
 
 void
 symmetric_test_with_abort(void *remote_addr,
@@ -15,7 +15,7 @@ symmetric_test_with_abort(void *remote_addr,
 			  const char *routine)
 {
   if (remote_addr == NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "shmem_%s_%s: address at %p is not symmetric",
 		 name, routine,
 		 local_addr

@@ -4,14 +4,14 @@
  * to let them all be empty
  */
 
-#include "warn.h"
+#include "trace.h"
 
 #define CACHE_NO_OP(Name, Params)			\
   /* @api@ */						\
   void							\
   p##Name ( Params )					\
   {							\
-    __shmem_warn(SHMEM_LOG_CACHE,			\
+    __shmem_trace(SHMEM_LOG_CACHE,			\
 		 "operation \"%s\" is a no-op",		\
 		 #Name					\
 		 );					\

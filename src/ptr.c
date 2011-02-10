@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "warn.h"
+#include "trace.h"
 
 /* @api@ */
 void *
@@ -16,7 +16,7 @@ pshmem_ptr(void *target, int pe)
 {
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
-  __shmem_warn(SHMEM_LOG_NOTICE,
+  __shmem_trace(SHMEM_LOG_NOTICE,
 	       "shmem_ptr() not implemented yet"
 	       );
   return (void *) NULL;

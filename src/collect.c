@@ -2,7 +2,7 @@
 
 #include "state.h"
 #include "putget.h"
-#include "warn.h"
+#include "trace.h"
 #include "symmem.h"
 
 #include "shmem.h"

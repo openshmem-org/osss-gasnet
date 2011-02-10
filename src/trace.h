@@ -17,11 +17,11 @@ typedef enum {
   SHMEM_LOG_COLLECT,		/* [f]collect ops */
   SHMEM_LOG_REDUCE,		/* reduction ops */
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */
-} shmem_warn_t;
+} shmem_trace_t;
 
-extern void __shmem_warnings_init(void);
+extern void __shmem_traceings_init(void);
 
-extern void __shmem_warn(shmem_warn_t msg_type, char *fmt, ...);
-extern int  __warn_is_enabled(shmem_warn_t level);
+extern void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...);
+extern int  __trace_is_enabled(shmem_trace_t level);
 
 #endif /* _WARN_H */

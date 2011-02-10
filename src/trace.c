@@ -5,7 +5,7 @@
 #include <stdarg.h>
 
 #include "state.h"
-#include "warn.h"
+#include "trace.h"
 #include "updown.h"
 #include "comms.h"
 
@@ -16,18 +16,18 @@ static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
 typedef enum {
   OFF=0,
   ON,
-} __warn_state_t;		/* warning states */
+} __trace_state_t;		/* tracing states */
 
 typedef struct {
-  const shmem_warn_t level;	/* SHMEM_LOG_XXX symbol for logging */
+  const shmem_trace_t level;	/* SHMEM_LOG_XXX symbol for logging */
   const char *text;		/* human readable name */
-  __warn_state_t state;		/* off or on */
-} __warn_table_t;
+  __trace_state_t state;	/* off or on */
+} __trace_table_t;
 
 #define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
 static
-__warn_table_t warnings[] =
+__trace_table_t tracers[] =
   {
     INIT_LEVEL(FATAL,      ON ),
 
@@ -43,7 +43,7 @@ __warn_table_t warnings[] =
     INIT_LEVEL(REDUCE,     OFF),
     INIT_LEVEL(SYMBOLS,    OFF),
   };
-static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
+static const int n_tracers = sizeof(tracers) / sizeof(tracers[0]);
 
 /*
  * enable the named message category.  Return 1 if matched,
@@ -52,13 +52,13 @@ static const int n_warnings = sizeof(warnings) / sizeof(warnings[0]);
  */
 
 static int
-__warn_enable_text(char *warning)
+__trace_enable_text(char *trace)
 {
   int i;
-  __warn_table_t *t = warnings;
+  __trace_table_t *t = tracers;
 
-  for (i = 0; i < n_warnings; i += 1) {
-    if (strcasecmp(warning, t->text) == 0) {
+  for (i = 0; i < n_tracers; i += 1) {
+    if (strcasecmp(trace, t->text) == 0) {
       t->state = ON;
       return 1;
       /* NOT REACHED */
@@ -69,12 +69,12 @@ __warn_enable_text(char *warning)
 }
 
 static void
-__warn_enable_all(void)
+__trace_enable_all(void)
 {
   int i;
-  __warn_table_t *t = warnings;
+  __trace_table_t *t = tracers;
 
-  for (i = 0; i < n_warnings; i += 1) {
+  for (i = 0; i < n_tracers; i += 1) {
     t->state = ON;
     t += 1;
   }
@@ -86,12 +86,12 @@ __warn_enable_all(void)
  */
 
 static const char *
-__level_to_string(shmem_warn_t level)
+__level_to_string(shmem_trace_t level)
 {
   int i;
-  __warn_table_t *t = warnings;
+  __trace_table_t *t = tracers;
 
-  for (i = 0; i < n_warnings; i += 1) {
+  for (i = 0; i < n_tracers; i += 1) {
     if (level == t->level) {
       return t->text;
       /* NOT REACHED */
@@ -109,21 +109,21 @@ __level_to_string(shmem_warn_t level)
  */
 
 static void
-maybe_show_warn_levels(void)
+maybe_show_trace_levels(void)
 {
   char buf[256];
   char *p = buf;
   int i;
-  __warn_table_t *t = warnings;
+  __trace_table_t *t = tracers;
 
   strcpy(p, "Enabled Messages: ");
 
-  for (i = 0; i < n_warnings; i += 1) {
+  for (i = 0; i < n_tracers; i += 1) {
     strncat(p, t->text, strlen(t->text));
     strncat(p, " ", 1);
     t += 1;
   }
-  __shmem_warn(SHMEM_LOG_INIT,
+  __shmem_trace(SHMEM_LOG_INIT,
 	       p
 	       );
 }
@@ -131,12 +131,12 @@ maybe_show_warn_levels(void)
 /* -- end of static -- */
 
 int
-__warn_is_enabled(shmem_warn_t level)
+__trace_is_enabled(shmem_trace_t level)
 {
   int i;
-  __warn_table_t *t = warnings;
+  __trace_table_t *t = tracers;
 
-  for (i = 0; i < n_warnings; i += 1) {
+  for (i = 0; i < n_tracers; i += 1) {
     if (level == t->level) {
       return (t->state == ON);
       /* NOT REACHED */
@@ -146,7 +146,7 @@ __warn_is_enabled(shmem_warn_t level)
   return 0;
 }
 
-static FILE *warn_log_stream;
+static FILE *trace_log_stream;
 
 /*
  * default log to stderr.  if env var set, try to append to that file
@@ -160,7 +160,7 @@ logging_filestream_init(void)
   char *shlf;
   FILE *fp;
 
-  warn_log_stream = stderr;
+  trace_log_stream = stderr;
 
   shlf = __comms_getenv(shmem_logfile_envvar);
   if (shlf == (char *) NULL) {
@@ -169,7 +169,7 @@ logging_filestream_init(void)
 
   fp = fopen(shlf, "a");
   if (fp != (FILE *) NULL) {
-    warn_log_stream = fp;
+    trace_log_stream = fp;
   }
 }
 
@@ -179,7 +179,7 @@ logging_filestream_init(void)
  */
 
 void
-__shmem_warnings_init(void)
+__shmem_traceings_init(void)
 {
   char *shll = __comms_getenv(shmem_loglevels_envvar);
 
@@ -192,17 +192,17 @@ __shmem_warnings_init(void)
 
     while (opt != (char *) NULL) {
       if (strcasecmp(opt, "all") == 0) {
-	__warn_enable_all();
+	__trace_enable_all();
 	break;
 	/* NOT REACHED */
       }
-      (void) __warn_enable_text(opt);
+      (void) __trace_enable_text(opt);
       opt = strtok((char *) NULL, delims);
     }
 
   }
 
-  maybe_show_warn_levels();
+  maybe_show_trace_levels();
     
 }
 
@@ -217,9 +217,9 @@ __shmem_warnings_init(void)
 #define BUF_SIZE 256
 
 void
-__shmem_warn(shmem_warn_t msg_type, char *fmt, ...)
+__shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
 {
-  if (! __warn_is_enabled(msg_type)) {
+  if (! __trace_is_enabled(msg_type)) {
     return;
   }
 
@@ -240,8 +240,8 @@ __shmem_warn(shmem_warn_t msg_type, char *fmt, ...)
     strncat(tmp1, tmp2, BUF_SIZE);
     strncat(tmp1, "\n", BUF_SIZE);
   
-    fputs(tmp1, warn_log_stream);
-    fflush(warn_log_stream); /* make sure this all goes out in 1 burst */
+    fputs(tmp1, trace_log_stream);
+    fflush(trace_log_stream); /* make sure this all goes out in 1 burst */
   }
 
   if (msg_type == SHMEM_LOG_FATAL) {

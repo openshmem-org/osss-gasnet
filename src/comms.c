@@ -16,7 +16,7 @@
 
 #include "state.h"
 #include "memalloc.h"
-#include "warn.h"
+#include "trace.h"
 /* #include "dispatch.h" */
 #include "atomic.h"
 #include "comms.h"
@@ -115,7 +115,7 @@ __comms_get_segment_size(void)
       }
     }
     if (! foundit) {
-      __shmem_warn(SHMEM_LOG_FATAL,
+      __shmem_trace(SHMEM_LOG_FATAL,
 		   "unknown data size unit \"%c\" in symmetric heap specification",
 		   unit);
     }
@@ -148,7 +148,7 @@ __comms_set_waitmode(comms_spinmode_t mode)
     mstr = "block";
     break;
   default:
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "tried to set unknown wait mode %d", (int) mode);
     /* NOT REACHED */
     break;
@@ -156,7 +156,7 @@ __comms_set_waitmode(comms_spinmode_t mode)
 
   GASNET_SAFE( gasnet_set_waitmode(gm) );
 
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_trace(SHMEM_LOG_DEBUG,
 	       "set waitmode to %s",
 	       mstr);
 }
@@ -285,12 +285,12 @@ __comms_fence(void)
 }
 
 static int barcount = 0;
-static int barflag = 0; // GASNET_BARRIERFLAG_ANONYMOUS;
+static int barflag = 0;
 
 void
 __comms_barrier_all(void)
 {
-  // GASNET_BEGIN_FUNCTION();
+  /* GASNET_BEGIN_FUNCTION(); */
 
   /* wait for gasnet to finish pending puts/gets */
   __comms_fence();
@@ -299,7 +299,7 @@ __comms_barrier_all(void)
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
-  // barcount = 1 - barcount;
+  /* barcount = 1 - barcount; */
   barcount += 1;
 
   __comms_fence();
@@ -431,7 +431,7 @@ table_init_helper(void)
       bss_start = shdr.sh_addr;
       bss_end = bss_start + shdr.sh_size;
 
-      __shmem_warn(SHMEM_LOG_SYMBOLS,
+      __shmem_trace(SHMEM_LOG_SYMBOLS,
 		   "ELF section .bss for global variables = 0x%lX -> 0x%lX",
 		   bss_start, bss_end
 		   );
@@ -507,29 +507,29 @@ addr_sort(globalvar_t *a, globalvar_t *b)
 }
 
 static void
-print_global_var_table(shmem_warn_t msgtype)
+print_global_var_table(shmem_trace_t msgtype)
 {
   globalvar_t *g;
   globalvar_t *tmp;
 
-  if (! __warn_is_enabled(msgtype)) {
+  if (! __trace_is_enabled(msgtype)) {
     return;
   }
 
-  __shmem_warn(msgtype,
+  __shmem_trace(msgtype,
 	       "-- start hash table --"
 	       );
 
   HASH_SORT(gvp, addr_sort);
 
   HASH_ITER(hh, gvp, g, tmp) {
-    __shmem_warn(msgtype,
+    __shmem_trace(msgtype,
 		 "address %p: name \"%s\", size %ld",
 		 g->addr, g->name, g->size
 		 );
   }
 
-  __shmem_warn(msgtype,
+  __shmem_trace(msgtype,
 	       "-- end hash table --"
 	       );
 }
@@ -538,7 +538,7 @@ static void
 __comms_globalvar_table_init(void)
 {
   if (table_init_helper() != 0) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: could'nt read global symbols in executable"
 		 );
     /* NOT REACHED */
@@ -678,7 +678,7 @@ __comms_init(void)
 
   argv = (char **) malloc(argc * sizeof(*argv));
   if (argv == (char **) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
                  "could not allocate memory for GASNet initialization"
 		 );
     /* NOT REACHED */
@@ -714,7 +714,7 @@ __comms_init(void)
    */
   __comms_barrier_all();
 
-  __shmem_warn(SHMEM_LOG_INIT,
+  __shmem_trace(SHMEM_LOG_INIT,
 	       "initialization complete"
 	       );
 
@@ -759,14 +759,14 @@ handler_segsetup_out(gasnet_token_t token,
    * and only to that...
    */
 
-  // gasnet_hsl_lock(& setup_out_lock);
+  /* gasnet_hsl_lock(& setup_out_lock); */
 
   GASNET_SAFE( gasnet_AMGetMsgSource(token, &src_pe) );
 
   seginfo_table[(int) src_pe].addr = gsp->addr;
   seginfo_table[(int) src_pe].size = gsp->size;
 
-  // gasnet_hsl_unlock(& setup_out_lock);
+  /* gasnet_hsl_unlock(& setup_out_lock); */
 
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK,
 			(void *) NULL, 0, unused);
@@ -798,7 +798,7 @@ __symmetric_memory_init(void)
   seginfo_table = (gasnet_seginfo_t *) calloc(__state.numpes,
 					      sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
                  "could not allocate GASNet segments (%s)",
 		 strerror(errno)
 		 );
@@ -820,7 +820,7 @@ __symmetric_memory_init(void)
   /* allocate the heap - has to be pagesize aligned */
   if (posix_memalign(& great_big_heap,
 		     GASNET_PAGESIZE, __state.heapsize) != 0) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "unable to allocate symmetric heap"
 		 );
     /* NOT REACHED */
@@ -832,7 +832,7 @@ __symmetric_memory_init(void)
    */
   __comms_barrier_all();
 
-  __shmem_warn(SHMEM_LOG_MEMORY,
+  __shmem_trace(SHMEM_LOG_MEMORY,
 	       "symmetric heap @ %p, size is %ld bytes",
 	       great_big_heap, __state.heapsize
 	       );
@@ -886,10 +886,10 @@ __symmetric_memory_init(void)
    * spit out the seginfo table (but check first that the loop is
    * warranted)
    */
-  if (__warn_is_enabled(SHMEM_LOG_INIT)) {
+  if (__trace_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
-      __shmem_warn(SHMEM_LOG_INIT,
+      __shmem_trace(SHMEM_LOG_INIT,
 		   "seginfo_table[%d] = ( addr = %p, size = %ld )",
 		   pe,
 		   seginfo_table[pe].addr,
@@ -1052,7 +1052,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
 {
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   if (p == (swap_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate swap payload memory"
 		 );
   }
@@ -1144,7 +1144,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 {
   cswap_payload_t *cp = (cswap_payload_t *) malloc(sizeof(*cp));
   if (cp == (cswap_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate conditional swap payload memory"
 		 );
   }
@@ -1235,7 +1235,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
 {
   fadd_payload_t *p = (fadd_payload_t *) malloc(sizeof(*p));
   if (p == (fadd_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate fetch-and-add payload memory"
 		 );
   }
@@ -1325,7 +1325,7 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 {
   finc_payload_t *p = (finc_payload_t *) malloc(sizeof(*p));
   if (p == (finc_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate fetch-and-increment payload memory"
 		 );
   }
@@ -1408,7 +1408,7 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
 {
   add_payload_t *p = (add_payload_t *) malloc(sizeof(*p));
   if (p == (add_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate remote add payload memory"
 		 );
   }
@@ -1490,7 +1490,7 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
 {
   inc_payload_t *p = (inc_payload_t *) malloc(sizeof(*p));
   if (p == (inc_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate remote increment payload memory"
 		 );
   }
@@ -1587,7 +1587,7 @@ __comms_globalvar_translation(void *target, long value, int pe)
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
 
   if (p == (globalvar_payload_t *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: unable to allocate heap variable payload memory"
 		 );
   }

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include "warn.h"
+#include "trace.h"
 
 typedef void (*hook_func)(void);
 
@@ -22,7 +22,7 @@ struct hook_info {
 void
 __hooks_pre_barrier(void)
 {
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_trace(SHMEM_LOG_DEBUG,
 	       "pre-barrier hook call-chain"
 	       );
 }
@@ -30,7 +30,7 @@ __hooks_pre_barrier(void)
 void
 __hooks_post_barrier(void)
 {
-  __shmem_warn(SHMEM_LOG_DEBUG,
+  __shmem_trace(SHMEM_LOG_DEBUG,
 	       "post-barrier hook call-chain"
 	       );
 }

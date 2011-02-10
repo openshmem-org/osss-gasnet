@@ -4,7 +4,7 @@
 
 #include "state.h"
 #include "comms.h"
-#include "warn.h"
+#include "trace.h"
 #include "memalloc.h"
 
 #include "shmem.h"
@@ -30,7 +30,7 @@ shmalloc_symmetry_check(size_t size)
   /* record for everyone else to see */
   shmalloc_remote_size = (long *) __mem_alloc(sizeof(*shmalloc_remote_size));
   if (shmalloc_remote_size == (long *) NULL) {
-    __shmem_warn(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_FATAL,
 		 "internal error: couldn't allocate memory for symmetry check"
 		 );
     /* NOT REACHED */
@@ -45,7 +45,7 @@ shmalloc_symmetry_check(size_t size)
     }
     shmalloc_received_size = shmem_long_g(shmalloc_remote_size, pe);
     if (shmalloc_received_size != size) {
-      __shmem_warn(SHMEM_LOG_NOTICE,
+      __shmem_trace(SHMEM_LOG_NOTICE,
 		   "shmalloc expected %ld, but saw %ld on PE %d",
 		   size, shmalloc_received_size, pe
 		   );
@@ -73,7 +73,7 @@ __shmalloc_no_check(size_t size)
   addr = __mem_alloc(size);
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_NOTICE,
+    __shmem_trace(SHMEM_LOG_NOTICE,
 		 "shmalloc(%ld bytes) failed",
 		 size
 		 );
@@ -83,7 +83,7 @@ __shmalloc_no_check(size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  __shmem_warn(SHMEM_LOG_MEMORY,
+  __shmem_trace(SHMEM_LOG_MEMORY,
 	       "shmalloc(%ld bytes) @ %p",
 	       size, addr
 	       );
@@ -102,7 +102,7 @@ pshmalloc(size_t size)
     return (void *) NULL;
   }
 
-  __shmem_warn(SHMEM_LOG_MEMORY,
+  __shmem_trace(SHMEM_LOG_MEMORY,
 	       "shmalloc(%ld bytes) passed symmetry check",
 	       size
 	       );
@@ -116,14 +116,14 @@ void
 pshfree(void *addr)
 {
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_MEMORY,
+    __shmem_trace(SHMEM_LOG_MEMORY,
 		 "address passed to shfree() already null"
 		 );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
   }
 
-  __shmem_warn(SHMEM_LOG_MEMORY,
+  __shmem_trace(SHMEM_LOG_MEMORY,
 	       "shfree(%p) in pool @ %p",
 	       addr, __mem_base()
 	       );
@@ -148,7 +148,7 @@ pshrealloc(void *addr, size_t size)
   }
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_MEMORY,
+    __shmem_trace(SHMEM_LOG_MEMORY,
 		 "address passed to shrealloc() already null"
 		 );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
@@ -158,7 +158,7 @@ pshrealloc(void *addr, size_t size)
   newaddr = __mem_realloc(addr, size);
 
   if (newaddr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_MEMORY,
+    __shmem_trace(SHMEM_LOG_MEMORY,
 		 "shrealloc(%ld bytes) failed @ original address %p",
 		 size, addr
 		 );
@@ -192,7 +192,7 @@ pshmemalign(size_t alignment, size_t size)
   addr = __mem_align(alignment, size);
 
   if (addr == (void *) NULL) {
-    __shmem_warn(SHMEM_LOG_MEMORY,
+    __shmem_trace(SHMEM_LOG_MEMORY,
 		 "shmem_memalign(%ld bytes) couldn't realign to %ld",
 		 size, alignment
 		 );

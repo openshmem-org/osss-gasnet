@@ -1,5 +1,5 @@
 #include "state.h"
-#include "warn.h"
+#include "trace.h"
 #include "putget.h"
 #include "comms.h"
 
