@@ -11,7 +11,7 @@
 
 #include "atomic.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 #if defined(__i386) || defined(__x86_64)
 /* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
