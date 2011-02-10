@@ -179,7 +179,7 @@ logging_filestream_init(void)
  */
 
 void
-__shmem_traceings_init(void)
+__shmem_tracers_init(void)
 {
   char *shll = __comms_getenv(shmem_loglevels_envvar);
 
