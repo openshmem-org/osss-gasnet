@@ -267,3 +267,4 @@ psherror(void)
 #pragma weak shrealloc = pshrealloc
 #pragma weak shmem_realloc = pshmem_realloc
 #pragma weak shmemalign = pshmemalign
+#pragma weak sherror = psherror
