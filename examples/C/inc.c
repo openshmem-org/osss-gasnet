@@ -24,7 +24,7 @@ main()
   shmem_barrier_all();
 
   if (me == 0) {
-    shmem_int_finc(&dst, 1);
+    shmem_int_inc(&dst, 1);
   }
   shmem_barrier_all();
 

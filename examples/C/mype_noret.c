@@ -9,7 +9,7 @@ main(int argc, char **argv)
 
   start_pes(0);
 
-  my_pe();
+  _my_pe();			/* expect to get warning here */
   npes = _num_pes();
 
   printf("Hello from %d PEs\n", npes); 
