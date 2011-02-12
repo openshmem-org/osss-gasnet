@@ -22,6 +22,7 @@
 /* #include "dispatch.h" */
 #include "atomic.h"
 #include "comms.h"
+#include "ping.h"
 
 #include "pshmem.h"
 
@@ -1520,18 +1521,17 @@ handler_ping_out(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   ping_payload_t *pp = (ping_payload_t *) buf;
-  gasnet_node_t sender;
 
   gasnet_hsl_lock(& ping_out_lock);
 
   pp->remote_pe_status = PE_RUNNING;
 
+  /* sleep(__state.mype); */
+
   gasnet_hsl_unlock(& ping_out_lock);
 
   /* return ack'ed payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_PING_BAK, buf, bufsiz, unused);
-
-  (void) gasnet_AMGetMsgSource(token, &sender);
 }
 
 /*
@@ -1543,7 +1543,6 @@ handler_ping_bak(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   ping_payload_t *pp = (ping_payload_t *) buf;
-  gasnet_node_t sender;
   
   gasnet_hsl_lock(& ping_bak_lock);
 
@@ -1553,8 +1552,6 @@ handler_ping_bak(gasnet_token_t token,
   *(pp->completed_addr) = 1;
 
   gasnet_hsl_unlock(& ping_bak_lock);
-
-  (void) gasnet_AMGetMsgSource(token, &sender);
 }
 
 int
@@ -1584,13 +1581,15 @@ __comms_ping_request(int pe)
   /* hope for the best */
   pe_acked = 1;
 
-  alarm(__state.ping_timeout);
+  __ping_set_alarm();
+
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_PING_OUT,
 			  p, sizeof(*p),
 			  0);
   GASNET_BLOCKUNTIL(p->completed);
-  alarm(0);
+
+  __ping_clear_alarm();
 
   sig = signal(SIGALRM, sig);
   if (sig == SIG_ERR) {

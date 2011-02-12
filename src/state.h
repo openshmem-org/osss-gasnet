@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <sys/utsname.h>
+#include <sys/time.h>
 
 typedef enum {
   PE_UNINITIALIZED=0,		/* start like this */
@@ -21,7 +22,7 @@ typedef struct {
   int mype;                     /* individual processing element   */
   size_t heapsize;		/* size of symmetric heap (bytes)  */
 
-  int ping_timeout;		/* wait for remote PE to ack ping  */
+  struct itimerval ping_timeout; /* wait for remote PE to ack ping  */
 
   struct utsname loc;		/* location information            */
 
