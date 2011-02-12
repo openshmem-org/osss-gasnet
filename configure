@@ -64,17 +64,18 @@ echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 
-DIRS=". doc src"
+DIRS=". ./doc ./src ./examples ./examples/C ./examples/Fortran"
 
 for d in $DIRS
 do
   mf="$d/Makefile"
+  mfin="$mf.in"
   sed \
       -e "s%@PREFIX@%$prefix%g" \
       -e "s%@GASNET_ROOT@%$gasnet_root%g" \
       -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
-      < ${mf}.in > $mf
-  echo "$progname: created $mf"
+      < $mfin > $mf
+  echo "$progname: created $mf from $mfin"
 done
 
 cs=config.status
