@@ -85,4 +85,6 @@ extern void  __comms_add_request(void *target, void *value, size_t nbytes,
 extern void  __comms_inc_request(void *target, size_t nbytes,
 				 int pe);
 
+extern int   __comms_ping_request(int pe);
+
 #endif /* _COMMS_H */

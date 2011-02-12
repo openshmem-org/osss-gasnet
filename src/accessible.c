@@ -11,7 +11,7 @@
 int
 pshmem_pe_accessible(int pe)
 {
-  return 1;
+  return __comms_ping_request(pe);
 }
 
 /*

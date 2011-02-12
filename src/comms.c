@@ -5,7 +5,9 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <ctype.h>
+#include <signal.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/mman.h>
@@ -52,22 +54,13 @@ static void *great_big_heap;
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
 /*
- * define accepted size units.  Table set up to favor expected units
+ * define accepted size units in ascending order, which are
+ * S.I. compliant
  */
 
-struct unit_lookup {
-  char unit;
-  size_t size;
-};
+static char *units_string = "kmgtpezy";
 
-static struct unit_lookup units[] =
-  {
-    { 'g', 1024L * 1024L * 1024L         },
-    { 'm', 1024L * 1024L                 },
-    { 'k', 1024L                         },
-    { 't', 1024L * 1024L * 1024L * 1024L }
-  };
-static const int nunits = sizeof(units) / sizeof(units[0]);
+static const size_t multiplier = 1000L;
 
 /*
  * work out how big the symmetric segment areas should be.
@@ -79,7 +72,7 @@ static size_t
 __comms_get_segment_size(void)
 {
   char unit = '\0';
-  size_t mul = 1;
+  size_t bytes = 1L;
   char *p;
   char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
 
@@ -101,27 +94,31 @@ __comms_get_segment_size(void)
     p += 1;
   }
 
+  /* if there's a unit, work out how much to scale */
   if (unit != '\0') {
     int i;
     int foundit = 0;
-    struct unit_lookup *up = (struct unit_lookup *) units;
+    char *usp = units_string;
 
     unit = tolower(unit);
-    for (i = 0; i < nunits; up += 1, i += 1) {
-      if (up->unit == unit) {	/* walk the table, assign if unit matches */
-	mul = up->size;
+    while (*usp != '\0') {
+      bytes *= multiplier;
+      if (*usp == unit) {
 	foundit = 1;
 	break;
       }
+      usp += 1;
     }
+
     if (! foundit) {
+      /* don't know that unit! */
       __shmem_trace(SHMEM_LOG_FATAL,
 		    "unknown data size unit \"%c\" in symmetric heap specification",
 		    unit);
     }
   }
 
-  return mul * (size_t) strtol(mlss_str, (char **) NULL, 10);
+  return bytes * (size_t) strtol(mlss_str, (char **) NULL, 10);
 }
 
 /*
@@ -596,6 +593,12 @@ static void handler_add_bak();
 static void handler_inc_out();
 static void handler_inc_bak();
 
+#define GASNET_HANDLER_PING_OUT      144
+#define GASNET_HANDLER_PING_BAK      145
+
+static void handler_ping_out();
+static void handler_ping_bak();
+
 #if defined(HAVE_MANAGED_SEGMENTS)
 
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
@@ -624,6 +627,8 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_ADD_BAK,       handler_add_bak       },
     { GASNET_HANDLER_INC_OUT,       handler_inc_out       },
     { GASNET_HANDLER_INC_BAK,       handler_inc_bak       },
+    { GASNET_HANDLER_PING_OUT,      handler_ping_out      },
+    { GASNET_HANDLER_PING_BAK,      handler_ping_bak      },
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
@@ -1480,6 +1485,125 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
   free(p);
 }
 
+
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * Handlers for pinging for shmem_pe_accessible
+ *
+ */
+
+typedef struct {
+  pe_status_t remote_pe_status;	/* health of remote PE */
+  int completed;		/* transaction end marker */
+  int *completed_addr;	        /* addr of marker */
+} ping_payload_t;
+
+static int pe_acked = 1;
+
+static void
+ping_timeout_handler(int signum)
+{
+  pe_acked = 0;
+}
+
+static gasnet_hsl_t ping_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t ping_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE when (if) it gets the ping
+ */
+static void
+handler_ping_out(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  ping_payload_t *pp = (ping_payload_t *) buf;
+  gasnet_node_t sender;
+
+  gasnet_hsl_lock(& ping_out_lock);
+
+  pp->remote_pe_status = PE_RUNNING;
+
+  gasnet_hsl_unlock(& ping_out_lock);
+
+  /* return ack'ed payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_PING_BAK, buf, bufsiz, unused);
+
+  (void) gasnet_AMGetMsgSource(token, &sender);
+}
+
+/*
+ * called by sender PE when (if) remote PE ack's the ping
+ */
+static void
+handler_ping_bak(gasnet_token_t token,
+		 void *buf, size_t bufsiz,
+		 gasnet_handlerarg_t unused)
+{
+  ping_payload_t *pp = (ping_payload_t *) buf;
+  gasnet_node_t sender;
+  
+  gasnet_hsl_lock(& ping_bak_lock);
+
+  pe_acked = pe_acked && (pp->remote_pe_status == PE_RUNNING);
+
+  /* done it */
+  *(pp->completed_addr) = 1;
+
+  gasnet_hsl_unlock(& ping_bak_lock);
+
+  (void) gasnet_AMGetMsgSource(token, &sender);
+}
+
+int
+__comms_ping_request(int pe)
+{
+  sighandler_t sig;
+  ping_payload_t *p = (ping_payload_t *) malloc(sizeof(*p));
+  if (p == (ping_payload_t *) NULL) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: unable to allocate remote accessibility payload memory"
+		  );
+  }
+  /* build payload to send */
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
+  p->remote_pe_status = PE_UNKNOWN;
+
+  /* now the ping is ponged, or we timeout waiting... */
+  sig = signal(SIGALRM, ping_timeout_handler);
+  if (sig == SIG_ERR) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: registration of ping timeout handler failed"
+		  );
+    /* NOT REACHED */
+  }
+
+  /* hope for the best */
+  pe_acked = 1;
+
+  alarm(__state.ping_timeout);
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_PING_OUT,
+			  p, sizeof(*p),
+			  0);
+  GASNET_BLOCKUNTIL(p->completed);
+  alarm(0);
+
+  sig = signal(SIGALRM, sig);
+  if (sig == SIG_ERR) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: release of ping timeout handler failed"
+		  );
+    /* NOT REACHED */
+  }
+
+  free(p);
+
+  return pe_acked;
+}
 
 
 /*

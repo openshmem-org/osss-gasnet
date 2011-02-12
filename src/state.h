@@ -6,6 +6,7 @@
 
 typedef enum {
   PE_UNINITIALIZED=0,		/* start like this */
+  PE_UNKNOWN,			/* for when we have no information yet */
   PE_RUNNING,			/* after start_pes() */
   PE_SHUTDOWN,			/* clean exit */
   PE_FAILED,			/* something went wrong */
@@ -19,6 +20,8 @@ typedef struct {
   int numpes;                   /* # of processing elements        */
   int mype;                     /* individual processing element   */
   size_t heapsize;		/* size of symmetric heap (bytes)  */
+
+  int ping_timeout;		/* wait for remote PE to ack ping  */
 
   struct utsname loc;		/* location information            */
 
