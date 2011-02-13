@@ -10,10 +10,10 @@
  * other put/get traffic in the meantime
  */
 
-#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op)		\
-  do {							\
-    __comms_poll();					\
-  } while ( *((volatile Type *) Var) Op cmp_value)
+#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
+  do {								\
+    __comms_poll();						\
+  } while ( *((volatile Type *) Var) Op CmpValue)
 
 /*
  * wait_util with operator dispatchers, type-parameterized
@@ -25,22 +25,22 @@
   pshmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
     if (cmp == SHMEM_CMP_EQ) {						\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==, cmp_value);		\
     }									\
     else if (cmp == SHMEM_CMP_NE) {					\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, !=);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, !=, cmp_value);		\
     }									\
     else if (cmp == SHMEM_CMP_GT) {					\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >, cmp_value);		\
     }									\
     else if (cmp == SHMEM_CMP_LE) {					\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <=);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <=, cmp_value);		\
     }									\
     else if (cmp == SHMEM_CMP_LT) {					\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <, cmp_value);		\
     }									\
     else if (cmp == SHMEM_CMP_GE) {					\
-      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=);				\
+      SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=, cmp_value);		\
     }									\
     else {								\
       __shmem_trace(SHMEM_LOG_FATAL,					\

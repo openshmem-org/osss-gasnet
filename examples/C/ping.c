@@ -12,6 +12,8 @@ main()
 {
   int me, npes;
 
+  setbuf(stdout, NULL);
+
   start_pes(0);
   me = _my_pe();
   npes = _num_pes();
@@ -19,12 +21,13 @@ main()
   if (me == 0) {
     int i;
     for (i = 1; i < npes; i += 1) {
-      printf("From %d: PE %d is %saccessible\n",
-             me,
-             i,
-             shmem_pe_accessible(i) ? "" : "NOT "
-            );
+      printf("From %d: PE %d is ", me, i);
+      printf("%s", shmem_pe_accessible(i) ? "" : "NOT ");
+      printf("accessible\n");
     }
+  }
+  else {
+    ;
   }
 
   return 0;

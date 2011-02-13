@@ -345,11 +345,15 @@ Initialization
 In src/updown.c we handle setting up the SHMEM runtime, and eventual shutdown.
  Shutdown is implicit in user code, there is no call to do this in SGI SHMEM,
  so we register a handler to be called when main() exits.
- Cray SHMEM has an explicit finalize call.
+ (Cray SHMEM has an explicit finalize call.) The segment exchange is a target
+ for future optimization: in large programs, the start-up time will become
+ burdensome due to the large number of address/size communication.
+ Strategies for avoiding this include lazy initialization and hierarchical
+ lookups.
 \end_layout
 
 \begin_layout Subsection
-Incorporating SHMEM into Program
+Incorporating SHMEM into Programs
 \end_layout
 
 \begin_layout Standard
@@ -671,6 +675,32 @@ Reductions coalesce data from a number of PEs into either a single variable
  A version with puts that can overlap communication and the computation
  of the reduction operation should be more scalable.
  However, the code is rather compact and all ops use the same template.
+\end_layout
+
+\begin_layout Subsection
+Accessibility
+\end_layout
+
+\begin_layout Standard
+SHMEM allows us to test whether PEs are currently reachable, and whether
+ addresses on remote PEs are addressable.
+ GASNet is used to 
+\begin_inset Quotes eld
+\end_inset
+
+ping
+\begin_inset Quotes erd
+\end_inset
+
+ the remote PE and then we wait for an 
+\begin_inset Quotes eld
+\end_inset
+
+ack
+\begin_inset Quotes erd
+\end_inset
+
+ with a configurable timeout.
 \end_layout
 
 \begin_layout Section

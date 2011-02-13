@@ -13,6 +13,7 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 #include <values.h>
+#include <setjmp.h>
 
 #include "gasnet_safe.h"
 
@@ -25,6 +26,13 @@
 #include "ping.h"
 
 #include "pshmem.h"
+
+
+#define WAIT_ON_COMPLETION(p) \
+  do {			      \
+    __comms_poll();	      \
+  } while (! (p)->completed)  \
+
 
 /*
  * gasnet model choice
@@ -973,8 +981,8 @@ static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
 } swap_payload_t;
@@ -1045,7 +1053,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
@@ -1056,8 +1064,8 @@ static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
   long long cond;		/* conditional value */
@@ -1138,7 +1146,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
 			  cp, sizeof(*cp),
 			  0);
-  GASNET_BLOCKUNTIL(cp->completed);
+  WAIT_ON_COMPLETION(cp);
 
   free(cp);
 }
@@ -1150,8 +1158,8 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be added & then return old */
 } fadd_payload_t;
@@ -1228,7 +1236,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
@@ -1240,8 +1248,8 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
 typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } finc_payload_t;
@@ -1317,7 +1325,7 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
@@ -1328,8 +1336,8 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } add_payload_t;
@@ -1400,7 +1408,7 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_ADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
@@ -1411,8 +1419,8 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
 
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
   size_t nbytes;		/* how big the value is */
 } inc_payload_t;
 
@@ -1481,7 +1489,7 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_INC_OUT,
 			  p, sizeof(*p),
 			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
@@ -1497,16 +1505,20 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
 
 typedef struct {
   pe_status_t remote_pe_status;	/* health of remote PE */
-  int completed;		/* transaction end marker */
-  int *completed_addr;	        /* addr of marker */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	        /* addr of marker */
 } ping_payload_t;
 
 static int pe_acked = 1;
+
+static jmp_buf jb;
 
 static void
 ping_timeout_handler(int signum)
 {
   pe_acked = 0;
+
+  longjmp(jb, 1);
 }
 
 static gasnet_hsl_t ping_out_lock = GASNET_HSL_INITIALIZER;
@@ -1558,6 +1570,7 @@ int
 __comms_ping_request(int pe)
 {
   sighandler_t sig;
+  int sj_status;
   ping_payload_t *p = (ping_payload_t *) malloc(sizeof(*p));
   if (p == (ping_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -1583,11 +1596,17 @@ __comms_ping_request(int pe)
 
   __ping_set_alarm();
 
-  /* send and wait for ack */
-  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_PING_OUT,
-			  p, sizeof(*p),
-			  0);
-  GASNET_BLOCKUNTIL(p->completed);
+  sj_status = setjmp(jb);
+
+  /* don't ping again if we're returning from alarm handler */
+  if (sj_status == 0) {
+    /* send and wait for ack */
+    gasnet_AMRequestMedium1(pe, GASNET_HANDLER_PING_OUT,
+			    p, sizeof(*p),
+			    0);
+
+    WAIT_ON_COMPLETION(p);
+  }
 
   __ping_clear_alarm();
 
@@ -1636,8 +1655,8 @@ typedef struct {
   long offset;		        /* where we are in the write process */
   long bytes_left;		/* how much data remains to be written */
   void *send_data;		/* the actual data to be sent */
-  int completed;		/* completion marker */
-  int *completed_addr;		/* addr of completion marker */
+  volatile int completed;	/* completion marker */
+  volatile int *completed_addr;		/* addr of completion marker */
 } globalvar_payload_t;
 
 
@@ -1693,7 +1712,7 @@ __comms_globalvar_translation(void *target, long value, int pe)
 			  p, sizeof(*p),
 			  0);
 
-  GASNET_BLOCKUNTIL(p->completed);
+  WAIT_ON_COMPLETION(p);
 
   free(p);
 }
