@@ -25,13 +25,8 @@
 #include "comms.h"
 #include "ping.h"
 
-#include "pshmem.h"
 
-
-#define WAIT_ON_COMPLETION(p) \
-  do {			      \
-    __comms_poll();	      \
-  } while (! (p)->completed)  \
+#define WAIT_ON_COMPLETION(p) do { __comms_poll(); } while (! (p))
 
 
 /*
@@ -1053,7 +1048,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
@@ -1146,7 +1141,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
 			  cp, sizeof(*cp),
 			  0);
-  WAIT_ON_COMPLETION(cp);
+  WAIT_ON_COMPLETION(cp->completed);
 
   free(cp);
 }
@@ -1236,7 +1231,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
@@ -1325,7 +1320,7 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
 			  p, sizeof(*p),
 			  0);
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
@@ -1408,7 +1403,7 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_ADD_OUT,
 			  p, sizeof(*p),
 			  0);
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
@@ -1489,7 +1484,7 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_INC_OUT,
 			  p, sizeof(*p),
 			  0);
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
@@ -1598,14 +1593,14 @@ __comms_ping_request(int pe)
 
   sj_status = setjmp(jb);
 
-  /* don't ping again if we're returning from alarm handler */
+  /* only ping if we're coming through the first time */
   if (sj_status == 0) {
     /* send and wait for ack */
     gasnet_AMRequestMedium1(pe, GASNET_HANDLER_PING_OUT,
 			    p, sizeof(*p),
 			    0);
 
-    WAIT_ON_COMPLETION(p);
+    WAIT_ON_COMPLETION(p->completed);
   }
 
   __ping_clear_alarm();
@@ -1712,7 +1707,7 @@ __comms_globalvar_translation(void *target, long value, int pe)
 			  p, sizeof(*p),
 			  0);
 
-  WAIT_ON_COMPLETION(p);
+  WAIT_ON_COMPLETION(p->completed);
 
   free(p);
 }
