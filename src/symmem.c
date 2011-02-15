@@ -16,7 +16,7 @@ long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 /*
  * check that all PEs see the same shmalloc size: return first
  * mis-matching PE id if there's a mis-match, return -1 to record
- * correct symmetry
+ * correct symmetry (no offending PE)
  */
 
 static int
@@ -52,6 +52,7 @@ shmalloc_symmetry_check(size_t size)
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
       any_failed_pe = pe;
       break;
+      /* NOT REACHED */
     }
   }
   __mem_free(shmalloc_remote_size);

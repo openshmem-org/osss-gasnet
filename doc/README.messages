@@ -7,7 +7,7 @@ All categories are disabled initially, except for "FATAL".
 
 To add a category:
 
-1. add a value to the enum in "trace.h"
+1. add a value to the enum in "trace.h".  Suggest appending to the list.
 
 2. add a table entry to tracers[] in trace.c.  The value is OFF/ON
 

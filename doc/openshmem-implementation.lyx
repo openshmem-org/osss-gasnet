@@ -334,7 +334,6 @@ small
  The library should at some point introduce code that differentiates between
  aligned and non-aligned environments with optimized code for the former
  case (GASNet provides a macro you can test against).
- Initialization
 \end_layout
 
 \begin_layout Subsection
@@ -441,7 +440,14 @@ npes
 \begin_inset Quotes erd
 \end_inset
 
- should be set to zero but we don't enforce that, merely note it).
+ 
+\emph on
+should
+\emph default
+ be set to zero but we don't enforce that, merely note it).
+ The number of PEs is taken from the invoking environment.
+ Currently this number is assumed to be fixed throughout the lifetime of
+ the program, but fault tolerance extensions could generalize this notion.
 \end_layout
 
 \begin_layout Subsection
@@ -701,6 +707,8 @@ ack
 \end_inset
 
  with a configurable timeout.
+ Remains to be seen how useful this is, and whether it can be used for future
+ fault tolerance issues.
 \end_layout
 
 \begin_layout Section
