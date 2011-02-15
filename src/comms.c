@@ -695,7 +695,7 @@ __comms_init(void)
   __comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_INIT,
-		"initialization complete"
+		"communication layer initialization complete"
 		);
 
   /* Up and running! */

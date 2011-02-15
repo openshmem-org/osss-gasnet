@@ -1,3 +1,8 @@
+/*
+ * just do the cache calls.   No output expected
+ *
+ */
+
 #include <stdio.h>
 
 #include <mpp/shmem.h>

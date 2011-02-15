@@ -5,13 +5,30 @@
 #include "trace.h"
 #include "barrier-naive.h"
 
+/*
+ * these are what we use if nothing else available
+ *
+ */
+
 static char *DEFAULT_BARRIER_ALL_ALGORITHM = "naive";
 static char *DEFAULT_BARRIER_ALGORITHM     = "naive";
 
+/*
+ * handlers for barrier implementations
+ *
+ */
+
 typedef void (*dispatch_function)();
 
-static dispatch_function bar_func = NULL;
 static dispatch_function bar_all_func = NULL;
+static dispatch_function bar_func = NULL;
+
+/*
+ * build tables of names and corresponding functions to call.  We
+ * split up barrier and barrier_all to allow different implementations
+ * of each.
+ *
+ */
 
 typedef struct {
   char *name;
@@ -34,7 +51,8 @@ static const int n_barrier =
 
 /*
  * called during library initialization to find the right barrier
- * algorithm(s)
+ * algorithm(s).  Return function pointer, or NULL if we can't find
+ * the name.
  *
  */
 
@@ -51,8 +69,13 @@ lookup(bar_table_t *tp, int n, char *name)
     }
     tp += 1;
   }
-  return NULL;
+  return (dispatch_function) NULL;
 }
+
+/*
+ * called during initialization of shmem
+ *
+ */
 
 void
 __barrier_dispatch_init(void)
@@ -68,15 +91,15 @@ __barrier_dispatch_init(void)
    */
 
   bar_all_name = __comms_getenv("SHMEM_BARRIER_ALL_ALGORITHM");
-  if (bar_all_name == NULL) {
+  if (bar_all_name == (char *) NULL) {
     bar_all_name = DEFAULT_BARRIER_ALL_ALGORITHM;
   }
   batp = barrier_all_table;
   bar_all_func = lookup(batp, n_barrier_all, bar_all_name);
-  if (bar_all_func == NULL) {
-    __shmem_trace(SHMEM_LOG_INIT,
-		  "unknown barrier_all alogrithm \"%s\", using default",
-		  bar_all_name
+  if (bar_all_func == (dispatch_function) NULL) {
+    __shmem_trace(SHMEM_LOG_BARRIER,
+		  "unknown barrier_all alogrithm \"%s\", using default \"%s\"",
+		  bar_all_name, DEFAULT_BARRIER_ALL_ALGORITHM
 		  );
     bar_all_func = lookup(batp, n_barrier_all, DEFAULT_BARRIER_ALL_ALGORITHM);
   }
@@ -87,21 +110,24 @@ __barrier_dispatch_init(void)
    */
 
   bar_name = __comms_getenv("SHMEM_BARRIER_ALGORITHM");
-  if (bar_name == NULL) {
+  if (bar_name == (char *) NULL) {
     bar_name = DEFAULT_BARRIER_ALGORITHM;
   }
   btp = barrier_table;
   bar_func = lookup(btp, n_barrier, bar_name);
-  if (bar_func == NULL) {
-    __shmem_trace(SHMEM_LOG_INIT,
-		  "unknown barrier alogrithm \"%s\", using default",
-		  bar_name
+  if (bar_func == (dispatch_function) NULL) {
+    __shmem_trace(SHMEM_LOG_BARRIER,
+		  "unknown barrier alogrithm \"%s\", using default \"%s\"",
+		  bar_name, DEFAULT_BARRIER_ALGORITHM
 		  );
     bar_func = lookup(btp, n_barrier, DEFAULT_BARRIER_ALGORITHM);
   }
 
-  __shmem_trace(SHMEM_LOG_INIT,
-		"using \"%s\" barrier, \"%s\"",
+  /*
+   * report which barrier implementations we set up
+   */
+  __shmem_trace(SHMEM_LOG_BARRIER,
+		"using barrier \"%s\", barrier_all \"%s\"",
 		bar_name, bar_all_name
 		);
 }
@@ -116,7 +142,7 @@ __barrier_dispatch_init(void)
 void
 pshmem_barrier_all(void)
 {
-  if (bar_all_func == NULL) {
+  if (bar_all_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: no barrier_all handler defined"
 		  );
@@ -130,7 +156,7 @@ pshmem_barrier_all(void)
 void
 pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  if (bar_func == NULL) {
+  if (bar_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: no barrier handler defined"
 		  );

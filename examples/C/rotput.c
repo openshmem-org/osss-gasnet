@@ -43,6 +43,7 @@ main(int argc, char **argv)
   }
   printf("\n");
 
+  shmem_barrier_all();
   shfree(dest);
 
   return 0;
