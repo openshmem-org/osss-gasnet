@@ -168,18 +168,3 @@ pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 
 #pragma weak shmem_barrier_all = pshmem_barrier_all
 #pragma weak shmem_barrier = pshmem_barrier
-
-#if 0
-
-/*
- * the SGI man pages say the bare name "barrier" is a synonym for
- * "shmem_barrier_all", but the barrier symbol does not appear in the
- * SMA library.
- *
- */
-
-#pragma weak pbarrier = pshmem_barrier_all
-
-#pragma weak barrier = pbarrier
-
-#endif /* 0 */

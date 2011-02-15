@@ -870,7 +870,7 @@ __symmetric_memory_init(void)
     int pe;
     for (pe = 0; pe < __state.numpes; pe += 1) {
       __shmem_trace(SHMEM_LOG_INIT,
-		    "seginfo_table[%d] = ( addr = %p, size = %ld )",
+		    "cross-check: segment[%d] = { .addr = %p, .size = %ld }",
 		    pe,
 		    seginfo_table[pe].addr,
 		    seginfo_table[pe].size
