@@ -3,6 +3,13 @@
 
 #include "comms.h"
 #include "trace.h"
+#include "utils.h"
+
+/*
+ * pull-in all the implementations here
+ *
+ */
+
 #include "barrier-naive.h"
 
 /*
@@ -152,6 +159,8 @@ __barrier_dispatch_init(void)
 void
 pshmem_barrier_all(void)
 {
+  INIT_CHECK();
+
   if (bar_all_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: no barrier_all handler defined"
@@ -166,6 +175,8 @@ pshmem_barrier_all(void)
 void
 pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
+  INIT_CHECK();
+
   if (bar_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: no barrier handler defined"

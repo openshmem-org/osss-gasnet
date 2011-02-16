@@ -3,6 +3,7 @@
 #include "state.h"
 #include "putget.h"
 #include "trace.h"
+#include "utils.h"
 
 #include "pshmem.h"
 
@@ -23,6 +24,9 @@ pshmem_fcollect32(void *target, const void *source, size_t nelems,
   const size_t tidx = nelems * sizeof(int) * __state.mype;
   int pe = PE_start;
   int i;
+
+  INIT_CHECK();
+
   for (i = 0; i < PE_size; i += 1) {
     pshmem_put32(target + tidx, source, nelems, pe);
     pe += step;

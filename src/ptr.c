@@ -9,11 +9,14 @@
 #include <stdio.h>
 
 #include "trace.h"
+#include "utils.h"
 
 /* @api@ */
 void *
 pshmem_ptr(void *target, int pe)
 {
+  INIT_CHECK();
+
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
   __shmem_trace(SHMEM_LOG_NOTICE,

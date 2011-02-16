@@ -4,6 +4,7 @@
  * to let them all be empty
  */
 
+#include "utils.h"
 #include "trace.h"
 
 #define CACHE_NO_OP(Name, Params)			\
@@ -11,6 +12,7 @@
   void							\
   p##Name ( Params )					\
   {							\
+    INIT_CHECK();					\
     __shmem_trace(SHMEM_LOG_CACHE,			\
 		  "operation \"%s\" is a no-op",	\
 		  #Name					\

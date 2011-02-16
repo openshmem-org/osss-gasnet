@@ -9,6 +9,7 @@
 #include "trace.h"
 #include "atomic.h"
 #include "env.h"
+#include "utils.h"
 
 #include "shmem.h"
 
@@ -142,6 +143,7 @@ pshmem_init(void)
 void
 pshmem_finalize(void)
 {
+  INIT_CHECK();
 }
 
 #pragma weak start_pes = pstart_pes
