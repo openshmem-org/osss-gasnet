@@ -1,4 +1,4 @@
 This is a set of test programs.  Currently only functionality tests
 but we'll add some performance ones later.  Executables are the same
 name as the C source but with a ".x" extension.  So to build the test
-for foo.c, do "make foo.x".
+for foo.c, do "make foo.x".  Ditto for C++ (.cxx extension).

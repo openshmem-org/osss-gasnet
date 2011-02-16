@@ -1,9 +1,11 @@
-SHMEM_CC = oshcc
-SHMEM_CFLAGS = -ggdb -O3
+SHMEM_CC       = oshcc
+SHMEM_CFLAGS   = -ggdb -O3
 
-TESTS = $(wildcard *.c)
+C_TESTS        = $(wildcard *.c)
 
-EXES = $(TESTS:.c=.x)
+C_EXES         = $(C_TESTS:.c=.x)
+
+EXES           = $(C_EXES)
 
 .PHONY: clean all default
 

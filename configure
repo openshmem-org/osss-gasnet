@@ -64,7 +64,15 @@ echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 
-DIRS=". ./doc ./src ./examples ./examples/C ./examples/Fortran"
+DIRS="
+.
+./doc
+./src
+./examples
+./examples/C
+./examples/C++
+./examples/Fortran
+"
 
 for d in $DIRS
 do
