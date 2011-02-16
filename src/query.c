@@ -1,4 +1,6 @@
 #include "state.h"
+#include "trace.h"
+#include "utils.h"
 
 /*
  * these routines handle the questions "how many PEs?" and "which PE
@@ -11,6 +13,7 @@
   int						\
   p##Variant (void)				\
   {						\
+    INIT_CHECK();				\
     return __state.mype;			\
   }
 
@@ -22,6 +25,7 @@ SHMEM_MY_PE(_my_pe)
   int						\
   p##Variant (void)				\
   {						\
+    INIT_CHECK();				\
     return __state.numpes;			\
   }
 
@@ -33,6 +37,7 @@ SHMEM_NUM_PES(_num_pes)
 char *
 pshmem_nodename(void)
 {
+  INIT_CHECK();
   return __state.loc.nodename;
 }
 

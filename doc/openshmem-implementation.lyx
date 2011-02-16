@@ -115,7 +115,19 @@ processing element
  All PEs run the same program in the SPMD model, although they can discover
  which position, or rank, they occupy within the program and diverge in
  behavior.
- Communication occurs through point-to-point one-sided routines and collective
+\end_layout
+
+\begin_layout Standard
+The number of PEs participating in the program is set at launch-time (although
+ not all PEs need to do work).
+ PEs are numbered from monotonically increasing from 0 up to N-1, where
+ N is the total number of PEs.
+ PEs are assumed to be equidistant from each other, no topological information
+ is currently exposed.
+\end_layout
+
+\begin_layout Standard
+Communication occurs through point-to-point one-sided routines and collective
  operations.
  A one-sided operation is a communication in which the 
 \begin_inset Quotes eld
@@ -709,6 +721,44 @@ ack
  with a configurable timeout.
  Remains to be seen how useful this is, and whether it can be used for future
  fault tolerance issues.
+\end_layout
+
+\begin_layout Section
+Undefined Behavior
+\end_layout
+
+\begin_layout Standard
+Many routines are currently specified only in terms of 
+\begin_inset Quotes eld
+\end_inset
+
+correct
+\begin_inset Quotes erd
+\end_inset
+
+ behavior.
+ What happens when something goes wrong is not always specified.
+ This section attempts to set out a few of these scenarios
+\end_layout
+
+\begin_layout Itemize
+put to PE out of range: suppose we do a put to 
+\begin_inset Quotes eld
+\end_inset
+
+right neighbor
+\begin_inset Quotes erd
+\end_inset
+
+ (pe + 1).
+ The highest-numbered PE will attempt to communicate with a PE that does
+ not exist.
+\end_layout
+
+\begin_layout Itemize
+library not initialized: virtually all SHMEM routines will hae major problems
+ if the library has not been initialized.
+ Implementations can handle this situation in different ways: 
 \end_layout
 
 \begin_layout Section

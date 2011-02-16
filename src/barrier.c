@@ -35,12 +35,22 @@ typedef struct {
   dispatch_function func;
 } bar_table_t;
 
+/*
+ * the barrier_all versions
+ *
+ */
+
 static bar_table_t barrier_all_table[] =
   {
     { "naive", pshmem_barrier_all_naive },
   };
 static const int n_barrier_all =
   sizeof(barrier_all_table) / sizeof(barrier_all_table[0]);
+
+/*
+ * the barrier versions
+ *
+ */
 
 static bar_table_t barrier_table[] =
   {

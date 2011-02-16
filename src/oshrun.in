@@ -12,6 +12,10 @@ case $# in
     ;;
 esac
 
+#
+# this is currently replaced automatically
+# with mpirun from the same installation
+#
 RUN_IT='@GASNET_LD@'
 
 exec $RUN_IT $@

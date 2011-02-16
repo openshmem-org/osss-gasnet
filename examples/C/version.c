@@ -1,3 +1,8 @@
+/*
+ * simply prints out the version of OpenSHMEM from PE 0 only
+ *
+ */
+
 #include <stdio.h>
 
 #include <mpp/shmem.h>

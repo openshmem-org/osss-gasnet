@@ -1,3 +1,9 @@
+/*
+ * swap values between odd numbered PEs and their right (modulo)
+ * neighbor.  Show result of swap.
+ *
+ */
+
 #include <stdio.h>
 
 #include <mpp/shmem.h>
