@@ -41,6 +41,8 @@ DEBUG_AND_OPT    = -ggdb -O3
 WARNINGS         = -Wall
 # WARNINGS        += -pedantic
 
+DEBUG_ME         = -DDEBUG
+
 # ---------------------------------------------------------
 
 #
@@ -174,7 +176,8 @@ comms.o:	comms.c
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(HASH_CFLAGS) \
-		$(COMMON_FLAGS) -c -o $@ $<
+		$(COMMON_FLAGS) \
+		-c -o $@ $<
 
 # -- end GASNet --------------------------------------------
 
@@ -192,7 +195,7 @@ fortran-mem.o:	fortran-mem.c
 # ---------------------------------------------------------
 
 %.o:	%.c
-	$(CC) $(WARNINGS) $(COMMON_FLAGS) -c -o $@ $<
+	$(CC) $(WARNINGS) $(COMMON_FLAGS) $(DEBUG_ME) -c -o $@ $<
 
 # ---------------------------------------------------------
 

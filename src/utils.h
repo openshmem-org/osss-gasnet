@@ -10,6 +10,8 @@
  *
  */
 
+#ifdef DEBUG
+
 #define INIT_CHECK()							\
   do {									\
     if (__state.pe_status != PE_RUNNING) {				\
@@ -20,5 +22,11 @@
       /* NOT REACHED */							\
     }									\
   } while (0)
+
+#else /* ! DEBUG */
+
+#define INIT_CHECK()
+
+#endif /* DEBUG */
 
 #endif /* _UTILS_H */
