@@ -3,6 +3,7 @@
 #include "state.h"
 #include "comms.h"
 #include "shmem.h"
+#include "utils.h"
 
 #include "atomic.h"
 
@@ -57,6 +58,7 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
   pshmem_##Name##_swap(Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       retval = __atomic_xchg64((volatile int64_t *) target, value);	\
     }									\
@@ -95,6 +97,7 @@ SHMEM_TYPE_SWAP(float, float)
   pshmem_##Name##_cswap(Type *target, Type cond, Type value, int pe)	\
   {									\
     Type retval;							\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       retval = __atomic_cmpxchg64((volatile int64_t *) target, cond, value); \
     }									\
@@ -121,6 +124,7 @@ SHMEM_TYPE_CSWAP(longlong, long long)
   pshmem_##Name##_fadd(Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       retval = SYNC_FETCH_AND_ADD(target, value);			\
     }									\
@@ -144,6 +148,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   pshmem_##Name##_finc(Type *target, int pe)				\
   {									\
     Type retval;							\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       retval = SYNC_FETCH_AND_ADD(target, (Type) 1);			\
     }									\
@@ -181,6 +186,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   void									\
   pshmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       (void) SYNC_FETCH_AND_ADD(target, value);				\
     }									\
@@ -202,6 +208,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   void									\
   pshmem_##Name##_inc(Type *target, int pe)				\
   {									\
+    INIT_CHECK();							\
     if (__state.mype == pe) {						\
       (void) SYNC_FETCH_AND_ADD(target, (Type) 1);			\
     }									\

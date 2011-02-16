@@ -1,4 +1,5 @@
 #include "comms.h"
+#include "utils.h"
 
 /*
  * assume yes, for now
@@ -11,6 +12,7 @@
 int
 pshmem_pe_accessible(int pe)
 {
+  INIT_CHECK();
   return __comms_ping_request(pe);
 }
 
@@ -23,6 +25,7 @@ pshmem_pe_accessible(int pe)
 int
 pshmem_addr_accessible(void *addr, int pe)
 {
+  INIT_CHECK();
   return __comms_addr_accessible(addr, pe);
 }
 

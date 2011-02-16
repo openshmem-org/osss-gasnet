@@ -6,6 +6,7 @@
 #include "comms.h"
 #include "trace.h"
 #include "memalloc.h"
+#include "utils.h"
 
 #include "shmem.h"
 
@@ -98,6 +99,8 @@ __shmalloc_no_check(size_t size)
 void *
 pshmalloc(size_t size)
 {
+  INIT_CHECK();
+
   if (shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
     return (void *) NULL;
@@ -116,6 +119,8 @@ pshmalloc(size_t size)
 void
 pshfree(void *addr)
 {
+  INIT_CHECK();
+
   if (addr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_MEMORY,
 		  "address passed to shfree() already null"
@@ -142,6 +147,8 @@ void *
 pshrealloc(void *addr, size_t size)
 {
   void *newaddr;
+
+  INIT_CHECK();
 
   if (shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
@@ -184,6 +191,8 @@ void *
 pshmemalign(size_t alignment, size_t size)
 {
   void *addr;
+
+  INIT_CHECK();
 
   if (shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
@@ -248,6 +257,8 @@ psherror(void)
 {
   malloc_error_code_t *etp = error_table;
   int i;
+
+  INIT_CHECK();
 
   for (i = 0; i < nerrors; i+= 1) {
     if (malloc_error == etp->code) {

@@ -176,7 +176,6 @@ comms.o:	comms.c
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(HASH_CFLAGS) \
-		$(COMMON_FLAGS) \
 		-c -o $@ $<
 
 # -- end GASNet --------------------------------------------

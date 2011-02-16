@@ -1,8 +1,6 @@
 #ifndef _UTILS_H
 #define _UTILS_H 1
 
-#include "state.h"
-
 /*
  * if we haven't initialized through start_pes() then try to do
  * something constructive.  Obviously can't use __shmem_trace()
@@ -11,6 +9,11 @@
  */
 
 #ifdef DEBUG
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "state.h"
 
 #define INIT_CHECK()							\
   do {									\

@@ -1,9 +1,11 @@
 #include "comms.h"
+#include "utils.h"
 
 /* @api@ */
 void
 pshmem_fence(void)
 {
+  INIT_CHECK();
   __comms_fence();
 }
 
@@ -11,6 +13,7 @@ pshmem_fence(void)
 void
 pshmem_quiet(void)
 {
+  INIT_CHECK();
   __comms_quiet();
 }
 
