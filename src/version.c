@@ -8,7 +8,7 @@ char *
 pshmem_version(void)
 {
   INIT_CHECK();
-  return "Super Happy Fun OpenSHMEM, Revision: 1573";
+  return "Super Happy Fun OpenSHMEM, Revision: 1591";
 }
 
 #pragma weak shmem_version = pshmem_version

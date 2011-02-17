@@ -9,6 +9,8 @@
 #include "trace.h"
 #include "atomic.h"
 #include "env.h"
+#include "barrier.h"
+#include "ping.h"
 #include "utils.h"
 
 #include "shmem.h"
@@ -93,6 +95,10 @@ pstart_pes(int npes)
   __symmetric_memory_init();
 
   __shmem_atomic_init();
+
+  __shmem_ping_init();
+
+  __barrier_dispatch_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,

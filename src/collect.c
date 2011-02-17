@@ -4,6 +4,7 @@
 #include "putget.h"
 #include "trace.h"
 #include "symmem.h"
+#include "utils.h"
 
 #include "pshmem.h"
 
@@ -29,6 +30,8 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
   const int last_pe = PE_start + step * (PE_size - 1);
   long save = pSync[0];
   long *acc_off = & (pSync[0]);
+
+  INIT_CHECK();
 
   /* make sure accumulator has been initialized on all active PEs */
   *acc_off = (__state.mype > PE_start) ? -1 : 0;

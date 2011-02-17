@@ -2,6 +2,7 @@
 #include "trace.h"
 #include "putget.h"
 #include "comms.h"
+#include "utils.h"
 
 #include "shmem.h"
 
@@ -103,6 +104,9 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
     int i, j;								\
     int pe;								\
+									\
+    INIT_CHECK();							\
+									\
     void *rdest = __symmetric_addr_lookup(target, __state.mype);	\
     symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
     /* init target with own source, and wait for all */			\
