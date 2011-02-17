@@ -14,6 +14,7 @@ typedef enum {
   SHMEM_LOG_MEMORY,		/* symmetric memory operations */
   SHMEM_LOG_CACHE,		/* cache flushing ops */
   SHMEM_LOG_BARRIER,		/* barrier ops */
+  SHMEM_LOG_BROADCAST,		/* broadcast ops */
   SHMEM_LOG_COLLECT,		/* [f]collect ops */
   SHMEM_LOG_REDUCE,		/* reduction ops */
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */

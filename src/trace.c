@@ -39,6 +39,7 @@ __trace_table_t tracers[] =
     INIT_LEVEL(MEMORY, 	   OFF),
     INIT_LEVEL(CACHE,  	   OFF),
     INIT_LEVEL(BARRIER,    OFF),
+    INIT_LEVEL(BROADCAST,  OFF),
     INIT_LEVEL(COLLECT,    OFF),
     INIT_LEVEL(REDUCE,     OFF),
     INIT_LEVEL(SYMBOLS,    OFF),
