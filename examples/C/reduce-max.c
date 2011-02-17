@@ -1,3 +1,9 @@
+/*
+ * reduce [0,1,2] + _my_pe() across 4 PEs with MAX()
+ *
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -16,7 +22,9 @@ main()
 {
   int i;
 
-  memset(pSync, _SHMEM_BCAST_SYNC_SIZE, 0);
+  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1) {
+    pSync[i] = _SHMEM_SYNC_VALUE;
+  }
 
   start_pes(0);
 

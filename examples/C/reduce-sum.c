@@ -1,3 +1,8 @@
+/*
+ * reduce by SUM() [1,2,3,4] across 4 PEs
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -12,7 +17,11 @@ int dst;
 int
 main()
 {
-  memset(pSync, _SHMEM_BCAST_SYNC_SIZE, _SHMEM_SYNC_VALUE);
+  int i;
+
+  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1) {
+    pSync[i]  =_SHMEM_SYNC_VALUE;
+  }
 
   start_pes(0);
 
