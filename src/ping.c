@@ -29,7 +29,7 @@ assign_timer(long sec, long usec,
 }
 
 /*
- * split humand-readable time into timer struct
+ * split human-readable time into timer struct
  *
  */
 static void

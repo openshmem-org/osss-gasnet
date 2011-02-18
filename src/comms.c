@@ -60,6 +60,9 @@ static void *great_big_heap;
 /*
  * define accepted size units in ascending order, which are
  * S.I. compliant
+ *
+ * http://en.wikipedia.org/wiki/SI_Unit_Prefixes
+ *
  */
 
 static char *units_string = "kmgtpezy";
