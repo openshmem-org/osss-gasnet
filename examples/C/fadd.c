@@ -25,8 +25,8 @@ main()
   dst = 22;
   shmem_barrier_all();
 
-  if (me == 0) {
-    old = shmem_int_fadd(&dst, 44, 1);
+  if (me == 1) {
+    old = shmem_int_fadd(&dst, 44, 0);
   }
   shmem_barrier_all();
 
