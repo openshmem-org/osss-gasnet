@@ -102,33 +102,6 @@ __level_to_string(shmem_trace_t level)
   return "?";
 }
 
-/*
- * spit out which message levels are active
- *
- * OK to use public API here since we're only called when initialized
- *
- */
-
-static void
-maybe_show_trace_levels(void)
-{
-  char buf[256];
-  char *p = buf;
-  int i;
-  __trace_table_t *t = tracers;
-
-  strcpy(p, "Enabled Messages: ");
-
-  for (i = 0; i < n_tracers; i += 1) {
-    strncat(p, t->text, strlen(t->text));
-    strncat(p, " ", 1);
-    t += 1;
-  }
-  __shmem_trace(SHMEM_LOG_INIT,
-		p
-		);
-}
-
 /* -- end of static -- */
 
 int
@@ -202,9 +175,33 @@ __shmem_tracers_init(void)
     }
 
   }
+}
 
-  maybe_show_trace_levels();
-    
+/*
+ * spit out which message levels are active
+ *
+ * OK to use public API here since we're only called when initialized
+ *
+ */
+
+void
+__shmem_tracers_show(void)
+{
+  char buf[256];
+  char *p = buf;
+  int i;
+  __trace_table_t *t = tracers;
+
+  strcpy(p, "Enabled Messages: ");
+
+  for (i = 0; i < n_tracers; i += 1) {
+    strncat(p, t->text, strlen(t->text));
+    strncat(p, " ", 1);
+    t += 1;
+  }
+  __shmem_trace(SHMEM_LOG_INIT,
+		p
+		);
 }
 
 /*

@@ -8,7 +8,6 @@
 #include "state.h"
 #include "trace.h"
 #include "atomic.h"
-#include "env.h"
 #include "barrier.h"
 #include "ping.h"
 #include "utils.h"
@@ -75,9 +74,8 @@ __shmem_place_init(void)
 void
 pstart_pes(int npes)
 {
-
-  /* has to happen early to enable warn */
-  __shmem_environment_init();
+  /* has to happen early to enable messages */
+  __shmem_tracers_init();
 
   /* I shouldn't really call this more than once */
   if (__state.pe_status != PE_UNINITIALIZED) {
@@ -88,16 +86,25 @@ pstart_pes(int npes)
     /* NOT REACHED */
   }
 
+  /* set up communications layer */
   __comms_init();
 
+  /* see if we want to say which message/trace levels are active */
+  __shmem_tracers_show();
+
+  /* set up any locality information */
   __shmem_place_init();
 
+  /* set up PE memory management */
   __symmetric_memory_init();
 
+  /* set up the atomic ops handling */
   __shmem_atomic_init();
 
+  /* set up timeouts */
   __shmem_ping_init();
 
+  /* set up barrier selection */
   __barrier_dispatch_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
@@ -139,7 +146,7 @@ pstart_pes(int npes)
 void
 pshmem_init(void)
 {
-  start_pes(0);
+  pstart_pes(0);
 }
 
 /*

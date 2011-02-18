@@ -21,6 +21,7 @@ typedef enum {
 } shmem_trace_t;
 
 extern void __shmem_tracers_init(void);
+extern void __shmem_tracers_show(void);
 
 extern void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...);
 extern int  __trace_is_enabled(shmem_trace_t level);
