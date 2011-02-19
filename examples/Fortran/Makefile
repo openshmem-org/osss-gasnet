@@ -1,6 +1,6 @@
 SHMEM_FC = oshfort
 
-TESTS = hello.f90 multi-init.f90 nowt.f90
+TESTS = $(wildcard *.f90)
 
 EXES = $(TESTS:.f90=.x)
 

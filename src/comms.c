@@ -435,12 +435,14 @@ table_init_helper(void)
       for (; es < last_es; es += 1) {
 	char *name;
 
-	/* need visible global object with some kind of content */
+	/*
+	 * need visible global or local (Fortran save) object with
+	 * some kind of content
+	 */
 	if (es->st_value == 0 || es->st_size == 0) {
 	  continue;
 	}
-	if (GELF_ST_BIND(es->st_info) != STB_GLOBAL &&
-	    GELF_ST_TYPE(es->st_info) != STT_OBJECT &&
+	if (GELF_ST_TYPE(es->st_info) != STT_OBJECT &&
 	    GELF_ST_VISIBILITY(es->st_info) != STV_DEFAULT) {
 	  continue;
 	}
@@ -519,7 +521,7 @@ __comms_globalvar_table_init(void)
     /* NOT REACHED */
   }
 
-  /* print_global_var_table(SHMEM_LOG_SYMBOLS); */
+  print_global_var_table(SHMEM_LOG_SYMBOLS);
 }
 
 static void
