@@ -1,5 +1,8 @@
+!
+! program intentionally does nothing interesting
+!
 program nowt
 
-  call shmem_init
+  call start_pes(0)
 
 end program

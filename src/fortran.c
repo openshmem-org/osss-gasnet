@@ -48,6 +48,20 @@ FORTRANIFY(pshmem_putmem)(long *target, const long *src, size_t *size, int *pe)
   pshmem_putmem(target, src, *size, *pe);
 }
 
+#pragma weak shmem_character_put_ = pshmem_character_put_
+#pragma weak shmem_double_put_ = pshmem_double_put_
+#pragma weak shmem_integer_put_ = pshmem_integer_put_
+#pragma weak shmem_logical_put_ = pshmem_logical_put_
+#pragma weak shmem_real_put_ = pshmem_real_put_
+
+#pragma weak shmem_put4_ = pshmem_put4_
+#pragma weak shmem_put8_ = pshmem_put8_
+#pragma weak shmem_put32_ = pshmem_put32_
+#pragma weak shmem_put64_ = pshmem_put64_
+#pragma weak shmem_put128_ = pshmem_put128_
+
+#pragma weak shmem_putmem_ = pshmem_putmem_
+
 #define SHMEM_FORTRAN_GET(Name, CType)					\
   void									\
   FORTRANIFY(pshmem_##Name##_get)(CType *target, const CType *src,	\
@@ -81,6 +95,20 @@ FORTRANIFY(pshmem_getmem)(long *target, const long *src, size_t *size, int *pe)
 {
   pshmem_getmem(target, src, *size, *pe);
 }
+
+#pragma weak shmem_character_get_ = pshmem_character_get_
+#pragma weak shmem_double_get_ = pshmem_double_get_
+#pragma weak shmem_integer_get_ = pshmem_integer_get_
+#pragma weak shmem_logical_get_ = pshmem_logical_get_
+#pragma weak shmem_real_get_ = pshmem_real_get_
+
+#pragma weak shmem_get4_ = pshmem_get4_
+#pragma weak shmem_get8_ = pshmem_get8_
+#pragma weak shmem_get32_ = pshmem_get32_
+#pragma weak shmem_get64_ = pshmem_get64_
+#pragma weak shmem_get128_ = pshmem_get128_
+
+#pragma weak shmem_getmem_ = pshmem_getmem_
 
 /*
  * strided puts and gets
@@ -118,6 +146,17 @@ SHMEM_FORTRAN_IPUT_SIZE(32,   int, int)
 SHMEM_FORTRAN_IPUT_SIZE(64,   long, long)
 SHMEM_FORTRAN_IPUT_SIZE(128,  longdouble, long double)
 
+#pragma weak shmem_double_iput_ = pshmem_double_iput_
+#pragma weak shmem_integer_iput_ = pshmem_integer_iput_
+#pragma weak shmem_logical_iput_ = pshmem_logical_iput_
+#pragma weak shmem_real_iput_ = pshmem_real_iput_
+
+#pragma weak shmem_iput4_ = pshmem_iput4_
+#pragma weak shmem_iput8_ = pshmem_iput8_
+#pragma weak shmem_iput32_ = pshmem_iput32_
+#pragma weak shmem_iput64_ = pshmem_iput64_
+#pragma weak shmem_iput128_ = pshmem_iput128_
+
 #define SHMEM_FORTRAN_IGET(Name, CType)					\
   void									\
   FORTRANIFY(pshmem_##Name##_iget)(CType *target, const CType *src,	\
@@ -146,6 +185,17 @@ SHMEM_FORTRAN_IGET_SIZE(8,    long, long)
 SHMEM_FORTRAN_IGET_SIZE(32,   int, int)
 SHMEM_FORTRAN_IGET_SIZE(64,   long, long)
 SHMEM_FORTRAN_IGET_SIZE(128,  longdouble, long double)
+
+#pragma weak shmem_double_iget_ = pshmem_double_iget_
+#pragma weak shmem_integer_iget_ = pshmem_integer_iget_
+#pragma weak shmem_logical_iget_ = pshmem_logical_iget_
+#pragma weak shmem_real_iget_ = pshmem_real_iget_
+
+#pragma weak shmem_iget4_ = pshmem_iget4_
+#pragma weak shmem_iget8_ = pshmem_iget8_
+#pragma weak shmem_iget32_ = pshmem_iget32_
+#pragma weak shmem_iget64_ = pshmem_iget64_
+#pragma weak shmem_iget128_ = pshmem_iget128_
 
 /*
  * init & query functions

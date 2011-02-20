@@ -1,3 +1,7 @@
+!
+! the ubiquitous hello world program
+!
+
 program whoami
 
   include 'shmem.fh'

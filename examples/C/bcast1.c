@@ -13,14 +13,14 @@ main(void)
   long *source;
   int me, npes;
 
+  start_pes(0);
+  me = _my_pe();
+  npes = _num_pes();
+
   source = (long *) malloc( npes * sizeof(*source) );
   for (i = 0; i < npes; i += 1) {
     source[i] = i + 1;
   }
-
-  start_pes(0);
-  me = _my_pe();
-  npes = _num_pes();
 
   target = (long *) shmalloc( npes * sizeof(*target) );
   for (i = 0; i < npes; i += 1) {

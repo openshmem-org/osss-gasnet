@@ -51,7 +51,7 @@ static gasnet_seginfo_t *seginfo_table;
  * variable
  */
 
-#define DEFAULT_HEAP_SIZE 10485760L
+#define DEFAULT_HEAP_SIZE 10000000L
 
 static void *great_big_heap;
 
@@ -122,6 +122,7 @@ __comms_get_segment_size(void)
       __shmem_trace(SHMEM_LOG_FATAL,
 		    "unknown data size unit \"%c\" in symmetric heap specification",
 		    unit);
+      /* NOT REACHED */
     }
   }
 
