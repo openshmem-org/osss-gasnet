@@ -4,7 +4,10 @@
 #include <sys/types.h>
 
 extern void __comms_init(void);
+
+extern void __comms_exit(int status);
 extern void __comms_shutdown(int status);
+
 extern int  __comms_mynode(void);
 extern int  __comms_nodes(void);
 

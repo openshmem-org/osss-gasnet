@@ -8,7 +8,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
@@ -20,8 +20,8 @@ long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
  * correct symmetry (no offending PE)
  */
 
-static int
-shmalloc_symmetry_check(size_t size)
+int
+__shmalloc_symmetry_check(size_t size)
 {
   int pe;
   int any_failed_pe = -1;
@@ -37,14 +37,21 @@ shmalloc_symmetry_check(size_t size)
     /* NOT REACHED */
   }
   *shmalloc_remote_size = size;
-  shmem_barrier_all();
+  pshmem_barrier_all();
 
-  /* everyone checks everyone else's sizes, barf if mis-match */
+  malloc_error = SHMEM_MALLOC_OK;
+
+  /*
+   * everyone checks everyone else's sizes, barf if mis-match
+   *
+   * TODO: probably some kind of Eureka! optimization opportunity here
+   *
+   */
   for (pe = 0; pe < __state.numpes; pe += 1) {
     if (pe == __state.mype) {
       continue;
     }
-    shmalloc_received_size = shmem_long_g(shmalloc_remote_size, pe);
+    shmalloc_received_size = pshmem_long_g(shmalloc_remote_size, pe);
     if (shmalloc_received_size != size) {
       __shmem_trace(SHMEM_LOG_NOTICE,
 		    "shmalloc expected %ld, but saw %ld on PE %d",
@@ -90,7 +97,7 @@ __shmalloc_no_check(size_t size)
 		size, addr
 		);
 
-  shmem_barrier_all();		/* so say the SGI docs */
+  pshmem_barrier_all();		/* so say the SGI docs */
 
   return addr;
 }
@@ -101,9 +108,10 @@ pshmalloc(size_t size)
 {
   INIT_CHECK();
 
-  if (shmalloc_symmetry_check(size) != -1) {
+  if (__shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
     return (void *) NULL;
+    /* NOT REACHED */
   }
 
   __shmem_trace(SHMEM_LOG_MEMORY,
@@ -127,6 +135,7 @@ pshfree(void *addr)
 		  );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return;
+    /* NOT REACHED */
   }
 
   __shmem_trace(SHMEM_LOG_MEMORY,
@@ -138,7 +147,7 @@ pshfree(void *addr)
 
   malloc_error = SHMEM_MALLOC_OK;
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 }
 #pragma weak pshmem_free = pshfree
 
@@ -150,9 +159,10 @@ pshrealloc(void *addr, size_t size)
 
   INIT_CHECK();
 
-  if (shmalloc_symmetry_check(size) != -1) {
+  if (__shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
     return (void *) NULL;
+    /* NOT REACHED */
   }
 
   if (addr == (void *) NULL) {
@@ -161,6 +171,7 @@ pshrealloc(void *addr, size_t size)
 		  );
     malloc_error = SHMEM_MALLOC_ALREADY_FREE;
     return (void *) NULL;
+    /* NOT REACHED */
   }
 
   newaddr = __mem_realloc(addr, size);
@@ -176,7 +187,7 @@ pshrealloc(void *addr, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 
   return newaddr;
 }
@@ -194,9 +205,10 @@ pshmemalign(size_t alignment, size_t size)
 
   INIT_CHECK();
 
-  if (shmalloc_symmetry_check(size) != -1) {
+  if (__shmalloc_symmetry_check(size) != -1) {
     malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
     return (void *) NULL;
+    /* NOT REACHED */
   }
 
   addr = __mem_align(alignment, size);
@@ -212,7 +224,7 @@ pshmemalign(size_t alignment, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 
   return addr;
 }

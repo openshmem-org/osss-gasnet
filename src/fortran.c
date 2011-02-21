@@ -462,6 +462,11 @@ FORTRANIFY(pshmem_collect8)(void *target, const void *source, size_t *nlong,
 
 #if 0
 
+/*
+ * TODO: not sure yet how to handle/convert C99 complex and Fortran
+ *
+ */
+
 void pshmem_complexd_sum_to_all(COMPLEXIFY(double) *target,
 				      COMPLEXIFY(double) *source,
 				      int nreduce,

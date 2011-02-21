@@ -178,13 +178,22 @@ __comms_poll(void)
 }
 
 /*
+ * As Arnie said, GET...OUT...
+ */
+void
+__comms_exit(int status)
+{
+  gasnet_exit(status);
+}
+
+/*
  * make sure everyone finishes stuff, then exit.
  */
 void
 __comms_shutdown(int status)
 {
   __comms_barrier_all();
-  gasnet_exit(status);
+  __comms_exit(status);
 }
 
 /*

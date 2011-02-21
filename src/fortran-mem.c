@@ -1,9 +1,15 @@
-#include "shmem.h"
+#include <sys/types.h>
+
+#include "symmem.h"
+#include "utils.h"
+#include "trace.h"
+
+#include "pshmem.h"
 
 #include "fortran-common.h"
 
 /*
- * symmetric memory operations
+ * Fortran symmetric memory operations
  */
 
 /*
@@ -20,6 +26,38 @@
  *   missing, the program will hang.
  */
 
+void
+FORTRANIFY(pshpalloc)(void *addr, size_t *length, long *errcode, int *abort)
+{
+  INIT_CHECK();
+
+  if (__shmalloc_symmetry_check(*length) >= 0) {
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "shpalloc(%ld bytes) passed symmetry check",
+		  *length
+		  );
+
+    addr = __shmalloc_no_check(*length);
+  }
+
+  /* pass back status code */
+  *errcode = malloc_error;
+
+  /* if malloc succeeded, nothing else to do */
+  if (malloc_error == SHMEM_MALLOC_OK) {
+    return;
+    /* NOT REACHED */
+  }
+
+  /* failed somehow, we might have to abort */
+  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		"shpalloc() got non-symmetric memory sizes"
+		);
+  /* MAYBE NOT REACHED */
+
+  addr = (void *) NULL;
+}
+
 /*
  * SYNOPSIS
  *   POINTER (addr, A(1))
@@ -34,6 +72,12 @@
  *   SHPDEALLC with the same value of addr; if  any  PEs  are  missing,  the
  *   program hangs.
  */
+
+void
+FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
+{
+  INIT_CHECK();
+}
 
 /*
  * SYNOPSIS
@@ -52,3 +96,13 @@
  *   same value of addr to maintain symmetric heap consistency; if  any  PEs
  *   are missing, the program hangs.
  */ 
+
+void
+FORTRANIFY(pshpclmove)(void *addr, size_t *length, long *errcode, int *abort)
+{
+  INIT_CHECK();
+}
+
+#pragma weak shpalloc_ = pshpalloc_
+#pragma weak shpdeallc_ = pshpdeallc_
+#pragma weak shpclmove_ = pshpclmove_
