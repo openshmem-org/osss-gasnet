@@ -336,6 +336,40 @@ FORTRANIFY_CACHE(pshmem_set_cache_line_inv)
 FORTRANIFY_CACHE(pshmem_clear_cache_line_inv)
 FORTRANIFY_CACHE(pshmem_udcflush_line)
 
+/*
+ * atomics
+ *
+ */
+void
+FORTRANIFY(pshmem_int4_inc)(int *target, int *pe)
+{
+  pshmem_int_inc(target, *pe);
+}
+
+void
+FORTRANIFY(pshmem_int8_inc)(long *target, int *pe)
+{
+  pshmem_long_inc(target, *pe);
+}
+
+#pragma weak shmem_int4_inc_ = pshmem_int4_inc_
+#pragma weak shmem_int8_inc_ = pshmem_int8_inc_
+
+int
+FORTRANIFY(pshmem_int4_finc)(int *target, int *pe)
+{
+  return pshmem_int_finc(target, *pe);
+}
+
+long
+FORTRANIFY(pshmem_int8_finc)(long *target, int *pe)
+{
+  return pshmem_long_finc(target, *pe);
+}
+
+#pragma weak shmem_int4_finc_ = pshmem_int4_finc_
+#pragma weak shmem_int8_finc_ = pshmem_int8_finc_
+
 #pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
 #pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
 #pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_

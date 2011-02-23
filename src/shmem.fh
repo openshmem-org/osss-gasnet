@@ -40,3 +40,34 @@ parameter ( SHMEM_MALLOC_REALLOC_FAILED=-12 )
 
 integer SHMEM_MALLOC_SYMMSIZE_FAILED
 parameter ( SHMEM_MALLOC_SYMMSIZE_FAILED=-10 )
+
+!
+! for routines that return values
+!
+
+integer shmem_my_pe
+integer my_pe
+integer shmem_num_pes
+integer shmem_n_pes
+integer num_pes
+
+logical shmem_pe_accessible
+logical shmem_addr_accessible
+
+integer shmem_int4_swap
+integer shmem_int8_swap
+integer shmem_real4_swap
+integer shmem_real8_swap
+
+integer shmem_int4_cswap
+integer shmem_int8_cswap
+integer shmem_real4_cswap
+integer shmem_real8_cswap
+
+integer shmem_int4_fadd
+integer shmem_int8_fadd
+
+integer shmem_int4_finc
+integer shmem_int8_finc
+
+integer shmem_test_lock
