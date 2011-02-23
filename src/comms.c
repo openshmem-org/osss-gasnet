@@ -26,9 +26,6 @@
 #include "ping.h"
 
 
-#define WAIT_ON_COMPLETION(p) do { __comms_poll(); } while (! (p))
-
-
 /*
  * gasnet model choice
  *

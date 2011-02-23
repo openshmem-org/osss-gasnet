@@ -11,7 +11,7 @@
 
 #include "atomic.h"
 
-#include "pshmem.h"
+#include "shmem.h"
 
 #if defined(__i386) || defined(__x86_64)
 /* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
@@ -79,7 +79,7 @@ mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
   tmp.l_next = this_pe;
 
   /* Swap this_pe into the global lock owner, returning previous value, atomically */
-  tmp.l_word = pshmem_int_swap((int *)&lock->l_word, tmp.l_word, LOCK_OWNER(lock));
+  tmp.l_word = shmem_int_swap((int *)&lock->l_word, tmp.l_word, LOCK_OWNER(lock));
 
   /* Translate old (broken) default lock state */
   if (tmp.l_word == _SHMEM_LOCK_FREE)
@@ -98,7 +98,7 @@ mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
       LOAD_STORE_FENCE();
 
       /* I'm now next in global linked list, update l_next in the prev_pe process with our vp */
-      pshmem_short_p((short *)&node->l_next, this_pe, prev_pe);
+      shmem_short_p((short *)&node->l_next, this_pe, prev_pe);
       
       /* Wait for flag to be released */
       do { PAUSE(); } while (node->l_locked);
@@ -118,7 +118,7 @@ void mcs_lock_release (SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
       tmp.l_next = this_pe;
 
       /* If global lock owner value still equals this_pe, load RESET into it & return prev value */ 
-      tmp.l_word = pshmem_int_cswap((int *)&lock->l_word, tmp.l_word, _SHMEM_LOCK_RESET, LOCK_OWNER(lock));
+      tmp.l_word = shmem_int_cswap((int *)&lock->l_word, tmp.l_word, _SHMEM_LOCK_RESET, LOCK_OWNER(lock));
       if (tmp.l_next == this_pe)
 	/* We were still the only requestor, all done */
 	return;
@@ -140,7 +140,7 @@ void mcs_lock_release (SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
    */
 
   /* Write 0 into the locked flag on PE<l_next> */
-  pshmem_short_p((short *)&node->l_locked, 0, node->l_next);
+  shmem_short_p((short *)&node->l_locked, 0, node->l_next);
 }
 
 
@@ -158,7 +158,7 @@ int mcs_lock_test (SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
   SHMEM_LOCK tmp;
 
   /* Read the remote global lock value */
-  tmp.l_word = pshmem_int_g((int *)&lock->l_word, LOCK_OWNER(lock));
+  tmp.l_word = shmem_int_g((int *)&lock->l_word, LOCK_OWNER(lock));
 
   /* Translate old (broken) default lock state */
   if (tmp.l_word == _SHMEM_LOCK_FREE)
@@ -185,7 +185,7 @@ void
 pshmem_clear_lock (long *lock)
 {
   /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
-  pshmem_quiet();
+  shmem_quiet();
 
   mcs_lock_release (&((SHMEM_LOCK *)lock)[1], &((SHMEM_LOCK *)lock)[0], shmem_my_pe());
 }

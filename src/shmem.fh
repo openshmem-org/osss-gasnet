@@ -56,6 +56,7 @@ logical shmem_addr_accessible
 
 integer shmem_int4_swap
 integer shmem_int8_swap
+integer shmem_swap
 integer shmem_real4_swap
 integer shmem_real8_swap
 

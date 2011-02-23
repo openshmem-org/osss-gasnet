@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "pshmem.h"
+#include "shmem.h"
 
 #include "state.h"
 #include "putget.h"
@@ -22,12 +22,12 @@
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\
 	if (this_pe != root) {						\
-	  pshmem_##Type##_put(target, source, nlong, this_pe);		\
+	  shmem_##Type##_put(target, source, nlong, this_pe);		\
 	}								\
 	this_pe += step;						\
       }									\
     }									\
-    pshmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }
 
 SHMEM_BROADCAST_TYPE(32, int)
@@ -46,7 +46,7 @@ pshmem_sync_init(long *pSync)
   for (i = 0; i < nb; i += 1) {
     pSync[i] = _SHMEM_SYNC_VALUE;
   }
-  pshmem_barrier_all();
+  shmem_barrier_all();
 }
 
 #pragma weak shmem_sync_init = pshmem_sync_init

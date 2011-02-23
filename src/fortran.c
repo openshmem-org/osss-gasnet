@@ -32,7 +32,7 @@
 
 SHMEM_FORTRAN_PUT(character, int)
 SHMEM_FORTRAN_PUT(double,    double)
-SHMEM_FORTRAN_PUT(integer,   int)
+SHMEM_FORTRAN_PUT(integer,   long)
 SHMEM_FORTRAN_PUT(logical,   long)
 SHMEM_FORTRAN_PUT(real,      double)
 
@@ -80,7 +80,7 @@ FORTRANIFY(pshmem_putmem)(long *target, const long *src, size_t *size, int *pe)
 
 SHMEM_FORTRAN_GET(character, int)
 SHMEM_FORTRAN_GET(double,    double)
-SHMEM_FORTRAN_GET(integer,   int)
+SHMEM_FORTRAN_GET(integer,   long)
 SHMEM_FORTRAN_GET(logical,   long)
 SHMEM_FORTRAN_GET(real,      double)
 
@@ -136,7 +136,7 @@ FORTRANIFY(pshmem_getmem)(long *target, const long *src, size_t *size, int *pe)
   }
 
 SHMEM_FORTRAN_IPUT(double,    double)
-SHMEM_FORTRAN_IPUT(integer,   int)
+SHMEM_FORTRAN_IPUT(integer,   long)
 SHMEM_FORTRAN_IPUT(logical,   long)
 SHMEM_FORTRAN_IPUT(real,      double)
 
@@ -176,7 +176,7 @@ SHMEM_FORTRAN_IPUT_SIZE(128,  longdouble, long double)
   }
 
 SHMEM_FORTRAN_IGET(double,    double)
-SHMEM_FORTRAN_IGET(integer,   int)
+SHMEM_FORTRAN_IGET(integer,   long)
 SHMEM_FORTRAN_IGET(logical,   long)
 SHMEM_FORTRAN_IGET(real,      double)
 
@@ -336,10 +336,18 @@ FORTRANIFY_CACHE(pshmem_set_cache_line_inv)
 FORTRANIFY_CACHE(pshmem_clear_cache_line_inv)
 FORTRANIFY_CACHE(pshmem_udcflush_line)
 
+#pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
+#pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
+#pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
+#pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
+#pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
+#pragma weak shmem_udcflush_ = pshmem_udcflush_
+
 /*
  * atomics
  *
  */
+
 void
 FORTRANIFY(pshmem_int4_inc)(int *target, int *pe)
 {
@@ -370,12 +378,77 @@ FORTRANIFY(pshmem_int8_finc)(long *target, int *pe)
 #pragma weak shmem_int4_finc_ = pshmem_int4_finc_
 #pragma weak shmem_int8_finc_ = pshmem_int8_finc_
 
-#pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
-#pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
-#pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
-#pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
-#pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
-#pragma weak shmem_udcflush_ = pshmem_udcflush_
+
+
+
+
+void
+FORTRANIFY(pshmem_int4_add)(int *target, int *value, int *pe)
+{
+  pshmem_int_add(target, *value, *pe);
+}
+
+void
+FORTRANIFY(pshmem_int8_add)(long *target, long *value, int *pe)
+{
+  pshmem_long_add(target, *value, *pe);
+}
+
+#pragma weak shmem_int4_add_ = pshmem_int4_add_
+#pragma weak shmem_int8_add_ = pshmem_int8_add_
+
+int
+FORTRANIFY(pshmem_int4_fadd)(int *target, int *value, int *pe)
+{
+  return pshmem_int_fadd(target, *value ,*pe);
+}
+
+long
+FORTRANIFY(pshmem_int8_fadd)(long *target, long *value, int *pe)
+{
+  return pshmem_long_fadd(target, *value, *pe);
+}
+
+#pragma weak shmem_int4_fadd_ = pshmem_int4_fadd_
+#pragma weak shmem_int8_fadd_ = pshmem_int8_fadd_
+
+int
+FORTRANIFY(pshmem_int4_swap)(int *target, int *value, int *pe)
+{
+  return pshmem_int_swap(target, *value, *pe);
+}
+
+long
+FORTRANIFY(pshmem_int8_swap)(long *target, long *value, int *pe)
+{
+  return pshmem_long_swap(target, *value, *pe);
+}
+
+long
+FORTRANIFY(pshmem_swap)(long *target, long *value, int *pe)
+{
+  return pshmem_long_swap(target, *value, *pe);
+}
+
+#pragma weak shmem_int4_swap_ = pshmem_int4_swap_
+#pragma weak shmem_int8_swap_ = pshmem_int8_swap_
+#pragma weak shmem_swap_ = pshmem_swap_
+
+int
+FORTRANIFY(pshmem_int4_cswap)(int *target, int *cond, int *value, int *pe)
+{
+  return pshmem_int_cswap(target, *cond, *value, *pe);
+}
+
+long
+FORTRANIFY(pshmem_int8_cswap)(long *target, long *cond, long *value, int *pe)
+{
+  return pshmem_long_cswap(target, *cond, *value, *pe);
+}
+
+#pragma weak shmem_int4_cswap_ = pshmem_int4_cswap_
+#pragma weak shmem_int8_cswap_ = pshmem_int8_cswap_
+
 
 /*
  * broadcasts

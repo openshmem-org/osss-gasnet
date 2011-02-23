@@ -4,7 +4,7 @@
 #include "comms.h"
 #include "hooks.h"
 
-#include "pshmem.h"
+#include "shmem.h"
 
 void
 pshmem_barrier_all_naive(void)
@@ -24,18 +24,18 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
     /* root signals everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      pshmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
+      shmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
     }
     /* root waits for ack from everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      pshmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
+      shmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
     }
   }
   else {
     /* non-root waits for root to signal, then tell root we're ready */
-    pshmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
-    pshmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
+    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
+    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
   }
   /* restore pSync values */
   pSync[__state.mype] = _SHMEM_SYNC_VALUE;

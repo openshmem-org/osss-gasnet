@@ -8,7 +8,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "pshmem.h"
+#include "shmem.h"
 
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
@@ -37,7 +37,7 @@ __shmalloc_symmetry_check(size_t size)
     /* NOT REACHED */
   }
   *shmalloc_remote_size = size;
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   malloc_error = SHMEM_MALLOC_OK;
 
@@ -51,7 +51,7 @@ __shmalloc_symmetry_check(size_t size)
     if (pe == __state.mype) {
       continue;
     }
-    shmalloc_received_size = pshmem_long_g(shmalloc_remote_size, pe);
+    shmalloc_received_size = shmem_long_g(shmalloc_remote_size, pe);
     if (shmalloc_received_size != size) {
       __shmem_trace(SHMEM_LOG_NOTICE,
 		    "shmalloc expected %ld, but saw %ld on PE %d",
@@ -97,7 +97,7 @@ __shmalloc_no_check(size_t size)
 		size, addr
 		);
 
-  pshmem_barrier_all();		/* so say the SGI docs */
+  shmem_barrier_all();		/* so say the SGI docs */
 
   return addr;
 }
@@ -147,7 +147,7 @@ pshfree(void *addr)
 
   malloc_error = SHMEM_MALLOC_OK;
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 }
 #pragma weak pshmem_free = pshfree
 
@@ -187,7 +187,7 @@ pshrealloc(void *addr, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   return newaddr;
 }
@@ -224,7 +224,7 @@ pshmemalign(size_t alignment, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   return addr;
 }

@@ -65,6 +65,8 @@ extern void __comms_barrier(int PE_start, int logPE_stride,
 
 extern void __comms_poll(void);
 
+#define WAIT_ON_COMPLETION(p) do { __comms_poll(); } while (! (p))
+
 extern void  __comms_swap_request(void *target, void *value, size_t nbytes,
 				  int pe,
 				  void *retval);
