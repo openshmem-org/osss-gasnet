@@ -10,12 +10,21 @@
 int
 main(int argc, char **argv)
 {
-  start_pes(0);
+  int npes;
+  int me;
 
-  if (_my_pe() == 0) {
-    printf("PE 0 says hello from\n");
-    printf("  SHMEM library version %d\n",
-           shmem_version()
+  start_pes(0);
+  npes = _num_pes();
+  me = _my_pe();
+
+  if (me == 0) {
+    int ma, mi;
+
+    shmem_version(&ma, &mi);
+
+    printf("PE %d (of %d) says hello from\n", me, npes);
+    printf("  OpenSHMEM library version %d.%d\n",
+           ma, mi
           );
   }
 

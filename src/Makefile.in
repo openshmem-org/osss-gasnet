@@ -98,11 +98,11 @@ REMOVE           = rm -f
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
-.PHONY: set-version do-deps
+.PHONY: do-deps
 
 # ---------------------------------------------------------
 
-all default:	set-version do-deps $(SHMEM_LIBRARY) wrappers
+all default:	do-deps $(SHMEM_LIBRARY) wrappers
 
 install:	install-lib install-bin install-include
 
@@ -180,11 +180,6 @@ comms.o:	comms.c
 		-c -o $@ $<
 
 # -- end GASNet --------------------------------------------
-
-set-version:
-	if [ -d .svn ]; then ./set-version.sh version.c; fi
-
-# ---------------------------------------------------------
 
 fortran.o:	fortran.c
 	$(CC) $(WARNINGS) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<

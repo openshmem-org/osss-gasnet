@@ -47,10 +47,10 @@ pshmem_fcollect64(void *target, const void *source, size_t nelems,
 		  int PE_start, int logPE_stride, int PE_size,
 		  long *pSync)
 {
-  shmem_fcollect32(target, source,
-	           nelems + nelems,
-		   PE_start, logPE_stride, PE_size, pSync
-		   );
+  pshmem_fcollect32(target, source,
+		    nelems + nelems,
+		    PE_start, logPE_stride, PE_size, pSync
+		    );
 }
 
 #pragma weak shmem_fcollect32 = pshmem_fcollect32

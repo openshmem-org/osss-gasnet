@@ -20,7 +20,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define SHMEM_VERSION 1.0
+#define SHMEM_MAJOR_VERSION 1
+#define SHMEM_MINOR_VERSION 0
 
   /*
    * not all compilers support this annotation
@@ -54,7 +55,7 @@ extern "C" {
 
   extern char * shmem_nodename(void) _WUR;
 
-  extern int    shmem_version(void) _WUR;
+  extern void   shmem_version(int *major, int *minor);
 
   /*
    * I/O

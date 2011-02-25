@@ -480,6 +480,29 @@ on process.
 \end_layout
 
 \begin_layout Subsection
+Servicing Communications
+\end_layout
+
+\begin_layout Standard
+A separate service thread handles network traffic.
+ Waits and spins on variables yield to the service thread which is just
+ a continuous poll on the communication layer.
+ The initialization phase creates the service thread and the registered
+ shutdown handler turns off the thread.
+ If the 
+\begin_inset Quotes eld
+\end_inset
+
+mainline
+\begin_inset Quotes erd
+\end_inset
+
+ sleeps or otherwise can't handle communication, this thread takes up the
+ work.
+ It's also closer to how dedicated hardware solutions do this kind of thing.
+\end_layout
+
+\begin_layout Subsection
 Memory Management
 \end_layout
 

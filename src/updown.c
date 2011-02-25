@@ -138,12 +138,16 @@ pstart_pes(int npes)
 
   __state.pe_status = PE_RUNNING;
 
-  __shmem_trace(SHMEM_LOG_INIT,
-		"version %d running on %d PE%s",
-		shmem_version(),
-		__state.numpes,
+  {
+    int ma, mi;
+    shmem_version(&ma, &mi);
+    __shmem_trace(SHMEM_LOG_INIT,
+		  "version %d.%d running on %d PE%s",
+		  ma, mi,
+		  __state.numpes,
 		__state.numpes == 1 ? "" : "s"
-		);
+		  );
+  }
 }
 
 /*

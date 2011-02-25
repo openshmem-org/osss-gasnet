@@ -66,7 +66,7 @@ SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
   void									\
   pshmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\
-    shmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);		\
+    pshmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);		\
   }
 
 SHMEM_TYPE_WAIT(short, short)
