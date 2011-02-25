@@ -698,3 +698,30 @@ REDUCIFY(pshmem_comp8_prod_to_all, double)
 #pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
 
 #pragma weak shmem_int2_xor_to_all_ = pshmem_int2_xor_to_all_
+
+/*
+ * locks
+ *
+ */
+
+void
+FORTRANIFY(pshmem_clear_lock)(long *lock)
+{
+  pshmem_clear_lock(lock);
+}
+
+void
+FORTRANIFY(pshmem_set_lock)(long *lock)
+{
+  pshmem_set_lock(lock);
+}
+
+int
+FORTRANIFY(pshmem_test_lock)(long *lock)
+{
+  return pshmem_test_lock(lock);
+}
+
+#pragma weak shmem_clear_lock_ = pshmem_clear_lock_
+#pragma weak shmem_set_lock_ = pshmem_set_lock_
+#pragma weak shmem_test_lock_ = pshmem_test_lock_

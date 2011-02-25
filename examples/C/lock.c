@@ -12,7 +12,7 @@ main(int argc, char **argv)
 
   start_pes(0);
   me = _my_pe();
-  slp = me + 1;
+  slp = 2;
 
   shmem_barrier_all();
 
