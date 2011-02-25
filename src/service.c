@@ -16,7 +16,7 @@ static volatile int polling;
  * TODO: should be user-controllable
  */
 
-static const long BACKOFF_NANOSECS = 1000000L;
+static long backoff_millisecs = 1000L;
 
 static struct timespec backoff;
 
@@ -53,7 +53,7 @@ __shmem_service_thread_init(void)
 
   /* set the refractory period */
   backoff.tv_sec = 0;
-  backoff.tv_nsec = BACKOFF_NANOSECS;
+  backoff.tv_nsec = backoff_millisecs * 1000000L;
 
   s = pthread_create(& service_thr, NULL, service_thread, NULL);
   if (s != 0) {
