@@ -51,9 +51,9 @@ __shmem_service_thread_init(void)
 
   polling = 1;
 
-  /* stagger the refractory period ever so slightly */
+  /* set the refractory period */
   backoff.tv_sec = 0;
-  backoff.tv_nsec = BACKOFF_NANOSECS + __state.mype;
+  backoff.tv_nsec = BACKOFF_NANOSECS;
 
   s = pthread_create(& service_thr, NULL, service_thread, NULL);
   if (s != 0) {

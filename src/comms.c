@@ -359,8 +359,15 @@ typedef struct {
 
 static globalvar_t *gvp = NULL; /* our hash table */
 
+/*
+ * areas storing (uninitialized and initialized resp.) global
+ * variables
+ */
 static size_t bss_start;
-static size_t bss_end;		/* area storing global variables */
+static size_t bss_end;
+
+static size_t data_start;
+static size_t data_end;
 
 static int
 table_init_helper(void)
@@ -427,6 +434,21 @@ table_init_helper(void)
       __shmem_trace(SHMEM_LOG_SYMBOLS,
 		    "ELF section .bss for global variables = 0x%lX -> 0x%lX",
 		    bss_start, bss_end
+		    );
+
+      continue;
+    }
+
+    /* found the .data section */
+    if (shdr.sh_type == SHT_PROGBITS &&
+	strcmp(shstr_name, ".data") == 0) {
+
+      data_start = shdr.sh_addr;
+      data_end = data_start + shdr.sh_size;
+
+      __shmem_trace(SHMEM_LOG_SYMBOLS,
+		    "ELF section .data for global variables = 0x%lX -> 0x%lX",
+		    data_start, data_end
 		    );
 
       continue;
@@ -560,12 +582,26 @@ __comms_is_globalvar(void *addr)
 }
 #endif
 
+static
+int
+__comms_is_bss(size_t a)
+{
+  return (bss_start <= a) && (a <= bss_end);
+}
+
+static
+int
+__comms_is_data(size_t a)
+{
+  return (data_start <= a) && (a <= data_end);
+}
+
 int
 __comms_is_globalvar(void *addr)
 {
   size_t a = (size_t) addr;
 
-  return (bss_start <= a) && (a <= bss_end);
+  return __comms_is_bss(a) || __comms_is_data(a);
 }
 
 /*
@@ -1093,6 +1129,8 @@ typedef struct {
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
+
+#if 0
 static void
 handler_cswap_out(gasnet_token_t token,
 		  void *buf, size_t bufsiz,
@@ -1111,6 +1149,37 @@ handler_cswap_out(gasnet_token_t token,
   }
   /* return value */
   pp->value = old;
+
+  gasnet_hsl_unlock(& cswap_out_lock);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz, unused);
+}
+#endif
+
+static void
+handler_cswap_out(gasnet_token_t token,
+		  void *buf, size_t bufsiz,
+		  gasnet_handlerarg_t unused)
+{
+  void *old;
+  cswap_payload_t *pp = (cswap_payload_t *) buf;
+
+  gasnet_hsl_lock(& cswap_out_lock);
+
+  old = malloc(pp->nbytes);
+
+  /* save current target */
+  memcpy(old, pp->r_symm_addr, pp->nbytes);
+
+  /* update value if cond matches */
+  if (memcmp(&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
+    memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  }
+  /* return value */
+  memcpy(&(pp->value), old, pp->nbytes);
+
+  free(old);
 
   gasnet_hsl_unlock(& cswap_out_lock);
 
@@ -1155,8 +1224,9 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   cp->local_store = retval;
   cp->r_symm_addr = __symmetric_addr_lookup(target, pe);
   cp->nbytes = nbytes;
-  cp->value = *(long long *) value;
-  cp->cond = *(long long *) cond;
+  cp->value = cp->cond = 0LL;
+  memcpy(&(cp->value), value, nbytes);
+  memcpy(&(cp->cond), cond, nbytes);
   cp->completed = 0;
   cp->completed_addr = &(cp->completed);
 

@@ -136,10 +136,16 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
      * If global lock owner value still equals this_pe, load RESET
      * into it & return prev value
      */
+#if 0
     __shmem_trace(SHMEM_LOG_LOCK,
-		  "about to cswap, word = %d",
-		  tmp.l_word
+		  "cswap(%p, %d = %d + %d, %d, %d)",
+		  (int *)&lock->l_word,
+		  tmp.l_word,
+		  tmp.l_locked, tmp.l_next,
+		  _SHMEM_LOCK_RESET,
+		  LOCK_OWNER(lock)
 		  );
+#endif
     tmp.l_word = shmem_int_cswap((int *)&lock->l_word,
 				 tmp.l_word,
 				 _SHMEM_LOCK_RESET,

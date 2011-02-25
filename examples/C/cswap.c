@@ -5,9 +5,18 @@
 int
 main()
 {
-  static int  race_winner = -1;
+  static int race_winner = -1;
   int oldval;
+  int me;
+
   start_pes(2);
-  oldval = shmem_int_cswap(&race_winner, -1, _my_pe(), 0);
-  if (oldval == -1) printf("pe %d was first\n",_my_pe());
+  me = _my_pe();
+
+  oldval = shmem_int_cswap(&race_winner, -1, me, 0);
+
+  if (oldval == -1) {
+    printf("pe %d was first\n", me);
+  }
+
+  return 0;
 }
