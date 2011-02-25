@@ -18,6 +18,7 @@ typedef enum {
   SHMEM_LOG_COLLECT,		/* [f]collect ops */
   SHMEM_LOG_REDUCE,		/* reduction ops */
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */
+  SHMEM_LOG_LOCK,		/* global locks */
 } shmem_trace_t;
 
 extern void __shmem_tracers_init(void);

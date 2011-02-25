@@ -232,7 +232,7 @@ FORTRANIFY(pshmem_nodename)(void)
   return pshmem_nodename();
 }
 
-char *
+int
 FORTRANIFY(pshmem_version)(void)
 {
   return pshmem_version();

@@ -31,7 +31,7 @@ extern "C" {
 
   extern char * pshmem_nodename(void) _WUR;
 
-  extern char * pshmem_version(void) _WUR;
+  extern int    pshmem_version(void) _WUR;
 
   /*
    * I/O

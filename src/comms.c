@@ -166,12 +166,23 @@ __comms_set_waitmode(comms_spinmode_t mode)
 }
 
 /*
- * used in wait loops to poll for put/get/AM traffic
+ * used in service thread to poll for put/get/AM traffic
  */
 void
 __comms_poll(void)
 {
   gasnet_AMPoll();
+}
+
+/*
+ * used in loops while waiting for variable to change
+ */
+
+void
+__comms_pause(void)
+{
+  pthread_yield();
+  // __asm__ __volatile__("rep;nop": : :"memory");
 }
 
 /*
@@ -864,7 +875,7 @@ __symmetric_memory_init(void)
       /* now wait on the AM replies */
       int got_all = __state.numpes - 2; /* 0-based AND don't count myself */
       do {
-	__comms_poll();
+	__comms_pause();
       } while (seg_setup_replies_received <= got_all);
     }
   }

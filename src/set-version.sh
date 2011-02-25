@@ -8,7 +8,7 @@ fi
 
 svn update
 
-rev="`svn info | grep '^Revision:'`"
+rev="`svn info | awk -F: '$1 == "Revision" {print $2}'`"
 
 cat <<_EOT_    > $1
 /*
@@ -17,11 +17,11 @@ cat <<_EOT_    > $1
 
 #include "utils.h"
 
-char *
+int
 pshmem_version(void)
 {
   INIT_CHECK();
-  return "Super Happy Fun OpenSHMEM, $rev";
+  return $rev;
 }
 
 #pragma weak shmem_version = pshmem_version

@@ -12,7 +12,7 @@
 
 #define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
   do {								\
-    __comms_poll();						\
+    __comms_pause();						\
   } while ( *((volatile Type *) Var) Op CmpValue)
 
 /*

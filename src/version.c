@@ -4,11 +4,11 @@
 
 #include "utils.h"
 
-char *
+int
 pshmem_version(void)
 {
   INIT_CHECK();
-  return "Super Happy Fun OpenSHMEM, Revision: 1624";
+  return  1626;
 }
 
 #pragma weak shmem_version = pshmem_version

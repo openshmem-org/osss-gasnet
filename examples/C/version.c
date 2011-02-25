@@ -14,7 +14,7 @@ main(int argc, char **argv)
 
   if (_my_pe() == 0) {
     printf("PE 0 says hello from\n");
-    printf("  SHMEM library version \"%s\"\n",
+    printf("  SHMEM library version %d\n",
            shmem_version()
           );
   }

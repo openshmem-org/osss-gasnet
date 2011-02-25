@@ -28,7 +28,7 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 #CPPFLAGS        += -xMMD
 #CFLAGS          += -PIC
 #CFLAGS          += -xc99=all
-#DEBUG_AND_OPT    = -ggdb -xO3
+#DEBUG_AND_OPT    = -ggdb -xO0
 #WARNINGS         =
 # WARNINGS        += -pedantic
 
@@ -37,7 +37,7 @@ CC               = gcc
 CPPFLAGS        += -MMD
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
-DEBUG_AND_OPT    = -ggdb -O3
+DEBUG_AND_OPT    = -ggdb -O0
 WARNINGS         = -Wall
 # WARNINGS        += -pedantic
 
@@ -56,7 +56,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT)
 # ---------------------------------------------------------
 
 # communication library dependent
-SHMEM_SOURCES    =	comms.c
+SHMEM_SOURCES    =	comms.c service.c
 # internal
 SHMEM_SOURCES   +=	hooks.c state.c memalloc.c
 # Fortran API

@@ -11,6 +11,7 @@
 #include "barrier.h"
 #include "ping.h"
 #include "utils.h"
+#include "service.h"
 
 #include "shmem.h"
 
@@ -26,7 +27,10 @@ void
 __shmem_exit(int status)
 {
   __shmem_atomic_finalize();
+
   __symmetric_memory_finalize();
+
+  __shmem_service_thread_finalize();
 
   __state.pe_status = PE_SHUTDOWN;
 
@@ -89,6 +93,9 @@ pstart_pes(int npes)
   /* set up communications layer */
   __comms_init();
 
+  /* start network service thread */
+  __shmem_service_thread_init();
+
   /* see if we want to say which message/trace levels are active */
   __shmem_tracers_show();
 
@@ -132,7 +139,7 @@ pstart_pes(int npes)
   __state.pe_status = PE_RUNNING;
 
   __shmem_trace(SHMEM_LOG_INIT,
-		"version \"%s\" running on %d PE%s",
+		"version %d running on %d PE%s",
 		shmem_version(),
 		__state.numpes,
 		__state.numpes == 1 ? "" : "s"

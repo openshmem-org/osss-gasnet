@@ -51,6 +51,8 @@ integer shmem_num_pes
 integer shmem_n_pes
 integer num_pes
 
+integer shmem_version
+
 logical shmem_pe_accessible
 logical shmem_addr_accessible
 
