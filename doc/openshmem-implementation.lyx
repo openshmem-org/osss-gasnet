@@ -356,9 +356,9 @@ Initialization
 In src/updown.c we handle setting up the SHMEM runtime, and eventual shutdown.
  Shutdown is implicit in user code, there is no call to do this in SGI SHMEM,
  so we register a handler to be called when main() exits.
- (Cray SHMEM has an explicit finalize call.) The segment exchange is a target
- for future optimization: in large programs, the start-up time will become
- burdensome due to the large number of address/size communication.
+ (Cray SHMEM has an explicit finalize call, however.) The segment exchange
+ is a target for future optimization: in large programs, the start-up time
+ will become burdensome due to the large number of address/size communication.
  Strategies for avoiding this include lazy initialization and hierarchical
  lookups.
 \end_layout
@@ -500,6 +500,7 @@ mainline
  sleeps or otherwise can't handle communication, this thread takes up the
  work.
  It's also closer to how dedicated hardware solutions do this kind of thing.
+ Quiets are handled by telling the service thread to wait on pending I/O.
 \end_layout
 
 \begin_layout Subsection
@@ -617,6 +618,26 @@ The current implementation has a single handler lock variable per operation
 SHMEM API locks are based heavily on the Quadrics implementation (which
  is layered on top of SHMEM primitives and thus not tied to Elan).
  
+\end_layout
+
+\begin_layout Subsection
+Locks
+\end_layout
+
+\begin_layout Standard
+SHMEM provides routines to claim, release and test global locks.
+ These can be used for mutual-exclusion regions.
+ Our implementation is from the Quadrics library, which is a version of
+ the Mellor-Crummy-Scott algorithm (
+\begin_inset Quotes eld
+\end_inset
+
+Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors
+\begin_inset Quotes erd
+\end_inset
+
+ by John M.
+ Mellor-Crummey and Michael L Scott).
 \end_layout
 
 \begin_layout Subsection
