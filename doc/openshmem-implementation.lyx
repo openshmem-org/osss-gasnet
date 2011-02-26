@@ -83,7 +83,7 @@ Sponsorship
 \begin_layout Standard
 Work on the OpenSHMEM project is sponsored by Oak Ridge National Laboratory
  and the U.S.
- Department of Energy.
+ Department of Defense.
 \end_layout
 
 \begin_layout Section
@@ -120,16 +120,17 @@ processing element
 \begin_layout Standard
 The number of PEs participating in the program is set at launch-time (although
  not all PEs need to do work).
- PEs are numbered from monotonically increasing from 0 up to N-1, where
- N is the total number of PEs.
- PEs are assumed to be equidistant from each other, no topological information
- is currently exposed.
+ PEs are numbered monotonically increasing from 0 up to N-1, where N is
+ the total number of PEs.
+ PEs are assumed to be equidistant from each other for communication purposes,
+ no topological information is currently exposed.
 \end_layout
 
 \begin_layout Standard
 Communication occurs through point-to-point one-sided routines and collective
  operations.
- A one-sided operation is a communication in which the 
+ A one-sided operation is a communication in which one PE transfers data
+ to another PE, but the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -155,7 +156,7 @@ Parallel programs running in a distributed environment access both local
  program.
  Hidden models include those with a Global Address Space (GAS), in which
  there appears to be memory accessible from all processors.
- This memory may in fact be directly accessible, or may be made available
+ This memory may be physically accessible, or may in fact be made available
  through I/O operations over network interconnects.
 \end_layout
 
@@ -181,7 +182,8 @@ get
  data to or from other processors by requesting a specific variable on another
  processor.
  SHMEM provides for address translation when required to allow a variable
- allocated by one processor to be accessed by another.
+ allocated by one processor to be accessed by another, because in a number
+ of environments it is not guaranteed that address spaces are uniform.
  This allocation-in-concert of separate variables is termed Partitioned
  Global Address Space (PGAS).
 \end_layout
@@ -189,7 +191,7 @@ get
 \begin_layout Standard
 Clusers that use interconnects with remote direct memory access (rDMA) are
  of particular interest to the PGAS community as they provide hardware off-load
- capability to avoid interrupting one-side communications.
+ capability to avoid interrupts during one-sided communications.
 \end_layout
 
 \begin_layout Section
@@ -276,14 +278,22 @@ GASNet
 
 \begin_layout Standard
 GASNet provides the symmetric memory areas.
- The dlmalloc library provides management of these areas during allocation
+ A memory management library marshalls accesses to these areas during allocation
  and freeing of symmetric variables in user code, usually through a call
- like shmalloc().
+ like 
+\family typewriter
+shmalloc()
+\family default
+.
 \end_layout
 
 \begin_layout Standard
-When you GASNet-attach and ask for segment information, each PE has access
- to an array of segments, 1 segment per PE.
+When you 
+\family typewriter
+gasnet_attach()
+\family default
+ and ask for segment information, each PE has access to an array of segments,
+ 1 segment per PE.
  Each PE initializes a memory pool within its own segment.
  The set up is handled either by GASNet internally (
 \begin_inset Quotes eld
@@ -301,7 +311,7 @@ large
 \begin_inset Quotes erd
 \end_inset
 
- model) or by SHMEM (
+ model) or by SHMEM itself (
 \begin_inset Quotes eld
 \end_inset
 
@@ -353,9 +363,17 @@ Initialization
 \end_layout
 
 \begin_layout Standard
-In src/updown.c we handle setting up the SHMEM runtime, and eventual shutdown.
+In 
+\family typewriter
+src/updown.c
+\family default
+ we handle setting up the SHMEM runtime, and eventual shutdown.
  Shutdown is implicit in user code, there is no call to do this in SGI SHMEM,
- so we register a handler to be called when main() exits.
+ so we register a handler to be called when 
+\family typewriter
+main()
+\family default
+ exits.
  (Cray SHMEM has an explicit finalize call, however.) The segment exchange
  is a target for future optimization: in large programs, the start-up time
  will become burdensome due to the large number of address/size communication.
@@ -404,11 +422,7 @@ status open
 \begin_layout Standard
 \align left
 are handled for portability.
-\end_layout
-
-\begin_layout Standard
-\align left
-We provide both the SGI
+ We provide both the SGI
 \begin_inset listings
 inline false
 status open
@@ -443,7 +457,11 @@ shmem_init(void)
 \align left
 interfaces, again for portability.
  The calls are synonyms.
- start_pes() just ignores its argument (consistent with SGI behavior.
+ 
+\family typewriter
+start_pes()
+\family default
+ just ignores its argument (consistent with SGI behavior.
  SGI indicates 
 \begin_inset Quotes eld
 \end_inset
@@ -500,7 +518,12 @@ mainline
  sleeps or otherwise can't handle communication, this thread takes up the
  work.
  It's also closer to how dedicated hardware solutions do this kind of thing.
- Quiets are handled by telling the service thread to wait on pending I/O.
+ A routine provides the ability to send requests to the service thread.
+ This is how 
+\family typewriter
+shmem_quiet()
+\family default
+ is handled: we tell the service thread to wait for pending I/O.
 \end_layout
 
 \begin_layout Subsection
@@ -587,8 +610,12 @@ Point-to-point routines
 Point-to-point operations are a thin layer on top of GASNet.
  The non-blocking put operations with implicit handles provide a way to
  subsequently fence and barrier.
- However, tracking individual handles explicitly may give better performance.
- The Quadrics extensions that add non-blocking calls into the API proper
+ However, tracking individual handles explicitly with a hash table keyed
+ on the address of symmetric variables may give better performance.
+\end_layout
+
+\begin_layout Standard
+The Quadrics extensions that add non-blocking calls into the API proper
  have already been requested for the OpenSHMEM development.
 \end_layout
 
@@ -609,15 +636,13 @@ Atomic operations include swaps, fetch-and-add and locks.
 
 \begin_layout Standard
 The current implementation has a single handler lock variable per operation
- (add, increment, etc).
+ (add, increment, 
+\emph on
+etc.
+\emph default
+).
  However, allocating and managing a separate lock variable for each remotely
  accessed address might scale better to large systems.
-\end_layout
-
-\begin_layout Standard
-SHMEM API locks are based heavily on the Quadrics implementation (which
- is layered on top of SHMEM primitives and thus not tied to Elan).
- 
 \end_layout
 
 \begin_layout Subsection
@@ -638,6 +663,8 @@ Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors
 
  by John M.
  Mellor-Crummey and Michael L Scott).
+ The locks are layered on top of SHMEM primitives, so there are no Elan
+ dependencies.
 \end_layout
 
 \begin_layout Subsection
@@ -648,9 +675,9 @@ Broadcast
 The initial version is naive, making the root of the broadcast a bottleneck.
  This is partly intentional, to allow Swaroop to explore better algorithms
  and work out how to demonstrate and document the improvements.
- Would like to collect some locality information inside the library to help
- decide communication order inside these algorithms: PEs that differ in
- rank by large amounts are likely to be further away topologically too,
+ We would like to collect some locality information inside the library to
+ help decide communication order inside these algorithms: PEs that differ
+ in rank by large amounts are likely to be further away topologically too,
  so by sending to more distant PEs first, we can stagger the network traffic
  and balance the latencies better.
  A proper measurement of 
@@ -671,7 +698,11 @@ hwloc
 \end_inset
 
  provides a per-system distance metric in NUMA terms.
- A simple extension could e.g.
+ A simple extension could 
+\emph on
+e.g.
+
+\emph default
  just multiply the distance by some constant when moving off-node to penalize
  network traffic.
 \end_layout
@@ -681,9 +712,16 @@ Collects
 \end_layout
 
 \begin_layout Standard
-The files src/fcollect.c and src/collect.c implement the collector routines
- (concatenating arrays on a set of PEs into a target array on all of those
- PEs).
+The files 
+\family typewriter
+src/fcollect.c
+\family default
+ and 
+\family typewriter
+src/collect.c
+\family default
+ implement the collector routines (concatenating arrays on a set of PEs
+ into a target array on all of those PEs).
 \end_layout
 
 \begin_layout Standard
@@ -845,8 +883,12 @@ The behavior of the OpenSHMEM library can be controlled via a number of
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_LOG_LEVELS: a comma, space, or semi-colon separated list of logging/trace
- facilities to enable debugging messages.
+
+\family typewriter
+SHMEM_LOG_LEVELS
+\family default
+: a comma, space, or semi-colon separated list of logging/trace facilities
+ to enable debugging messages.
  The facilities currently include the case-insensitive names
 \end_layout
 
@@ -1186,15 +1228,22 @@ something unrecoverable happened, abort
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_LOG_FILE: a filename to which to write log messages.
+
+\family typewriter
+SHMEM_LOG_FILE
+\family default
+: a filename to which to write log messages.
  All PEs append to this file.
  The default is for all PEs to write to standard error.
 \end_layout
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_SYMMETRIC_HEAPSIZE: the number of bytes to allocate for the symmetric
- heap area.
+
+\family typewriter
+SHMEM_SYMMETRIC_HEAPSIZE
+\family default
+: the number of bytes to allocate for the symmetric heap area.
  Can scale units with 
 \begin_inset Quotes eld
 \end_inset
@@ -1218,7 +1267,11 @@ M
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_BARRIER_ALGORITHM: the version of the barrier to use.
+
+\family typewriter
+SHMEM_BARRIER_ALGORITHM
+\family default
+: the version of the barrier to use.
  The default is 
 \begin_inset Quotes eld
 \end_inset
@@ -1233,15 +1286,25 @@ naive
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_BARRIER_ALL_ALGORITHM: as for SHMEM_BARRIER_ALGORITHM, but separating
- these two allows us to optimize if e.g.
+
+\family typewriter
+SHMEM_BARRIER_ALL_ALGORITHM
+\family default
+: as for 
+\family typewriter
+SHMEM_BARRIER_ALGORITHM
+\family default
+, but separating these two allows us to optimize if e.g.
  hardware has special support for global barriers.
 \end_layout
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-SHMEM_PE_ACCESSIBLE_TIMEOUT: the number of seconds to wait for PEs to reply
- to accessiblity checks.
+
+\family typewriter
+SHMEM_PE_ACCESSIBLE_TIMEOUT
+\family default
+: the number of seconds to wait for PEs to reply to accessiblity checks.
  The default is 1.0 (i.e may be fractional).
 \end_layout
 
@@ -1255,19 +1318,35 @@ In order to abstract the compilation and launching process we have provided
 \end_layout
 
 \begin_layout Enumerate
-oshcc: for compiling and linking C programs.
+
+\family typewriter
+oshcc
+\family default
+: for compiling and linking C programs.
 \end_layout
 
 \begin_layout Enumerate
-oshCC: for compiling and linking C++ programs.
+
+\family typewriter
+oshCC
+\family default
+: for compiling and linking C++ programs.
 \end_layout
 
 \begin_layout Enumerate
-oshfort: for compiling and linking F77/F90 programs.
+
+\family typewriter
+oshfort
+\family default
+: for compiling and linking F77/F90 programs.
 \end_layout
 
 \begin_layout Enumerate
-oshrun: to launch programs.
+
+\family typewriter
+oshrun
+\family default
+: to launch programs.
 \end_layout
 
 \begin_layout Standard
