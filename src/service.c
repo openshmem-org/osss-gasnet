@@ -1,39 +1,64 @@
 #define _POSIX_C_SOURCE 199309
-#include <time.h>
+#include <time.h>		/* for nanosleep */
+#undef _POSIX_C_SOURCE
 
 #include <stdio.h>
+#include <math.h>
 #include <pthread.h>
+#include <string.h>
+#include <errno.h>
 
 #include "comms.h"
 #include "trace.h"
 #include "state.h"
 
-static pthread_t service_thr;
-
-static volatile int polling;
-
 /*
- * TODO: should be user-controllable
+ * TODO: should be user-controllable.  Could also make the library
+ * monitor frequency of communication and allow it to fine-tune its
+ * own polling speed.
+ *
  */
-
-static long backoff_millisecs = 1000L;
+static double backoff_secs = 0.9999;
+static int num_polls_per_loop = 10;
 
 static struct timespec backoff;
 
+static pthread_t service_thr;
+
 /*
- * the real service thread: poll the network.  We include a short
- * refractory period to help other things happen in parallel.
+ * unused
  *
  */
+void
+__shmem_service_set_pause(double ms)
+{
+  double s = floor(ms);
+  double f = ms - s;
+
+  backoff.tv_sec  = (long) s;
+  backoff.tv_nsec = (long) (f * 1.0e9);
+}
+
+/*
+ * the real service thread: poll the network.  Should we include a
+ * short refractory period to help other things happen in parallel?
+ *
+ */
+
+static volatile short polling;
 
 static
 void *
 service_thread(void *unused_arg)
 {
   while (polling) {
+
     __comms_poll();
-    nanosleep(& backoff, (struct timespec *) NULL);
+
+    // nanosleep(& backoff, (struct timespec *) NULL);
+
   }
+
   return (void *) NULL;
 }
 
@@ -52,13 +77,13 @@ __shmem_service_thread_init(void)
   polling = 1;
 
   /* set the refractory period */
-  backoff.tv_sec = 0;
-  backoff.tv_nsec = backoff_millisecs * 1000000L;
+  __shmem_service_set_pause(backoff_secs);
 
   s = pthread_create(& service_thr, NULL, service_thread, NULL);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: can't create network service thread"
+		  "internal error: can't create network service thread (%s)",
+		  strerror(errno)
 		  );
     /* NOT REACHED */
   }
@@ -66,8 +91,8 @@ __shmem_service_thread_init(void)
 
 /*
  * stop the service sub-system.  Disable polling sentinel and reap the
- * service thread.  If we can't shut down the thread, we'll complain
- * but we'll continue with the rest of the shut down.
+ * service thread.  If we can't shut down the thread, complain but
+ * continue with the rest of the shut down.
  *
  */
 
@@ -81,7 +106,8 @@ __shmem_service_thread_finalize(void)
   s = pthread_join(service_thr, NULL);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_NOTICE,
-		  "internal error: couldn't clean up network service thread"
+		  "internal error: couldn't clean up network service thread (%s)",
+		  strerror(errno)
 		  );
   }
 }

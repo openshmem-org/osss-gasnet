@@ -54,6 +54,7 @@ typedef struct {
 /* Macro to map lock virtual address to owning process vp */
 #define LOCK_OWNER(LOCK)	(((uintptr_t)(LOCK) >> 3) % (_num_pes()))
 
+#if 0
 static
 void
 dump_shmem_lock(char *name, SHMEM_LOCK *L)
@@ -65,6 +66,7 @@ dump_shmem_lock(char *name, SHMEM_LOCK *L)
 		L->l_next
 		);
 }
+#endif
 
 static
 void

@@ -44,6 +44,7 @@ __trace_table_t tracers[] =
     INIT_LEVEL(REDUCE,     OFF),
     INIT_LEVEL(SYMBOLS,    OFF),
     INIT_LEVEL(LOCK,       OFF),
+    INIT_LEVEL(SERVICE,    OFF),
   };
 static const int n_tracers = sizeof(tracers) / sizeof(tracers[0]);
 
