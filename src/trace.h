@@ -20,6 +20,8 @@ typedef enum {
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */
   SHMEM_LOG_LOCK,		/* global locks */
   SHMEM_LOG_SERVICE,		/* network service thread */
+  SHMEM_LOG_QUIET,		/* quiet calls */
+  SHMEM_LOG_FENCE,		/* fence calls */
 } shmem_trace_t;
 
 extern void __shmem_tracers_init(void);

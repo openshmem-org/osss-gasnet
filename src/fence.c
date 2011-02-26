@@ -6,7 +6,7 @@ void
 pshmem_fence(void)
 {
   INIT_CHECK();
-  __comms_fence();
+  __comms_fence_request();
 }
 
 /* @api@ */
@@ -14,7 +14,7 @@ void
 pshmem_quiet(void)
 {
   INIT_CHECK();
-  __comms_quiet();
+  __comms_quiet_request();
 }
 
 #pragma weak shmem_fence = pshmem_fence

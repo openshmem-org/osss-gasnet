@@ -24,7 +24,7 @@
 #include "atomic.h"
 #include "comms.h"
 #include "ping.h"
-
+#include "service.h"
 
 /*
  * gasnet model choice
@@ -289,25 +289,6 @@ __comms_wait_nb(void *h)
   LOAD_STORE_FENCE();
 }
 
-/*
- * TODO: this should be OK for quiet.  Is it overkill?  Correct?  Is
- * there a better way?
- *
- */
-
-void
-__comms_quiet(void)
-{
-  __comms_barrier_all();
-}
-
-void
-__comms_fence(void)
-{
-  gasnet_wait_syncnbi_all();
-  LOAD_STORE_FENCE();
-}
-
 static int barcount = 0;
 static int barflag = 0;
 
@@ -317,7 +298,7 @@ __comms_barrier_all(void)
   /* GASNET_BEGIN_FUNCTION(); */
 
   /* wait for gasnet to finish pending puts/gets */
-  __comms_fence();
+  __comms_fence_request();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
@@ -326,7 +307,7 @@ __comms_barrier_all(void)
   /* barcount = 1 - barcount; */
   barcount += 1;
 
-  __comms_fence();
+  __comms_fence_request();
 }
 
 
@@ -662,6 +643,12 @@ static void handler_inc_bak();
 static void handler_ping_out();
 static void handler_ping_bak();
 
+#define GASNET_HANDLER_QUIET_OUT     146
+#define GASNET_HANDLER_QUIET_BAK     147
+
+static void handler_quiet_out();
+static void handler_quiet_bak();
+
 #if defined(HAVE_MANAGED_SEGMENTS)
 
 #define GASNET_HANDLER_GLOBALVAR_OUT 130
@@ -692,6 +679,8 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_INC_BAK,       handler_inc_bak       },
     { GASNET_HANDLER_PING_OUT,      handler_ping_out      },
     { GASNET_HANDLER_PING_BAK,      handler_ping_bak      },
+    { GASNET_HANDLER_QUIET_OUT,     handler_quiet_out     },
+    { GASNET_HANDLER_QUIET_BAK,     handler_quiet_bak     },
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
@@ -1709,6 +1698,137 @@ __comms_ping_request(int pe)
   free(p);
 
   return pe_acked;
+}
+
+
+/*
+ * ---------------------------------------------------------------------------
+ */
+
+typedef struct {
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	/* addr of marker */
+} quiet_payload_t;
+
+static gasnet_hsl_t quiet_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t quiet_bak_lock = GASNET_HSL_INITIALIZER;
+
+/*
+ * called by remote PE to fence and acknowledge
+ */
+static void
+handler_quiet_out(gasnet_token_t token,
+		  void *buf, size_t bufsiz,
+		  gasnet_handlerarg_t unused)
+{
+  gasnet_hsl_lock(& quiet_out_lock);
+
+  __comms_fence_request();
+
+  gasnet_hsl_unlock(& quiet_out_lock);
+
+  __shmem_trace(SHMEM_LOG_QUIET,
+		"sending ack"
+		);
+
+  /* return ack, payload not modified in this case */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_QUIET_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called to ack remote fence
+ */
+static void
+handler_quiet_bak(gasnet_token_t token,
+		  void *buf, size_t bufsiz,
+		  gasnet_handlerarg_t unused)
+{
+  quiet_payload_t *pp = (quiet_payload_t *) buf;
+
+  gasnet_hsl_lock(& quiet_bak_lock);
+
+  /* done it */
+  *(pp->completed_addr) = 1;
+
+  gasnet_hsl_unlock(& quiet_bak_lock);
+
+  __shmem_trace(SHMEM_LOG_QUIET,
+		"ack'ed remote fence"
+		);
+}
+
+
+void
+__comms_quiet_request(void)
+{
+  int other_pe;
+  const int npes = GET_STATE(numpes);
+  const int me   = GET_STATE(mype);
+  quiet_payload_t **pa = (quiet_payload_t **) malloc(npes * sizeof(*pa));
+  if (pa == (quiet_payload_t **) NULL) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: unable to allocate quiet payload array"
+		  );
+  }
+  /* build payload to send */
+  for (other_pe = 0; other_pe < npes; other_pe += 1) {
+    quiet_payload_t *p = (quiet_payload_t *) malloc(sizeof(*p));
+    if (me != other_pe) {
+      p->completed = 0;
+      p->completed_addr = &(p->completed);
+      pa[other_pe] = p;
+
+      /* send and wait for ack */
+      gasnet_AMRequestMedium1(other_pe, GASNET_HANDLER_QUIET_OUT,
+			      p, sizeof(*p),
+			      0);
+      __shmem_trace(SHMEM_LOG_QUIET,
+		    "sent request to PE %d",
+		    other_pe
+		    );
+    }
+  }
+  /* wait for all acks */
+  for (other_pe = npes -1; other_pe >= 0; other_pe -= 1) {
+    if (me != other_pe) {
+
+      __shmem_trace(SHMEM_LOG_QUIET,
+		    "waiting for ack from PE %d",
+		    other_pe
+		    );
+
+      WAIT_ON_COMPLETION(pa[other_pe]->completed);
+      free(pa[other_pe]);
+    }
+    else {
+      __comms_fence_request();
+    }
+  }
+
+  free(pa);
+}
+
+/*
+ * called by service thread
+ *
+ */
+
+void
+__comms_fence(void)
+{
+  gasnet_wait_syncnbi_all();
+  LOAD_STORE_FENCE();
+}
+
+/*
+ * called by library to initiate service
+ *
+ */
+
+void
+__comms_fence_request(void)
+{
+  __shmem_service_set_mode(SERVICE_FENCE);
 }
 
 

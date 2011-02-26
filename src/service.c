@@ -12,6 +12,8 @@
 #include "trace.h"
 #include "state.h"
 
+#include "service.h"
+
 /*
  * TODO: should be user-controllable.  Could also make the library
  * monitor frequency of communication and allow it to fine-tune its
@@ -19,7 +21,7 @@
  *
  */
 static double backoff_secs = 0.9999;
-static int num_polls_per_loop = 10;
+// static int num_polls_per_loop = 10;
 
 static struct timespec backoff;
 
@@ -45,15 +47,30 @@ __shmem_service_set_pause(double ms)
  *
  */
 
-static volatile short polling;
+static volatile poll_mode_t mode;
+
+void
+__shmem_service_set_mode(poll_mode_t m)
+{
+  mode = m;
+}
 
 static
 void *
 service_thread(void *unused_arg)
 {
-  while (polling) {
+  while (mode != SERVICE_FINISH) {
 
-    __comms_poll();
+    if (mode == SERVICE_POLL) {
+      __comms_poll();
+    }
+    else if (mode == SERVICE_FENCE) {
+      __comms_fence();
+    }
+    else {
+      /* TODO: shouldn't get here */
+      break;
+    }
 
     // nanosleep(& backoff, (struct timespec *) NULL);
 
@@ -74,7 +91,7 @@ __shmem_service_thread_init(void)
 {
   int s;
 
-  polling = 1;
+  mode = SERVICE_POLL;
 
   /* set the refractory period */
   __shmem_service_set_pause(backoff_secs);
@@ -101,7 +118,7 @@ __shmem_service_thread_finalize(void)
 {
   int s;
 
-  polling = 0;
+  mode = SERVICE_FINISH;
 
   s = pthread_join(service_thr, NULL);
   if (s != 0) {

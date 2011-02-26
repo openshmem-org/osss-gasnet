@@ -746,6 +746,28 @@ ack
  fault tolerance issues.
 \end_layout
 
+\begin_layout Subsection
+Tracing Facility
+\end_layout
+
+\begin_layout Standard
+This library contains “trace points” with categorized messages.
+ These are listed in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Environment-Variables"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A high-resolution clock is maintained to timestamp such messages.
+ Numerically sorting the output on the first field can thus help understand
+ the order in which events happened.
+\end_layout
+
 \begin_layout Section
 Undefined Behavior
 \end_layout
@@ -779,9 +801,427 @@ right neighbor
 \end_layout
 
 \begin_layout Itemize
-library not initialized: virtually all SHMEM routines will hae major problems
+library not initialized: virtually all SHMEM routines will have major problems
  if the library has not been initialized.
- Implementations can handle this situation in different ways: 
+ Implementations can handle this situation in different ways.
+\end_layout
+
+\begin_layout Section
+Environment Variables
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Environment-Variables"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The behavior of the OpenSHMEM library can be controlled via a number of
+ environmet variables.
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_LOG_LEVELS: a comma, space, or semi-colon separated list of logging/trace
+ facilities to enable debugging messages.
+ The facilities currently include the case-insensitive names
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+\begin_inset Tabular
+<lyxtabular version="3" rows="16" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Facility
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DEBUG
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+used for debugging purposes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INFO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+something interesting happened
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NOTICE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+important event, but non-fatal (see below)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AUTH
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+when something is attempted but not allowed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INIT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+set-up and tear-down of the program
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MEMORY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+symmetric memory information
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CACHE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+cache flushing operations
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+BARRIER
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+about barrier operations
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+BROADCAST
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+about broadcast operation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+COLLECT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+about collect and fcollect operation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+REDUCE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+about reduction operations
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SYMBOLS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to inspect the symbol table information
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+LOCK
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+related to setting, testing and clearing locks
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SERVICE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+related to the network service thread
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FATAL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+something unrecoverable happened, abort
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_LOG_FILE: a filename to which to write log messages.
+ All PEs append to this file.
+ The default is for all PEs to write to standard error.
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_SYMMETRIC_HEAPSIZE: the number of bytes to allocate for the symmetric
+ heap area.
+ Can scale units with 
+\begin_inset Quotes eld
+\end_inset
+
+K
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+M
+\begin_inset Quotes erd
+\end_inset
+
+ etc.
+ modifiers.
+ The default is 1M.
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_BARRIER_ALGORITHM: the version of the barrier to use.
+ The default is 
+\begin_inset Quotes eld
+\end_inset
+
+naive
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Designed to allow people to plug other variants in easily and test.
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_BARRIER_ALL_ALGORITHM: as for SHMEM_BARRIER_ALGORITHM, but separating
+ these two allows us to optimize if e.g.
+ hardware has special support for global barriers.
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SHMEM_PE_ACCESSIBLE_TIMEOUT: the number of seconds to wait for PEs to reply
+ to accessiblity checks.
+ The default is 1.0 (i.e may be fractional).
 \end_layout
 
 \begin_layout Section
@@ -816,76 +1256,6 @@ The similarity to the style of wrappers found in many MPI implementations
  oshcc/CC and oshfort detect that they shouldn't do linking and stop the
  underlying compiler complaining about link options being present, but unused).
  The compiler scripts are generated from a common template.
-\end_layout
-
-\begin_layout Section
-Tracing Facility
-\end_layout
-
-\begin_layout Standard
-This library contains 
-\begin_inset Quotes eld
-\end_inset
-
-trace points
-\begin_inset Quotes erd
-\end_inset
-
- with categorized messages.
- Which ones are enabled is controlled by an environment variable: SHMEM_LOG_LEVE
-LS.
- The value is a comma-, space- or semi-colon-separated case-insensitive
- list of categories to monitor.
- Categories include (but are not limited to) 
-\begin_inset Quotes eld
-\end_inset
-
-debug
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-init
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-memory
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-barrier
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-info
-\begin_inset Quotes erd
-\end_inset
-
-.
- The special value 
-\begin_inset Quotes eld
-\end_inset
-
-all
-\begin_inset Quotes erd
-\end_inset
-
- enables all message categories.
 \end_layout
 
 \begin_layout Section

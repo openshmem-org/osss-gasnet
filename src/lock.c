@@ -245,7 +245,7 @@ void
 pshmem_clear_lock(long *lock)
 {
   /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
-  shmem_fence();
+  shmem_quiet();
 
   mcs_lock_release(&((SHMEM_LOCK *)lock)[1],
 		   &((SHMEM_LOCK *)lock)[0],

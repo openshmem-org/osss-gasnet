@@ -47,7 +47,6 @@ extern void * __comms_float_put_nb(float *target, float *source,
 extern void   __comms_wait_nb(void *h);
 
 extern void   __comms_fence(void);
-extern void   __comms_quiet(void);
 
 extern int    __comms_is_globalvar(void *addr);
 
@@ -92,5 +91,8 @@ extern void  __comms_inc_request(void *target, size_t nbytes,
 				 int pe);
 
 extern int   __comms_ping_request(int pe);
+
+extern void  __comms_quiet_request(void);
+extern void  __comms_fence_request(void);
 
 #endif /* _COMMS_H */

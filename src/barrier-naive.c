@@ -15,7 +15,7 @@ pshmem_barrier_all_naive(void)
 void
 pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  __comms_fence();
+  shmem_fence();
 
   if (GET_STATE(mype) == PE_start) {
     const int step = 1 << logPE_stride;
@@ -40,5 +40,5 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
   /* restore pSync values */
   pSync[GET_STATE(mype)] = _SHMEM_SYNC_VALUE;
 
-  __comms_fence();
+  shmem_fence();
 }
