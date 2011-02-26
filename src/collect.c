@@ -34,13 +34,13 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
   INIT_CHECK();
 
   /* make sure accumulator has been initialized on all active PEs */
-  *acc_off = (__state.mype > PE_start) ? -1 : 0;
+  *acc_off = (GET_STATE(mype) > PE_start) ? -1 : 0;
 
   /*
    * wait for left neighbor (if it exists) to send accumulated
    * offsets
    */
-  if (__state.mype > PE_start) {
+  if (GET_STATE(mype) > PE_start) {
     shmem_long_wait(acc_off, -1);
   }
 
@@ -48,9 +48,9 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
    * forward my contribution to (notify) right neighbor if not last PE
    * in set
    */
-  if (__state.mype < last_pe) {
+  if (GET_STATE(mype) < last_pe) {
     const long next_off = *acc_off + nelems;
-    const int rnei = __state.mype + step;
+    const int rnei = GET_STATE(mype) + step;
 
     shmem_long_p(acc_off, next_off, rnei);
   }

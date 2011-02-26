@@ -14,7 +14,7 @@
   p##Variant (void)				\
   {						\
     INIT_CHECK();				\
-    return __state.mype;			\
+    return GET_STATE(mype);			\
   }
 
 SHMEM_MY_PE(shmem_my_pe)
@@ -26,7 +26,7 @@ SHMEM_MY_PE(_my_pe)
   p##Variant (void)				\
   {						\
     INIT_CHECK();				\
-    return __state.numpes;			\
+    return GET_STATE(numpes);			\
   }
 
 SHMEM_NUM_PES(shmem_num_pes)
@@ -38,7 +38,7 @@ char *
 pshmem_nodename(void)
 {
   INIT_CHECK();
-  return __state.loc.nodename;
+  return GET_STATE(loc.nodename);
 }
 
 

@@ -17,7 +17,7 @@
   {									\
     const int step = 1 << logPE_stride;					\
     const int root = PE_root + PE_start;				\
-    if (root == __state.mype) {						\
+    if (root == GET_STATE(mype)) {					\
       int i;								\
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\

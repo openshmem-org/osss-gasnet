@@ -21,7 +21,7 @@ pshmem_fcollect32(void *target, const void *source, size_t nelems,
 		  long *pSync)
 {
   const int step = 1 << logPE_stride;
-  const size_t tidx = nelems * sizeof(int) * __state.mype;
+  const size_t tidx = nelems * sizeof(int) * GET_STATE(mype);
   int pe = PE_start;
   int i;
 

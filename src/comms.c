@@ -729,9 +729,9 @@ __comms_init(void)
   /*
    * now we can ask about the node count & heap
    */
-  __state.mype     = __comms_mynode();
-  __state.numpes   = __comms_nodes();
-  __state.heapsize = __comms_get_segment_size();
+  SET_STATE(mype, __comms_mynode());
+  SET_STATE(numpes, __comms_nodes());
+  SET_STATE(heapsize, __comms_get_segment_size());
 
   /*
    * not guarding the attach for different gasnet models,
@@ -739,7 +739,7 @@ __comms_init(void)
    */
   GASNET_SAFE(
 	      gasnet_attach(handlers, nhandlers,
-			    __state.heapsize, 0
+			    GET_STATE(heapsize), 0
 			    )
 	      );
 
@@ -834,7 +834,7 @@ __symmetric_memory_init(void)
   /*
    * calloc zeroes for us
    */
-  seginfo_table = (gasnet_seginfo_t *) calloc(__state.numpes,
+  seginfo_table = (gasnet_seginfo_t *) calloc(GET_STATE(numpes),
 					      sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -852,13 +852,13 @@ __symmetric_memory_init(void)
 
 #ifdef HAVE_MANAGED_SEGMENTS
 
-  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, __state.numpes) );
+  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, GET_STATE(numpes)) );
 
 #else
 
   /* allocate the heap - has to be pagesize aligned */
   if (posix_memalign(& great_big_heap,
-		     GASNET_PAGESIZE, __state.heapsize) != 0) {
+		     GASNET_PAGESIZE, GET_STATE(heapsize)) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "unable to allocate symmetric heap"
 		  );
@@ -873,19 +873,19 @@ __symmetric_memory_init(void)
 
   __shmem_trace(SHMEM_LOG_MEMORY,
 		"symmetric heap @ %p, size is %ld bytes",
-		great_big_heap, __state.heapsize
+		great_big_heap, GET_STATE(heapsize)
 		);
 
   {
     gasnet_seginfo_t gsp;
     int pe;
 
-    for (pe = 0; pe < __state.numpes; pe += 1) {
+    for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
       /* send to everyone else */
-      if (__state.mype != pe) {
+      if (GET_STATE(mype) != pe) {
 
 	gsp.addr = great_big_heap;
-        gsp.size = __state.heapsize;
+        gsp.size = GET_STATE(heapsize);
 
 	gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SETUP_OUT,
 				&gsp, sizeof(gsp),
@@ -898,18 +898,18 @@ __symmetric_memory_init(void)
     /*
      * store my own heap entry
      */
-    seginfo_table[__state.mype].addr = great_big_heap;
-    seginfo_table[__state.mype].size = __state.heapsize;
+    seginfo_table[GET_STATE(mype)].addr = great_big_heap;
+    seginfo_table[GET_STATE(mype)].size = GET_STATE(heapsize);
 
     /*
      * initialize my heap
      */
-    __mem_init(seginfo_table[__state.mype].addr,
-	       seginfo_table[__state.mype].size);
+    __mem_init(seginfo_table[GET_STATE(mype)].addr,
+	       seginfo_table[GET_STATE(mype)].size);
 
     {
       /* now wait on the AM replies */
-      int got_all = __state.numpes - 2; /* 0-based AND don't count myself */
+      int got_all = GET_STATE(numpes) - 2; /* 0-based AND don't count myself */
       do {
 	__comms_pause();
       } while (seg_setup_replies_received <= got_all);
@@ -927,7 +927,7 @@ __symmetric_memory_init(void)
    */
   if (__trace_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
-    for (pe = 0; pe < __state.numpes; pe += 1) {
+    for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
       __shmem_trace(SHMEM_LOG_INIT,
 		    "cross-check: segment[%d] = { .addr = %p, .size = %ld }",
 		    pe,
@@ -995,11 +995,11 @@ __symmetric_addr_lookup(void *dest, int pe)
   }
 
   /* short-circuit a lookup on myself */
-  if (__state.mype == pe) {
+  if (GET_STATE(mype) == pe) {
     rdest = dest;
   }
   else {
-    offset = (char *) dest - (char *) __symmetric_var_base(__state.mype);
+    offset = (char *) dest - (char *) __symmetric_var_base(GET_STATE(mype));
     rdest = (char *) __symmetric_var_base(pe) + offset;
   }
 
@@ -1626,7 +1626,7 @@ handler_ping_out(gasnet_token_t token,
 
   pp->remote_pe_status = PE_RUNNING;
 
-  /* sleep(__state.mype); */
+  /* sleep(GET_STATE(mype)); */
 
   gasnet_hsl_unlock(& ping_out_lock);
 

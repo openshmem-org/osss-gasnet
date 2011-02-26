@@ -50,7 +50,7 @@ parse_alarm_time(double ts, struct itimerval *ivp)
 void
 __shmem_set_ping_timeout(double secs)
 {
-  parse_alarm_time(secs, & (__state.ping_timeout));
+  parse_alarm_time(secs, & GET_STATE(ping_timeout));
 
   __shmem_trace(SHMEM_LOG_INIT,
 		"PE accessibility timeout set to %f sec",
@@ -95,7 +95,7 @@ __shmem_ping_init(void)
 void
 __ping_set_alarm(void)
 {
-  int s = setitimer(ITIMER_REAL, & (__state.ping_timeout), NULL);
+  int s = setitimer(ITIMER_REAL, & GET_STATE(ping_timeout), NULL);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: couldn't set timer (%s)",

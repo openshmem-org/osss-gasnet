@@ -107,7 +107,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 									\
     INIT_CHECK();							\
 									\
-    void *rdest = __symmetric_addr_lookup(target, __state.mype);	\
+    void *rdest = __symmetric_addr_lookup(target, GET_STATE(mype));	\
     symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
     /* init target with own source, and wait for all */			\
     for (j = 0; j < nreduce; j += 1 ) {					\
@@ -117,7 +117,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     /* now go through other PEs and get source */			\
     pe = PE_start;							\
     for (i = 0; i < PE_size; i+= 1) {					\
-      if (__state.mype != pe) {						\
+      if (GET_STATE(mype) != pe) {					\
 	int k;								\
 	int ti = 0, si = 0; /* target and source index walk */		\
 	/* pull in all the full chunks */				\

@@ -36,7 +36,7 @@ symmetric_test_with_abort(void *remote_addr,
   pshmem_##Name##_put(Type *dest, const Type *src, size_t len, int pe)	\
   {									\
     int typed_len = sizeof(Type) * len;					\
-    if (__state.mype == pe) {						\
+    if (GET_STATE(mype) == pe) {					\
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
@@ -79,7 +79,7 @@ SHMEM_TYPE_PUT(float, float)
   pshmem_##Name##_get(Type *dest, const Type *src, size_t len, int pe)	\
   {									\
     int typed_len = sizeof(Type) * len;					\
-    if (__state.mype == pe) {						\
+    if (GET_STATE(mype) == pe) {					\
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
@@ -139,7 +139,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
   void									\
   pshmem_##Name##_p(Type *dest, Type value, int pe)			\
   {									\
-    if (__state.mype == pe) {						\
+    if (GET_STATE(mype) == pe) {					\
       *dest = value;							\
     }									\
     else {								\
@@ -182,7 +182,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
   pshmem_##Name##_g(Type *src, int pe)					\
   {									\
     Type retval;							\
-    if (__state.mype == pe) {						\
+    if (GET_STATE(mype) == pe) {					\
       retval = *src;							\
     }									\
     else {								\

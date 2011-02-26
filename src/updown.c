@@ -12,6 +12,7 @@
 #include "ping.h"
 #include "utils.h"
 #include "service.h"
+#include "clock.h"
 
 #include "shmem.h"
 
@@ -32,7 +33,11 @@ __shmem_exit(int status)
 
   __shmem_service_thread_finalize();
 
-  __state.pe_status = PE_SHUTDOWN;
+  SET_STATE(pe_status, PE_SHUTDOWN);
+
+  __shmem_trace(SHMEM_LOG_INIT,
+		"finalizing shutdown, handing off to communications layer"
+		);
 
   /*
    * strictly speaking should free alloc'ed things,
@@ -61,7 +66,7 @@ __shmem_place_init(void)
 {
   int s;
 
-  s = uname(& __state.loc);
+  s = uname(& GET_STATE(loc));
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "can't find any node information"
@@ -78,14 +83,17 @@ __shmem_place_init(void)
 void
 pstart_pes(int npes)
 {
+  /* start the tracking clock */
+  __shmem_elapsed_clock_init();
+
   /* has to happen early to enable messages */
   __shmem_tracers_init();
 
   /* I shouldn't really call this more than once */
-  if (__state.pe_status != PE_UNINITIALIZED) {
+  if (GET_STATE(pe_status) != PE_UNINITIALIZED) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "shmem has already been initialized (%s)",
-		  __shmem_state_as_string(__state.pe_status)
+		  __shmem_state_as_string(GET_STATE(pe_status))
 		  );
     /* NOT REACHED */
   }
@@ -136,7 +144,7 @@ pstart_pes(int npes)
    * and we're up and running
    */
 
-  __state.pe_status = PE_RUNNING;
+  SET_STATE(pe_status, PE_RUNNING);
 
   {
     int ma, mi;
@@ -144,8 +152,8 @@ pstart_pes(int npes)
     __shmem_trace(SHMEM_LOG_INIT,
 		  "version %d.%d running on %d PE%s",
 		  ma, mi,
-		  __state.numpes,
-		__state.numpes == 1 ? "" : "s"
+		  GET_STATE(numpes),
+		  GET_STATE(numpes) == 1 ? "" : "s"
 		  );
   }
 }

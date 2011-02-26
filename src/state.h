@@ -30,4 +30,7 @@ typedef struct {
 
 extern state_t __state;
 
+#define SET_STATE(var, val)   ( __state.var = val )
+#define GET_STATE(var)        ( __state.var )
+
 #endif /* _STATE_H */

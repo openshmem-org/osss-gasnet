@@ -8,6 +8,7 @@
 #include "trace.h"
 #include "updown.h"
 #include "comms.h"
+#include "clock.h"
 
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 
@@ -180,6 +181,16 @@ __shmem_tracers_init(void)
 }
 
 /*
+ * big enough?  I reckon so, we're not writing a novel...
+ *
+ * TODO: alternatively, can loop on increasing buffer size on
+ * overflow...better way to do it?  Or is it worth it?
+ *
+ */
+
+#define BUF_SIZE 256
+
+/*
  * spit out which message levels are active
  *
  * OK to use public API here since we're only called when initialized
@@ -189,7 +200,7 @@ __shmem_tracers_init(void)
 void
 __shmem_tracers_show(void)
 {
-  char buf[256];
+  char buf[BUF_SIZE];
   char *p = buf;
   int i;
   __trace_table_t *t = tracers;
@@ -206,16 +217,6 @@ __shmem_tracers_show(void)
 		);
 }
 
-/*
- * big enough?  I reckon so, we're not writing a novel...
- *
- * TODO: alternatively, can loop on increasing buffer size on
- * overflow...better way to do it?  Or is it worth it?
- *
- */
-
-#define BUF_SIZE 256
-
 void
 __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
 {
@@ -229,8 +230,10 @@ __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
     va_list ap;
   
     snprintf(tmp1, BUF_SIZE,
-	     "SHMEM(PE %d): %s: ",
-	     __state.mype, __level_to_string(msg_type)
+	     "%-10.6f: SHMEM(PE %d): %s: ",
+	     __shmem_get_elapsed_clock(),
+	     GET_STATE(mype),
+	     __level_to_string(msg_type)
 	     );
   
     va_start(ap, fmt);

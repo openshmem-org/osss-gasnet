@@ -68,8 +68,9 @@ SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
 			broadcast.c collect.c fcollect.c \
 			lock.c \
 			ping.c putget.c query.c reduce-op.c \
-			strided.c symmem.c updown.c waituntil.c trace.c \
-			version.c
+			strided.c symmem.c updown.c waituntil.c \
+			version.c \
+			trace.c clock.c
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)

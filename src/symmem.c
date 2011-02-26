@@ -47,8 +47,8 @@ __shmalloc_symmetry_check(size_t size)
    * TODO: probably some kind of Eureka! optimization opportunity here
    *
    */
-  for (pe = 0; pe < __state.numpes; pe += 1) {
-    if (pe == __state.mype) {
+  for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
+    if (pe == GET_STATE(mype)) {
       continue;
     }
     shmalloc_received_size = shmem_long_g(shmalloc_remote_size, pe);

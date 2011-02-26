@@ -17,7 +17,7 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   __comms_fence();
 
-  if (__state.mype == PE_start) {
+  if (GET_STATE(mype) == PE_start) {
     const int step = 1 << logPE_stride;
     int i;
     int thatpe;
@@ -34,11 +34,11 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
   }
   else {
     /* non-root waits for root to signal, then tell root we're ready */
-    shmem_wait(& pSync[__state.mype], _SHMEM_SYNC_VALUE);
-    shmem_long_p(& pSync[__state.mype], _SHMEM_SYNC_VALUE, PE_start);
+    shmem_wait(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE);
+    shmem_long_p(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE, PE_start);
   }
   /* restore pSync values */
-  pSync[__state.mype] = _SHMEM_SYNC_VALUE;
+  pSync[GET_STATE(mype)] = _SHMEM_SYNC_VALUE;
 
   __comms_fence();
 }
