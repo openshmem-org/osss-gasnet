@@ -159,17 +159,25 @@ pshrealloc(void *addr, size_t size)
 
   INIT_CHECK();
 
-  if (__shmalloc_symmetry_check(size) != -1) {
-    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+  if (addr == (void *) NULL) {
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "address passed to shrealloc() is null, handing to shmalloc()"
+		  );
+    return pshmalloc(size);
+    /* NOT REACHED */
+  }
+
+  if (size == 0) {
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "size passed to shrealloc() is 0, handing to shfree()"
+		  );
+    pshfree(addr);
     return (void *) NULL;
     /* NOT REACHED */
   }
 
-  if (addr == (void *) NULL) {
-    __shmem_trace(SHMEM_LOG_MEMORY,
-		  "address passed to shrealloc() already null"
-		  );
-    malloc_error = SHMEM_MALLOC_ALREADY_FREE;
+  if (__shmalloc_symmetry_check(size) != -1) {
+    malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
     return (void *) NULL;
     /* NOT REACHED */
   }

@@ -1771,7 +1771,7 @@ __comms_quiet_request(void)
 		  );
   }
   /* build payload to send */
-  for (other_pe = 0; other_pe < npes; other_pe += 1) {
+  for (other_pe = npes - 1; other_pe >= 0; other_pe -= 1) {
     quiet_payload_t *p = (quiet_payload_t *) malloc(sizeof(*p));
     if (me != other_pe) {
       p->completed = 0;

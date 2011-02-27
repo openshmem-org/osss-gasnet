@@ -105,6 +105,7 @@ pstart_pes(int npes)
   __shmem_service_thread_init();
 
   /* see if we want to say which message/trace levels are active */
+  __shmem_maybe_tracers_show_info();
   __shmem_tracers_show();
 
   /* set up any locality information */
@@ -149,7 +150,7 @@ pstart_pes(int npes)
   {
     int ma, mi;
     shmem_version(&ma, &mi);
-    __shmem_trace(SHMEM_LOG_INIT,
+    __shmem_trace(SHMEM_LOG_VERSION,
 		  "version %d.%d running on %d PE%s",
 		  ma, mi,
 		  GET_STATE(numpes),

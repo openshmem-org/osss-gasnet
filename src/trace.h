@@ -6,6 +6,7 @@
 
 typedef enum {
   SHMEM_LOG_FATAL=0,		/* unrecoverable problem */
+  SHMEM_LOG_VERSION,		/* show library version */
   SHMEM_LOG_DEBUG,		/* debugging information */
   SHMEM_LOG_INFO,		/* informational */
   SHMEM_LOG_NOTICE,		/* serious, but non-fatal */
@@ -26,6 +27,8 @@ typedef enum {
 
 extern void __shmem_tracers_init(void);
 extern void __shmem_tracers_show(void);
+
+extern void __shmem_maybe_tracers_show_info(void);
 
 extern void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...);
 extern int  __trace_is_enabled(shmem_trace_t level);
