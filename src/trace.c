@@ -280,6 +280,9 @@ __shmem_maybe_tracers_show_info(void)
   INFO_MSG("SHMEM_LOG_LEVELS",
 	   "Select which kinds of trace messages are enabled"
 	   );
+  INFO_MSG("SHMEM_LOG_FILE",
+	   "Filename to append trace output to, instead of standard error"
+	   );
   INFO_MSG("SHMEM_SYMMETRIC_HEAP_SIZE",
 	   "Specify the size of symmetric memory."
 	   );

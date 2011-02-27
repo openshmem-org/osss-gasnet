@@ -89,6 +89,7 @@ done
 cs=config.status
 cat > $cs <<_EOT_
 #!/bin/sh
+echo $0 $@
 $0 $@
 _EOT_
 chmod +x $cs
