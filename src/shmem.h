@@ -55,7 +55,7 @@ extern "C" {
 
   extern char * shmem_nodename(void) _WUR;
 
-  extern void   shmem_version(int *major, int *minor);
+  extern int    shmem_version(int *major, int *minor);
 
   /*
    * I/O

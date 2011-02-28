@@ -233,9 +233,9 @@ FORTRANIFY(pshmem_nodename)(void)
 }
 
 int
-FORTRANIFY(pshmem_version)(void)
+FORTRANIFY(pshmem_version)(int *major, int *minor)
 {
-  return pshmem_version();
+  return pshmem_version(major, minor);
 }
 
 #pragma weak start_pes_ = pstart_pes_

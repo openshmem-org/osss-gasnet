@@ -51,8 +51,7 @@ static bar_table_t barrier_all_table[] =
   {
     { "naive", pshmem_barrier_all_naive },
   };
-static const int n_barrier_all =
-  sizeof(barrier_all_table) / sizeof(barrier_all_table[0]);
+static const int n_barrier_all = TABLE_SIZE(barrier_all_table);
 
 /*
  * the barrier versions
@@ -63,8 +62,7 @@ static bar_table_t barrier_table[] =
   {
     { "naive", pshmem_barrier_naive },
   };
-static const int n_barrier =
-  sizeof(barrier_table) / sizeof(barrier_table[0]);
+static const int n_barrier = TABLE_SIZE(barrier_table);
 
 /*
  * called during library initialization to find the right barrier

@@ -1,4 +1,5 @@
 #include "state.h"
+#include "utils.h"
 
 state_t __state = {
   .pe_status = PE_UNINITIALIZED /* other fields = don't care yet */
@@ -17,7 +18,7 @@ static struct state_desc d[] =
     { PE_SHUTDOWN,      "PE has been cleanly shut down" },
     { PE_FAILED,        "PE has failed" },
   };
-static const int nd = sizeof(d) / sizeof(d[0]);
+static const int nd = TABLE_SIZE(d);
 
 const char *
 __shmem_state_as_string(pe_status_t s)

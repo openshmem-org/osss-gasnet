@@ -11,6 +11,7 @@
 #include "updown.h"
 #include "comms.h"
 #include "clock.h"
+#include "utils.h"
 
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 
@@ -52,7 +53,7 @@ trace_table_t tracers[] =
     INIT_LEVEL(QUIET,      OFF),
     INIT_LEVEL(FENCE,      OFF),
   };
-static const int n_tracers = sizeof(tracers) / sizeof(tracers[0]);
+static const int n_tracers = TABLE_SIZE(tracers);
 
 
 /*

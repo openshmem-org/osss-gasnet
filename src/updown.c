@@ -149,13 +149,14 @@ pstart_pes(int npes)
 
   {
     int ma, mi;
-    shmem_version(&ma, &mi);
-    __shmem_trace(SHMEM_LOG_VERSION,
-		  "version %d.%d running on %d PE%s",
-		  ma, mi,
-		  GET_STATE(numpes),
-		  GET_STATE(numpes) == 1 ? "" : "s"
-		  );
+    if (shmem_version(&ma, &mi) == 0) {
+      __shmem_trace(SHMEM_LOG_VERSION,
+		    "version %d.%d running on %d PE%s",
+		    ma, mi,
+		    GET_STATE(numpes),
+		    GET_STATE(numpes) == 1 ? "" : "s"
+		    );
+    }
   }
 }
 

@@ -269,7 +269,7 @@ malloc_error_code_t error_table[] =
     { SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
       "address falls outside of symmetric heap"               },
   };
-static const int nerrors = sizeof(error_table) / sizeof(error_table[0]);
+static const int nerrors = TABLE_SIZE(error_table);
 
 /* @api@ */
 char *

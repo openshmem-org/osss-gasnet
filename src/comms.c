@@ -25,6 +25,7 @@
 #include "comms.h"
 #include "ping.h"
 #include "service.h"
+#include "utils.h"
 
 /*
  * gasnet model choice
@@ -686,7 +687,7 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
 #endif /* HAVE_MANAGED_SEGMENTS */
   };
-static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
+static const int nhandlers = TABLE_SIZE(handlers);
 
 /*
  * end of handlers
