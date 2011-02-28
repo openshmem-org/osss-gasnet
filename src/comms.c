@@ -182,7 +182,7 @@ void
 __comms_pause(void)
 {
   pthread_yield();
-  // __asm__ __volatile__("rep;nop": : :"memory");
+  /* __asm__ __volatile__("rep;nop": : :"memory"); */
 }
 
 /*

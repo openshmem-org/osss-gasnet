@@ -1,3 +1,5 @@
+#define _GNU_SOURCE 1
+
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
@@ -172,17 +174,9 @@ logging_filestream_init(void)
 static void
 sgi_compat_environment_init(void)
 {
-  const int overwrite = 1;
+  int overwrite = 1;
   char *sma;
 
-  /* if heap size given, translate into our env var */
-  sma = __comms_getenv("SMA_SYMMETRIC_SIZE");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_SYMMETRIC_HEAP_SIZE",
-		  sma,
-		  overwrite
-		  );
-  }
   /* this one "prints out copious data" so turn on all debugging */
   sma = __comms_getenv("SMA_DEBUG");
   if (sma != (char *) NULL) {
@@ -212,6 +206,14 @@ sgi_compat_environment_init(void)
   if (sma != (char *) NULL) {
     (void) setenv("SHMEM_LOG_LEVELS",
 		  "version",
+		  overwrite
+		  );
+  }
+  /* if heap size given, translate into our env var */
+  sma = __comms_getenv("SMA_SYMMETRIC_SIZE");
+  if (sma != (char *) NULL) {
+    (void) setenv("SHMEM_SYMMETRIC_HEAP_SIZE",
+		  sma,
 		  overwrite
 		  );
   }

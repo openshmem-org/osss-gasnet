@@ -59,6 +59,7 @@ SHMEM_LOGIC_FUNC(short, short)
 SHMEM_LOGIC_FUNC(int, int)
 SHMEM_LOGIC_FUNC(long, long)
 SHMEM_LOGIC_FUNC(longlong, long long)
+SHMEM_LOGIC_FUNC(complexf, float complex)
 
 /*
  * these are the minima/maxima operations
@@ -91,7 +92,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
  *
  */
 
-#define SHMEM_REDUCE_TYPE_OP(Name, Type, OpCall)			\
+#define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
   /* @api@ */								\
   void									\
   pshmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
@@ -141,56 +142,57 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     }									\
   }
   
-SHMEM_REDUCE_TYPE_OP(short, short, sum)
-SHMEM_REDUCE_TYPE_OP(int, int, sum)
-SHMEM_REDUCE_TYPE_OP(long, long, sum)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, sum)
-SHMEM_REDUCE_TYPE_OP(double, double, sum)
-SHMEM_REDUCE_TYPE_OP(float, float, sum)
-SHMEM_REDUCE_TYPE_OP(longdouble, long double, sum)
-SHMEM_REDUCE_TYPE_OP(complexd, double complex, sum)
-SHMEM_REDUCE_TYPE_OP(complexf, float complex, sum)
+SHMEM_REDUCE_TYPE_OP(sum, short, short)
+SHMEM_REDUCE_TYPE_OP(sum, int, int)
+SHMEM_REDUCE_TYPE_OP(sum, long, long)
+SHMEM_REDUCE_TYPE_OP(sum, longlong, long long)
+SHMEM_REDUCE_TYPE_OP(sum, double, double)
+SHMEM_REDUCE_TYPE_OP(sum, float, float)
+SHMEM_REDUCE_TYPE_OP(sum, longdouble, long double)
+SHMEM_REDUCE_TYPE_OP(sum, complexd, double complex)
+SHMEM_REDUCE_TYPE_OP(sum, complexf, float complex)
   
-SHMEM_REDUCE_TYPE_OP(short, short, prod)
-SHMEM_REDUCE_TYPE_OP(int, int, prod)
-SHMEM_REDUCE_TYPE_OP(long, long, prod)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, prod)
-SHMEM_REDUCE_TYPE_OP(double, double, prod)
-SHMEM_REDUCE_TYPE_OP(float, float, prod)
-SHMEM_REDUCE_TYPE_OP(longdouble, long double, prod)
-SHMEM_REDUCE_TYPE_OP(complexd, double complex, prod)
-SHMEM_REDUCE_TYPE_OP(complexf, float complex, prod)
+SHMEM_REDUCE_TYPE_OP(prod, short, short)
+SHMEM_REDUCE_TYPE_OP(prod, int, int)
+SHMEM_REDUCE_TYPE_OP(prod, long, long)
+SHMEM_REDUCE_TYPE_OP(prod, longlong, long long)
+SHMEM_REDUCE_TYPE_OP(prod, double, double)
+SHMEM_REDUCE_TYPE_OP(prod, float, float)
+SHMEM_REDUCE_TYPE_OP(prod, longdouble, long double)
+SHMEM_REDUCE_TYPE_OP(prod, complexd, double complex)
+SHMEM_REDUCE_TYPE_OP(prod, complexf, float complex)
   
-SHMEM_REDUCE_TYPE_OP(short, short, and)
-SHMEM_REDUCE_TYPE_OP(int, int, and)
-SHMEM_REDUCE_TYPE_OP(long, long, and)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, and)
+SHMEM_REDUCE_TYPE_OP(and, short, short)
+SHMEM_REDUCE_TYPE_OP(and, int, int)
+SHMEM_REDUCE_TYPE_OP(and, long, long)
+SHMEM_REDUCE_TYPE_OP(and, longlong, long long)
+
+SHMEM_REDUCE_TYPE_OP(or, short, short)
+SHMEM_REDUCE_TYPE_OP(or, int, int)
+SHMEM_REDUCE_TYPE_OP(or, long, long)
+SHMEM_REDUCE_TYPE_OP(or, longlong, long long)
+
+SHMEM_REDUCE_TYPE_OP(xor, short, short)
+SHMEM_REDUCE_TYPE_OP(xor, int, int)
+SHMEM_REDUCE_TYPE_OP(xor, long, long)
+SHMEM_REDUCE_TYPE_OP(xor, longlong, long long)
+SHMEM_REDUCE_TYPE_OP(xor, complexf, float complex)
+
+SHMEM_REDUCE_TYPE_OP(max, short, short)
+SHMEM_REDUCE_TYPE_OP(max, int, int)
+SHMEM_REDUCE_TYPE_OP(max, long, long)
+SHMEM_REDUCE_TYPE_OP(max, longlong, long long)
+SHMEM_REDUCE_TYPE_OP(max, double, double)
+SHMEM_REDUCE_TYPE_OP(max, float, float)
+SHMEM_REDUCE_TYPE_OP(max, longdouble, long double)
   
-SHMEM_REDUCE_TYPE_OP(short, short, or)
-SHMEM_REDUCE_TYPE_OP(int, int, or)
-SHMEM_REDUCE_TYPE_OP(long, long, or)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, or)
-  
-SHMEM_REDUCE_TYPE_OP(short, short, xor)
-SHMEM_REDUCE_TYPE_OP(int, int, xor)
-SHMEM_REDUCE_TYPE_OP(long, long, xor)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, xor)
-  
-SHMEM_REDUCE_TYPE_OP(short, short, max)
-SHMEM_REDUCE_TYPE_OP(int, int, max)
-SHMEM_REDUCE_TYPE_OP(long, long, max)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, max)
-SHMEM_REDUCE_TYPE_OP(double, double, max)
-SHMEM_REDUCE_TYPE_OP(float, float, max)
-SHMEM_REDUCE_TYPE_OP(longdouble, long double, max)
-  
-SHMEM_REDUCE_TYPE_OP(short, short, min)
-SHMEM_REDUCE_TYPE_OP(int, int, min)
-SHMEM_REDUCE_TYPE_OP(long, long, min)
-SHMEM_REDUCE_TYPE_OP(longlong, long long, min)
-SHMEM_REDUCE_TYPE_OP(double, double, min)
-SHMEM_REDUCE_TYPE_OP(float, float, min)
-SHMEM_REDUCE_TYPE_OP(longdouble, long double, min)
+SHMEM_REDUCE_TYPE_OP(min, short, short)
+SHMEM_REDUCE_TYPE_OP(min, int, int)
+SHMEM_REDUCE_TYPE_OP(min, long, long)
+SHMEM_REDUCE_TYPE_OP(min, longlong, long long)
+SHMEM_REDUCE_TYPE_OP(min, double, double)
+SHMEM_REDUCE_TYPE_OP(min, float, float)
+SHMEM_REDUCE_TYPE_OP(min, longdouble, long double)
 
 #pragma weak shmem_complexd_sum_to_all = pshmem_complexd_sum_to_all
 #pragma weak shmem_complexf_sum_to_all = pshmem_complexf_sum_to_all
@@ -226,6 +228,7 @@ SHMEM_REDUCE_TYPE_OP(longdouble, long double, min)
 #pragma weak shmem_long_xor_to_all = pshmem_long_xor_to_all
 #pragma weak shmem_longlong_xor_to_all = pshmem_longlong_xor_to_all
 #pragma weak shmem_short_xor_to_all = pshmem_short_xor_to_all
+#pragma weak shmem_complexf_xor_to_all = pshmem_complexf_xor_to_all
 
 #pragma weak shmem_int_max_to_all = pshmem_int_max_to_all
 #pragma weak shmem_long_max_to_all = pshmem_long_max_to_all

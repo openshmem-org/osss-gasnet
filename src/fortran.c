@@ -567,41 +567,6 @@ FORTRANIFY(pshmem_collect8)(void *target, const void *source, size_t *nlong,
  *
  */
 
-#if 0
-
-/*
- * TODO: not sure yet how to handle/convert C99 complex and Fortran
- *
- */
-
-void pshmem_complexd_sum_to_all(COMPLEXIFY(double) *target,
-				      COMPLEXIFY(double) *source,
-				      int nreduce,
-				      int PE_start, int logPE_stride, int PE_size,
-				      COMPLEXIFY(double) *pWrk,
-				      long *pSync);
-void pshmem_complexf_sum_to_all(COMPLEXIFY(float) *target,
-				      COMPLEXIFY(float) *source,
-				      int nreduce,
-				      int PE_start, int logPE_stride, int PE_size,
-				      COMPLEXIFY(float) *pWrk,
-				      long *pSync);
-
-void pshmem_complexd_prod_to_all(COMPLEXIFY(double) *target,
-				       COMPLEXIFY(double) *source,
-				       int nreduce,
-				       int PE_start, int logPE_stride, int PE_size,
-				       COMPLEXIFY(double) *pWrk,
-				       long *pSync);
-void pshmem_complexf_prod_to_all(COMPLEXIFY(float) *target,
-				       COMPLEXIFY(float) *source,
-				       int nreduce,
-				       int PE_start, int logPE_stride, int PE_size,
-				       COMPLEXIFY(float) *pWrk,
-				       long *pSync);
-
-#endif
-
 #define REDUCIFY(Op, Fname, Cname, Ctype)				\
   void									\
   FORTRANIFY(pshmem_##Fname##_##Op##_to_all)				\
@@ -656,12 +621,11 @@ REDUCIFY(xor, int2, short, short)
 REDUCIFY(xor, int4, int, int)
 REDUCIFY(xor, int8, long, long)
 
-/*
-REDUCIFY(pshmem_comp4_sum_to_all, float)
-REDUCIFY(pshmem_comp8_sum_to_all, double)
-REDUCIFY(pshmem_comp4_prod_to_all, float)
-REDUCIFY(pshmem_comp8_prod_to_all, double)
-*/
+REDUCIFY(sum, comp4, complexf, float complex)
+REDUCIFY(sum, comp8, complexd, double complex)
+REDUCIFY(prod, comp4, complexf, float complex)
+REDUCIFY(prod, comp8, complexd, double complex)
+REDUCIFY(xor, comp4, complexf, float complex)
 
 #pragma weak shmem_int2_sum_to_all_ = pshmem_int2_sum_to_all_
 #pragma weak shmem_int4_sum_to_all_ = pshmem_int4_sum_to_all_
@@ -698,6 +662,13 @@ REDUCIFY(pshmem_comp8_prod_to_all, double)
 #pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
 
 #pragma weak shmem_int2_xor_to_all_ = pshmem_int2_xor_to_all_
+
+#pragma weak shmem_comp4_sum_to_all_ = pshmem_comp4_sum_to_all_
+#pragma weak shmem_comp8_sum_to_all_ = pshmem_comp8_sum_to_all_
+#pragma weak shmem_comp4_prod_to_all_ = pshmem_comp4_prod_to_all_
+#pragma weak shmem_comp8_prod_to_all_ = pshmem_comp8_prod_to_all_
+#pragma weak shmem_comp4_xor_to_all_ = pshmem_comp4_xor_to_all_
+
 
 /*
  * locks

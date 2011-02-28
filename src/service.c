@@ -21,7 +21,7 @@
  *
  */
 static double backoff_secs = 0.9999;
-// static int num_polls_per_loop = 10;
+/* static int num_polls_per_loop = 10; */
 
 static struct timespec backoff;
 
@@ -72,7 +72,7 @@ service_thread(void *unused_arg)
       break;
     }
 
-    // nanosleep(& backoff, (struct timespec *) NULL);
+    /* nanosleep(& backoff, (struct timespec *) NULL); */
 
   }
 

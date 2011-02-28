@@ -1,13 +1,17 @@
 #ifndef FORTRAN_COMMON_H
 #define FORTRAN_COMMON_H 1
 
-#ifdef FORTRAN_SINGLE_UNDERSCORE
+#if defined(FORTRAN_SINGLE_UNDERSCORE)
 
 #define FORTRANIFY(sym)    sym##_
 
-#else /* ! FORTRAN_SINGLE_UNDERSCORE */
+#elif defined(FORTRAN_DOUBLE_UNDERSCORE)
 
 #define FORTRANIFY(sym)    sym##__
+
+#else /* no idea */
+
+#define FORTRANIFY(sym) sym
 
 #endif /* FORTRAN_SINGLE_UNDERSCORE */
 
