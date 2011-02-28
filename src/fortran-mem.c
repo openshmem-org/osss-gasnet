@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "trace.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 #include "fortran-common.h"
 
@@ -31,14 +31,7 @@ FORTRANIFY(pshpalloc)(void *addr, size_t *length, long *errcode, int *abort)
 {
   INIT_CHECK();
 
-  if (__shmalloc_symmetry_check(*length) >= 0) {
-    __shmem_trace(SHMEM_LOG_MEMORY,
-		  "shpalloc(%ld bytes) passed symmetry check",
-		  *length
-		  );
-
-    addr = __shmalloc_no_check(*length);
-  }
+  addr = pshmalloc(*length);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -77,6 +70,24 @@ void
 FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
 {
   INIT_CHECK();
+
+  pshfree(addr);
+
+  /* pass back status code */
+  *errcode = malloc_error;
+
+  /* if malloc succeeded, nothing else to do */
+  if (malloc_error == SHMEM_MALLOC_OK) {
+    return;
+    /* NOT REACHED */
+  }
+
+  /* failed somehow, we might have to abort */
+  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		"shpdeallc() failed: %s",
+		sherror()
+		);
+  /* MAYBE NOT REACHED */
 }
 
 /*
@@ -101,6 +112,24 @@ void
 FORTRANIFY(pshpclmove)(void *addr, size_t *length, long *errcode, int *abort)
 {
   INIT_CHECK();
+
+  addr = pshrealloc(addr, *length);
+
+  /* pass back status code */
+  *errcode = malloc_error;
+
+  /* if malloc succeeded, nothing else to do */
+  if (malloc_error == SHMEM_MALLOC_OK) {
+    return;
+    /* NOT REACHED */
+  }
+
+  /* failed somehow, we might have to abort */
+  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		"shpdeallc() failed: %s",
+		sherror()
+		);
+  /* MAYBE NOT REACHED */
 }
 
 #pragma weak shpalloc_ = pshpalloc_
