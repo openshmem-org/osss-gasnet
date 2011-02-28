@@ -519,9 +519,14 @@ mainline
  A routine provides the ability to send requests to the service thread.
  This is how 
 \family typewriter
-shmem_quiet()
+shmem_fence()
 \family default
- is handled: we tell the service thread to wait for pending I/O.
+ and
+\family typewriter
+ shmem_quiet()
+\family default
+ are handled: we tell the service thread to wait for pending operations,
+ and then resume polling.
 \end_layout
 
 \begin_layout Subsection
@@ -823,6 +828,66 @@ reference "sec:Environment-Variables"
 A high-resolution clock is maintained to timestamp such messages.
  Numerically sorting the output on the first field can thus help understand
  the order in which events happened.
+\end_layout
+
+\begin_layout Subsection
+C++
+\end_layout
+
+\begin_layout Standard
+The C++ interface is identical to the C one.
+ There is one point of contention, namely complex numbers.
+ The SGI documentation refers only to the use of C99 
+\begin_inset Quotes eld
+\end_inset
+
+complex
+\begin_inset Quotes erd
+\end_inset
+
+ modifiers, not to C++'s 
+\family typewriter
+complex<T>
+\family default
+.
+ The use of complex number routines (
+\emph on
+e.g.
+
+\emph default
+ reductions) in C++ is thus not clearly specified.
+\end_layout
+
+\begin_layout Subsection
+Fortran
+\end_layout
+
+\begin_layout Standard
+The Fortran interface is very similar to that of C.
+ The names of various routines are different to accommodate the various
+ type differences, e.g.
+ 
+\family typewriter
+shmem_integer_put()
+\family default
+ instead of 
+\family typewriter
+shmem_int_put()
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+The biggest difference is in the symmetric memory management routines.
+ These have completely different names and parameters compared to the C
+ interface.
+\end_layout
+
+\begin_layout Standard
+The OpenSHMEM implementation handles Fortran with a very thin wrapper on
+ top of C.
+ Mostly this involves catching Fortran's pass-by-reference variables and
+ dereferencing them in the underlying C call.
 \end_layout
 
 \begin_layout Section
