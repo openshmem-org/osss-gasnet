@@ -235,10 +235,6 @@ Since then different vendors have come up with variations of the SHMEM library
  OpenSHMEM will be a community-driven, open process.
 \end_layout
 
-\begin_layout Standard
-[ MPT, SMA and MPI-based launch ]
-\end_layout
-
 \begin_layout Section
 The SHMEM Library
 \end_layout
@@ -269,7 +265,8 @@ Implementation Strategy
 \end_layout
 
 \begin_layout Standard
-Where we talk about how the library has been written.
+In this section we talk about how the library was written and why certain
+ implementation strategies were chosen.
 \end_layout
 
 \begin_layout Subsection
@@ -517,7 +514,8 @@ mainline
 
  sleeps or otherwise can't handle communication, this thread takes up the
  work.
- It's also closer to how dedicated hardware solutions do this kind of thing.
+ It's meant to look like the way dedicated hardware solutions do this kind
+ of thing.
  A routine provides the ability to send requests to the service thread.
  This is how 
 \family typewriter
@@ -1443,8 +1441,27 @@ Compiling and Running Programs
 \end_layout
 
 \begin_layout Standard
-In order to abstract the compilation and launching process we have provided
- 4 wrapper programs:
+The SGI SHMEM is provided as part of the Message-Passing Toolkit (MPT) in
+ the 
+\begin_inset CommandInset href
+LatexCommand href
+name "ProPack"
+target "http://www.sgi.com/products/software/propack.html"
+
+\end_inset
+
+ suite.
+ Compilation uses a standard C, C++ or Fortran compiler (
+\emph on
+e.g.
+
+\emph default
+ GNU, Intel) and links against the SMA and MPI libraries.
+\end_layout
+
+\begin_layout Standard
+In order to abstract the compilation and launching process for OpenSHMEM
+ we have provided 4 wrapper programs:
 \end_layout
 
 \begin_layout Enumerate
