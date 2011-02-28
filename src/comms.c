@@ -1,7 +1,7 @@
 /*
  * This file provides the layer on top of GASNet, ARMCI or whatever.
  * API should be formalized at some point, but basically everything
- * non-static that starts with "__comms_"
+ * non-static that starts with "__shmem_comms_"
  */
 
 #include <stdio.h>
@@ -73,12 +73,12 @@ static const size_t multiplier = 1000L;
  * implementation
  */
 static size_t
-__comms_get_segment_size(void)
+__shmem_comms_get_segment_size(void)
 {
   char unit = '\0';
   size_t bytes = 1L;
   char *p;
-  char *mlss_str = __comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
+  char *mlss_str = __shmem_comms_getenv("SHMEM_SYMMETRIC_HEAP_SIZE");
 
   if (mlss_str == (char *) NULL) {
 #ifdef HAVE_MANAGED_SEGMENTS
@@ -131,7 +131,7 @@ __comms_get_segment_size(void)
  * would allow adaptivity
  */
 void
-__comms_set_waitmode(comms_spinmode_t mode)
+__shmem_comms_set_waitmode(comms_spinmode_t mode)
 {
   int gm;
   const char *mstr;
@@ -169,7 +169,7 @@ __comms_set_waitmode(comms_spinmode_t mode)
  * used in service thread to poll for put/get/AM traffic
  */
 void
-__comms_poll(void)
+__shmem_comms_poll(void)
 {
   gasnet_AMPoll();
 }
@@ -179,7 +179,7 @@ __comms_poll(void)
  */
 
 void
-__comms_pause(void)
+__shmem_comms_pause(void)
 {
   pthread_yield();
   /* __asm__ __volatile__("rep;nop": : :"memory"); */
@@ -189,7 +189,7 @@ __comms_pause(void)
  * As Arnie said, GET...OUT...
  */
 void
-__comms_exit(int status)
+__shmem_comms_exit(int status)
 {
   gasnet_exit(status);
 }
@@ -198,10 +198,10 @@ __comms_exit(int status)
  * make sure everyone finishes stuff, then exit.
  */
 void
-__comms_shutdown(int status)
+__shmem_comms_shutdown(int status)
 {
-  __comms_barrier_all();
-  __comms_exit(status);
+  __shmem_comms_barrier_all();
+  __shmem_comms_exit(status);
 }
 
 /*
@@ -209,7 +209,7 @@ __comms_shutdown(int status)
  * info to other nodes from launch.
  */
 char *
-__comms_getenv(const char *name)
+__shmem_comms_getenv(const char *name)
 {
   return gasnet_getenv(name);
 }
@@ -218,7 +218,7 @@ __comms_getenv(const char *name)
  * which node (PE) am I?
  */
 int
-__comms_mynode(void)
+__shmem_comms_mynode(void)
 {
   return (int) gasnet_mynode();
 }
@@ -227,7 +227,7 @@ __comms_mynode(void)
  * how many nodes (Pes) take part in this program?
  */
 int
-__comms_nodes(void)
+__shmem_comms_nodes(void)
 {
   return (int) gasnet_nodes();
 }
@@ -237,13 +237,13 @@ __comms_nodes(void)
  * I/O for us (fence/barrier waits for these implicit handles)
  */
 void
-__comms_put(void *dst, void *src, size_t len, int pe)
+__shmem_comms_put(void *dst, void *src, size_t len, int pe)
 {
   gasnet_put_nbi(pe, dst, src, len);
 }
 
 void
-__comms_get(void *dst, void *src, size_t len, int pe)
+__shmem_comms_get(void *dst, void *src, size_t len, int pe)
 {
   gasnet_get(dst, pe, src, len);
 }
@@ -254,20 +254,20 @@ __comms_get(void *dst, void *src, size_t len, int pe)
  */
 
 void
-__comms_put_val(void *dst, long src, size_t len, int pe)
+__shmem_comms_put_val(void *dst, long src, size_t len, int pe)
 {
   gasnet_put_nbi_val(pe, dst, src, len);
 }
 
 long
-__comms_get_val(void *src, size_t len, int pe)
+__shmem_comms_get_val(void *src, size_t len, int pe)
 {
   return gasnet_get_val(pe, src, len);
 }
 
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
   void *								\
-  __comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
+  __shmem_comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
   {									\
     return gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
   }
@@ -280,10 +280,10 @@ COMMS_TYPE_PUT_NB(longlong, long long)
 COMMS_TYPE_PUT_NB(double, double)
 COMMS_TYPE_PUT_NB(float, float)
 
-#pragma weak __comms_putmem_nb = __comms_long_put_nb
+#pragma weak __shmem_comms_putmem_nb = __shmem_comms_long_put_nb
 
 void
-__comms_wait_nb(void *h)
+__shmem_comms_wait_nb(void *h)
 {
   gasnet_wait_syncnb((gasnet_handle_t) h);
   LOAD_STORE_FENCE();
@@ -293,12 +293,12 @@ static int barcount = 0;
 static int barflag = 0;
 
 void
-__comms_barrier_all(void)
+__shmem_comms_barrier_all(void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
   /* wait for gasnet to finish pending puts/gets */
-  __comms_fence_request();
+  __shmem_comms_fence_request();
 
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
@@ -307,7 +307,7 @@ __comms_barrier_all(void)
   /* barcount = 1 - barcount; */
   barcount += 1;
 
-  __comms_fence_request();
+  __shmem_comms_fence_request();
 }
 
 
@@ -510,7 +510,7 @@ print_global_var_table(shmem_trace_t msgtype)
   globalvar_t *g;
   globalvar_t *tmp;
 
-  if (! __trace_is_enabled(msgtype)) {
+  if (! __shmem_trace_is_enabled(msgtype)) {
     return;
   }
 
@@ -533,7 +533,7 @@ print_global_var_table(shmem_trace_t msgtype)
 }
 
 static void
-__comms_globalvar_table_init(void)
+__shmem_comms_globalvar_table_init(void)
 {
   if (table_init_helper() != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -546,14 +546,14 @@ __comms_globalvar_table_init(void)
 }
 
 static void
-__comms_globalvar_table_finalize(void)
+__shmem_comms_globalvar_table_finalize(void)
 {
   /* could free hash table here */
 }
 
 #if 0
 int
-__comms_is_globalvar(void *addr)
+__shmem_comms_is_globalvar(void *addr)
 {
   globalvar_t *gp;
 
@@ -565,24 +565,24 @@ __comms_is_globalvar(void *addr)
 
 static
 int
-__comms_is_bss(size_t a)
+__shmem_comms_is_bss(size_t a)
 {
   return (bss_start <= a) && (a <= bss_end);
 }
 
 static
 int
-__comms_is_data(size_t a)
+__shmem_comms_is_data(size_t a)
 {
   return (data_start <= a) && (a <= data_end);
 }
 
 int
-__comms_is_globalvar(void *addr)
+__shmem_comms_is_globalvar(void *addr)
 {
   size_t a = (size_t) addr;
 
-  return __comms_is_bss(a) || __comms_is_data(a);
+  return __shmem_comms_is_bss(a) || __shmem_comms_is_data(a);
 }
 
 /*
@@ -696,7 +696,7 @@ static const int nhandlers = sizeof(handlers) / sizeof(handlers[0]);
  * This is where the communications layer gets set up
  */
 void
-__comms_init(void)
+__shmem_comms_init(void)
 {
   /*
    * fake the command-line args
@@ -718,9 +718,9 @@ __comms_init(void)
   /*
    * now we can ask about the node count & heap
    */
-  SET_STATE(mype, __comms_mynode());
-  SET_STATE(numpes, __comms_nodes());
-  SET_STATE(heapsize, __comms_get_segment_size());
+  SET_STATE(mype, __shmem_comms_mynode());
+  SET_STATE(numpes, __shmem_comms_nodes());
+  SET_STATE(heapsize, __shmem_comms_get_segment_size());
 
   /*
    * not guarding the attach for different gasnet models,
@@ -732,15 +732,15 @@ __comms_init(void)
 			    )
 	      );
 
-  __comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
+  __shmem_comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
-  __comms_globalvar_table_init();
+  __shmem_comms_globalvar_table_init();
 
   /*
    * make sure all nodes are up to speed before "declaring"
    * initialization done
    */
-  __comms_barrier_all();
+  __shmem_comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_INIT,
 		"communication layer initialization complete"
@@ -818,7 +818,7 @@ handler_segsetup_bak(gasnet_token_t token,
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
 void
-__symmetric_memory_init(void)
+__shmem_symmetric_memory_init(void)
 {
   /*
    * calloc zeroes for us
@@ -858,7 +858,7 @@ __symmetric_memory_init(void)
    * need to make sure everyone has segment table allocated before
    * exchanging messages
    */
-  __comms_barrier_all();
+  __shmem_comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_MEMORY,
 		"symmetric heap @ %p, size is %ld bytes",
@@ -893,14 +893,14 @@ __symmetric_memory_init(void)
     /*
      * initialize my heap
      */
-    __mem_init(seginfo_table[GET_STATE(mype)].addr,
-	       seginfo_table[GET_STATE(mype)].size);
+    __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
+	             seginfo_table[GET_STATE(mype)].size);
 
     {
       /* now wait on the AM replies */
       int got_all = GET_STATE(numpes) - 2; /* 0-based AND don't count myself */
       do {
-	__comms_pause();
+	__shmem_comms_pause();
       } while (seg_setup_replies_received <= got_all);
     }
   }
@@ -908,13 +908,13 @@ __symmetric_memory_init(void)
 #endif /* HAVE_MANAGED_SEGMENTS */
 
   /* and make sure everyone is up-to-speed */
-  __comms_barrier_all();
+  __shmem_comms_barrier_all();
 
   /*
    * spit out the seginfo table (but check first that the loop is
    * warranted)
    */
-  if (__trace_is_enabled(SHMEM_LOG_INIT)) {
+  if (__shmem_trace_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
     for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
       __shmem_trace(SHMEM_LOG_INIT,
@@ -928,9 +928,9 @@ __symmetric_memory_init(void)
 }
 
 void
-__symmetric_memory_finalize(void)
+__shmem_symmetric_memory_finalize(void)
 {
-  __mem_finalize();
+  __shmem_mem_finalize();
 #if ! defined(HAVE_MANAGED_SEGMENTS)
   free(great_big_heap);
 #endif /* HAVE_MANAGED_SEGMENTS */
@@ -940,7 +940,7 @@ __symmetric_memory_finalize(void)
  * where the symmetric memory starts on the given PE
  */
 void *
-__symmetric_var_base(int pe)
+__shmem_symmetric_var_base(int pe)
 {
   return seginfo_table[pe].addr;
 }
@@ -949,7 +949,7 @@ __symmetric_var_base(int pe)
  * is the address in the managed symmetric area?
  */
 int
-__symmetric_var_in_range(void *addr, int pe)
+__shmem_symmetric_var_in_range(void *addr, int pe)
 {
   int retval;
 
@@ -970,7 +970,7 @@ __symmetric_var_in_range(void *addr, int pe)
  * translate my "dest" to corresponding address on PE "pe"
  */
 void *
-__symmetric_addr_lookup(void *dest, int pe)
+__shmem_symmetric_addr_lookup(void *dest, int pe)
 {
   size_t offset;
   char *rdest;
@@ -979,7 +979,7 @@ __symmetric_addr_lookup(void *dest, int pe)
     return NULL;
   }
 
-  if (__comms_is_globalvar(dest)) {
+  if (__shmem_comms_is_globalvar(dest)) {
     return dest;
   }
 
@@ -988,11 +988,11 @@ __symmetric_addr_lookup(void *dest, int pe)
     rdest = dest;
   }
   else {
-    offset = (char *) dest - (char *) __symmetric_var_base(GET_STATE(mype));
-    rdest = (char *) __symmetric_var_base(pe) + offset;
+    offset = (char *) dest - (char *) __shmem_symmetric_var_base(GET_STATE(mype));
+    rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
   }
 
-  if (__symmetric_var_in_range(rdest, pe)) {
+  if (__shmem_symmetric_var_in_range(rdest, pe)) {
     return (void *) rdest;
   }
 
@@ -1005,9 +1005,9 @@ __symmetric_addr_lookup(void *dest, int pe)
  */
 
 int
-__comms_addr_accessible(void *addr, int pe)
+__shmem_comms_addr_accessible(void *addr, int pe)
 {
-  return (__symmetric_addr_lookup(addr, pe) != NULL);
+  return (__shmem_symmetric_addr_lookup(addr, pe) != NULL);
 }
 
 /*
@@ -1076,7 +1076,7 @@ handler_swap_bak(gasnet_token_t token,
 }
 
 void
-__comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *retval)
+__shmem_comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *retval)
 {
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   if (p == (swap_payload_t *) NULL) {
@@ -1086,7 +1086,7 @@ __comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *ret
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  p->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1199,7 +1199,7 @@ handler_cswap_bak(gasnet_token_t token,
 }
 
 void
-__comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
+__shmem_comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 		      int pe,
 		      void *retval)
 {
@@ -1211,7 +1211,7 @@ __comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
   }
   /* build payload to send */
   cp->local_store = retval;
-  cp->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  cp->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   cp->nbytes = nbytes;
   cp->value = cp->cond = 0LL;
   memcpy(&(cp->value), value, nbytes);
@@ -1293,7 +1293,7 @@ handler_fadd_bak(gasnet_token_t token,
 }
 
 void
-__comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *retval)
+__shmem_comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *retval)
 {
   fadd_payload_t *p = (fadd_payload_t *) malloc(sizeof(*p));
   if (p == (fadd_payload_t *) NULL) {
@@ -1303,7 +1303,7 @@ __comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *ret
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  p->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1383,7 +1383,7 @@ handler_finc_bak(gasnet_token_t token,
 }
 
 void
-__comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
+__shmem_comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 {
   finc_payload_t *p = (finc_payload_t *) malloc(sizeof(*p));
   if (p == (finc_payload_t *) NULL) {
@@ -1393,7 +1393,7 @@ __comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  p->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
@@ -1466,7 +1466,7 @@ handler_add_bak(gasnet_token_t token,
 }
 
 void
-__comms_add_request(void *target, void *value, size_t nbytes, int pe)
+__shmem_comms_add_request(void *target, void *value, size_t nbytes, int pe)
 {
   add_payload_t *p = (add_payload_t *) malloc(sizeof(*p));
   if (p == (add_payload_t *) NULL) {
@@ -1475,7 +1475,7 @@ __comms_add_request(void *target, void *value, size_t nbytes, int pe)
 		  );
   }
   /* build payload to send */
-  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  p->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1548,7 +1548,7 @@ handler_inc_bak(gasnet_token_t token,
 }
 
 void
-__comms_inc_request(void *target, size_t nbytes, int pe)
+__shmem_comms_inc_request(void *target, size_t nbytes, int pe)
 {
   inc_payload_t *p = (inc_payload_t *) malloc(sizeof(*p));
   if (p == (inc_payload_t *) NULL) {
@@ -1557,7 +1557,7 @@ __comms_inc_request(void *target, size_t nbytes, int pe)
 		  );
   }
   /* build payload to send */
-  p->r_symm_addr = __symmetric_addr_lookup(target, pe);
+  p->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
@@ -1644,7 +1644,7 @@ handler_ping_bak(gasnet_token_t token,
 }
 
 int
-__comms_ping_request(int pe)
+__shmem_comms_ping_request(int pe)
 {
   sighandler_t sig;
   int sj_status;
@@ -1671,7 +1671,7 @@ __comms_ping_request(int pe)
   /* hope for the best */
   pe_acked = 1;
 
-  __ping_set_alarm();
+  __shmem_ping_set_alarm();
 
   sj_status = setjmp(jb);
 
@@ -1685,7 +1685,7 @@ __comms_ping_request(int pe)
     WAIT_ON_COMPLETION(p->completed);
   }
 
-  __ping_clear_alarm();
+  __shmem_ping_clear_alarm();
 
   sig = signal(SIGALRM, sig);
   if (sig == SIG_ERR) {
@@ -1723,7 +1723,7 @@ handler_quiet_out(gasnet_token_t token,
 {
   gasnet_hsl_lock(& quiet_out_lock);
 
-  __comms_fence_request();
+  __shmem_comms_fence_request();
 
   gasnet_hsl_unlock(& quiet_out_lock);
 
@@ -1759,7 +1759,7 @@ handler_quiet_bak(gasnet_token_t token,
 
 
 void
-__comms_quiet_request(void)
+__shmem_comms_quiet_request(void)
 {
   int other_pe;
   const int npes = GET_STATE(numpes);
@@ -1801,7 +1801,7 @@ __comms_quiet_request(void)
       free(pa[other_pe]);
     }
     else {
-      __comms_fence_request();
+      __shmem_comms_fence_request();
     }
   }
 
@@ -1814,7 +1814,7 @@ __comms_quiet_request(void)
  */
 
 void
-__comms_fence(void)
+__shmem_comms_fence(void)
 {
   gasnet_wait_syncnbi_all();
   LOAD_STORE_FENCE();
@@ -1826,7 +1826,7 @@ __comms_fence(void)
  */
 
 void
-__comms_fence_request(void)
+__shmem_comms_fence_request(void)
 {
   __shmem_service_set_mode(SERVICE_FENCE);
 }
@@ -1903,7 +1903,7 @@ handler_globalvar_bak(gasnet_token_t token,
 }
 
 void
-__comms_globalvar_translation(void *target, long value, int pe)
+__shmem_comms_globalvar_translation(void *target, long value, int pe)
 {
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
 

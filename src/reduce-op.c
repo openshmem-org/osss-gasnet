@@ -108,7 +108,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 									\
     INIT_CHECK();							\
 									\
-    void *rdest = __symmetric_addr_lookup(target, GET_STATE(mype));	\
+    void *rdest = __shmem_symmetric_addr_lookup(target, GET_STATE(mype)); \
     symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
     /* init target with own source, and wait for all */			\
     for (j = 0; j < nreduce; j += 1 ) {					\

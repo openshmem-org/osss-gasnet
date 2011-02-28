@@ -40,9 +40,9 @@ symmetric_test_with_abort(void *remote_addr,
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      void *rdest = __symmetric_addr_lookup(dest, pe);			\
+      void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
       symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "put");	\
-      __comms_put(rdest, (Type *) src, typed_len, pe);			\
+      __shmem_comms_put(rdest, (Type *) src, typed_len, pe);		\
     }									\
   }
 
@@ -83,9 +83,9 @@ SHMEM_TYPE_PUT(float, float)
       memcpy(dest, src, typed_len);					\
     }									\
     else {								\
-      void *their_src = __symmetric_addr_lookup((Type *) src, pe);	\
+      void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
       symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "get"); \
-      __comms_get(dest, their_src, typed_len, pe);			\
+      __shmem_comms_get(dest, their_src, typed_len, pe);		\
     }									\
   }
 
@@ -143,9 +143,9 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
       *dest = value;							\
     }									\
     else {								\
-      void *rdest = __symmetric_addr_lookup(dest, pe);			\
-      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "p");	\
-      __comms_put_val(rdest, value, sizeof(Type), pe);			\
+      void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
+      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "p"); \
+      __shmem_comms_put_val(rdest, value, sizeof(Type), pe);		\
     }									\
   }
 
@@ -186,9 +186,9 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
       retval = *src;							\
     }									\
     else {								\
-      void *their_src = __symmetric_addr_lookup(src, pe);		\
+      void *their_src = __shmem_symmetric_addr_lookup(src, pe);		\
       symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "p"); \
-      retval = (Type) __comms_get_val(their_src, sizeof(retval), pe);	\
+      retval = (Type) __shmem_comms_get_val(their_src, sizeof(retval), pe); \
     }									\
     return retval;							\
   }
@@ -212,9 +212,9 @@ SHMEM_TYPE_G(long, long)
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_put_nb(Type *target, Type *source, size_t len, int pe)	\
+  pshmem_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
   {									\
-    return __comms_##Name##_put_nb(target, source, len, pe);		\
+    return __shmem_comms_##Name##_put_nb(target, source, len, pe);	\
   }
 
 SHMEM_TYPE_PUT_NB(short, short)

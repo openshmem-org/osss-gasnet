@@ -38,11 +38,7 @@ main(void)
                    0, 0, 4,
                    pSync);
 
-  // shmem_barrier_all();
-
   show_dst("AFTER");
-
-  // shmem_barrier_all();
 
   return 0;
 }

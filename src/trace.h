@@ -31,6 +31,6 @@ extern void __shmem_tracers_show(void);
 extern void __shmem_maybe_tracers_show_info(void);
 
 extern void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...);
-extern int  __trace_is_enabled(shmem_trace_t level);
+extern int  __shmem_trace_is_enabled(shmem_trace_t level);
 
 #endif /* _WARN_H */

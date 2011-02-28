@@ -67,7 +67,7 @@ void
 __shmem_ping_init(void)
 {
   double timeout = DEFAULT_PE_ACCESSIBLE_TIMEOUT;
-  char *pt = __comms_getenv(ping_timeout_envvar);
+  char *pt = __shmem_comms_getenv(ping_timeout_envvar);
 
   if (pt != (char *) NULL) {
     timeout = atof(pt);
@@ -93,7 +93,7 @@ __shmem_ping_init(void)
  *
  */
 void
-__ping_set_alarm(void)
+__shmem_ping_set_alarm(void)
 {
   int s = setitimer(ITIMER_REAL, & GET_STATE(ping_timeout), NULL);
   if (s != 0) {
@@ -109,7 +109,7 @@ __ping_set_alarm(void)
  *
  */
 void
-__ping_clear_alarm(void)
+__shmem_ping_clear_alarm(void)
 {
   int s = setitimer(ITIMER_REAL, &zero, NULL);
   if (s != 0) {

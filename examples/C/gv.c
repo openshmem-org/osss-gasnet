@@ -18,7 +18,7 @@ main()
     y = shmem_long_g(&x, 1);
   }
 
-  // shmem_barrier_all();
+  shmem_barrier_all();
 
   printf("%d: y = %ld\n", me, y);
 

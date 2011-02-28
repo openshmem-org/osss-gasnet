@@ -29,7 +29,7 @@ __shmalloc_symmetry_check(size_t size)
   long *shmalloc_remote_size;
 
   /* record for everyone else to see */
-  shmalloc_remote_size = (long *) __mem_alloc(sizeof(*shmalloc_remote_size));
+  shmalloc_remote_size = (long *) __shmem_mem_alloc(sizeof(*shmalloc_remote_size));
   if (shmalloc_remote_size == (long *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: couldn't allocate memory for symmetry check"
@@ -63,7 +63,7 @@ __shmalloc_symmetry_check(size_t size)
       /* NOT REACHED */
     }
   }
-  __mem_free(shmalloc_remote_size);
+  __shmem_mem_free(shmalloc_remote_size);
   return any_failed_pe;
 }
 
@@ -79,7 +79,7 @@ __shmalloc_no_check(size_t size)
 {
   void *addr;
 
-  addr = __mem_alloc(size);
+  addr = __shmem_mem_alloc(size);
 
   if (addr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_NOTICE,
@@ -140,10 +140,10 @@ pshfree(void *addr)
 
   __shmem_trace(SHMEM_LOG_MEMORY,
 		"shfree(%p) in pool @ %p",
-		addr, __mem_base()
+		addr, __shmem_mem_base()
 		);
 
-  __mem_free(addr);
+  __shmem_mem_free(addr);
 
   malloc_error = SHMEM_MALLOC_OK;
 
@@ -182,7 +182,7 @@ pshrealloc(void *addr, size_t size)
     /* NOT REACHED */
   }
 
-  newaddr = __mem_realloc(addr, size);
+  newaddr = __shmem_mem_realloc(addr, size);
 
   if (newaddr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_MEMORY,
@@ -219,7 +219,7 @@ pshmemalign(size_t alignment, size_t size)
     /* NOT REACHED */
   }
 
-  addr = __mem_align(alignment, size);
+  addr = __shmem_mem_align(alignment, size);
 
   if (addr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_MEMORY,

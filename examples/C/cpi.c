@@ -84,8 +84,8 @@ int main(int argc,char *argv[])
   if (myid == 0) {
     double elapsed;
     gettimeofday(&endwtime, NULL);
-    elapsed = (endwtime.tv_sec - startwtime.tv_sec) * 1000.0;      // sec to ms
-    elapsed += (endwtime.tv_usec - startwtime.tv_usec) / 1000.0;   // us to ms
+    elapsed = (endwtime.tv_sec - startwtime.tv_sec) * 1000.0;      /* sec to ms */
+    elapsed += (endwtime.tv_usec - startwtime.tv_usec) / 1000.0;   /* us to ms */
     printf("pi is approximately %.16f, Error is %.16f\n",
 	   pi, fabs(pi - PI25DT));
     printf("run time = %f ms\n", elapsed);	       

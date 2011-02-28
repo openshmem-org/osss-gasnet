@@ -32,8 +32,6 @@ main(void)
 
   shmem_broadcast64(target, source, npes, 0, 0, 0, npes, pSync);
 
-  // shmem_barrier_all();
-
   for (i = 0; i < npes; i++) {
     printf("%-8d %ld\n", me, target[i]);
   }

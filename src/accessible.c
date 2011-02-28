@@ -13,7 +13,7 @@ int
 pshmem_pe_accessible(int pe)
 {
   INIT_CHECK();
-  return __comms_ping_request(pe);
+  return __shmem_comms_ping_request(pe);
 }
 
 /*
@@ -26,7 +26,7 @@ int
 pshmem_addr_accessible(void *addr, int pe)
 {
   INIT_CHECK();
-  return __comms_addr_accessible(addr, pe);
+  return __shmem_comms_addr_accessible(addr, pe);
 }
 
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible

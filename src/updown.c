@@ -29,7 +29,7 @@ __shmem_exit(int status)
 {
   __shmem_atomic_finalize();
 
-  __symmetric_memory_finalize();
+  __shmem_symmetric_memory_finalize();
 
   __shmem_service_thread_finalize();
 
@@ -43,7 +43,7 @@ __shmem_exit(int status)
    * strictly speaking should free alloc'ed things,
    * but exit is immediately next, so everything gets reaped anyway...
    */
-  __comms_shutdown(status);
+  __shmem_comms_shutdown(status);
 }
 
 /*
@@ -99,7 +99,7 @@ pstart_pes(int npes)
   }
 
   /* set up communications layer */
-  __comms_init();
+  __shmem_comms_init();
 
   /* start network service thread */
   __shmem_service_thread_init();
@@ -112,7 +112,7 @@ pstart_pes(int npes)
   __shmem_place_init();
 
   /* set up PE memory management */
-  __symmetric_memory_init();
+  __shmem_symmetric_memory_init();
 
   /* set up the atomic ops handling */
   __shmem_atomic_init();

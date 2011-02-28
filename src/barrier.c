@@ -107,7 +107,7 @@ __barrier_dispatch_init(void)
    *
    */
 
-  bar_all_name = __comms_getenv("SHMEM_BARRIER_ALL_ALGORITHM");
+  bar_all_name = __shmem_comms_getenv("SHMEM_BARRIER_ALL_ALGORITHM");
   if (bar_all_name == (char *) NULL) {
     bar_all_name = DEFAULT_BARRIER_ALL_ALGORITHM;
   }
@@ -126,7 +126,7 @@ __barrier_dispatch_init(void)
    *
    */
 
-  bar_name = __comms_getenv("SHMEM_BARRIER_ALGORITHM");
+  bar_name = __shmem_comms_getenv("SHMEM_BARRIER_ALGORITHM");
   if (bar_name == (char *) NULL) {
     bar_name = DEFAULT_BARRIER_ALGORITHM;
   }

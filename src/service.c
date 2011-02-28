@@ -62,10 +62,10 @@ service_thread(void *unused_arg)
   while (mode != SERVICE_FINISH) {
 
     if (mode == SERVICE_POLL) {
-      __comms_poll();
+      __shmem_comms_poll();
     }
     else if (mode == SERVICE_FENCE) {
-      __comms_fence();
+      __shmem_comms_fence();
     }
     else {
       /* TODO: shouldn't get here */

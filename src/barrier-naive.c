@@ -9,7 +9,7 @@
 void
 pshmem_barrier_all_naive(void)
 {
-  __comms_barrier_all();
+  __shmem_comms_barrier_all();
 }
 
 void

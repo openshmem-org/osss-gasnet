@@ -116,7 +116,7 @@ mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
 
       /* Wait for flag to be released */
       do {
-	__comms_pause();
+	__shmem_comms_pause();
       } while (node->l_locked);
 
     }
@@ -169,7 +169,7 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
      *       
      */
     do {
-      __comms_pause();
+      __shmem_comms_pause();
     } while ( (node->l_next == _SHMEM_LOCK_FREE) || (node->l_next < 0) );
   }
 
@@ -181,7 +181,7 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
    */
 
   while ( node->l_next < 0 ) {
-    __comms_pause();
+    __shmem_comms_pause();
   }
     
   /*
