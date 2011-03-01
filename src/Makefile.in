@@ -65,7 +65,8 @@ SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
 			atomic.c fence.c \
 			barrier.c barrier-naive.c \
-			broadcast.c collect.c fcollect.c \
+			broadcast.c broadcast-naive.c broadcast-tree.c \
+                        collect.c fcollect.c \
 			lock.c \
 			ping.c putget.c query.c reduce-op.c \
 			strided.c symmem.c updown.c waituntil.c \
