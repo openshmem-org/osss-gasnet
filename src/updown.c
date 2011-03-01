@@ -9,6 +9,7 @@
 #include "trace.h"
 #include "atomic.h"
 #include "barrier.h"
+#include "broadcast.h"
 #include "ping.h"
 #include "utils.h"
 #include "service.h"
@@ -122,6 +123,7 @@ pstart_pes(int npes)
 
   /* set up barrier selection */
   __barrier_dispatch_init();
+  __broadcast_dispatch_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
