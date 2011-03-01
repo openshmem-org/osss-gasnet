@@ -113,24 +113,24 @@ FORTRANIFY(pshmem_getmem)(long *target, const long *src, size_t *size, int *pe)
 /*
  * strided puts and gets
  *
- * TODO: complex types
- *
  */
 
 #define SHMEM_FORTRAN_IPUT(Name, CType)					\
   void									\
   FORTRANIFY(pshmem_##Name##_iput)(CType *target, const CType *src,	\
-				  ptrdiff_t *tst, ptrdiff_t *sst,	\
-				  size_t *size, int *pe)		\
+				   int *tst, int *sst,			\
+				   int *size, int *pe)			\
   {									\
-    pshmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);		\
+    pshmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);	\
   }
+
+#include <stdio.h>
 
 #define SHMEM_FORTRAN_IPUT_SIZE(Size, Name, CType)			\
   void									\
   FORTRANIFY(pshmem_iput##Size) (CType *target, const CType *src,	\
-				ptrdiff_t *tst, ptrdiff_t *sst,		\
-				size_t *size, int *pe)			\
+				 int *tst, int *sst,			\
+				 int *size, int *pe)			\
   {									\
     pshmem_##Name##_iput(target, src, *tst, *sst, *size, *pe);		\
   }
@@ -160,8 +160,8 @@ SHMEM_FORTRAN_IPUT_SIZE(128,  longdouble, long double)
 #define SHMEM_FORTRAN_IGET(Name, CType)					\
   void									\
   FORTRANIFY(pshmem_##Name##_iget)(CType *target, const CType *src,	\
-				  ptrdiff_t *tst, ptrdiff_t *sst,	\
-				  size_t *size, int *pe)		\
+				   int *tst, int *sst,			\
+				   int *size, int *pe)			\
   {									\
     pshmem_##CType##_iget(target, src, *tst, *sst, *size, *pe);		\
   }
@@ -169,8 +169,8 @@ SHMEM_FORTRAN_IPUT_SIZE(128,  longdouble, long double)
 #define SHMEM_FORTRAN_IGET_SIZE(Size, Name, CType)			\
   void									\
   FORTRANIFY(pshmem_iget##Size) (CType *target, const CType *src,	\
-				ptrdiff_t *tst, ptrdiff_t *sst,		\
-				size_t *size, int *pe)			\
+				 int *tst, int *sst,			\
+				 int *size, int *pe)			\
   {									\
     pshmem_##Name##_iget(target, src, *tst, *sst, *size, *pe);		\
   }

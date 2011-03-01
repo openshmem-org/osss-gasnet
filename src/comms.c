@@ -538,7 +538,7 @@ __shmem_comms_globalvar_table_init(void)
 {
   if (table_init_helper() != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: could'nt read global symbols in executable"
+		  "internal error: couldn't read global symbols in executable"
 		  );
     /* NOT REACHED */
   }

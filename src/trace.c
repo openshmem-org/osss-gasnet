@@ -342,11 +342,7 @@ __shmem_tracers_show(void)
 void
 __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
 {
-  if (! __shmem_trace_is_enabled(msg_type)) {
-    return;
-  }
-
-  {
+  if (__shmem_trace_is_enabled(msg_type)) {
     char tmp1[TRACE_MSG_BUF_SIZE];
     char tmp2[TRACE_MSG_BUF_SIZE];
     va_list ap;
@@ -367,9 +363,9 @@ __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
   
     fputs(tmp1, trace_log_stream);
     fflush(trace_log_stream); /* make sure this all goes out in 1 burst */
-  }
 
-  if (msg_type == SHMEM_LOG_FATAL) {
-    __shmem_exit(1);
+    if (msg_type == SHMEM_LOG_FATAL) {
+      __shmem_exit(1);
+    }
   }
 }
