@@ -67,6 +67,7 @@ extern "C" {
   extern void   shmem_longlong_put(long long *dest, const long long *src, size_t len, int pe);
   extern void   shmem_longdouble_put(long double *dest, const long double *src, size_t len, int pe);
   extern void   shmem_double_put(double *dest, const double *src, size_t len, int pe);
+  extern void   shmem_complexd_put(COMPLEXIFY(double) *dest, const COMPLEXIFY(double) *src, size_t len, int pe);
   extern void   shmem_float_put(float *dest, const float *src, size_t len, int pe);
   extern void   shmem_putmem(void *dest, const void *src, size_t len, int pe);
   extern void   shmem_put32(void *dest, const void *src, size_t len, int pe);

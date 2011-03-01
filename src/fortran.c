@@ -14,27 +14,29 @@
  * puts and gets
  */
 
-#define SHMEM_FORTRAN_PUT(Name, CType)					\
+#define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
   void									\
-  FORTRANIFY(pshmem_##Name##_put)(CType *target, const CType *src,	\
+  FORTRANIFY(pshmem_##FName##_put)(CType *target, const CType *src,	\
 				  size_t *size, int *pe)		\
   {									\
-    pshmem_##CType##_put(target, src, *size, *pe);			\
+    pshmem_##CName##_put(target, src, *size, *pe);			\
   }
 
-#define SHMEM_FORTRAN_PUT_SIZE(Size, Name, CType)		\
+#define SHMEM_FORTRAN_PUT_SIZE(Size, CName, CType)		\
   void								\
   FORTRANIFY(pshmem_put##Size) (CType *target, const CType *src,	\
 			       size_t *size, int *pe)		\
   {								\
-    pshmem_##Name##_put(target, src, *size, *pe);		\
+    pshmem_##CName##_put(target, src, *size, *pe);		\
   }
 
-SHMEM_FORTRAN_PUT(character, int)
-SHMEM_FORTRAN_PUT(double,    double)
-SHMEM_FORTRAN_PUT(integer,   long)
-SHMEM_FORTRAN_PUT(logical,   long)
-SHMEM_FORTRAN_PUT(real,      double)
+SHMEM_FORTRAN_PUT(character, int, int)
+SHMEM_FORTRAN_PUT(double,    double, double)
+SHMEM_FORTRAN_PUT(integer,   long, long)
+SHMEM_FORTRAN_PUT(logical,   long, long)
+SHMEM_FORTRAN_PUT(real,      double, double)
+
+SHMEM_FORTRAN_PUT(complex,   complexd, COMPLEXIFY(double))
 
 SHMEM_FORTRAN_PUT_SIZE(4,    int, int)
 SHMEM_FORTRAN_PUT_SIZE(8,    long, long)

@@ -8,6 +8,8 @@
 #include "updown.h"
 #include "trace.h"
 
+#include "pshmem.h"
+
 void
 symmetric_test_with_abort(void *remote_addr,
 			  void *local_addr,
@@ -53,6 +55,7 @@ SHMEM_TYPE_PUT(longlong, long long)
 SHMEM_TYPE_PUT(longdouble, long double)
 SHMEM_TYPE_PUT(double, double)
 SHMEM_TYPE_PUT(float, float)
+SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
 
 #pragma weak pshmem_putmem = pshmem_long_put
 #pragma weak pshmem_put = pshmem_long_put
@@ -66,6 +69,7 @@ SHMEM_TYPE_PUT(float, float)
 #pragma weak shmem_longdouble_put = pshmem_longdouble_put
 #pragma weak shmem_longlong_put = pshmem_longlong_put
 #pragma weak shmem_double_put = pshmem_double_put
+#pragma weak shmem_complexd_put = pshmem_complexd_put
 #pragma weak shmem_float_put = pshmem_float_put
 #pragma weak shmem_putmem = pshmem_putmem
 #pragma weak shmem_put = pshmem_put
@@ -126,7 +130,7 @@ SHMEM_TYPE_GET(float, float)
   void									\
   pshmem_##Name##_p(Type *dest, Type value, int pe)			\
   {									\
-    pshmem_##Name##_put(dest, &value, sizeof(value), pe);		\
+    shmem_##Name##_put(dest, &value, sizeof(value), pe);		\
   }
 
 SHMEM_TYPE_P_WRAPPER(float, float)
@@ -167,7 +171,7 @@ SHMEM_TYPE_P(long, long)
   pshmem_##Name##_g(Type *dest, int pe)					\
   {									\
     Type retval;							\
-    pshmem_##Name##_get(dest, &retval, sizeof(retval), pe);		\
+    shmem_##Name##_get(dest, &retval, sizeof(retval), pe);		\
     return retval;							\
   }
 
@@ -230,5 +234,5 @@ SHMEM_TYPE_PUT_NB(float, float)
 #pragma weak shmem_long_put_nb = pshmem_long_put_nb
 #pragma weak shmem_longdouble_put_nb = pshmem_longdouble_put_nb
 #pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
-#pragma weak shmem_double_g = pshmem_double_put_nb
+#pragma weak shmem_double_g_nb = pshmem_double_put_nb
 #pragma weak shmem_float_put_nb = pshmem_float_put_nb
