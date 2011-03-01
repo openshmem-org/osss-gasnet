@@ -46,7 +46,7 @@ OpenSHMEM Reference Library Implementation
 \end_layout
 
 \begin_layout Author
-Tony Curtis and Swaroop Pophale
+Tony Curtis
 \end_layout
 
 \begin_layout Right Address
@@ -81,9 +81,23 @@ Sponsorship
 \end_layout
 
 \begin_layout Standard
-Work on the OpenSHMEM project is sponsored by Oak Ridge National Laboratory
- and the U.S.
- Department of Defense.
+Work on the OpenSHMEM project is sponsored by 
+\begin_inset CommandInset href
+LatexCommand href
+name "Oak Ridge National Laboratory"
+target "http://www.ornl.gov/"
+
+\end_inset
+
+ and the 
+\begin_inset CommandInset href
+LatexCommand href
+name "U.S. Department of Defense"
+target "http://www.dod.gov/"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
@@ -384,75 +398,24 @@ Incorporating SHMEM into Programs
 
 \begin_layout Standard
 For C, the appropriate header file must be included: both the SGI-compliant
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-#include <mpp/shmem.h>
-\end_layout
-
-\end_inset
-
-and the Quadrics-like
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-#include <shmem.h>
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\align left
-are handled for portability.
- We provide both the SGI
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
+ 
+\family typewriter
+<mpp/shmem.h>
+\family default
+ and the Quadrics-like 
+\family typewriter
+<shmem.h>
+\family default
+ are handled for portability.
+ We provide both the SGI 
+\family typewriter
 start_pes(int npes)
-\end_layout
-
-\end_inset
-
- and
-\end_layout
-
-\begin_layout Standard
-\align left
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
+\family default
+ and 
+\family typewriter
 shmem_init(void)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\align left
-interfaces, again for portability.
+\family default
+ interfaces, again for portability.
  The calls are synonyms.
  
 \family typewriter
@@ -475,6 +438,147 @@ should
  The number of PEs is taken from the invoking environment.
  Currently this number is assumed to be fixed throughout the lifetime of
  the program, but fault tolerance extensions could generalize this notion.
+ Below are simple C and Fortran program templates:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <stdio.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <mpp/shmem.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int
+\end_layout
+
+\begin_layout Plain Layout
+
+main(int argc, char *argv[])
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+  int me, npes;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  start_pes(0);
+\end_layout
+
+\begin_layout Plain Layout
+
+  me = _my_pe();       /* which PE I am */
+\end_layout
+
+\begin_layout Plain Layout
+
+  npes = _num_pes();   /* how many PEs in program */
+\end_layout
+
+\begin_layout Plain Layout
+
+  printf("Hello from PE %d of %d
+\backslash
+n", me, npes);
+\end_layout
+
+\begin_layout Plain Layout
+
+  return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},language={[90]Fortran}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+program hello
+\end_layout
+
+\begin_layout Plain Layout
+
+  include 'mpp/shmem.fh'
+\end_layout
+
+\begin_layout Plain Layout
+
+  integer me, npes
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  call start_pes(0)
+\end_layout
+
+\begin_layout Plain Layout
+
+  me = my_pe()
+\end_layout
+
+\begin_layout Plain Layout
+
+  npes = num_pes()
+\end_layout
+
+\begin_layout Plain Layout
+
+  print *, 'Hello from PE ', me, ' of ', npes
+\end_layout
+
+\begin_layout Plain Layout
+
+end program hello
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -671,7 +775,7 @@ Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors
 \end_layout
 
 \begin_layout Subsection
-Broadcast
+Barrier and broadcast
 \end_layout
 
 \begin_layout Standard
@@ -954,6 +1058,13 @@ SMA
 \end_layout
 
 \begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="2">
 <features>
@@ -1087,8 +1198,16 @@ SHMEM_LOG_LEVELS
 
 \begin_layout List
 \labelwidthstring 00.00.0000
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
 \begin_inset Tabular
-<lyxtabular version="3" rows="16" columns="2">
+<lyxtabular version="3" rows="18" columns="2">
 <features>
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
@@ -1107,6 +1226,26 @@ Facility
 
 \begin_layout Plain Layout
 Meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FATAL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+something unrecoverable happened, abort
 \end_layout
 
 \end_inset
@@ -1393,11 +1532,31 @@ related to the network service thread
 </cell>
 </row>
 <row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FENCE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+tracing network fence events
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-FATAL
+QUIET
 \end_layout
 
 \end_inset
@@ -1406,7 +1565,7 @@ FATAL
 \begin_inset Text
 
 \begin_layout Plain Layout
-something unrecoverable happened, abort
+tracing network quiet events
 \end_layout
 
 \end_inset
