@@ -5,9 +5,8 @@
 #include "state.h"
 #include "comms.h"
 #include "trace.h"
-#include "hooks.h"
-#include "pshmem.h"
 
+#include "shmem.h"
 
 /*
  * Tree based broadcast generates a binary tree with the PEs in the
@@ -20,17 +19,17 @@ static void
 set_2tree(int PE_start, int PE_stride, int PE_size,
 	  int *parent, int *child_l, int *child_r, int my_pe)
 {
-  int max_pe = PE_start + PE_stride*(PE_size-1);
+  int max_pe = PE_start + PE_stride * (PE_size - 1);
 
   *child_l = 2*(my_pe-PE_start) + PE_stride + PE_start;
   *child_r = *child_l + PE_stride;
 
   /* set parent */
-  if (my_pe == PE_start){
+  if (my_pe == PE_start) {
     *parent = -1;
   }
   else {
-    *parent = (my_pe-PE_start-PE_stride) / 2;
+    *parent = (my_pe - PE_start - PE_stride) / 2;
     *parent -= *parent % PE_stride;
     *parent += PE_start;
   }
@@ -42,8 +41,11 @@ set_2tree(int PE_start, int PE_stride, int PE_size,
     *child_r = -1;
   }
 
-  /* printf("In set2tree:For PE %d   Parent = %d, Lchild = %d, Rchild = %d", my_pe, *parent, *child_l, *child_r); */
-
+  __shmem_trace(SHMEM_LOG_BROADCAST,
+		"set2tree: parent = %d, L_child = %d, R_child = %d",
+		*parent,
+		*child_l,
+		*child_r);
 }
 
 static void
@@ -51,6 +53,7 @@ build_tree(int PE_start, int step, int PE_root, int PE_size,
 	   int *parent, int *child_l, int *child_r, int my_pe)
 { 
   int inter;
+
   if (PE_root != 0) {
     int PE_root_abs;
     int other_parent, other_child_l, other_child_r;
@@ -83,13 +86,13 @@ build_tree(int PE_start, int step, int PE_root, int PE_size,
 
       /* other_parent should be -1 */
       *parent = other_parent;
-      if (other_child_l ==  __state.mype) {
+      if (other_child_l ==  GET_STATE(mype)) {
 	*child_l = PE_start;
 	*child_r = other_child_r;
       }
 
       /* if we are the right child of the PE_start */
-      else if (other_child_r ==  __state.mype) {
+      else if (other_child_r ==  GET_STATE(mype)) {
 	*child_l = other_child_l;
 	*child_r = PE_start;
       }
@@ -110,7 +113,7 @@ build_tree(int PE_start, int step, int PE_root, int PE_size,
     }
 
     /* update potential parents of exchanged nodes */
-    if(GET_STATE(mype) != PE_start) {
+    if (GET_STATE(mype) != PE_start) {
       if (*child_l == PE_root_abs) {
 	*child_l = PE_start;
       }
@@ -118,15 +121,16 @@ build_tree(int PE_start, int step, int PE_root, int PE_size,
 	*child_r = PE_start;
       }
     }
+
   }
 }
 
 void
-shmem_broadcast32_tree(void *target, const void *source,
-		       size_t nlong,
-		       int PE_root, int PE_start,
-		       int logPE_stride, int PE_size,
-		       long *pSync)				
+__shmem_broadcast32_tree(void *target, const void *source,
+			 size_t nlong,
+			 int PE_root, int PE_start,
+			 int logPE_stride, int PE_size,
+			 long *pSync)				
 {
   int child_l, child_r, parent;						
   const int step = 1 << logPE_stride;							
@@ -180,10 +184,10 @@ shmem_broadcast32_tree(void *target, const void *source,
 }	
 
 void
-shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
-		       int PE_root, int PE_start,
-		       int logPE_stride, int PE_size,
-		       long *pSync)
+__shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
+			 int PE_root, int PE_start,
+			 int logPE_stride, int PE_size,
+			 long *pSync)
 {
   int child_l, child_r, parent;
   const int step = 1 << logPE_stride;

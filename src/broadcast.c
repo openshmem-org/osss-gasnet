@@ -37,15 +37,15 @@ typedef struct {
 
 static broadcast_table_t broadcast32_table[] =
   {
-    { "naive", shmem_broadcast32_naive },
-    { "tree", shmem_broadcast32_tree },
+    { "naive", __shmem_broadcast32_naive },
+    { "tree",  __shmem_broadcast32_tree  },
   };
 static const int n_broadcast32 = TABLE_SIZE(broadcast32_table);
 
 static broadcast_table_t broadcast64_table[] =
   {
-    { "naive", shmem_broadcast64_naive },
-    { "tree", shmem_broadcast64_tree },
+    { "naive", __shmem_broadcast64_naive },
+    { "tree",  __shmem_broadcast64_tree  },
   };
 static const int n_broadcast64 = TABLE_SIZE(broadcast64_table);
 

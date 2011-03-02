@@ -12,10 +12,10 @@
 #define SHMEM_BROADCAST_TYPE(Size, Type)				\
   /* @api */								\
   void									\
-  shmem_broadcast##Size##_naive (void *target, const void *source, size_t nlong, \
-				 int PE_root, int PE_start,		\
-				 int logPE_stride, int PE_size,		\
-				 long *pSync)				\
+  __shmem_broadcast##Size##_naive (void *target, const void *source, size_t nlong, \
+				   int PE_root, int PE_start,		\
+				   int logPE_stride, int PE_size,	\
+				   long *pSync)				\
   {									\
     const int step = 1 << logPE_stride;					\
     const int root = PE_root + PE_start;				\
