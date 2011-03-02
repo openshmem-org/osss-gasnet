@@ -7,6 +7,7 @@ long pSync[_SHMEM_BCAST_SYNC_SIZE];
 int
 main(void)
 {
+  int i;
   long *target;
   static long source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
   int nlong = 8;
