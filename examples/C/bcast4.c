@@ -1,3 +1,8 @@
+/*
+ * testing behavior when PE not in active set calls broadcast
+ *
+ */
+
 #include <stdio.h>
 
 #include <mpp/shmem.h>
@@ -23,7 +28,9 @@ main(void)
   }
   shmem_barrier_all();
 
-  shmem_broadcast64(target, source, nlong, 1, 0, 0, 4, pSync);
+  if ( (me % 2) == 0) {
+    shmem_broadcast64(target, source, nlong, 0, 0, 1, 4, pSync);
+  }
 
   for (i = 0; i < 8; i++) {
     printf("%d: target[%d] = %ld\n", me, i, target[i]);

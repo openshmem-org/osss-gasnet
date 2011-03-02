@@ -8,7 +8,7 @@ int
 main(void)
 {
   long *target;
-  long source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+  static long source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
   int nlong = 8;
   int me;
 
@@ -17,7 +17,10 @@ main(void)
 
   target = (long *) shmalloc( 8 * sizeof(*target) );
 
-  shmem_sync_init(pSync);
+  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
+    pSync[i] = _SHMEM_SYNC_VALUE;
+  }
+  shmem_barrier_all();
 
   shmem_broadcast64(target, source, nlong, 0, 0, 0, 4, pSync);
 
