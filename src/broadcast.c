@@ -4,6 +4,8 @@
 #include "shmem.h"
 #include "comms.h"
 #include "trace.h"
+#include "utils.h"
+
 #include "broadcast-naive.h"
 #include "broadcast-tree.h"
 
@@ -38,8 +40,7 @@ static broadcast_table_t broadcast32_table[] =
     { "naive", pshmem_broadcast32_naive },
     { "tree", pshmem_broadcast32_tree },
   };
-static const int n_broadcast32 =
-  sizeof(broadcast32_table) / sizeof(broadcast32_table[0]);
+static const int n_broadcast32 = TABLE_SIZE(broadcast32_table);
 
 static broadcast_table_t broadcast64_table[] =
   {
@@ -136,7 +137,9 @@ __broadcast_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_broadcast32(void *target, const void *source, size_t nlong,int PE_root, int PE_start, int logPE_stride, int PE_size,long *pSync)
+pshmem_broadcast32(void *target, const void *source, size_t nlong,
+		   int PE_root, int PE_start, int logPE_stride, int PE_size,
+		   long *pSync)
 {
   if (broadcast32_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -145,13 +148,17 @@ pshmem_broadcast32(void *target, const void *source, size_t nlong,int PE_root, i
     /* NOT REACHED */
   }
 
-  (*broadcast32_func)(target,source,nlong,PE_root,PE_start,logPE_stride,PE_size,pSync);
+  (*broadcast32_func)(target, source, nlong,
+		      PE_root, PE_start, logPE_stride, PE_size,
+		      pSync);
 }
 
 
 /* @api@ */
 void
-pshmem_broadcast64(void *target, const void *source, size_t nlong,int PE_root, int PE_start, int logPE_stride, int PE_size,long *pSync)
+pshmem_broadcast64(void *target, const void *source, size_t nlong,
+		   int PE_root, int PE_start, int logPE_stride, int PE_size,
+		   long *pSync)
 {
   if (broadcast64_func == (dispatch_function) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -160,11 +167,10 @@ pshmem_broadcast64(void *target, const void *source, size_t nlong,int PE_root, i
     /* NOT REACHED */
   }
 
-  (*broadcast64_func)(target,source,nlong,PE_root,PE_start,logPE_stride,PE_size,pSync);
+  (*broadcast64_func)(target, source, nlong,
+		      PE_root, PE_start, logPE_stride, PE_size,
+		      pSync);
 }
-
-
-
 
 #pragma weak shmem_broadcast32 = pshmem_broadcast32
 #pragma weak shmem_broadcast64 = pshmem_broadcast64
@@ -178,7 +184,7 @@ pshmem_sync_init(long *pSync){
         for (i = 0; i < nb; i += 1) {
                 pSync[i] = _SHMEM_SYNC_VALUE;
         }
-        pshmem_barrier_all();
+        shmem_barrier_all();
 }
 
 #pragma weak shmem_sync_init = pshmem_sync_init
