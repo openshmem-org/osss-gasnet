@@ -148,7 +148,11 @@ __shmem_broadcast32_tree(void *target, const void *source,
 	     &parent, &child_l, &child_r,
 	     my_pe);
 
-  /* printf("Before actual broadcast PE:%d Right_child:%d Left_child:%d\n",my_pe,child_r, child_l);  */
+  __shmem_trace(SHMEM_LOG_BROADCAST,
+		"before broadcast, R_child = %d L_child = %d",
+		child_r,
+		child_l
+		);
 
   /* The actual broadcast*/								
   if (my_pe == (PE_start + step * PE_root)) {
@@ -166,7 +170,10 @@ __shmem_broadcast32_tree(void *target, const void *source,
   else {
     shmem_int_wait_until(target_ptr, SHMEM_CMP_EQ, old_target);
 
-    /* printf("\n PE %d inside else\n",m y_pe); */
+    __shmem_trace(SHMEM_LOG_BROADCAST,
+		  "inside else"
+		  );
+
     memcpy(source_ptr,target_ptr, nlong* sizeof(int));
 
     if (child_l != -1) {
@@ -178,7 +185,9 @@ __shmem_broadcast32_tree(void *target, const void *source,
     }
   }
 
-  /* printf("At the end of bcast32 %d\n", my_pe); */
+    __shmem_trace(SHMEM_LOG_BROADCAST,
+		  "at the end of bcast32"
+		  );
 
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
 }	
@@ -210,8 +219,11 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
 	     PE_size, &parent, &child_l, &child_r,
 	     my_pe);
 
-  /* printf("Before actual broadcast PE:%d Right_child:%d Left_child:%d\n",my_pe,child_r, child_l);*/
-
+  __shmem_trace(SHMEM_LOG_BROADCAST,
+		"before broadcast, R_child = %d L_child = %d",
+		child_r,
+		child_l
+		);
   /* The actual broadcast*/
   if (my_pe == (PE_start + step * PE_root)) {
 
@@ -228,7 +240,9 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
   else {
     shmem_long_wait_until(target_ptr, SHMEM_CMP_EQ, old_target);
 
-    /* printf("\n PE %d inside else\n",my_pe); */
+    __shmem_trace(SHMEM_LOG_BROADCAST,
+		  "inside else"
+		  );
 
     memcpy(source_ptr, target_ptr, nlong * sizeof(long));
 
@@ -242,7 +256,9 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
 
   }
 
-  /* printf("At the end of bcast32 %d\n", my_pe); */
+  __shmem_trace(SHMEM_LOG_BROADCAST,
+		"at the end of bcast64"
+		);
 
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
 }
