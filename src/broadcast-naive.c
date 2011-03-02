@@ -4,22 +4,22 @@
 #include <string.h>
 
 #include "state.h"
-#include "comms.h"
 #include "trace.h"
-#include "hooks.h"
 
-#include "pshmem.h"
+#include "shmem.h"
 
 
 #define SHMEM_BROADCAST_TYPE(Size, Type)				\
   /* @api */								\
-  void pshmem_broadcast##Size##_naive (void *target, const void *source, size_t nlong, \
-			      int PE_root, int PE_start, int logPE_stride, int PE_size, \
-			      long *pSync)				\
+  void									\
+  shmem_broadcast##Size##_naive (void *target, const void *source, size_t nlong, \
+				 int PE_root, int PE_start,		\
+				 int logPE_stride, int PE_size,		\
+				 long *pSync)				\
   {									\
     const int step = 1 << logPE_stride;					\
     const int root = PE_root + PE_start;				\
-    if (root == __state.mype) {						\
+    if (root == GET_STATE(mype)) {					\
       int i;								\
       register int this_pe = PE_start;					\
       for (i = 0; i < PE_size; i += 1) {				\

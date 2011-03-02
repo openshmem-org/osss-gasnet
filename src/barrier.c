@@ -93,7 +93,7 @@ lookup(bar_table_t *tp, int n, char *name)
  */
 
 void
-__barrier_dispatch_init(void)
+__shmem_barrier_dispatch_init(void)
 {
   char *bar_all_name;
   bar_table_t *batp;

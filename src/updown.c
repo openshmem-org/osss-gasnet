@@ -122,8 +122,8 @@ pstart_pes(int npes)
   __shmem_ping_init();
 
   /* set up barrier selection */
-  __barrier_dispatch_init();
-  __broadcast_dispatch_init();
+  __shmem_barrier_dispatch_init();
+  __shmem_broadcast_dispatch_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,

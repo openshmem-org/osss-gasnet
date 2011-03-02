@@ -37,18 +37,17 @@ typedef struct {
 
 static broadcast_table_t broadcast32_table[] =
   {
-    { "naive", pshmem_broadcast32_naive },
-    { "tree", pshmem_broadcast32_tree },
+    { "naive", shmem_broadcast32_naive },
+    { "tree", shmem_broadcast32_tree },
   };
 static const int n_broadcast32 = TABLE_SIZE(broadcast32_table);
 
 static broadcast_table_t broadcast64_table[] =
   {
-    { "naive", pshmem_broadcast64_naive },
-    { "tree", pshmem_broadcast64_tree },
+    { "naive", shmem_broadcast64_naive },
+    { "tree", shmem_broadcast64_tree },
   };
-static const int n_broadcast64 =
-  sizeof(broadcast64_table) / sizeof(broadcast64_table[0]);
+static const int n_broadcast64 = TABLE_SIZE(broadcast64_table);
 
 
 /*
@@ -80,7 +79,7 @@ lookup(broadcast_table_t *tp, int n, char *name)
  */
 
 void
-__broadcast_dispatch_init(void)
+__shmem_broadcast_dispatch_init(void)
 {
   char *broadcast32_name, *broadcast64_name;
   broadcast_table_t *brtp32, *brtp64;
@@ -177,14 +176,15 @@ pshmem_broadcast64(void *target, const void *source, size_t nlong,
 
 /* @api@ */
 void
-pshmem_sync_init(long *pSync){
-        const int nb = _SHMEM_BCAST_SYNC_SIZE;
-        int i;
+pshmem_sync_init(long *pSync)
+{
+  const int nb = _SHMEM_BCAST_SYNC_SIZE;
+  int i;
 
-        for (i = 0; i < nb; i += 1) {
-                pSync[i] = _SHMEM_SYNC_VALUE;
-        }
-        shmem_barrier_all();
+  for (i = 0; i < nb; i += 1) {
+    pSync[i] = _SHMEM_SYNC_VALUE;
+  }
+  shmem_barrier_all();
 }
 
 #pragma weak shmem_sync_init = pshmem_sync_init
