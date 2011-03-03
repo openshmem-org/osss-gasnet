@@ -15,7 +15,9 @@
 #include <values.h>
 #include <setjmp.h>
 
-#include "gasnet_safe.h"
+#include <gasnet.h>
+
+#include "uthash.h"
 
 #include "state.h"
 #include "memalloc.h"
@@ -54,6 +56,26 @@ static gasnet_seginfo_t *seginfo_table;
 static void *great_big_heap;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
+
+/*
+ * trap gasnet errors gracefully
+ *
+ */
+#define GASNET_SAFE(fncall) do {                                        \
+    int _retval;                                                        \
+    if ((_retval = fncall) != GASNET_OK) {                              \
+      __shmem_trace(SHMEM_LOG_FATAL,					\
+		   "error calling: %s at %s:%i, %s (%s)\n",		\
+		   #fncall, __FILE__, __LINE__,				\
+		   gasnet_ErrorName(_retval),				\
+		   gasnet_ErrorDesc(_retval));				\
+    }                                                                   \
+  } while(0)
+
+/*
+ * --------------- real work starts here ---------------------
+ *
+ */
 
 /*
  * define accepted size units in ascending order, which are
@@ -330,7 +352,6 @@ __shmem_comms_barrier_all(void)
 #include <sys/types.h>
 #include <libelf.h>
 #include <gelf.h>
-#include "uthash.h"
 
 typedef struct {
   void *addr;                   /* symbol's address is the key */
@@ -339,7 +360,7 @@ typedef struct {
   UT_hash_handle hh;            /* structure is hashable */
 } globalvar_t;
 
-static globalvar_t *gvp = NULL; /* our hash table */
+static globalvar_t *gvp = NULL; /* our global variable hash table */
 
 /*
  * areas storing (uninitialized and initialized resp.) global
@@ -1012,10 +1033,76 @@ __shmem_comms_addr_accessible(void *addr, int pe)
 }
 
 /*
+ * -- lock finding/creating utility --
+ */
+
+typedef struct {
+  void *addr;
+  gasnet_hsl_t *lock;
+  UT_hash_handle hh;		/* makes this structure hashable */
+} lock_table_t;
+
+static lock_table_t *lock_table = NULL;
+
+/*
+ * Look up the lock for a given address ADDR.  If ADDR has never been
+ * seen before, create the lock for it.
+ *
+ */
+
+static gasnet_hsl_t *
+get_lock_for(void *addr)
+{
+  lock_table_t *try;
+
+  HASH_FIND_PTR(lock_table, &addr, try);
+
+  if (try == (lock_table_t *) NULL) {
+    /* TODO: check mallocs */
+    gasnet_hsl_t *L = (gasnet_hsl_t *) malloc(sizeof(*L));
+
+    if (L == (gasnet_hsl_t *) NULL) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: unable to allocate lock for address %p",
+		    addr
+		    );
+      /* NOT REACHED */
+    }
+
+    try = (lock_table_t *) malloc(sizeof(*try));
+    if (try == (lock_table_t *) NULL) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: unable to allocate lock table entry for address %p",
+		    addr
+		    );
+      /* NOT REACHED */
+    }
+
+    gasnet_hsl_init(L);
+
+    try->addr = addr;
+    try->lock = L;
+
+    HASH_ADD_PTR(lock_table, addr, try);
+
+    __shmem_trace(SHMEM_LOG_LOCK,
+		  "created new lock for address %p",
+		  addr
+		  );
+  }
+  else {
+    __shmem_trace(SHMEM_LOG_LOCK,
+		  "already have a lock for address %p",
+		  addr
+		  );
+  }    
+
+  return try->lock;
+}
+
+/*
  * -- swap handlers ---------------------------------------------------------
  */
-static gasnet_hsl_t swap_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t swap_bak_lock = GASNET_HSL_INITIALIZER;
 
 /*
  * NB we make the cond/value "long long" throughout
@@ -1026,7 +1113,7 @@ typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
 } swap_payload_t;
@@ -1041,15 +1128,16 @@ handler_swap_out(gasnet_token_t token,
 {
   long long old;
   swap_payload_t *pp = (swap_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& swap_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
   (void) memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
   pp->value = old;
 
-  gasnet_hsl_unlock(& swap_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
@@ -1064,8 +1152,9 @@ handler_swap_bak(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   swap_payload_t *pp = (swap_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& swap_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* save returned value */
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
@@ -1073,7 +1162,7 @@ handler_swap_bak(gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& swap_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1128,8 +1217,9 @@ handler_cswap_out(gasnet_token_t token,
 {
   long long old;
   cswap_payload_t *pp = (cswap_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& cswap_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save current target */
   old = *(long long *) pp->r_symm_addr;
@@ -1140,7 +1230,7 @@ handler_cswap_out(gasnet_token_t token,
   /* return value */
   pp->value = old;
 
-  gasnet_hsl_unlock(& cswap_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz, unused);
@@ -1154,8 +1244,9 @@ handler_cswap_out(gasnet_token_t token,
 {
   void *old;
   cswap_payload_t *pp = (cswap_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& cswap_out_lock);
+  gasnet_hsl_lock(lk);
 
   old = malloc(pp->nbytes);
 
@@ -1171,7 +1262,7 @@ handler_cswap_out(gasnet_token_t token,
 
   free(old);
 
-  gasnet_hsl_unlock(& cswap_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz, unused);
@@ -1187,8 +1278,9 @@ handler_cswap_bak(gasnet_token_t token,
 		  gasnet_handlerarg_t unused)
 {
   cswap_payload_t *pp = (cswap_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& cswap_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* save returned value */
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
@@ -1196,7 +1288,7 @@ handler_cswap_bak(gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& cswap_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1242,9 +1334,6 @@ typedef struct {
   long long value;		/* value to be added & then return old */
 } fadd_payload_t;
 
-static gasnet_hsl_t fadd_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t fadd_bak_lock = GASNET_HSL_INITIALIZER;
-
 /*
  * called by remote PE to do the fetch and add.  Store new value, send
  * back old value
@@ -1257,8 +1346,9 @@ handler_fadd_out(gasnet_token_t token,
   long long old = 0;
   long long plus = 0;
   fadd_payload_t *pp = (fadd_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& fadd_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
@@ -1266,7 +1356,7 @@ handler_fadd_out(gasnet_token_t token,
   (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
   pp->value = old;
 
-  gasnet_hsl_unlock(& fadd_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_FADD_BAK, buf, bufsiz, unused);
@@ -1281,8 +1371,9 @@ handler_fadd_bak(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   fadd_payload_t *pp = (fadd_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& fadd_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* save returned value */
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
@@ -1290,7 +1381,7 @@ handler_fadd_bak(gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& fadd_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1332,9 +1423,6 @@ typedef struct {
   long long value;		/* value to be returned */
 } finc_payload_t;
 
-static gasnet_hsl_t finc_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t finc_bak_lock = GASNET_HSL_INITIALIZER;
-
 /*
  * called by remote PE to do the fetch and increment.  Store new
  * value, send back old value
@@ -1347,8 +1435,9 @@ handler_finc_out(gasnet_token_t token,
   long long old = 0;
   long long plus = 1;
   finc_payload_t *pp = (finc_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& finc_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
@@ -1356,7 +1445,7 @@ handler_finc_out(gasnet_token_t token,
   (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
   pp->value = old;
 
-  gasnet_hsl_unlock(& finc_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_FINC_BAK, buf, bufsiz, unused);
@@ -1371,8 +1460,9 @@ handler_finc_bak(gasnet_token_t token,
 		 gasnet_handlerarg_t unused)
 {
   finc_payload_t *pp = (finc_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& finc_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* save returned value */
   (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
@@ -1380,7 +1470,7 @@ handler_finc_bak(gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& finc_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1420,9 +1510,6 @@ typedef struct {
   long long value;		/* value to be returned */
 } add_payload_t;
 
-static gasnet_hsl_t add_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t add_bak_lock = GASNET_HSL_INITIALIZER;
-
 /*
  * called by remote PE to do the remote add.
  */
@@ -1434,15 +1521,16 @@ handler_add_out(gasnet_token_t token,
   long long old = 0;
   long long plus = 0;
   add_payload_t *pp = (add_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& add_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + pp->value;
   (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
 
-  gasnet_hsl_unlock(& add_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_ADD_BAK, buf, bufsiz, unused);
@@ -1457,13 +1545,14 @@ handler_add_bak(gasnet_token_t token,
 		gasnet_handlerarg_t unused)
 {
   add_payload_t *pp = (add_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& add_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& add_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1516,15 +1605,16 @@ handler_inc_out(gasnet_token_t token,
   long long old = 0;
   long long plus = 1;
   inc_payload_t *pp = (inc_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& inc_out_lock);
+  gasnet_hsl_lock(lk);
 
   /* save and update */
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + 1;
   (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
 
-  gasnet_hsl_unlock(& inc_out_lock);
+  gasnet_hsl_unlock(lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_INC_BAK, buf, bufsiz, unused);
@@ -1539,13 +1629,14 @@ handler_inc_bak(gasnet_token_t token,
 		gasnet_handlerarg_t unused)
 {
   inc_payload_t *pp = (inc_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
-  gasnet_hsl_lock(& inc_bak_lock);
+  gasnet_hsl_lock(lk);
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& inc_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
@@ -1724,6 +1815,7 @@ handler_quiet_out(gasnet_token_t token,
 {
   gasnet_hsl_lock(& quiet_out_lock);
 
+  /* a quiet is a fence everywhere */
   __shmem_comms_fence_request();
 
   gasnet_hsl_unlock(& quiet_out_lock);
