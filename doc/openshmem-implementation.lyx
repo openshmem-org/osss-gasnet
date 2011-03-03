@@ -134,8 +134,11 @@ processing element
 \begin_layout Standard
 The number of PEs participating in the program is set at launch-time (although
  not all PEs need to do work).
- PEs are numbered monotonically increasing from 0 up to N-1, where N is
- the total number of PEs.
+ PEs are numbered monotonically increasing from 0 up to 
+\begin_inset Formula $N-1$
+\end_inset
+
+, where N is the total number of PEs.
  PEs are assumed to be equidistant from each other for communication purposes,
  no topological information is currently exposed.
 \end_layout
@@ -731,7 +734,15 @@ Atomic Operations
 \end_layout
 
 \begin_layout Standard
-Atomic operations include swaps, fetch-and-add and locks.
+Atomic operations include swaps, fetch-and-add and locks (discussed separately
+ in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Locks"
+
+\end_inset
+
+).
  The first two are handled via GASNet's Active Messages.
  Increment was originally layered on top of add (increment = add 1, after
  all) but was rewritten with its own handlers.
@@ -742,17 +753,26 @@ Atomic operations include swaps, fetch-and-add and locks.
 \end_layout
 
 \begin_layout Standard
-The current implementation has a single handler lock variable per operation
- (add, increment, 
+Eaarlier versions of the implementation had a single handler lock variable
+ per operation (one for all adds, one for all increments, 
 \emph on
 etc.
 \emph default
 ).
- However, allocating and managing a separate lock variable for each remotely
- accessed address might scale better to large systems.
+ However, we've now added a hash table to dynamically allocate and manage
+ per-target-address handler locks.
+ Large-scale atomic operations, like add-scatters across multiple variables
+ could easily benefit from this, as the lock granularity then permits concurrent
+ memory accesses.
 \end_layout
 
 \begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Locks"
+
+\end_inset
+
 Locks
 \end_layout
 
