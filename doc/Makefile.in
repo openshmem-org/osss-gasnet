@@ -3,11 +3,19 @@ PREFIX = @PREFIX@
 SHMEM_MANPAGES_1 = $(wildcard *.1)
 SHMEM_MANPAGES_3 = $(wildcard *.3)
 
+IMPL_LYX = openshmem-implementation.lyx
+IMPL_PDF = $(IMPL_LYX:.lyx=.pdf)
+
 .PHONY: all default
 .PHONY: install install-man
 .PHONY: clean
 
-all default:
+.SUFFIXES: .lyx .pdf
+
+.lyx.pdf:
+	lyx -e pdf $<
+
+all default:	$(IMPL_PDF)
 
 install:	install-man1	install-man3
 
@@ -20,3 +28,4 @@ install-man3:	all
 	# install -c -m 644 $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
 
 clean:
+	rm -f $(IMPL_PDF)

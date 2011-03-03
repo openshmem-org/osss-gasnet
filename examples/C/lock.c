@@ -7,6 +7,7 @@ long L = 0;
 int
 main(int argc, char **argv)
 {
+  int i;
   int me;
   int slp;
 
@@ -15,6 +16,8 @@ main(int argc, char **argv)
   slp = 1;
 
   shmem_barrier_all();
+
+for (i = 0; i < 2; i+= 1) {
 
   if (me == 1) sleep(3);
 
@@ -25,6 +28,8 @@ main(int argc, char **argv)
   printf("%d: sleeping...done\n", me);
 
   shmem_clear_lock(&L);
+
+}
 
   shmem_barrier_all();
 
