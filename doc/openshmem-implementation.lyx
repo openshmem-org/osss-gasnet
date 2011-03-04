@@ -592,11 +592,11 @@ Communications Substrate
 The OpenSHMEM library has been written to sit on top of any communications
  library that can provide the required functionalty.
  Initially we have targetted GASNet, and an ARMCI version is also planned.
- The file 
+ The 
 \family typewriter
-trunk/src/comms.c
+directory trunk/src/comms
 \family default
- provides the internal API.
+ provides implementations of the internal API.
  All subsequent references to GASNet should be read with an eye on the abstracti
 on process.
 \end_layout
@@ -1074,7 +1074,7 @@ SMA
 \begin_inset Quotes erd
 \end_inset
 
- variables and our own new ones.
+ variables and add our own new ones.
 \end_layout
 
 \begin_layout Standard
