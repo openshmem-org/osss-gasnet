@@ -5,15 +5,16 @@ PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
 
-MALLOC_DIR       = ./dlmalloc
-MALLOC_CPPFLAGS  = -I$(MALLOC_DIR)
-MALLOC_OBJECT    = $(MALLOC_DIR)/dlmalloc.o
+COMMS_DIR        = ./comms
+COMMS_CPPFLAGS   = -I$(COMMS_DIR)
+COMMS_OBJ        = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
 
-COMMS_DIR        = ./comms
-COMMS_CPPFLAGS   = -I$(COMMS_DIR)
-COMMS_OBJECT     = $(COMMS_DIR)/comms.o
+MALLOC_DIR       = ./dlmalloc
+MALLOC_SRC       = $(MALLOC_DIR)/dlmalloc.c
+MALLOC_OBJECT    = $(MALLOC_SRC:.c=.o)
+MALLOC_CPPFLAGS  = -I$(MALLOC_DIR)
 
 # ---------------------------------------------------------
 
@@ -146,8 +147,8 @@ memalloc.o:	memalloc.c
 
 # -- pull in comms library routines ------------------------
 
-$(COMMS_OBJECT):
-	$(MAKE) -C $(COMMS_DIR)
+$(COMMS_OBJ):
+	$(MAKE) -C $(COMMS_DIR) all
 
 # -- fortran interface ------------------------------------
 
@@ -164,7 +165,7 @@ fortran-mem.o:	fortran-mem.c
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY):	$(COMMS_OBJECT) $(MALLOC_OBJECT) $(SHMEM_OBJECTS)
+$(SHMEM_LIBRARY):	$(COMMS_OBJ) $(MALLOC_OBJECT) $(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ $^ $(LIBS)
 
 # ---------------------------------------------------------
