@@ -1,0 +1,144 @@
+#
+# installation root
+#
+PREFIX           = @PREFIX@
+
+# ---------------------------------------------------------
+
+COMMS_SRC = comms.c
+COMMS_OBJ = $(COMMS_SRC:.c=.o)
+
+# ---------------------------------------------------------
+
+HASH_DIR         = ./uthash
+HASH_CFLAGS      = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
+INSTALL          = install -c
+REMOVE           = rm -f
+
+#
+# compiler-independent options
+#
+
+CC               = @CC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
+CPPFLAGS        += -I..
+
+CFLAGS          += -fPIC
+
+COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
+
+# ---------------------------------------------------------
+
+COMP_WRAPPER     = osh-compiler.in
+SHMEM_CC         = oshcc
+SHMEM_CXX        = oshCC
+SHMEM_FC         = oshfort
+RUN_WRAPPER      = oshrun.in
+SHMEM_RUN        = oshrun
+
+# ---------------------------------------------------------
+
+.PHONY: all default
+.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper run-wrapper
+.PHONY: install install-bin
+.PHONY: uninstall uninstall-bin
+.PHONY: clean
+
+# -- start GASNet ------------------------------------------
+
+all:	$(COMMS_OBJ) wrappers
+
+#
+# GASNet installation root, and setup
+#
+GASNET_ROOT      = @GASNET_ROOT@
+GASNET_CONDUIT   = @GASNET_CONDUIT@
+
+include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+
+$(COMMS_OBJ):	$(COMMS_SRC)
+	$(CC) \
+		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+		$(DLMALLOC_CFLAGS) \
+		$(HASH_CFLAGS) \
+		$(COMMON_FLAGS) \
+		-c -o $@ $<
+
+# -- end GASNet --------------------------------------------
+
+# -- command wrappers depend on gasnet settings ------------
+
+wrappers:	c-wrapper cxx-wrapper f-wrapper run-wrapper
+
+c-wrapper:
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		< $(COMP_WRAPPER) > $(SHMEM_CC)
+
+cxx-wrapper:
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpiCC%' \
+		< $(COMP_WRAPPER) > $(SHMEM_CXX)
+
+f-wrapper:
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
+		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpif90%' \
+		< $(COMP_WRAPPER) > $(SHMEM_FC)
+
+run-wrapper:
+	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e 's%bin/mpicc%bin/mpirun%' \
+		< $(RUN_WRAPPER) > $(SHMEM_RUN)
+
+# ---------------------------------------------------------
+
+install:	install-bin
+
+install-bin:	all
+	mkdir -p $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+
+uninstall:	uninstall-bin
+
+uninstall-bin:
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
+	- rmdir $(PREFIX)/bin
+
+# -------------------------------------------------------
+
+clean:
+	$(REMOVE) $(COMMS_OBJ)
+	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
