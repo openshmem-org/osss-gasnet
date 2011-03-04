@@ -5,8 +5,8 @@ PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
 
-HASH_DIR     = ./uthash
-HASH_CFLAGS  = -I$(HASH_DIR)
+HASH_DIR         = ./uthash
+HASH_CFLAGS      = -I$(HASH_DIR)
 
 # ---------------------------------------------------------
 
@@ -62,10 +62,14 @@ SHMEM_SOURCES   +=	hooks.c state.c memalloc.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
+SHMEM_SOURCES   +=	barrier.c barrier-naive.c
+#
+SHMEM_SOURCES   +=	broadcast.c broadcast-naive.c broadcast-tree.c
+#
+SHMEM_SOURCES   +=	atomic.c
+#
 SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
-			atomic.c fence.c \
-			barrier.c barrier-naive.c \
-			broadcast.c broadcast-naive.c broadcast-tree.c \
+			fence.c \
                         collect.c fcollect.c \
 			lock.c \
 			ping.c putget.c query.c reduce-op.c \

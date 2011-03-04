@@ -4,11 +4,6 @@
 extern void __shmem_atomic_init(void);
 extern void __shmem_atomic_finalize(void);
 
-/*
- * choose appropriate memory fence definition
- *
- */
-
 #if defined(__GNUC__)
 
 /* # define LOAD_STORE_FENCE() __asm__ volatile("mfence":::"memory") */

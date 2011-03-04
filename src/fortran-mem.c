@@ -27,17 +27,25 @@
  */
 
 void
-FORTRANIFY(pshpalloc)(void *addr, size_t *length, long *errcode, int *abort)
+FORTRANIFY(pshpalloc)(long **addr, size_t *length, long *errcode, int *abort)
 {
+  long *symm_addr;
+
   INIT_CHECK();
 
-  addr = pshmalloc(*length);
+  __shmem_trace(SHMEM_LOG_MEMORY,
+		"addr = %p, length = %d, errcode = %d, abort = %d",
+		addr, *length, *errcode, *abort
+		);
+
+  symm_addr = (long *) pshmalloc(*length * sizeof(long));
 
   /* pass back status code */
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
   if (malloc_error == SHMEM_MALLOC_OK) {
+    *addr = symm_addr;
     return;
     /* NOT REACHED */
   }
@@ -48,7 +56,7 @@ FORTRANIFY(pshpalloc)(void *addr, size_t *length, long *errcode, int *abort)
 		);
   /* MAYBE NOT REACHED */
 
-  addr = (void *) NULL;
+  *addr = (long *) NULL;
 }
 
 /*

@@ -22,34 +22,9 @@ __shmem_atomic_finalize(void)
 }
 
 /*
- * shmem_swap  performs  an  atomic  swap operation. It writes value "value"
- * into "target" on processing element (PE)  pe  and  returns  the  previous
- * contents of target as an atomic operation.
- */
-
-static int64_t
-__atomic_xchg64(volatile int64_t *p, int64_t new_value)
-{
-  __asm__ volatile ("lock xchg %1, %0" : 
-                "+m" (*p), "+r" (new_value) : : 
-                "memory");
-  return new_value;
-}
-
-static int64_t
-__atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
-{
-  __asm__ volatile ("lock cmpxchg %2, %0" : 
-                "+m" (*p), "+a" (old_value) :
-                "r" (new_value) : 
-                "memory");
-  return old_value;
-}
-
-/*
- * shmem_swap performs an atomic swap operation. It writes value value
- * into target on processing element (PE) pe and returns the previous
- * contents of target as an atomic operation.
+ * shmem_swap performs an atomic swap operation. It writes value
+ * "value" into target on processing element (PE) pe and returns the
+ * previous contents of target as an atomic operation.
  */
 
 #define SHMEM_TYPE_SWAP(Name, Type)					\
@@ -59,12 +34,7 @@ __atomic_cmpxchg64(volatile int64_t *p, int64_t old_value, int64_t new_value)
   {									\
     Type retval;							\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      retval = __atomic_xchg64((volatile int64_t *) target, value);	\
-    }									\
-    else {								\
-      __shmem_comms_swap_request(target, &value, sizeof(Type), pe, &retval); \
-    }									\
+    __shmem_comms_swap_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
 
@@ -98,12 +68,7 @@ SHMEM_TYPE_SWAP(float, float)
   {									\
     Type retval;							\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      retval = __atomic_cmpxchg64((volatile int64_t *) target, cond, value); \
-    }									\
-    else {								\
-      __shmem_comms_cswap_request(target, &cond, &value, sizeof(Type), pe, &retval); \
-    }									\
+    __shmem_comms_cswap_request(target, &cond, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
 
@@ -125,12 +90,7 @@ SHMEM_TYPE_CSWAP(longlong, long long)
   {									\
     Type retval;							\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      retval = SYNC_FETCH_AND_ADD(target, value);			\
-    }									\
-    else {								\
-      __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
-    }									\
+    __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
   
@@ -149,12 +109,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   {									\
     Type retval;							\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      retval = SYNC_FETCH_AND_ADD(target, (Type) 1);			\
-    }									\
-    else {								\
-      __shmem_comms_finc_request(target, sizeof(Type), pe, &retval);	\
-    }									\
+    __shmem_comms_finc_request(target, sizeof(Type), pe, &retval);	\
     return retval;							\
   }
 
@@ -187,12 +142,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   pshmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      (void) SYNC_FETCH_AND_ADD(target, value);				\
-    }									\
-    else {								\
-      __shmem_comms_add_request(target, &value, sizeof(Type), pe);	\
-    }									\
+    __shmem_comms_add_request(target, &value, sizeof(Type), pe);	\
   }
   
 SHMEM_TYPE_ADD(int, int)
@@ -209,12 +159,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   pshmem_##Name##_inc(Type *target, int pe)				\
   {									\
     INIT_CHECK();							\
-    if (GET_STATE(mype) == pe) {					\
-      (void) SYNC_FETCH_AND_ADD(target, (Type) 1);			\
-    }									\
-    else {								\
-      __shmem_comms_inc_request(target, sizeof(Type), pe);		\
-    }									\
+    __shmem_comms_inc_request(target, sizeof(Type), pe);		\
   }
 
 SHMEM_TYPE_INC(int, int)
@@ -224,50 +169,3 @@ SHMEM_TYPE_INC(longlong, long long)
 #pragma weak shmem_int_inc = pshmem_int_inc
 #pragma weak shmem_long_inc = pshmem_long_inc
 #pragma weak shmem_longlong_inc = pshmem_longlong_inc
-
-
-
-#if 0
-
-/*
- * Let's do this the naughty way for now!  Just throw away the
- * finc/fadd result
- *
- * TODO: dedicated handler to avoid moving the unwanted former value
- * around
- *
- */
-
-#define SHMEM_TYPE_ADD(Name, Type)					\
-  /* @api@ */								\
-  void									\
-  pshmem_##Name##_add(Type *target, Type value, int pe)			\
-  {									\
-    (void) pshmem_##Name##_fadd(target, value, pe);			\
-  }
-  
-SHMEM_TYPE_ADD(int, int)
-SHMEM_TYPE_ADD(long, long)
-SHMEM_TYPE_ADD(longlong, long long)
-
-#pragma weak shmem_int_add = pshmem_int_add
-#pragma weak shmem_long_add = pshmem_long_add
-#pragma weak shmem_longlong_add = pshmem_longlong_add
-
-#define SHMEM_TYPE_INC(Name, Type)			\
-  /* @api@ */						\
-  void							\
-  pshmem_##Name##_inc(Type *target, int pe)		\
-  {							\
-    (void) pshmem_##Name##_finc(target, pe);		\
-  }
-
-SHMEM_TYPE_INC(int, int)
-SHMEM_TYPE_INC(long, long)
-SHMEM_TYPE_INC(longlong, long long)
-
-#pragma weak shmem_int_inc = pshmem_int_inc
-#pragma weak shmem_long_inc = pshmem_long_inc
-#pragma weak shmem_longlong_inc = pshmem_longlong_inc
-
-#endif
