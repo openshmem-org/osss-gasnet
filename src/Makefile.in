@@ -83,10 +83,8 @@ SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
-SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
 SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_INC_DIR    = $(PREFIX)/include
-SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 LIBS             = -lelf
 

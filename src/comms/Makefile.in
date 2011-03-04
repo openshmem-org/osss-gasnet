@@ -3,6 +3,11 @@
 #
 PREFIX           = @PREFIX@
 
+SHMEM_INC_DIR    = $(PREFIX)/include
+SHMEM_LIBNAME    = openshmem
+SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
+SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+
 # ---------------------------------------------------------
 
 COMMS_SRC = comms.c
