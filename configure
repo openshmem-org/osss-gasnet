@@ -60,6 +60,14 @@ then
   exit 1
 fi
 
+# -- ok, gasnet there, check compilers (default to GNU for now) --
+
+cc_cmd=${CC-gcc}
+cpp_flags=${CPPFLAGS-""}
+c_flags=${CFLAGS-"-g"}
+ld_cmd=${LD-$cc_cmd}
+ld_flags=${LDFLAGS-""}
+
 echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
@@ -68,6 +76,7 @@ REWRITE_DIRS="
 .
 ./doc
 ./src
+./src/comms
 ./examples
 ./examples/C
 ./examples/C++
@@ -79,6 +88,11 @@ do
   mf="$d/Makefile"
   mfin="$mf.in"
   sed \
+      -e "s%@CC@%$cc_cmd%g" \
+      -e "s%@CPPFLAGS@%$cpp_flags%g" \
+      -e "s%@CFLAGS@%$c_flags%g" \
+      -e "s%@LD@%$ld_cmd%g" \
+      -e "s%@LDFLAGS@%$ld_flags%g" \
       -e "s%@PREFIX@%$prefix%g" \
       -e "s%@GASNET_ROOT@%$gasnet_root%g" \
       -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \

@@ -5,16 +5,15 @@ PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
 
-HASH_DIR         = ./uthash
-HASH_CFLAGS      = -I$(HASH_DIR)
+MALLOC_DIR       = ./dlmalloc
+MALLOC_CPPFLAGS  = -I$(MALLOC_DIR)
+MALLOC_OBJECT    = $(MALLOC_DIR)/dlmalloc.o
 
 # ---------------------------------------------------------
 
-DLMALLOC_DIR     = ./dlmalloc
-DLMALLOC_CFLAGS  = -I$(DLMALLOC_DIR)
-DLMALLOC_OBJECT  = $(DLMALLOC_DIR)/dlmalloc.o
-
-MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
+COMMS_DIR        = ./comms
+COMMS_CPPFLAGS   = -I$(COMMS_DIR)
+COMMS_OBJECT     = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
 
@@ -32,31 +31,30 @@ MALLOC_OBJECT    = $(DLMALLOC_OBJECT)
 #WARNINGS         =
 # WARNINGS        += -pedantic
 
-# GNU C: requires >= 4.1.0 version
-CC               = gcc
+CC               = @CC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
 CPPFLAGS        += -MMD
+CPPFLAGS        += -DDEBUG
+CPPFLAGS        += $(COMMS_CPPFLAGS)
+
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
-DEBUG_AND_OPT    = -ggdb -O0
-WARNINGS         = -Wall
-# WARNINGS        += -pedantic
+CFLAGS          += -Wall
 
-DEBUG_ME         = -DDEBUG
+LDFLAGS         += -fPIC
 
-# ---------------------------------------------------------
+# -- compiler-independent options -------------------------
 
-#
-# compiler-independent options
-#
-
-CPPFLAGS        += -I../include
-
-COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT) 
+COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # ---------------------------------------------------------
 
 # communication library dependent
-SHMEM_SOURCES    =	comms.c service.c
+SHMEM_SOURCES    =	service.c
 # internal
 SHMEM_SOURCES   +=	hooks.c state.c memalloc.c \
 			trace.c clock.c
@@ -92,19 +90,12 @@ SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 LIBS             = -lelf
 
-COMP_WRAPPER     = osh-compiler.in
-SHMEM_CC         = oshcc
-SHMEM_CXX        = oshCC
-SHMEM_FC         = oshfort
-RUN_WRAPPER      = oshrun.in
-SHMEM_RUN        = oshrun
-
 INSTALL          = install -c
 REMOVE           = rm -f
 
 # ---------------------------------------------------------
 
-.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper run-wrapper
+.PHONY: all default
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: tidy clean
@@ -112,7 +103,7 @@ REMOVE           = rm -f
 
 # ---------------------------------------------------------
 
-all default:	do-deps $(SHMEM_LIBRARY) wrappers
+all default:	do-deps $(SHMEM_LIBRARY)
 
 install:	install-lib install-bin install-include
 
@@ -121,11 +112,7 @@ install-lib:	all
 	$(INSTALL) $(SHMEM_LIBRARY) $(PREFIX)/lib
 
 install-bin:	all
-	mkdir -p $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+	$(MAKE) -C $(COMMS_DIR) $@
 
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
@@ -144,52 +131,27 @@ uninstall-lib:
 	- rmdir $(PREFIX)/lib
 
 uninstall-bin:
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
-	- rmdir $(PREFIX)/bin
+	$(MAKE) -C $(COMMS_DIR) $@
 
 uninstall-include:
 	for h in $(SHMEM_HEADERS); do $(REMOVE) $(PREFIX)/include/mpp/$$h; $(REMOVE) $(PREFIX)/include/$$h; done
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
 
-# -- start dlmalloc ----------------------------------------
+# -- local memory management for symmetric heap ------------
 
-$(DLMALLOC_OBJECT):
-	$(MAKE) -C $(DLMALLOC_DIR)
+$(MALLOC_OBJECT):
+	$(MAKE) -C $(MALLOC_DIR)
 
 memalloc.o:	memalloc.c
-	$(CC) $(COMMON_FLAGS) $(DLMALLOC_CFLAGS) -c -o $@ $<
+	$(CC) $(COMMON_FLAGS) $(MALLOC_CPPFLAGS) -c -o $@ $<
 
-# -- end dlmalloc ------------------------------------------
+# -- pull in comms library routines ------------------------
 
-$(SHMEM_LIBRARY):	$(SHMEM_OBJECTS) $(MALLOC_OBJECT)
-	$(GASNET_LD) -shared -Wl,-soname,$@ -o $@ $^ $(LIBS)
+$(COMMS_OBJECT):
+	$(MAKE) -C $(COMMS_DIR)
 
-# -- start GASNet ------------------------------------------
-# eventually, we'll migrate gasnet dependencies to a
-# separate transport directory
-#
-
-#
-# GASNet installation root, and setup
-#
-GASNET_ROOT      = @GASNET_ROOT@
-GASNET_CONDUIT   = @GASNET_CONDUIT@
-
-include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
-
-comms.o:	comms.c
-	$(CC) \
-		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
-		$(DLMALLOC_CFLAGS) \
-		$(HASH_CFLAGS) \
-		$(COMMON_FLAGS) \
-		-c -o $@ $<
-
-# -- end GASNet --------------------------------------------
+# -- fortran interface ------------------------------------
 
 fortran.o:	fortran.c
 	$(CC) $(WARNINGS) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
@@ -197,54 +159,15 @@ fortran.o:	fortran.c
 fortran-mem.o:	fortran-mem.c
 	$(CC) $(WARNINGS) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
 
-# ---------------------------------------------------------
+# -- otherwise, compile everything else like this ---------
 
 %.o:	%.c
 	$(CC) $(WARNINGS) $(COMMON_FLAGS) $(DEBUG_ME) -c -o $@ $<
 
-# ---------------------------------------------------------
+# -- generate the shared object library -------------------
 
-wrappers:	c-wrapper cxx-wrapper f-wrapper run-wrapper
-
-c-wrapper:
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
-		< $(COMP_WRAPPER) > $(SHMEM_CC)
-
-cxx-wrapper:
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
-		-e 's%bin/mpicc%bin/mpiCC%' \
-		< $(COMP_WRAPPER) > $(SHMEM_CXX)
-
-f-wrapper:
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
-		-e 's%bin/mpicc%bin/mpif90%' \
-		< $(COMP_WRAPPER) > $(SHMEM_FC)
-
-run-wrapper:
-	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
-		-e 's%bin/mpicc%bin/mpirun%' \
-		< $(RUN_WRAPPER) > $(SHMEM_RUN)
+$(SHMEM_LIBRARY):	$(COMMS_OBJECT) $(MALLOC_OBJECT) $(SHMEM_OBJECTS)
+	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ $^ $(LIBS)
 
 # ---------------------------------------------------------
 
@@ -253,8 +176,9 @@ tidy:
 	$(REMOVE) $(SHMEM_DEPFILES)
 
 clean:	tidy
-	$(MAKE) -C $(DLMALLOC_DIR) $@
-	$(REMOVE) $(SHMEM_LIBRARY) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+	$(MAKE) -C $(MALLOC_DIR) $@
+	$(MAKE) -C $(COMMS_DIR) $@
+	$(REMOVE) $(SHMEM_LIBRARY)
 	$(REMOVE) Makedeps
 
 do-deps: $(SHMEM_OBJECTS)
