@@ -12,8 +12,12 @@ IMPL_PDF = $(IMPL_LYX:.lyx=.pdf)
 
 .SUFFIXES: .lyx .pdf
 
+#
+# don't go nuts if lyx not installed
+#
+
 .lyx.pdf:
-	lyx -e pdf $<
+	-lyx -e pdf $<
 
 all default:	$(IMPL_PDF)
 

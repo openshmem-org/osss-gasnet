@@ -58,7 +58,8 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS) $(DEBUG_AND_OPT)
 # communication library dependent
 SHMEM_SOURCES    =	comms.c service.c
 # internal
-SHMEM_SOURCES   +=	hooks.c state.c memalloc.c
+SHMEM_SOURCES   +=	hooks.c state.c memalloc.c \
+			trace.c clock.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
@@ -68,14 +69,17 @@ SHMEM_SOURCES   +=	broadcast.c broadcast-naive.c broadcast-tree.c
 #
 SHMEM_SOURCES   +=	atomic.c
 #
-SHMEM_SOURCES   +=	accessible.c ptr.c cache.c \
-			fence.c \
-                        collect.c fcollect.c \
-			lock.c \
-			ping.c putget.c query.c reduce-op.c \
-			strided.c symmem.c updown.c waituntil.c \
-			version.c \
-			trace.c clock.c
+SHMEM_SOURCES   +=	collect.c fcollect.c reduce-op.c
+#
+SHMEM_SOURCES   +=	accessible.c ping.c ptr.c
+#
+SHMEM_SOURCES   +=	cache.c fence.c lock.c
+#
+SHMEM_SOURCES   +=	putget.c strided.c
+#
+SHMEM_SOURCES   +=	query.c symmem.c updown.c waituntil.c \
+			version.c
+
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
