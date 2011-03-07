@@ -1918,6 +1918,9 @@ void
 __shmem_comms_fence_request(void)
 {
   __shmem_service_set_mode(SERVICE_FENCE);
+
+  /* when fence done, go back to polling */
+  __shmem_service_set_mode(SERVICE_POLL);
 }
 
 
