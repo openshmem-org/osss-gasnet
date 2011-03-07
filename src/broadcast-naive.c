@@ -1,5 +1,3 @@
-/* TODO: implement a sensible broadcast, this is just to have something in place */
-
 #include <stdio.h>
 #include <string.h>
 

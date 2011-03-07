@@ -1058,7 +1058,6 @@ get_lock_for(void *addr)
   HASH_FIND_PTR(lock_table, &addr, try);
 
   if (try == (lock_table_t *) NULL) {
-    /* TODO: check mallocs */
     gasnet_hsl_t *L = (gasnet_hsl_t *) malloc(sizeof(*L));
 
     if (L == (gasnet_hsl_t *) NULL) {
@@ -1190,9 +1189,6 @@ __shmem_comms_swap_request(void *target, void *value, size_t nbytes, int pe, voi
 
   free(p);
 }
-
-static gasnet_hsl_t cswap_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t cswap_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
   void *local_store;		/* sender saves here */
