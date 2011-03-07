@@ -11,6 +11,11 @@ COMMS_OBJ        = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
 
+HASH_DIR         = ./uthash
+HASH_CFLAGS      = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
 MALLOC_DIR       = ./dlmalloc
 MALLOC_SRC       = $(MALLOC_DIR)/dlmalloc.c
 MALLOC_OBJECT    = $(MALLOC_SRC:.c=.o)
