@@ -51,7 +51,7 @@ SHMEM_RUN        = oshrun
 # ---------------------------------------------------------
 
 .PHONY: all default
-.PHONY: wrappers c-wrapper cxx-wrapper f-wrapper run-wrapper
+.PHONY: wrappers
 .PHONY: install install-bin
 .PHONY: uninstall uninstall-bin
 .PHONY: clean
@@ -80,9 +80,9 @@ $(COMMS_OBJ):	$(COMMS_SRC)
 
 # -- command wrappers depend on gasnet settings ------------
 
-wrappers:	c-wrapper cxx-wrapper f-wrapper run-wrapper
+wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
 
-c-wrapper:
+$(SHMEM_CC):	$(COMP_WRAPPER)
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
@@ -93,7 +93,7 @@ c-wrapper:
 		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		< $(COMP_WRAPPER) > $(SHMEM_CC)
 
-cxx-wrapper:
+$(SHMEM_CXX):	$(COMP_WRAPPER)
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
@@ -105,7 +105,7 @@ cxx-wrapper:
 		-e 's%bin/mpicc%bin/mpiCC%' \
 		< $(COMP_WRAPPER) > $(SHMEM_CXX)
 
-f-wrapper:
+$(SHMEM_FC):	$(COMP_WRAPPER)
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
@@ -117,7 +117,7 @@ f-wrapper:
 		-e 's%bin/mpicc%bin/mpif90%' \
 		< $(COMP_WRAPPER) > $(SHMEM_FC)
 
-run-wrapper:
+$(SHMEM_RUN):
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e 's%bin/mpicc%bin/mpirun%' \
 		< $(RUN_WRAPPER) > $(SHMEM_RUN)

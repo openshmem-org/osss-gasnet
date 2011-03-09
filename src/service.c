@@ -20,7 +20,7 @@
  * own polling speed.
  *
  */
-static double backoff_secs = 0.9999;
+static double backoff_secs = 0.00001;
 /* static int num_polls_per_loop = 10; */
 
 static struct timespec backoff;
@@ -61,18 +61,22 @@ service_thread(void *unused_arg)
 {
   while (mode != SERVICE_FINISH) {
 
-    if (mode == SERVICE_POLL) {
+    switch (mode) {
+
+    case SERVICE_POLL:
       __shmem_comms_poll();
-    }
-    else if (mode == SERVICE_FENCE) {
+      /* nanosleep(& backoff, (struct timespec *) NULL); */
+      break;
+
+    case SERVICE_FENCE:
       __shmem_comms_fence();
-    }
-    else {
+      break;
+
+    default:
       /* TODO: shouldn't get here */
       break;
-    }
 
-    /* nanosleep(& backoff, (struct timespec *) NULL); */
+    }
 
   }
 

@@ -381,9 +381,6 @@ FORTRANIFY(pshmem_int8_finc)(long *target, int *pe)
 #pragma weak shmem_int8_finc_ = pshmem_int8_finc_
 
 
-
-
-
 void
 FORTRANIFY(pshmem_int4_add)(int *target, int *value, int *pe)
 {

@@ -4,18 +4,24 @@
 PREFIX           = @PREFIX@
 
 # ---------------------------------------------------------
-
+#
+# the communications API lives in .../comms.o
+#
 COMMS_DIR        = ./comms
 COMMS_CPPFLAGS   = -I$(COMMS_DIR)
 COMMS_OBJ        = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
-
+#
+# hash table implementation
+#
 HASH_DIR         = ./uthash
 HASH_CFLAGS      = -I$(HASH_DIR)
 
 # ---------------------------------------------------------
-
+#
+# the malloc library
+#
 MALLOC_DIR       = ./dlmalloc
 MALLOC_SRC       = $(MALLOC_DIR)/dlmalloc.c
 MALLOC_OBJECT    = $(MALLOC_SRC:.c=.o)
@@ -43,7 +49,7 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CPPFLAGS        += -MMD
+# CPPFLAGS        += -MMD
 CPPFLAGS        += -DDEBUG
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 
@@ -100,14 +106,14 @@ REMOVE           = rm -f
 # ---------------------------------------------------------
 
 .PHONY: all default
+.PHONY:	malloc-obj-gen comms-obj-gen
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
-.PHONY: tidy clean
-.PHONY: do-deps
+.PHONY: clean
 
 # ---------------------------------------------------------
 
-all default:	do-deps $(SHMEM_LIBRARY)
+all default:	$(SHMEM_LIBRARY)
 
 install:	install-lib install-bin install-include
 
@@ -142,18 +148,18 @@ uninstall-include:
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
 
+# -- comms layer -------------------------------------------
+
+comms-obj-gen:
+	$(MAKE) -C $(COMMS_DIR) all
+
 # -- local memory management for symmetric heap ------------
 
-$(MALLOC_OBJECT):
-	$(MAKE) -C $(MALLOC_DIR)
+malloc-obj-gen:
+	$(MAKE) -C $(MALLOC_DIR) all
 
 memalloc.o:	memalloc.c
 	$(CC) $(COMMON_FLAGS) $(MALLOC_CPPFLAGS) -c -o $@ $<
-
-# -- pull in comms library routines ------------------------
-
-$(COMMS_OBJ):
-	$(MAKE) -C $(COMMS_DIR) all
 
 # -- fortran interface ------------------------------------
 
@@ -170,24 +176,14 @@ fortran-mem.o:	fortran-mem.c
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY):	$(COMMS_OBJ) $(MALLOC_OBJECT) $(SHMEM_OBJECTS)
-	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ $^ $(LIBS)
+$(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen $(SHMEM_OBJECTS)
+	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
+		$(MALLOC_OBJ) $(COMMS_OBJ) $(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
 
-tidy:
+clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
-	$(REMOVE) $(SHMEM_DEPFILES)
-
-clean:	tidy
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
-	$(REMOVE) Makedeps
-
-do-deps: $(SHMEM_OBJECTS)
-	- cat $(SHMEM_DEPFILES) > Makedeps
-
-# ---------------------------------------------------------
-
--include Makedeps
