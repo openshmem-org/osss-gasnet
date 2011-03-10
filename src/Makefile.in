@@ -178,7 +178,7 @@ fortran-mem.o:	fortran-mem.c
 
 $(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen $(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
-		$(MALLOC_OBJ) $(COMMS_OBJ) $(SHMEM_OBJECTS) $(LIBS)
+		$(MALLOC_OBJECT) $(COMMS_OBJ) $(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
 

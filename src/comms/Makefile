@@ -1,7 +1,7 @@
 #
 # installation root
 #
-PREFIX           = /home/tonyc/OpenSHMEM
+PREFIX           = /home/tonyc/opt/OpenSHMEM
 
 SHMEM_INC_DIR    = $(PREFIX)/include
 SHMEM_LIBNAME    = openshmem

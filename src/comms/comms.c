@@ -204,7 +204,7 @@ __shmem_comms_poll(void)
 void
 __shmem_comms_pause(void)
 {
-  // pthread_yield();
+  pthread_yield();
   /* __asm__ __volatile__("rep;nop": : :"memory"); */
 }
 
