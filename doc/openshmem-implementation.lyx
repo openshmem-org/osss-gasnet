@@ -1014,6 +1014,19 @@ The OpenSHMEM implementation handles Fortran with a very thin wrapper on
  dereferencing them in the underlying C call.
 \end_layout
 
+\begin_layout Standard
+The main development has been on a CentOS platform with GNU 4.1.2-redhat.
+ There seem to be some issues with this compilers' handling of cray-pointers:
+ even the simplest programs (no SHMEM content at all) produce a segmentation
+ fault.
+ Later versions (
+\emph on
+e.g.
+ 
+\emph default
+4.5.0 ++) behave better.
+\end_layout
+
 \begin_layout Section
 Undefined Behavior
 \end_layout
