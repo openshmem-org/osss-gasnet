@@ -262,7 +262,12 @@ __shmem_comms_nodes(void)
 void
 __shmem_comms_put(void *dst, void *src, size_t len, int pe)
 {
-  gasnet_put_nbi(pe, dst, src, len);
+  if (__shmem_comms_is_globalvar(dst)) {
+    __shmem_comms_globalvar_request(dst, src, len, pe);
+  }
+  else {
+    gasnet_put_nbi(pe, dst, src, len);
+  }
 }
 
 void
@@ -1200,7 +1205,7 @@ typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr; /* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be swapped */
   long long cond;		/* conditional value */
@@ -1331,7 +1336,7 @@ typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be added & then return old */
 } fadd_payload_t;
@@ -1420,7 +1425,7 @@ typedef struct {
   void *local_store;		/* sender saves here */
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } finc_payload_t;
@@ -1507,7 +1512,7 @@ __shmem_comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
   size_t nbytes;		/* how big the value is */
   long long value;		/* value to be returned */
 } add_payload_t;
@@ -1589,7 +1594,7 @@ __shmem_comms_add_request(void *target, void *value, size_t nbytes, int pe)
 typedef struct {
   void *r_symm_addr;		/* recipient symmetric var */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
   size_t nbytes;		/* how big the value is */
 } inc_payload_t;
 
@@ -1677,7 +1682,7 @@ __shmem_comms_inc_request(void *target, size_t nbytes, int pe)
 typedef struct {
   pe_status_t remote_pe_status;	/* health of remote PE */
   volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	        /* addr of marker */
+  volatile int *completed_addr;	/* addr of marker */
 } ping_payload_t;
 
 static int pe_acked = 1;
@@ -1692,6 +1697,9 @@ ping_timeout_handler(int signum)
   longjmp(jb, 1);
 }
 
+/*
+ * can use single static lock here, no per-addr needed
+ */
 static gasnet_hsl_t ping_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t ping_bak_lock = GASNET_HSL_INITIALIZER;
 
@@ -1804,6 +1812,9 @@ typedef struct {
   volatile int *completed_addr;	/* addr of marker */
 } quiet_payload_t;
 
+/*
+ * can use single static lock here, no per-addr needed
+ */
 static gasnet_hsl_t quiet_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t quiet_bak_lock = GASNET_HSL_INITIALIZER;
 
@@ -1957,12 +1968,11 @@ static gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
 
 typedef struct {
-  void *store_addr;		/* address of global var to be written to on remote PE */
-  long offset;		        /* where we are in the write process */
-  long bytes_left;		/* how much data remains to be written */
-  void *send_data;		/* the actual data to be sent */
-  volatile int completed;	/* completion marker */
-  volatile int *completed_addr;		/* addr of completion marker */
+  void *source;			/* data copied over */
+  size_t nbytes;	        /* size of write */
+  void *target;			/* where to write */
+  volatile int completed;
+  volatile int *completed_addr;
 } globalvar_payload_t;
 
 
@@ -1977,12 +1987,15 @@ handler_globalvar_out(gasnet_token_t token,
 		      gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->target);
 
-  gasnet_hsl_lock(& globalvar_out_lock);
+  gasnet_hsl_lock(lk);
 
-  gasnet_hsl_unlock(& globalvar_out_lock);
+  memcpy(pp->target, pp->source, pp->nbytes);
 
-  /* return the updated payload */
+  gasnet_hsl_unlock(lk);
+
+  /* return ack */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
 }
 
@@ -1992,27 +2005,35 @@ handler_globalvar_bak(gasnet_token_t token,
 		      gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->target);
 
-  gasnet_hsl_lock(& globalvar_bak_lock);
+  gasnet_hsl_lock(lk);
 
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock(& globalvar_bak_lock);
+  gasnet_hsl_unlock(lk);
 }
 
 void
-__shmem_comms_globalvar_translation(void *target, long value, int pe)
+__shmem_comms_globalvar_request(void *target, void *source, size_t nbytes, int pe)
 {
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
-
   if (p == (globalvar_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: unable to allocate heap variable payload memory"
+		  "internal error: unable to allocate global variable payload memory"
 		  );
   }
-
+  /*
+   * build payload to send
+   * (global var is trivially symmetric here, no translation needed)
+   *
+   * Should I copy the data or does gasnet do the payload copy for me?
+   */
+  p->source = source;
+  p->nbytes = nbytes;
+  p->target = target;
   p->completed = 0;
-  p->completed_addr = &(p->completed); /* this one, not the copy */
+  p->completed_addr = &(p->completed);
 
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
 			  p, sizeof(*p),
