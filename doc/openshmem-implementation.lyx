@@ -414,6 +414,20 @@ large
  variables, because only the symmetric heap is exposed by GASNet.
 \end_layout
 
+\begin_layout Standard
+For the SMP conduit, PSHM support is required to run parallel threaded programs
+ with OpenSHMEM.
+ This excludes the 
+\begin_inset Quotes eld
+\end_inset
+
+everything
+\begin_inset Quotes erd
+\end_inset
+
+ model.
+\end_layout
+
 \begin_layout Subsection
 Initialization
 \end_layout
@@ -1802,6 +1816,13 @@ The similarity to the style of wrappers found in many MPI implementations
  oshcc/CC and oshfort detect that they shouldn't do linking and stop the
  underlying compiler complaining about link options being present, but unused).
  The compiler scripts are generated from a common template.
+\end_layout
+
+\begin_layout Standard
+The run wrapper currently detects which GASNet conduit is being used and
+ sets up the environment accordingly to launch the program.
+ Not sure if this is the best place to do this check, or if the build process
+ should work this out in advance to streamline the installed code.
 \end_layout
 
 \begin_layout Section
