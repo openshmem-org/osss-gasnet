@@ -292,7 +292,7 @@ GASNet
 
 \begin_layout Standard
 GASNet provides the symmetric memory areas.
- A memory management library marshalls accesses to these areas during allocation
+ A memory management library marshals accesses to these areas during allocation
  and freeing of symmetric variables in user code, usually through a call
  like 
 \family typewriter
@@ -370,6 +370,48 @@ small
  The library should at some point introduce code that differentiates between
  aligned and non-aligned environments with optimized code for the former
  case (GASNet provides a macro you can test against).
+\end_layout
+
+\begin_layout Subsubsection
+Segment Models
+\end_layout
+
+\begin_layout Standard
+The library currently has best support for the 
+\begin_inset Quotes eld
+\end_inset
+
+everything
+\begin_inset Quotes erd
+\end_inset
+
+ model.
+ This model allows the entire process space to be addressed remotely.
+ Communication with dynamically allocated data and with global data is equally
+ easy.
+\end_layout
+
+\begin_layout Standard
+For the 
+\begin_inset Quotes eld
+\end_inset
+
+fast
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+large
+\begin_inset Quotes erd
+\end_inset
+
+ models, only a specified area of the process memory is exposed for remote
+ access.
+ This means extra support has to be added to handle communication with global
+ variables, because only the symmetric heap is exposed by GASNet.
 \end_layout
 
 \begin_layout Subsection
