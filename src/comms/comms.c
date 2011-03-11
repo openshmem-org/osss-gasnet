@@ -259,11 +259,14 @@ __shmem_comms_nodes(void)
  * we use the _nbi routine, so that gasnet tracks outstanding
  * I/O for us (fence/barrier waits for these implicit handles)
  */
+
+void __shmem_comms_globalvar_put_request();
+
 void
 __shmem_comms_put(void *dst, void *src, size_t len, int pe)
 {
   if (__shmem_comms_is_globalvar(dst)) {
-    __shmem_comms_globalvar_request(dst, src, len, pe);
+    __shmem_comms_globalvar_put_request(dst, src, len, pe);
   }
   else {
     gasnet_put_nbi(pe, dst, src, len);
@@ -678,39 +681,39 @@ static void handler_quiet_bak();
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
-#define GASNET_HANDLER_GLOBALVAR_OUT 130
-#define GASNET_HANDLER_GLOBALVAR_BAK 131
+#define GASNET_HANDLER_GLOBALVAR_PUT_OUT 130
+#define GASNET_HANDLER_GLOBALVAR_PUT_BAK 131
 
-static void handler_globalvar_out();
-static void handler_globalvar_bak();
+static void handler_globalvar_put_out();
+static void handler_globalvar_put_bak();
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
 static gasnet_handlerentry_t handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
-    { GASNET_HANDLER_SETUP_OUT,     handler_segsetup_out  },
-    { GASNET_HANDLER_SETUP_BAK,     handler_segsetup_bak  },
+    { GASNET_HANDLER_SETUP_OUT,         handler_segsetup_out      },
+    { GASNET_HANDLER_SETUP_BAK,         handler_segsetup_bak      },
 #endif /* ! HAVE_MANAGED_SEGMENTS */
-    { GASNET_HANDLER_SWAP_OUT,      handler_swap_out      },
-    { GASNET_HANDLER_SWAP_BAK,      handler_swap_bak      },
-    { GASNET_HANDLER_CSWAP_OUT,     handler_cswap_out     },
-    { GASNET_HANDLER_CSWAP_BAK,     handler_cswap_bak     },
-    { GASNET_HANDLER_FADD_OUT,      handler_fadd_out      },
-    { GASNET_HANDLER_FADD_BAK,      handler_fadd_bak      },
-    { GASNET_HANDLER_FINC_OUT,      handler_finc_out      },
-    { GASNET_HANDLER_FINC_BAK,      handler_finc_bak      },
-    { GASNET_HANDLER_ADD_OUT,       handler_add_out       },
-    { GASNET_HANDLER_ADD_BAK,       handler_add_bak       },
-    { GASNET_HANDLER_INC_OUT,       handler_inc_out       },
-    { GASNET_HANDLER_INC_BAK,       handler_inc_bak       },
-    { GASNET_HANDLER_PING_OUT,      handler_ping_out      },
-    { GASNET_HANDLER_PING_BAK,      handler_ping_bak      },
-    { GASNET_HANDLER_QUIET_OUT,     handler_quiet_out     },
-    { GASNET_HANDLER_QUIET_BAK,     handler_quiet_bak     },
+    { GASNET_HANDLER_SWAP_OUT,          handler_swap_out          },
+    { GASNET_HANDLER_SWAP_BAK,          handler_swap_bak          },
+    { GASNET_HANDLER_CSWAP_OUT,         handler_cswap_out         },
+    { GASNET_HANDLER_CSWAP_BAK,         handler_cswap_bak         },
+    { GASNET_HANDLER_FADD_OUT,          handler_fadd_out          },
+    { GASNET_HANDLER_FADD_BAK,          handler_fadd_bak          },
+    { GASNET_HANDLER_FINC_OUT,          handler_finc_out          },
+    { GASNET_HANDLER_FINC_BAK,          handler_finc_bak          },
+    { GASNET_HANDLER_ADD_OUT,           handler_add_out           },
+    { GASNET_HANDLER_ADD_BAK,           handler_add_bak           },
+    { GASNET_HANDLER_INC_OUT,           handler_inc_out           },
+    { GASNET_HANDLER_INC_BAK,           handler_inc_bak           },
+    { GASNET_HANDLER_PING_OUT,          handler_ping_out          },
+    { GASNET_HANDLER_PING_BAK,          handler_ping_bak          },
+    { GASNET_HANDLER_QUIET_OUT,         handler_quiet_out         },
+    { GASNET_HANDLER_QUIET_BAK,         handler_quiet_bak         },
 #if defined(HAVE_MANAGED_SEGMENTS)
-    { GASNET_HANDLER_GLOBALVAR_OUT, handler_globalvar_out },
-    { GASNET_HANDLER_GLOBALVAR_BAK, handler_globalvar_bak },
+    { GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out },
+    { GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak },
 #endif /* HAVE_MANAGED_SEGMENTS */
   };
 static const int nhandlers = TABLE_SIZE(handlers);
@@ -1964,9 +1967,6 @@ __shmem_comms_fence_request(void)
  *
  */
 
-static gasnet_hsl_t globalvar_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t globalvar_bak_lock = GASNET_HSL_INITIALIZER;
-
 typedef struct {
   void *source;			/* data copied over */
   size_t nbytes;	        /* size of write */
@@ -1982,9 +1982,9 @@ typedef struct {
  * called by remote PE to grab and write to its variable
  */
 static void
-handler_globalvar_out(gasnet_token_t token,
-		      void *buf, size_t bufsiz,
-		      gasnet_handlerarg_t unused)
+handler_globalvar_put_out(gasnet_token_t token,
+			  void *buf, size_t bufsiz,
+			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for(pp->target);
@@ -1996,13 +1996,13 @@ handler_globalvar_out(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 
   /* return ack */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_PUT_BAK, buf, bufsiz, unused);
 }
 
 static void
-handler_globalvar_bak(gasnet_token_t token,
-		      void *buf, size_t bufsiz,
-		      gasnet_handlerarg_t unused)
+handler_globalvar_put_bak(gasnet_token_t token,
+			  void *buf, size_t bufsiz,
+			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for(pp->target);
@@ -2015,7 +2015,7 @@ handler_globalvar_bak(gasnet_token_t token,
 }
 
 void
-__shmem_comms_globalvar_request(void *target, void *source, size_t nbytes, int pe)
+__shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, int pe)
 {
   globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
   if (p == (globalvar_payload_t *) NULL) {
@@ -2035,7 +2035,7 @@ __shmem_comms_globalvar_request(void *target, void *source, size_t nbytes, int p
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_OUT,
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
 			  p, sizeof(*p),
 			  0);
 
