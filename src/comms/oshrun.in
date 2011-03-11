@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # generated from OpenSHMEM src directory, don't edit installed version
 #
@@ -13,9 +13,32 @@ case $# in
 esac
 
 #
-# this is currently replaced automatically
-# with mpirun from the same installation
+# pass through args, trap -np N
 #
-RUN_IT='@GASNET_LD@'
+args=""
+while [ $# -gt 0 ]
+do
+  case "$1" in
+      -np)
+	  shift
+	  npes=$1
+	  ;;
+      *)
+	  args="$args $1"
+	  ;;
+  esac
+  shift
+done
 
-exec $RUN_IT $@
+case "@GASNET_CONDUIT@" in
+    smp)
+	RUN_IT="env GASNET_PSHM_NODES=$npes"
+	;;
+    mpi|ibv)
+	RUN_IT="@GASNET_LD@ -np $npes"
+	;;
+    *)
+	;;
+esac
+
+exec $RUN_IT $args

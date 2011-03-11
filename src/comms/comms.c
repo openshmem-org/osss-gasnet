@@ -265,18 +265,33 @@ void __shmem_comms_globalvar_put_request();
 void
 __shmem_comms_put(void *dst, void *src, size_t len, int pe)
 {
+#if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_comms_is_globalvar(dst)) {
     __shmem_comms_globalvar_put_request(dst, src, len, pe);
   }
   else {
     gasnet_put_nbi(pe, dst, src, len);
   }
+#else
+  gasnet_put_nbi(pe, dst, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
+
+void __shmem_comms_globalvar_get_request();
 
 void
 __shmem_comms_get(void *dst, void *src, size_t len, int pe)
 {
+#if defined(HAVE_MANAGED_SEGMENTS)
+  if (__shmem_comms_is_globalvar(src)) {
+    __shmem_comms_globalvar_get_request(dst, src, len, pe);
+  }
+  else {
+    gasnet_get(dst, pe, src, len);
+  }
+#else
   gasnet_get(dst, pe, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /*
@@ -631,61 +646,67 @@ static void handler_segsetup_bak();
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
-#define GASNET_HANDLER_SWAP_OUT      132
-#define GASNET_HANDLER_SWAP_BAK      133
+#define GASNET_HANDLER_SWAP_OUT      130
+#define GASNET_HANDLER_SWAP_BAK      131
 
 static void handler_swap_out();
 static void handler_swap_bak();
 
-#define GASNET_HANDLER_CSWAP_OUT     134
-#define GASNET_HANDLER_CSWAP_BAK     135
+#define GASNET_HANDLER_CSWAP_OUT     132
+#define GASNET_HANDLER_CSWAP_BAK     133
 
 static void handler_cswap_out();
 static void handler_cswap_bak();
 
-#define GASNET_HANDLER_FADD_OUT      136
-#define GASNET_HANDLER_FADD_BAK      137
+#define GASNET_HANDLER_FADD_OUT      134
+#define GASNET_HANDLER_FADD_BAK      135
 
 static void handler_fadd_out();
 static void handler_fadd_bak();
 
-#define GASNET_HANDLER_FINC_OUT      138
-#define GASNET_HANDLER_FINC_BAK      139
+#define GASNET_HANDLER_FINC_OUT      136
+#define GASNET_HANDLER_FINC_BAK      137
 
 static void handler_finc_out();
 static void handler_finc_bak();
 
-#define GASNET_HANDLER_ADD_OUT       140
-#define GASNET_HANDLER_ADD_BAK       141
+#define GASNET_HANDLER_ADD_OUT       138
+#define GASNET_HANDLER_ADD_BAK       139
 
 static void handler_add_out();
 static void handler_add_bak();
 
-#define GASNET_HANDLER_INC_OUT       142
-#define GASNET_HANDLER_INC_BAK       143
+#define GASNET_HANDLER_INC_OUT       140
+#define GASNET_HANDLER_INC_BAK       141
 
 static void handler_inc_out();
 static void handler_inc_bak();
 
-#define GASNET_HANDLER_PING_OUT      144
-#define GASNET_HANDLER_PING_BAK      145
+#define GASNET_HANDLER_PING_OUT      142
+#define GASNET_HANDLER_PING_BAK      143
 
 static void handler_ping_out();
 static void handler_ping_bak();
 
-#define GASNET_HANDLER_QUIET_OUT     146
-#define GASNET_HANDLER_QUIET_BAK     147
+#define GASNET_HANDLER_QUIET_OUT     144
+#define GASNET_HANDLER_QUIET_BAK     145
 
 static void handler_quiet_out();
 static void handler_quiet_bak();
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
-#define GASNET_HANDLER_GLOBALVAR_PUT_OUT 130
-#define GASNET_HANDLER_GLOBALVAR_PUT_BAK 131
+#define GASNET_HANDLER_GLOBALVAR_PUT_OUT 160
+#define GASNET_HANDLER_GLOBALVAR_PUT_BAK 161
 
 static void handler_globalvar_put_out();
 static void handler_globalvar_put_bak();
+
+#define GASNET_HANDLER_GLOBALVAR_GET_OUT 162
+#define GASNET_HANDLER_GLOBALVAR_GET_BAK 163
+
+static void handler_globalvar_get_out();
+static void handler_globalvar_get_bak();
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
@@ -714,6 +735,8 @@ static gasnet_handlerentry_t handlers[] =
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out },
     { GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak },
+    { GASNET_HANDLER_GLOBALVAR_GET_OUT, handler_globalvar_get_out },
+    { GASNET_HANDLER_GLOBALVAR_GET_BAK, handler_globalvar_get_bak },
 #endif /* HAVE_MANAGED_SEGMENTS */
   };
 static const int nhandlers = TABLE_SIZE(handlers);
@@ -1976,7 +1999,10 @@ typedef struct {
 } globalvar_payload_t;
 
 
-/* TODO: these are all stubs, still in thinking phase */
+/*
+ * Puts
+ *
+ */
 
 /*
  * called by remote PE to grab and write to its variable
@@ -2017,7 +2043,18 @@ handler_globalvar_put_bak(gasnet_token_t token,
 void
 __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, int pe)
 {
-  globalvar_payload_t *p = (globalvar_payload_t *) malloc(sizeof(*p));
+  size_t max_msg = gasnet_AMMaxMedium();
+  globalvar_payload_t *p;
+
+  if (nbytes > max_msg) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "unable to handle data size of %ld (max is %ld)",
+		  nbytes,
+		  max_msg		  
+		  );
+  }
+
+  p = (globalvar_payload_t *) malloc(sizeof(*p));
   if (p == (globalvar_payload_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: unable to allocate global variable payload memory"
@@ -2031,11 +2068,94 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
    */
   p->source = source;
   p->nbytes = nbytes;
-  p->target = target;
+  p->target = target;		/* on the other PE */
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
+			  p, sizeof(*p),
+			  0);
+
+  WAIT_ON_COMPLETION(p->completed);
+
+  free(p);
+}
+
+/*
+ * Gets
+ *
+ */
+
+/*
+ * called by remote PE to grab remote data and return
+ */
+static void
+handler_globalvar_get_out(gasnet_token_t token,
+			  void *buf, size_t bufsiz,
+			  gasnet_handlerarg_t unused)
+{
+  globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+
+  /*
+   * what we want to copy back.  things at same address so hopefully
+   * just passing back the buffer is ok, since gasnet copies the
+   * payload.
+   *
+   */
+
+  /* return ack */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_GET_BAK, buf, bufsiz, unused);
+}
+
+static void
+handler_globalvar_get_bak(gasnet_token_t token,
+			  void *buf, size_t bufsiz,
+			  gasnet_handlerarg_t unused)
+{
+  globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for(pp->target);
+
+  gasnet_hsl_lock(lk);
+
+  /* write back data here */
+  memcpy(pp->target, pp->source, pp->nbytes);
+
+  *(pp->completed_addr) = 1;
+
+  gasnet_hsl_unlock(lk);
+}
+
+void
+__shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, int pe)
+{
+  size_t max_msg = gasnet_AMMaxMedium();
+  globalvar_payload_t *p;
+
+  if (nbytes > max_msg) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "unable to handle data size of %ld (max is %ld)",
+		  nbytes,
+		  max_msg		  
+		  );
+  }
+
+  p = (globalvar_payload_t *) malloc(sizeof(*p));
+  if (p == (globalvar_payload_t *) NULL) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: unable to allocate global variable payload memory"
+		  );
+  }
+  /*
+   * build payload to send
+   * (global var is trivially symmetric here, no translation needed)
+   */
+  p->source = source;		/* symmetric object we're copying from remotely */
+  p->nbytes = nbytes;
+  p->target = target;		/* this pe writes here */
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
+
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
 			  p, sizeof(*p),
 			  0);
 

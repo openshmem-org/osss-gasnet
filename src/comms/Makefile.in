@@ -119,6 +119,7 @@ $(SHMEM_FC):	$(COMP_WRAPPER)
 
 $(SHMEM_RUN):
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
 		-e 's%bin/mpicc%bin/mpirun%' \
 		< $(RUN_WRAPPER) > $(SHMEM_RUN)
 
