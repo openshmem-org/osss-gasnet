@@ -865,6 +865,12 @@ __shmem_symmetric_memory_init(void)
 
   GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, GET_STATE(numpes)) );
 
+  /*
+   * initialize my heap
+   */
+  __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
+		   seginfo_table[GET_STATE(mype)].size);
+
 #else
 
   /* allocate the heap - has to be pagesize aligned */
