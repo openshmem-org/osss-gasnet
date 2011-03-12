@@ -2,7 +2,6 @@
 #include "comms.h"
 #include "trace.h"
 #include "comms.h"
-#include "hooks.h"
 
 #include "shmem.h"
 

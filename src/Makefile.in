@@ -68,7 +68,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 # communication library dependent
 SHMEM_SOURCES    =	service.c
 # internal
-SHMEM_SOURCES   +=	hooks.c state.c memalloc.c \
+SHMEM_SOURCES   +=	state.c memalloc.c \
 			trace.c clock.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
