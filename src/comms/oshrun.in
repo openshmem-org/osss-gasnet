@@ -35,7 +35,9 @@ case "@GASNET_CONDUIT@" in
 	RUN_IT="env GASNET_PSHM_NODES=$npes"
 	;;
     mpi|ibv)
-	RUN_IT="@GASNET_LD@ -np $npes"
+	RUN_IT="@GASNET_LD@"
+	# set number of PEs if provided (or may come from job scheduler)
+	[ "$npes" ] && RUN_IT="$RUN_IT -np $npes"
 	;;
     *)
 	;;
