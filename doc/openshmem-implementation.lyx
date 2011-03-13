@@ -1,4 +1,4 @@
-#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -46,7 +46,7 @@ OpenSHMEM Reference Library Implementation
 \end_layout
 
 \begin_layout Author
-Tony Curtis
+Tony Curtis <arcurtis@mail.uh.edu>
 \end_layout
 
 \begin_layout Right Address
@@ -230,7 +230,7 @@ d reads which could overlap with computation.
  Remote stores enabled PEs to directly write to other PE's memory asynchronously
 , while the BLT could hide latency while transferring blocks of data efficiently
  between local memory and remote memory locations.
- The explicit shared memory programming method allowed strucured communication
+ The explicit shared memory programming method allowed structured communication
  via shared memory on Cray MPP systems.
  
 \end_layout
@@ -253,7 +253,7 @@ Since then different vendors have come up with variations of the SHMEM library
 \end_layout
 
 \begin_layout Section
-The SHMEM Library
+The Reference OpenSHMEM Library
 \end_layout
 
 \begin_layout Standard
@@ -261,9 +261,17 @@ The overall structure of the reference library is shown below.
  We use an intermediate library such as GASNet or ARMCI to abstract away
  from a particular interconnect/platform, although there is nothing to stop
  a more direct approach being used.
- Internally, SHMEM provides private APIs for memory management, the communicatio
-ns layer, tracing/debugging and (eventually) support for adaptivity to choose
- things like barrier algorithm at run-time.
+ Internally, the reference implementation of OpenSHMEM provides private
+ APIs for memory management, the communications layer, tracing/debugging
+ and (eventually) support for adaptivity to choose things like barrier algorithm
+ at run-time.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
 \end_layout
 
 \begin_layout Title
@@ -282,8 +290,8 @@ Implementation Strategy
 \end_layout
 
 \begin_layout Standard
-In this section we talk about how the library was written and why certain
- implementation strategies were chosen.
+In this section we talk about how the reference library was written and
+ why certain implementation strategies were chosen.
 \end_layout
 
 \begin_layout Subsection
@@ -291,7 +299,7 @@ GASNet
 \end_layout
 
 \begin_layout Standard
-GASNet provides the symmetric memory areas.
+GASNet provides access to the symmetric memory areas.
  A memory management library marshals accesses to these areas during allocation
  and freeing of symmetric variables in user code, usually through a call
  like 
@@ -325,7 +333,7 @@ large
 \begin_inset Quotes erd
 \end_inset
 
- model) or by SHMEM itself (
+ model) or by OpenSHMEM itself (
 \begin_inset Quotes eld
 \end_inset
 
@@ -437,7 +445,7 @@ In
 \family typewriter
 src/updown.c
 \family default
- we handle setting up the SHMEM runtime, and eventual shutdown.
+ we handle setting up the OpenSHMEM runtime, and eventual shutdown.
  Shutdown is implicit in user code, there is no call to do this in SGI SHMEM,
  so we register a handler to be called when 
 \family typewriter
@@ -802,8 +810,8 @@ reference "sub:Locks"
  The first two are handled via GASNet's Active Messages.
  Increment was originally layered on top of add (increment = add 1, after
  all) but was rewritten with its own handlers.
- The payload for increment is ever so slightly smaller than for add since
- there's no need to pass the value to add.
+ The payload for increment can be ever so slightly smaller than for add
+ since there's no need to pass the value to add.
  In large applications, even such a small saving could add up (if you'll
  pardon the pun).
 \end_layout
@@ -819,7 +827,7 @@ etc.
  per-target-address handler locks.
  Large-scale atomic operations, like add-scatters across multiple variables
  could easily benefit from this, as the lock granularity then permits concurrent
- memory accesses.
+ discrete memory accesses.
 \end_layout
 
 \begin_layout Subsection
@@ -833,7 +841,7 @@ Locks
 \end_layout
 
 \begin_layout Standard
-SHMEM provides routines to claim, release and test global locks.
+OpenSHMEM provides routines to claim, release and test global locks.
  These can be used for mutual-exclusion regions.
  Our implementation is from the Quadrics library, which is a version of
  the Mellor-Crummy-Scott algorithm (
@@ -846,7 +854,7 @@ Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors
 
  by John M.
  Mellor-Crummey and Michael L Scott).
- The locks are layered on top of SHMEM primitives, so there are no Elan
+ The locks are layered on top of OpenSHMEM primitives, so there are no Elan
  dependencies.
 \end_layout
 
@@ -958,14 +966,15 @@ Reductions coalesce data from a number of PEs into either a single variable
  A version with puts that can overlap communication and the computation
  of the reduction operation should be more scalable.
  However, the code is rather compact and all ops use the same template.
+ A future version of OpenSHMEM may add user-defined reductions.
 \end_layout
 
 \begin_layout Subsection
-Accessibility
+Address and PE Accessibility
 \end_layout
 
 \begin_layout Standard
-SHMEM allows us to test whether PEs are currently reachable, and whether
+OpenSHMEM allows us to test whether PEs are currently reachable, and whether
  addresses on remote PEs are addressable.
  GASNet is used to 
 \begin_inset Quotes eld
@@ -1015,7 +1024,7 @@ C++
 \end_layout
 
 \begin_layout Standard
-The C++ interface is identical to the C one.
+The C++ interface is basically the C one.
  There is one point of contention, namely complex numbers.
  The SGI documentation refers only to the use of C99 
 \begin_inset Quotes eld
@@ -1073,7 +1082,7 @@ The OpenSHMEM implementation handles Fortran with a very thin wrapper on
 \begin_layout Standard
 The main development has been on a CentOS platform with GNU 4.1.2-redhat.
  There seem to be some issues with this compilers' handling of cray-pointers:
- even the simplest programs (no SHMEM content at all) produce a segmentation
+ even the simplest programs (no OpenSHMEM content at all) produce a segmentation
  fault.
  Later versions (
 \emph on
@@ -1116,8 +1125,8 @@ right neighbor
 \end_layout
 
 \begin_layout Itemize
-library not initialized: virtually all SHMEM routines will have major problems
- if the library has not been initialized.
+library not initialized: virtually all OpenSHMEM routines will have major
+ problems if the library has not been initialized.
  Implementations can handle this situation in different ways.
 \end_layout
 
@@ -1143,7 +1152,7 @@ SMA
 \begin_inset Quotes erd
 \end_inset
 
- variables and add our own new ones.
+ variables and our own new ones:
 \end_layout
 
 \begin_layout Standard
@@ -1272,6 +1281,13 @@ enable debugging messages
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+ 
 \end_layout
 
 \begin_layout List
@@ -1676,6 +1692,7 @@ SHMEM_LOG_FILE
 : a filename to which to write log messages.
  All PEs append to this file.
  The default is for all PEs to write to standard error.
+ Per-PE log files might be an interesting addition.
 \end_layout
 
 \begin_layout List
