@@ -4,16 +4,20 @@
  * non-static that starts with "__shmem_comms_"
  */
 
-#include <stdio.h>
-#include <unistd.h>
 #include <ctype.h>
-#include <signal.h>
-#include <string.h>
 #include <errno.h>
-#include <sys/mman.h>
-#include <stdlib.h>
-#include <values.h>
+#include <fcntl.h>
+#include <gelf.h>
+#include <libelf.h>
 #include <setjmp.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <values.h>
 
 #include <gasnet.h>
 
@@ -22,7 +26,6 @@
 #include "state.h"
 #include "memalloc.h"
 #include "trace.h"
-/* #include "dispatch.h" */
 #include "atomic.h"
 #include "comms.h"
 #include "ping.h"
@@ -394,14 +397,6 @@ __shmem_comms_barrier_all(void)
  * map of global symbols
  *
  */
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <libelf.h>
-#include <gelf.h>
 
 typedef struct {
   void *addr;                   /* symbol's address is the key */
@@ -2020,9 +2015,9 @@ __shmem_comms_fence_request(void)
 typedef struct {
   size_t nbytes;	        /* size of write */
   void *target;			/* where to write */
+  void *source;			/* data we want to put/get */
   volatile int completed;
   volatile int *completed_addr;
-  /* source data also allocated & appended */
 } globalvar_payload_t;
 
 
@@ -2030,6 +2025,8 @@ typedef struct {
  * Puts
  *
  */
+
+static gasnet_hsl_t put_out_lock = GASNET_HSL_INITIALIZER;
 
 /*
  * called by remote PE to grab and write to its variable
@@ -2040,78 +2037,116 @@ handler_globalvar_put_out(gasnet_token_t token,
 			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
-  unsigned char *data = (unsigned char *) buf + sizeof(*pp);
-  gasnet_hsl_t *lk = get_lock_for(pp->target);
+  void *datap = pp + sizeof(*pp);
 
-  gasnet_hsl_lock(lk);
+  memmove(pp->target, datap, pp->nbytes);
 
-  memcpy(pp->target, data, pp->nbytes);
-
-  gasnet_hsl_unlock(lk);
-
-  /* return ack */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_PUT_BAK, buf, bufsiz, unused);
+  /* return ack, just the control structure */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
+			buf, sizeof(*pp), unused);
 }
 
+/*
+ * invoking PE just has to ack remote write
+ */
 static void
 handler_globalvar_put_bak(gasnet_token_t token,
 			  void *buf, size_t bufsiz,
 			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for(pp->target);
-
-  gasnet_hsl_lock(lk);
 
   *(pp->completed_addr) = 1;
+}
 
-  gasnet_hsl_unlock(lk);
+/*
+ * Generate the active message to do a put to a global variable.
+ *
+ */
+
+static void inline
+put_a_chunk(void *basep, size_t bufsize,
+	    void *target, void *source,
+	    size_t offset, size_t bytes_to_send,
+	    int pe)
+{
+  globalvar_payload_t *p;
+  void *datap;
+  
+  /*
+   * build payload to send
+   * (global var is trivially symmetric here, no translation needed)
+   */
+  p = (globalvar_payload_t *) basep;
+
+  p->nbytes = bytes_to_send;
+  p->source = NULL; 		/* not used in put */
+  p->target = target + offset;	/* on the other PE */
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
+
+  /* data added after control structure */
+  datap = p + sizeof(*p);
+
+  memcpy(datap, source + offset, bytes_to_send);
+
+  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
+			  basep, bufsize,
+			  0);
+
+  WAIT_ON_COMPLETION(p->completed);
 }
 
 void
 __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, int pe)
 {
-  size_t max_msg = gasnet_AMMaxMedium();
-  globalvar_payload_t *p;
-  const int ab = sizeof(*p) + nbytes; /* alloc control structure + value */
-  unsigned char *bp;
+  size_t offset = 0;
+  globalvar_payload_t *basep;
+  const size_t max_req = gasnet_AMMaxMedium();
+  const size_t max_data = max_req - sizeof(globalvar_payload_t);
+  const size_t nchunks = nbytes / max_data;
+  const size_t rem_send = nbytes % max_data;
+  size_t payload_size;
+  size_t alloc_size;
+  size_t i;
 
-  if (ab > max_msg) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "unable to handle data size of %ld (max is %ld)",
-		  nbytes,
-		  max_msg		  
-		  );
+  gasnet_hsl_lock(& put_out_lock);
+
+  /* how big should the message be? can't exceed gasnet limit */
+
+  if (nbytes > max_data) {
+    alloc_size = max_req;
+    payload_size = max_data;
+  }
+  else {
+    alloc_size = nbytes;
+    payload_size = nbytes;
   }
 
-  p = (globalvar_payload_t *) malloc(ab);
-  if (p == (globalvar_payload_t *) NULL) {
+  basep = (globalvar_payload_t *) malloc(alloc_size);
+  if (basep == NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: unable to allocate global variable payload memory"
 		  );
   }
 
-  /*
-   * build payload to send
-   * (global var is trivially symmetric here, no translation needed)
-   */
-  p->nbytes = nbytes;
-  p->target = target;		/* on the other PE */
-  p->completed = 0;
-  p->completed_addr = &(p->completed);
+  for (i = 0; i < nchunks; i += 1) {
+    put_a_chunk(basep, payload_size,
+		target, source,
+		offset, max_data,
+		pe
+		);
+    offset += max_data;
+  }
+  put_a_chunk(basep, payload_size,
+	      target, source,
+	      offset, rem_send,
+	      pe
+	      );
 
-  /* data added after control structure */
-  bp = (unsigned char *) p + sizeof(*p);
+  free(basep);
 
-  memcpy(bp, source, nbytes);
-
-  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
-			  p, ab,
-			  0);
-
-  WAIT_ON_COMPLETION(p->completed);
-
-  free(p);
+  gasnet_hsl_unlock(& put_out_lock);
 }
 
 /*
@@ -2128,125 +2163,128 @@ handler_globalvar_get_out(gasnet_token_t token,
 			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
+  void *datap = pp + sizeof(*pp);
 
-  /*
-   * what we want to copy back.  things at same address so hopefully
-   * just passing back the buffer is ok, since gasnet copies the
-   * payload.
-   *
-   */
+  __shmem_trace(SHMEM_LOG_INFO,
+		"handler_out: pp->target = %p, pp->source = %p, pp->nbytes = %ld",
+		pp->target, pp->source, pp->nbytes
+		);
 
-  /* return ack */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_GET_BAK, buf, bufsiz, unused);
+  /* fetch from remote global var into payload */
+  memcpy(datap, pp->source, pp->nbytes);
+
+  /* return ack, copied data is returned */
+  gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
+			buf, bufsiz, unused);
 }
 
+/*
+ * called by invoking PE to write fetched data
+ */
 static void
 handler_globalvar_get_bak(gasnet_token_t token,
 			  void *buf, size_t bufsiz,
 			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
-  unsigned char *data = (unsigned char *) buf + sizeof(*pp);
-  gasnet_hsl_t *lk = get_lock_for(pp->target);
+  void *datap = pp + sizeof(*pp);
 
-  gasnet_hsl_lock(lk);
-
-  /* write back data here */
-  memcpy(pp->target, data, pp->nbytes);
+  /* write back payload data here */
+  memcpy(pp->target, datap, pp->nbytes);
 
   *(pp->completed_addr) = 1;
-
-  gasnet_hsl_unlock(lk);
 }
 
-void
-__shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, int pe)
+/*
+ * Generate the active message to do a get from a global variable.
+ *
+ */
+
+static void inline
+get_a_chunk(void *basep, size_t bufsize,
+	    void *target, void *source,
+	    size_t offset, size_t bytes_to_send,
+	    int pe)
 {
-  size_t max_msg = gasnet_AMMaxMedium();
   globalvar_payload_t *p;
-  const int ab = sizeof(*p) + nbytes; /* alloc control structure + value */
-  unsigned char *bp;
 
-  if (nbytes > max_msg) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "unable to handle data size of %ld (max is %ld)",
-		  nbytes,
-		  max_msg		  
-		  );
-  }
-
-  p = (globalvar_payload_t *) malloc(ab);
-  if (p == (globalvar_payload_t *) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: unable to allocate global variable payload memory"
-		  );
-  }
   /*
    * build payload to send
    * (global var is trivially symmetric here, no translation needed)
    */
-  p->nbytes = nbytes;
-  p->target = target;		/* this pe writes here */
+  p = (globalvar_payload_t *) basep;
+
+  p->nbytes = bytes_to_send;
+  p->source = source + offset;	/* on the other PE */
+  p->target = target + offset;	/* track my local writes upon return */
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* data added after control structure */
-  bp = (unsigned char *) p + sizeof(*p);
-
-  memcpy(bp, source, nbytes);
-
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
-			  p, ab,
+			  basep, bufsize,
 			  0);
 
   WAIT_ON_COMPLETION(p->completed);
+}
 
-  free(p);
+static gasnet_hsl_t get_out_lock = GASNET_HSL_INITIALIZER;
+
+void
+__shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, int pe)
+{
+  size_t offset = 0;
+  globalvar_payload_t *basep;
+  const size_t max_req = gasnet_AMMaxMedium();
+  const size_t max_data = max_req - sizeof(globalvar_payload_t);
+  const size_t nchunks = nbytes / max_data;
+  const size_t rem_send = nbytes % max_data;
+  size_t payload_size;
+  size_t alloc_size;
+  size_t i;
+
+  gasnet_hsl_lock(& get_out_lock);
+
+  /* how big should the message be? can't exceed gasnet limit */
+
+  if (nbytes > max_data) {
+    alloc_size = max_req;
+    payload_size = max_data;
+  }
+  else {
+    alloc_size = nbytes;
+    payload_size = nbytes;
+  }
+
+  basep = (globalvar_payload_t *) malloc(alloc_size);
+  if (basep == NULL) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: unable to allocate global variable payload memory"
+		  );
+  }
+
+  for (i = 0; i < nchunks; i += 1) {
+    get_a_chunk(basep, payload_size,
+		target, source,
+		offset, max_data,
+		pe
+		);
+    offset += max_data;
+  }
+  get_a_chunk(basep, payload_size,
+	      target, source,
+	      offset, rem_send,
+	      pe
+	      );
+
+  free(basep);
+
+  gasnet_hsl_unlock(& get_out_lock);
 }
 
 long
 __shmem_comms_globalvar_g_request(void *source, size_t nbytes, int pe)
 {
-  long *ret;
-  long retval;
-  globalvar_payload_t *p;
-  const int ab = sizeof(*p) + nbytes;
-  unsigned char *bp;
-
-  ret = __shmem_mem_alloc(sizeof(*ret));
-  *ret = 0L;
-
-  p = (globalvar_payload_t *) malloc(ab);
-  if (p == (globalvar_payload_t *) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: unable to allocate global variable payload memory"
-		  );
-  }
-  /*
-   * build payload to send
-   * (global var is trivially symmetric here, no translation needed)
-   */
-  p->nbytes = nbytes;
-  p->target = ret;		/* this pe writes here */
-  p->completed = 0;
-  p->completed_addr = &(p->completed);
-
-  /* data added after control structure */
-  bp = (unsigned char *) p + sizeof(*p);
-
-  memcpy(bp, source, nbytes);
-
-  gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
-			  p, ab,
-			  0);
-
-  WAIT_ON_COMPLETION(p->completed);
-
-  free(p);
-
-  retval = *ret;
-  __shmem_mem_free(ret);
-  return retval;
+  return 0;
 }
 
 #endif /* HAVE_MANAGED_SEGMENTS */

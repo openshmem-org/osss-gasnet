@@ -329,8 +329,10 @@ __shmem_tracers_show(void)
     strcpy(p, "Enabled Messages: ");
 
     for (i = 0; i < n_tracers; i += 1) {
-      strncat(p, t->text, strlen(t->text));
-      strncat(p, " ", 1);
+      if (t->state == ON) {
+	strncat(p, t->text, strlen(t->text));
+	strncat(p, " ", 1);
+      }
       t += 1;
     }
     __shmem_trace(SHMEM_LOG_INIT,

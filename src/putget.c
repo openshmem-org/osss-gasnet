@@ -39,7 +39,7 @@ symmetric_test_with_abort(void *remote_addr,
   {									\
     int typed_len = sizeof(Type) * len;					\
     if (GET_STATE(mype) == pe) {					\
-      memcpy(dest, src, typed_len);					\
+      memmove(dest, src, typed_len);					\
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
@@ -84,7 +84,7 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
   {									\
     int typed_len = sizeof(Type) * len;					\
     if (GET_STATE(mype) == pe) {					\
-      memcpy(dest, src, typed_len);					\
+      memmove(dest, src, typed_len);					\
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
