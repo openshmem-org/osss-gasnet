@@ -90,7 +90,7 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(LD)%" \
+		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
 		< $(COMP_WRAPPER) > $(SHMEM_CC)
 
 $(SHMEM_CXX):	$(COMP_WRAPPER)
@@ -101,8 +101,8 @@ $(SHMEM_CXX):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(LD)%" \
-		-e 's%bin/mpicc%bin/mpiCC%' \
+		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e 's%^\(SHMEM_LD=..*/bin/mpi\)cc%\1CC%' \
 		< $(COMP_WRAPPER) > $(SHMEM_CXX)
 
 $(SHMEM_FC):	$(COMP_WRAPPER)
@@ -113,8 +113,8 @@ $(SHMEM_FC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(LD)%" \
-		-e 's%bin/mpicc%bin/mpif90%' \
+		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e 's%^\(SHMEM_LD=..*/bin/mpi\)cc%\1f90%' \
 		< $(COMP_WRAPPER) > $(SHMEM_FC)
 
 $(SHMEM_RUN):

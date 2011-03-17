@@ -62,22 +62,31 @@ fi
 
 # -- ok, gasnet there, check compilers (default to GNU for now) --
 
-cc_cmd=${CC-gcc}
+cc_cmd=${CC-cc}
 cpp_flags=${CPPFLAGS-""}
 c_flags=${CFLAGS-"-g"}
 ld_cmd=${LD-$cc_cmd}
 ld_flags=${LDFLAGS-""}
+cxx_cmd=${CXX-c++}
+cxx_flags=${CXXFLAGS-"-g"}
+fc_cmd=${FC-f90}
+fc_flags=${FCFLAGS-"-g"}
 
 echo "$progname: C compiler is \"$cc_cmd\""
-echo "$progname: C pre-processor options are \"$cpp_flags\""
-echo "$progname: C options are \"$c_flags\""
+echo "$progname: C pre-processor flags are \"$cpp_flags\""
+echo "$progname: C flags are \"$c_flags\""
+echo "$progname: C++ compiler is \"$cxx_cmd\""
+echo "$progname: C++ flags are \"$cxx_flags\""
+echo "$progname: Fortran compiler is \"$fc_cmd\""
+echo "$progname: Fortran flags are \"$fc_flags\""
 echo "$progname: linker is \"$ld_cmd\""
-echo "$progname: linker options are \"$ld_flags\""
+echo "$progname: linker flags are \"$ld_flags\""
 echo "$progname:"
 
 echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
+echo "$progname:"
 
 REWRITE_DIRS="
 .
@@ -98,6 +107,10 @@ do
       -e "s%@CC@%$cc_cmd%g" \
       -e "s%@CPPFLAGS@%$cpp_flags%g" \
       -e "s%@CFLAGS@%$c_flags%g" \
+      -e "s%@CXX@%$cxx_cmd%g" \
+      -e "s%@CXXFLAGS@%$cxx_flags%g" \
+      -e "s%@FC@%$fc_cmd%g" \
+      -e "s%@FCFLAGS@%$fc_flags%g" \
       -e "s%@LD@%$ld_cmd%g" \
       -e "s%@LDFLAGS@%$ld_flags%g" \
       -e "s%@PREFIX@%$prefix%g" \
@@ -117,10 +130,16 @@ cat > $cs <<_EOT_
 CC="$cc_cmd"
 CPPFLAGS="$cpp_flags"
 CFLAGS="$c_flags"
+CXX="$cxx_cmd"
+CXXFLAGS="$cxx_flags"
+FC="$fc_cmd"
+FCFLAGS="$fc_flags"
 LD="$ld_cmd"
 LDFLAGS="$ld_flags"
 
-export CC CPPFLAGS CFLAGS LD LDFLAGS
+export CC CXX FC
+export CPPFLAGS CFLAGS CXXFLAGS FCFLAGS
+export LD LDFLAGS
 
 echo $0 $@
 

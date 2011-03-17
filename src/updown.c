@@ -28,11 +28,11 @@
 void
 __shmem_exit(int status)
 {
+  __shmem_service_thread_finalize();
+
   __shmem_atomic_finalize();
 
   __shmem_symmetric_memory_finalize();
-
-  __shmem_service_thread_finalize();
 
   SET_STATE(pe_status, PE_SHUTDOWN);
 
@@ -44,7 +44,7 @@ __shmem_exit(int status)
    * strictly speaking should free alloc'ed things,
    * but exit is immediately next, so everything gets reaped anyway...
    */
-  __shmem_comms_shutdown(status);
+  __shmem_comms_finalize(status);
 }
 
 /*

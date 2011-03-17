@@ -47,21 +47,21 @@ __shmem_service_set_pause(double ms)
  *
  */
 
-static volatile poll_mode_t mode;
+static volatile poll_mode_t poll_mode;
 
 void
 __shmem_service_set_mode(poll_mode_t m)
 {
-  mode = m;
+  poll_mode = m;
 }
 
 static
 void *
 service_thread(void *unused_arg)
 {
-  while (mode != SERVICE_FINISH) {
+  while (poll_mode != SERVICE_FINISH) {
 
-    switch (mode) {
+    switch (poll_mode) {
 
     case SERVICE_POLL:
       __shmem_comms_poll();
@@ -95,7 +95,7 @@ __shmem_service_thread_init(void)
 {
   int s;
 
-  mode = SERVICE_POLL;
+  poll_mode = SERVICE_POLL;
 
   /* set the refractory period */
   __shmem_service_set_pause(backoff_secs);
@@ -122,7 +122,7 @@ __shmem_service_thread_finalize(void)
 {
   int s;
 
-  mode = SERVICE_FINISH;
+  poll_mode = SERVICE_FINISH;
 
   s = pthread_join(service_thr, NULL);
   if (s != 0) {

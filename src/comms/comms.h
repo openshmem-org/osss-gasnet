@@ -4,9 +4,8 @@
 #include <sys/types.h>
 
 extern void __shmem_comms_init(void);
-
+extern void __shmem_comms_finalize(int status);
 extern void __shmem_comms_exit(int status);
-extern void __shmem_comms_shutdown(int status);
 
 extern int  __shmem_comms_mynode(void);
 extern int  __shmem_comms_nodes(void);
@@ -65,7 +64,7 @@ extern void __shmem_comms_barrier(int PE_start, int logPE_stride,
 extern void __shmem_comms_poll(void);
 extern void __shmem_comms_pause(void);
 
-#define WAIT_ON_COMPLETION(p) do { __shmem_comms_pause(); } while (! (p))
+#define WAIT_ON_COMPLETION(p) while (! (p)) { __shmem_comms_pause(); }
 
 extern void  __shmem_comms_swap_request(void *target, void *value, size_t nbytes,
 				  int pe,

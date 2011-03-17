@@ -191,7 +191,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup(src, pe);		\
-      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "p"); \
+      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "g"); \
       retval = (Type) __shmem_comms_get_val(their_src, sizeof(retval), pe); \
     }									\
     return retval;							\

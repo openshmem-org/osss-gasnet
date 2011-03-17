@@ -350,7 +350,7 @@ __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
     va_list ap;
   
     snprintf(tmp1, TRACE_MSG_BUF_SIZE,
-	     "[%-8.6f] PE %d: %s: ",
+	     "%-8.8f PE %d: %s: ",
 	     __shmem_get_elapsed_clock(),
 	     GET_STATE(mype),
 	     __level_to_string(msg_type)
