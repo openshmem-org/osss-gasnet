@@ -22,15 +22,13 @@ main(int argc, char **argv)
   me = _my_pe();
   npes = _num_pes();
 
-  dest = (long *)shmalloc( N * sizeof(*dest) );
-
-  shmem_barrier_all();
-
-  nextpe = (me + 1) % npes;
-
   for (i = 0; i < N; i += 1) {
     src[i] = (long)me;
   }
+
+  dest = (long *)shmalloc( N * sizeof(*dest) );
+
+  nextpe = (me + 1) % npes;
 
   shmem_long_put(dest, src, N, nextpe);
 
