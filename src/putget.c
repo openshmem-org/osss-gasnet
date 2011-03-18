@@ -127,17 +127,21 @@ SHMEM_TYPE_GET(float, float)
 
 #define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
   /* @api@ */								\
-  void									\
+  void inline								\
   pshmem_##Name##_p(Type *dest, Type value, int pe)			\
   {									\
-    shmem_##Name##_put(dest, &value, sizeof(value), pe);		\
+    pshmem_##Name##_put(dest, &value, 1, pe);				\
   }
 
 SHMEM_TYPE_P_WRAPPER(float, float)
 SHMEM_TYPE_P_WRAPPER(double, double)
 SHMEM_TYPE_P_WRAPPER(longdouble, long double)
 SHMEM_TYPE_P_WRAPPER(longlong, long long)
+SHMEM_TYPE_P_WRAPPER(short, short)
+SHMEM_TYPE_P_WRAPPER(int, int)
+SHMEM_TYPE_P_WRAPPER(long, long)
 
+#if 0
 #define SHMEM_TYPE_P(Name, Type)					\
   /* @api@ */								\
   void									\
@@ -156,6 +160,7 @@ SHMEM_TYPE_P_WRAPPER(longlong, long long)
 SHMEM_TYPE_P(short, short)
 SHMEM_TYPE_P(int, int)
 SHMEM_TYPE_P(long, long)
+#endif
 
 #pragma weak shmem_short_p = pshmem_short_p
 #pragma weak shmem_int_p = pshmem_int_p
@@ -167,11 +172,11 @@ SHMEM_TYPE_P(long, long)
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
   /* @api@ */								\
-  Type									\
-  pshmem_##Name##_g(Type *dest, int pe)					\
+  Type inline								\
+  pshmem_##Name##_g(Type *addr, int pe)					\
   {									\
     Type retval;							\
-    shmem_##Name##_get(dest, &retval, sizeof(retval), pe);		\
+    pshmem_##Name##_get(&retval, addr, 1, pe);				\
     return retval;							\
   }
 
@@ -179,7 +184,11 @@ SHMEM_TYPE_G_WRAPPER(float, float)
 SHMEM_TYPE_G_WRAPPER(double, double)
 SHMEM_TYPE_G_WRAPPER(longlong, long long)
 SHMEM_TYPE_G_WRAPPER(longdouble, long double)
+SHMEM_TYPE_G_WRAPPER(short, short)
+SHMEM_TYPE_G_WRAPPER(int, int)
+SHMEM_TYPE_G_WRAPPER(long, long)
 
+#if 0
 #define SHMEM_TYPE_G(Name, Type)					\
   /* @api@ */								\
   Type									\
@@ -200,6 +209,7 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
 SHMEM_TYPE_G(short, short)
 SHMEM_TYPE_G(int, int)
 SHMEM_TYPE_G(long, long)
+#endif
 
 #pragma weak shmem_short_g = pshmem_short_g
 #pragma weak shmem_int_g = pshmem_int_g
