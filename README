@@ -3,11 +3,11 @@
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
 
-The library installs on top of MPI & GASNet.  MPI is used purely for
-process launch.  GASNet provides a portable communications layer for
-OpenSHMEM to work on top of.
+The library installs on top of GASNet & in some cases, MPI.  MPI is
+used purely for process launch.  GASNet provides a portable
+communications layer for OpenSHMEM to work on top of.
 
-The development versions of MPI are OpenMPI 1.4.2 and 1.4.3 but I
+The development versions of MPI are Open-MPI 1.4.2 and 1.4.3 but I
 suspect any version that adheres to the "mpi" prefix for the
 command-line tools will slot right in, and if not, the fix is pretty
 trivial.
@@ -17,18 +17,16 @@ The main GASNet version has been 1.16.0 during development, although
 
 Currently the Makefile is set up to use the GNU C Compiler (4.x.y
 series), but there's a relatively small number of changes that need to
-be made to change that (e.g. debugging and optimization flags,
-dependency generation, PIC option, C99 compliance).
+be made to change that (e.g. debugging and optimization flags, PIC
+option, C99 compliance).
 
 There's now a configure script.  This will eventually be the GNU
 autotools setup, but for now it's just a basic shell script to give
 the same kind of look-and-feel.  Accepts a --help option.
 
-configure writes a file called make.include in this top-level
-directory where you can change the GASNet conduit.  By default I'm
-using "mpi" for development on an SMP platform, but for an Infiniband
-cluster, just change this to "ibv" by choosing a different conduit in
-the configure command.
+By default I'm using "mpi" for development on an SMP platform, but for
+an Infiniband cluster, just change this to "ibv" by choosing a
+different conduit in the configure command.
 
 Configure Usage
 ---------------
