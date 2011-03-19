@@ -54,20 +54,6 @@ typedef struct {
 /* Macro to map lock virtual address to owning process vp */
 #define LOCK_OWNER(LOCK)	(((uintptr_t)(LOCK) >> 3) % (_num_pes()))
 
-#if 0
-static
-void
-dump_shmem_lock(char *name, SHMEM_LOCK *L)
-{
-  __shmem_trace(SHMEM_LOG_LOCK,
-		"%s: l_locked=%d, l_next=%d",
-		name,
-		L->l_locked,
-		L->l_next
-		);
-}
-#endif
-
 static
 void
 mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
@@ -138,16 +124,6 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
      * If global lock owner value still equals this_pe, load RESET
      * into it & return prev value
      */
-#if 0
-    __shmem_trace(SHMEM_LOG_LOCK,
-		  "cswap(%p, %d = %d + %d, %d, %d)",
-		  (int *)&lock->l_word,
-		  tmp.l_word,
-		  tmp.l_locked, tmp.l_next,
-		  _SHMEM_LOCK_RESET,
-		  LOCK_OWNER(lock)
-		  );
-#endif
     tmp.l_word = shmem_int_cswap((int *)&lock->l_word,
 				 tmp.l_word,
 				 _SHMEM_LOCK_RESET,

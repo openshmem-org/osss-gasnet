@@ -113,16 +113,6 @@ SHMEM_TYPE_FADD(longlong, long long)
     return retval;							\
   }
 
-#if 0
-#define SHMEM_TYPE_FINC(Name, Type)			\
-  /* @api@ */						\
-  Type							\
-  pshmem_##Name##_finc(Type *target, int pe)		\
-  {							\
-    return pshmem_##Name##_fadd(target, (Type) 1, pe);	\
-  }
-#endif
-
 SHMEM_TYPE_FINC(int, int)
 SHMEM_TYPE_FINC(long, long)
 SHMEM_TYPE_FINC(longlong, long long)

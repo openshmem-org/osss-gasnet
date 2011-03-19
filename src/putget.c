@@ -141,27 +141,6 @@ SHMEM_TYPE_P_WRAPPER(short, short)
 SHMEM_TYPE_P_WRAPPER(int, int)
 SHMEM_TYPE_P_WRAPPER(long, long)
 
-#if 0
-#define SHMEM_TYPE_P(Name, Type)					\
-  /* @api@ */								\
-  void									\
-  pshmem_##Name##_p(Type *dest, Type value, int pe)			\
-  {									\
-    if (GET_STATE(mype) == pe) {					\
-      *dest = value;							\
-    }									\
-    else {								\
-      void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
-      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "p"); \
-      __shmem_comms_put_val(rdest, value, sizeof(Type), pe);		\
-    }									\
-  }
-
-SHMEM_TYPE_P(short, short)
-SHMEM_TYPE_P(int, int)
-SHMEM_TYPE_P(long, long)
-#endif
-
 #pragma weak shmem_short_p = pshmem_short_p
 #pragma weak shmem_int_p = pshmem_int_p
 #pragma weak shmem_long_p = pshmem_long_p
@@ -187,29 +166,6 @@ SHMEM_TYPE_G_WRAPPER(longdouble, long double)
 SHMEM_TYPE_G_WRAPPER(short, short)
 SHMEM_TYPE_G_WRAPPER(int, int)
 SHMEM_TYPE_G_WRAPPER(long, long)
-
-#if 0
-#define SHMEM_TYPE_G(Name, Type)					\
-  /* @api@ */								\
-  Type									\
-  pshmem_##Name##_g(Type *src, int pe)					\
-  {									\
-    Type retval;							\
-    if (GET_STATE(mype) == pe) {					\
-      retval = *src;							\
-    }									\
-    else {								\
-      void *their_src = __shmem_symmetric_addr_lookup(src, pe);		\
-      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "g"); \
-      retval = (Type) __shmem_comms_get_val(their_src, sizeof(retval), pe); \
-    }									\
-    return retval;							\
-  }
-
-SHMEM_TYPE_G(short, short)
-SHMEM_TYPE_G(int, int)
-SHMEM_TYPE_G(long, long)
-#endif
 
 #pragma weak shmem_short_g = pshmem_short_g
 #pragma weak shmem_int_g = pshmem_int_g
