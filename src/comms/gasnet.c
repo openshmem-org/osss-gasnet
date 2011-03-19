@@ -59,7 +59,7 @@ static gasnet_seginfo_t *seginfo_table;
  * variable
  */
 
-#define DEFAULT_HEAP_SIZE 10000000L
+#define DEFAULT_HEAP_SIZE 2000000000L /* 2G */
 
 static void *great_big_heap;
 
@@ -1092,28 +1092,28 @@ __shmem_symmetric_addr_lookup(void *dest, int pe)
   size_t offset;
   char *rdest;
 
-  if (dest == NULL) {
-    return NULL;
+  /* short-circuit a lookup on myself */
+  if (GET_STATE(mype) == pe) {
+    return dest;
   }
 
   if (__shmem_comms_is_globalvar(dest)) {
     return dest;
   }
 
-  /* short-circuit a lookup on myself */
-  if (GET_STATE(mype) == pe) {
-    rdest = dest;
-  }
-  else {
-    offset = (char *) dest - (char *) __shmem_symmetric_var_base(GET_STATE(mype));
-    rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
-  }
-
-  if (__shmem_symmetric_var_in_range(rdest, pe)) {
-    return (void *) rdest;
+  offset = (char *) dest - (char *) __shmem_symmetric_var_base(GET_STATE(mype));
+  if (offset > seginfo_table[GET_STATE(mype)].size) {
+    __shmem_trace(SHMEM_LOG_AUTH,
+		  "offset = %ld",
+		  offset
+		  );
+    return NULL;
   }
 
-  return NULL;
+  rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
+
+  /* assume this is good */
+  return rdest;
 }
 
 /*

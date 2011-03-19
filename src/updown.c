@@ -132,10 +132,6 @@ pstart_pes(int npes)
     /* NOT REACHED */
   }
 
-  /*
-   * SGI man page says npes *should* be zero, so just make
-   * this check informational
-   */
   if (npes != 0) {
     __shmem_trace(SHMEM_LOG_INFO,
 		  "start_pes() was passed %d, should be 0",

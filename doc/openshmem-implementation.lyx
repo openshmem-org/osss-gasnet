@@ -1,4 +1,4 @@
-#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -46,7 +46,17 @@ OpenSHMEM Reference Library Implementation
 \end_layout
 
 \begin_layout Author
-Tony Curtis <arcurtis@mail.uh.edu>
+Tony Curtis
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Email address: arcurtis@mail.uh.edu
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Right Address
@@ -1699,7 +1709,7 @@ SHMEM_LOG_FILE
 \labelwidthstring 00.00.0000
 
 \family typewriter
-SHMEM_SYMMETRIC_HEAPSIZE
+SHMEM_SYMMETRIC_HEAP_SIZE
 \family default
 : the number of bytes to allocate for the symmetric heap area.
  Can scale units with 
