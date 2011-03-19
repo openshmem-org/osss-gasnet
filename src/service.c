@@ -64,12 +64,12 @@ service_thread(void *unused_arg)
     switch (poll_mode) {
 
     case SERVICE_POLL:
-      __shmem_comms_poll();
+      __shmem_comms_poll_service();
       /* nanosleep(& backoff, (struct timespec *) NULL); */
       break;
 
     case SERVICE_FENCE:
-      __shmem_comms_fence();
+      __shmem_comms_fence_service();
       break;
 
     default:

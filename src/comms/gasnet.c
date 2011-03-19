@@ -193,14 +193,15 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
 
   __shmem_trace(SHMEM_LOG_DEBUG,
 		"set waitmode to %s",
-		mstr);
+		mstr
+		);
 }
 
 /*
  * used in service thread to poll for put/get/AM traffic
  */
 void
-__shmem_comms_poll(void)
+__shmem_comms_poll_service(void)
 {
   GASNET_SAFE( gasnet_AMPoll() );
 }
@@ -217,7 +218,7 @@ __shmem_comms_pause(void)
 }
 
 /*
- * As Arnie said, GET...OUT...
+ * bail out of run-time with STATUS error code
  */
 void
 __shmem_comms_exit(int status)
@@ -226,7 +227,7 @@ __shmem_comms_exit(int status)
 }
 
 /*
- * make sure everyone finishes stuff, then exit.
+ * make sure everyone finishes stuff, then exit with STATUS.
  */
 void
 __shmem_comms_finalize(int status)
@@ -268,7 +269,7 @@ __shmem_comms_nodes(void)
  * I/O for us (fence/barrier waits for these implicit handles)
  */
 
-void __shmem_comms_globalvar_put_request();
+void __shmem_comms_globalvar_put_request(); /* forward decl */
 
 void
 __shmem_comms_put(void *dst, void *src, size_t len, int pe)
@@ -285,7 +286,7 @@ __shmem_comms_put(void *dst, void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-void __shmem_comms_globalvar_get_request();
+void __shmem_comms_globalvar_get_request(); /* forward decl */
 
 void
 __shmem_comms_get(void *dst, void *src, size_t len, int pe)
@@ -322,14 +323,14 @@ __shmem_comms_put_val(void *dst, long src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-long __shmem_comms_globalvar_g_request();
-
 long
 __shmem_comms_get_val(void *src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_comms_is_globalvar(src)) {
-    return __shmem_comms_globalvar_g_request(src, len, pe);
+    long retval;
+    __shmem_comms_globalvar_get_request(&retval, src, len, pe);
+    return retval;
   }
   else {
     return gasnet_get_val(pe, src, len);
@@ -339,6 +340,9 @@ __shmem_comms_get_val(void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
+/*
+ * non-blocking puts: not part of current API
+ */
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
   void *								\
   __shmem_comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
@@ -422,6 +426,10 @@ static size_t bss_end;
 static size_t data_start;
 static size_t data_end;
 
+/*
+ * scan the ELF image to build table of global symbold and the image
+ * regions where they can be found (BSS and DATA)
+ */
 static int
 table_init_helper(void)
 {
@@ -435,6 +443,9 @@ table_init_helper(void)
   int fd;
   int ret = -1;
 
+  /*
+   * Linux has a handy short-cut to find the executable
+   */
   fd = open("/proc/self/exe", O_RDONLY, 0);
   if (fd < 0) {
     return ret;
@@ -461,11 +472,12 @@ table_init_helper(void)
   if (gelf_getclass(e) == ELFCLASSNONE) {
     goto bail;
   }
+  /* TODO: deprecated interface from older libelf on CentOS */
   if (elf_getshstrndx(e, &shstrndx) != 0) {
     goto bail;
   }
 
-  /* walk sections, look for BSS and symbol table */
+  /* walk sections, look for BSS/DATA and symbol table */
   scn = NULL;
 
   while ((scn = elf_nextscn(e, scn)) != NULL) {
@@ -488,8 +500,7 @@ table_init_helper(void)
 		    "ELF section .bss for global variables = 0x%lX -> 0x%lX",
 		    bss_start, bss_end
 		    );
-
-      continue;
+      continue;			/* move to next scan */
     }
 
     /* found the .data section */
@@ -503,8 +514,7 @@ table_init_helper(void)
 		    "ELF section .data for global variables = 0x%lX -> 0x%lX",
 		    data_start, data_end
 		    );
-
-      continue;
+      continue;			/* move to next scan */
     }
 
     /* keep looking until we find the symbol table */
@@ -555,21 +565,32 @@ table_init_helper(void)
 	}
       }
     }
+    /*
+     * pulled out all the global symbols => success,
+     * don't need to scan further
+     */
+    ret = 0;
+    break;
   }
-  /* pulled out all the global symbols => success */
-  ret = 0;
 
  bail:
 
-  /* let's be relaxed about whether these succeed */
-  elf_end(e);
-  close(fd);
+  if (elf_end(e) != 0) {
+    ret = -1;
+  }
+
+  if (close(fd) != 0) {
+    ret = -1;
+  }
 
   return ret;
 }
 
 /* ======================================================================== */
 
+/*
+ * helpers for debug output: not used currently
+ */
 static int
 addr_sort(globalvar_t *a, globalvar_t *b)
 {
@@ -604,6 +625,9 @@ print_global_var_table(shmem_trace_t msgtype)
 		);
 }
 
+/*
+ * read in the symbol table and global data areas
+ */
 static void
 __shmem_comms_globalvar_table_init(void)
 {
@@ -617,44 +641,36 @@ __shmem_comms_globalvar_table_init(void)
   /* too noisy: print_global_var_table(SHMEM_LOG_SYMBOLS); */
 }
 
+/*
+ * free hash table here
+ */
 static void
 __shmem_comms_globalvar_table_finalize(void)
 {
-  /* could free hash table here */
+  globalvar_t *current;
+  globalvar_t *tmp;
+
+  HASH_ITER(hh, gvp, current, tmp) {
+      HASH_DEL(gvp, current);
+      free(current);
+  }
 }
 
-#if 0
-int
-__shmem_comms_is_globalvar(void *addr)
-{
-  globalvar_t *gp;
+/*
+ * helper to check address ranges
+ */
+#define IN_RANGE(Area, Addr) \
+  ( ( Area##_start <= (Addr) ) && ( (Addr) < Area##_end ) )
 
-  HASH_FIND_PTR(gvp, &addr, gp);
-
-  return (gp != NULL);
-}
-#endif
-
-static
-int
-__shmem_comms_is_bss(size_t a)
-{
-  return (bss_start <= a) && (a <= bss_end);
-}
-
-static
-int
-__shmem_comms_is_data(size_t a)
-{
-  return (data_start <= a) && (a <= data_end);
-}
-
+/*
+ * chcek to see if address is global
+ */
 int
 __shmem_comms_is_globalvar(void *addr)
 {
   size_t a = (size_t) addr;
 
-  return __shmem_comms_is_bss(a) || __shmem_comms_is_data(a);
+  return IN_RANGE(bss, a) || IN_RANGE(data, a);
 }
 
 /*
@@ -792,15 +808,18 @@ __shmem_comms_init(void)
     /* NOT REACHED */
   }
   argv[0] = "shmem";
-  
+
+  /*
+   * let's get gasnet up and running
+   */  
   GASNET_SAFE( gasnet_init(&argc, &argv) );
 
   /*
    * now we can ask about the node count & heap
    */
-  SET_STATE(mype, __shmem_comms_mynode());
-  SET_STATE(numpes, __shmem_comms_nodes());
-  SET_STATE(heapsize, __shmem_comms_get_segment_size());
+  SET_STATE(mype,     __shmem_comms_mynode()           );
+  SET_STATE(numpes,   __shmem_comms_nodes()            );
+  SET_STATE(heapsize, __shmem_comms_get_segment_size() );
 
   /*
    * not guarding the attach for different gasnet models,
@@ -877,7 +896,8 @@ handler_segsetup_out(gasnet_token_t token,
   /* gasnet_hsl_unlock(& setup_out_lock); */
 
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_SETUP_BAK,
-			(void *) NULL, 0, unused);
+			(void *) NULL, 0, unused
+			);
 }
 
 /*
@@ -896,6 +916,11 @@ handler_segsetup_bak(gasnet_token_t token,
 }
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
+
+/*
+ * initialize the symmetric memory, taking into account the different
+ * gasnet configurations
+ */
 
 void
 __shmem_symmetric_memory_init(void)
@@ -927,7 +952,8 @@ __shmem_symmetric_memory_init(void)
    * initialize my heap
    */
   __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
-		   seginfo_table[GET_STATE(mype)].size);
+		   seginfo_table[GET_STATE(mype)].size
+		   );
 
 #else
 
@@ -964,7 +990,8 @@ __shmem_symmetric_memory_init(void)
 
 	gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SETUP_OUT,
 				&gsp, sizeof(gsp),
-				0);
+				0
+				);
       }
     }
 
@@ -980,7 +1007,8 @@ __shmem_symmetric_memory_init(void)
      * initialize my heap
      */
     __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
-	             seginfo_table[GET_STATE(mype)].size);
+	             seginfo_table[GET_STATE(mype)].size
+		     );
 
     {
       /* now wait on the AM replies */
@@ -1013,6 +1041,9 @@ __shmem_symmetric_memory_init(void)
   }
 }
 
+/*
+ * shut down the memory allocation handler
+ */
 void
 __shmem_symmetric_memory_finalize(void)
 {
@@ -1089,7 +1120,6 @@ __shmem_symmetric_addr_lookup(void *dest, int pe)
  * check that the address is accessible to shmem on that PE
  *
  */
-
 int
 __shmem_comms_addr_accessible(void *addr, int pe)
 {
@@ -1113,7 +1143,6 @@ static lock_table_t *lock_table = NULL;
  * seen before, create the lock for it.
  *
  */
-
 static gasnet_hsl_t *
 get_lock_for(void *addr)
 {
@@ -1228,8 +1257,13 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the swap
+ */
 void
-__shmem_comms_swap_request(void *target, void *value, size_t nbytes, int pe, void *retval)
+__shmem_comms_swap_request(void *target, void *value, size_t nbytes,
+			   int pe,
+			   void *retval)
 {
   swap_payload_t *p = (swap_payload_t *) malloc(sizeof(*p));
   if (p == (swap_payload_t *) NULL) {
@@ -1268,35 +1302,6 @@ typedef struct {
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
-
-#if 0
-static void
-handler_cswap_out(gasnet_token_t token,
-		  void *buf, size_t bufsiz,
-		  gasnet_handlerarg_t unused)
-{
-  long long old;
-  cswap_payload_t *pp = (cswap_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
-
-  gasnet_hsl_lock(lk);
-
-  /* save current target */
-  old = *(long long *) pp->r_symm_addr;
-  /* update value if cond matches */
-  if ( *(long long *) pp->cond == *(long long *) pp->r_symm_addr) {
-    *(long long *) pp->r_symm_addr = pp->value;
-  }
-  /* return value */
-  pp->value = old;
-
-  gasnet_hsl_unlock(lk);
-
-  /* return updated payload */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz, unused);
-}
-#endif
-
 static void
 handler_cswap_out(gasnet_token_t token,
 		  void *buf, size_t bufsiz,
@@ -1351,6 +1356,9 @@ handler_cswap_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the conditional swap
+ */
 void
 __shmem_comms_cswap_request(void *target, void *cond, void *value, size_t nbytes,
 		      int pe,
@@ -1444,6 +1452,9 @@ handler_fadd_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the fetch-and-add
+ */
 void
 __shmem_comms_fadd_request(void *target, void *value, size_t nbytes, int pe, void *retval)
 {
@@ -1533,6 +1544,9 @@ handler_finc_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the fetch-and-increment
+ */
 void
 __shmem_comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 {
@@ -1615,6 +1629,9 @@ handler_add_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the add
+ */
 void
 __shmem_comms_add_request(void *target, void *value, size_t nbytes, int pe)
 {
@@ -1699,6 +1716,9 @@ handler_inc_bak(gasnet_token_t token,
   gasnet_hsl_unlock(lk);
 }
 
+/*
+ * perform the increment
+ */
 void
 __shmem_comms_inc_request(void *target, size_t nbytes, int pe)
 {
@@ -1742,6 +1762,9 @@ static int pe_acked = 1;
 
 static jmp_buf jb;
 
+/*
+ * do this when the timeout occurs
+ */
 static void
 ping_timeout_handler(int signum)
 {
@@ -1798,6 +1821,9 @@ handler_ping_bak(gasnet_token_t token,
   gasnet_hsl_unlock(& ping_bak_lock);
 }
 
+/*
+ * perform the ping
+ */
 int
 __shmem_comms_ping_request(int pe)
 {
@@ -1916,7 +1942,9 @@ handler_quiet_bak(gasnet_token_t token,
 		);
 }
 
-
+/*
+ * perform the quiet
+ */
 void
 __shmem_comms_quiet_request(void)
 {
@@ -1968,75 +1996,57 @@ __shmem_comms_quiet_request(void)
 }
 
 /*
- * called by service thread
+ * used by service thread to initiate the fence
  *
  */
-
 void
-__shmem_comms_fence(void)
+__shmem_comms_fence_service(void)
 {
   gasnet_wait_syncnbi_all();
   LOAD_STORE_FENCE();
 }
 
 /*
- * called by library to initiate service
- *
+ * called by mainline to tickle service thread to do fence
  */
-
 void
 __shmem_comms_fence_request(void)
 {
   __shmem_service_set_mode(SERVICE_FENCE);
 
-  /* when fence done, go back to polling */
   __shmem_service_set_mode(SERVICE_POLL);
 }
 
 
 /*
  * ---------------------------------------------------------------------------
+ *
+ * global variable put/get handlers (for non-everything cases):
+ *
+ * TODO: locking feels too coarse-grained with static (single) buffer,
+ * TODO: would love to find a better way of doing this bit
+ *
  */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
-
-/*
- * global variable put/get handlers (for non-everything cases):
- *
- * 1. sender AMs remote with address of variable to write into, total size to write, and
- * current offset (like seek), then the data itself.
- *
- * 2. remote acks
- *
- * (repeat as needed if data size > max request length, updating offset)
- *
- * 3. done?
- *
- * HOW DO WE HANDLE WAITING FOR OUTSTANDING OPS IN THIS FRAMEWORK FOR BARRIERS etc.?
- * INSERT MEMBAR?
- *
- */
 
 typedef struct {
   size_t nbytes;	        /* size of write */
   void *target;			/* where to write */
   void *source;			/* data we want to get */
-  volatile int completed;
-  volatile int *completed_addr;
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	/* addr of marker */
 } globalvar_payload_t;
 
 
 /*
  * buffer allocated for global var puts
  */
-
 static globalvar_payload_t *put_buf = NULL;
 
 /*
  * Puts
- *
  */
-
 static gasnet_hsl_t put_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t put_bak_lock = GASNET_HSL_INITIALIZER;
 
@@ -2091,7 +2101,6 @@ handler_globalvar_put_bak(gasnet_token_t token,
  * Generate the active message to do a put to a global variable.
  *
  */
-
 static void inline
 put_a_chunk(globalvar_payload_t *p, size_t bufsize,
 	    void *target, void *source,
@@ -2120,6 +2129,9 @@ put_a_chunk(globalvar_payload_t *p, size_t bufsize,
   WAIT_ON_COMPLETION(p->completed);
 }
 
+/*
+ * perform the put to a global variable
+ */
 void
 __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, int pe)
 {
@@ -2180,9 +2192,8 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
  */
 
 /*
- * buffer allocated for global var puts
+ * buffer allocated for global var gets
  */
-
 static globalvar_payload_t *get_buf = NULL;
 
 /*
@@ -2226,7 +2237,6 @@ handler_globalvar_get_bak(gasnet_token_t token,
  * Generate the active message to do a get from a global variable.
  *
  */
-
 static void inline
 get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 	    void *target, void *source,
@@ -2252,6 +2262,9 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 
 static gasnet_hsl_t get_out_lock = GASNET_HSL_INITIALIZER;
 
+/*
+ * perform the get from a global variable
+ */
 void
 __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, int pe)
 {
@@ -2306,12 +2319,6 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
   }
 
   gasnet_hsl_unlock(& get_out_lock);
-}
-
-long
-__shmem_comms_globalvar_g_request(void *source, size_t nbytes, int pe)
-{
-  return 0;
 }
 
 #endif /* HAVE_MANAGED_SEGMENTS */

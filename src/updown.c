@@ -24,16 +24,19 @@
  * itself down
  *
  */
-
 void
 __shmem_exit(int status)
 {
+  /* make sure the network service shuts down cleanly first */
   __shmem_service_thread_finalize();
 
-  __shmem_atomic_finalize();
+  /* ok, no more pending I/O ... */
 
+  /* clean up atomics and memory */
+  __shmem_atomic_finalize();
   __shmem_symmetric_memory_finalize();
 
+  /* update our state */
   SET_STATE(pe_status, PE_SHUTDOWN);
 
   __shmem_trace(SHMEM_LOG_INIT,
@@ -41,17 +44,16 @@ __shmem_exit(int status)
 		);
 
   /*
-   * strictly speaking should free alloc'ed things,
+   * strictly speaking should free remaining alloc'ed things,
    * but exit is immediately next, so everything gets reaped anyway...
    */
   __shmem_comms_finalize(status);
 }
 
 /*
- * registered by start_pes() to trigger shut down at exit
+ * registered by start_pes() to trigger shutdown at exit
  *
  */
-
 static void
 __shmem_exit_handler(void)
 {
@@ -84,11 +86,9 @@ __shmem_place_init(void)
 void
 pstart_pes(int npes)
 {
-  /* start the tracking clock */
-  __shmem_elapsed_clock_init();
-
-  /* has to happen early to enable messages */
-  __shmem_tracers_init();
+  /* this has to happen first to enable messages */
+  __shmem_elapsed_clock_init();	/* start the tracking clock */
+  __shmem_tracers_init();	/* messages set up */
 
   /* I shouldn't really call this more than once */
   if (GET_STATE(pe_status) != PE_UNINITIALIZED) {
