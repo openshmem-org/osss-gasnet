@@ -39,24 +39,36 @@ __shmem_mem_base(void)
   return myspace;
 }
 
+/*
+ * allocate SIZE bytes from the pool
+ */
 void *
 __shmem_mem_alloc(size_t size)
 {
   return mspace_malloc(myspace, size);
 }
 
+/*
+ * release memory previously allocated at ADDR
+ */
 void
 __shmem_mem_free(void *addr)
 {
   return mspace_free(myspace, addr);
 }
 
+/*
+ * resize ADDR to SIZE bytes
+ */
 void *
 __shmem_mem_realloc(void *addr, size_t size)
 {
   return mspace_realloc(myspace, addr, size);
 }
 
+/*
+ * allocate memory of SIZE bytes, aligning to ALIGNMENT
+ */
 void *
 __shmem_mem_align(size_t alignment, size_t size)
 {
