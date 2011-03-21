@@ -54,7 +54,7 @@ shift
 
 case "@GASNET_CONDUIT@" in
     smp)
-	RUN_IT="GASNET_PSHM_NODES=$npes $cmd $@"
+	RUN_IT="env GASNET_PSHM_NODES=$npes $cmd $@"
 	;;
     udp)
         RUN_IT="$cmd $npes $@"
