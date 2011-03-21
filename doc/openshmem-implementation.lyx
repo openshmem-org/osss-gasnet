@@ -1,4 +1,4 @@
-#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.6.1 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -246,20 +246,21 @@ d reads which could overlap with computation.
 \end_layout
 
 \begin_layout Standard
-Since then different vendors have come up with variations of the SHMEM library
- implementation to match their individual requirements.
- By adding proprietary hardware support some vendors have managed to make
- the communication faster but have sacrificed portability.
- Some existing SHMEM implementations include those by Cray, Quadrics’ QsNet,
- SGI’s versions for their IRIX and Altix platforms, HP, IBM and those that
- were developed for the SiCortex platforms, and the more portable but older
- GPSHMEM.
- These implementations have over the years diverged because of the lack
- of a standard specification.
- We aim to form a community that will unify all SHMEM library development
- effort and lead to the formulation of a standardized library to be called
- OpenSHMEM.
- OpenSHMEM will be a community-driven, open process.
+SHMEM was later adapted by SGI for its products based on the Numa-Link architect
+ure and included in the Message Passing Toolkit (MPT).
+ Other SHMEM implementations grew out of the SGI and Cray implementations,
+ including Quadrics, HP, IBM, gpSHMEM and SiCortex, but diverged from the
+ original libraries as they developed.
+ These implementations of the SHMEM API support C, C++, and Fortran programs;
+ however, the differences between SHMEM implementations' semantics and APIs
+ are subtle, resulting in portability and correctness issues.
+ U.S.
+ Department of Defense funded a collaboration between Oak Ridge National
+ Laboratory and the University of Houston to develop a specification for
+ a uniform SHMEM API.
+ The OpenSHMEM specification was announced to address the divergence of
+ the SHMEM APIs.
+ 
 \end_layout
 
 \begin_layout Section
