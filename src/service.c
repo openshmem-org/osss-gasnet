@@ -4,9 +4,11 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <pthread.h>
 #include <string.h>
 #include <errno.h>
+
+#include <pthread.h>
+#include <sched.h>
 
 #include "comms.h"
 #include "trace.h"
@@ -83,6 +85,18 @@ service_thread(void *unused_arg)
   return (void *) NULL;
 }
 
+static void
+set_low_priority(pthread_attr_t *p)
+{
+  struct sched_param sp;
+
+  pthread_attr_init(p);
+  pthread_attr_getschedparam(p, & sp);
+  sp.sched_priority = sched_get_priority_min(SCHED_RR);
+  pthread_attr_setschedpolicy(p, SCHED_RR);
+  pthread_attr_setschedparam(p, & sp);
+}
+
 /*
  * start the service sub-system.  Initiate polling sentinel and get
  * the service thread going.  Fatal error if we cant create the
@@ -94,13 +108,17 @@ void
 __shmem_service_thread_init(void)
 {
   int s;
+  pthread_attr_t pa;
 
   poll_mode = SERVICE_POLL;
 
   /* set the refractory period */
   __shmem_service_set_pause(backoff_secs);
 
-  s = pthread_create(& service_thr, NULL, service_thread, NULL);
+  /* prefer the processing thread over the service thread */
+  set_low_priority(& pa);
+
+  s = pthread_create(& service_thr, & pa, service_thread, NULL);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: can't create network service thread (%s)",
