@@ -126,6 +126,10 @@ __shmem_service_thread_init(void)
 		  );
     /* NOT REACHED */
   }
+
+  __shmem_trace(SHMEM_LOG_SERVICE,
+		"thread started"
+		);
 }
 
 /*
@@ -149,4 +153,8 @@ __shmem_service_thread_finalize(void)
 		  strerror(errno)
 		  );
   }
+
+  __shmem_trace(SHMEM_LOG_SERVICE,
+		"thread finished"
+		);
 }
