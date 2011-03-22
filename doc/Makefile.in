@@ -6,8 +6,11 @@ SHMEM_MANPAGES_3 = $(wildcard *.3)
 IMPL_LYX = openshmem-implementation.lyx
 IMPL_PDF = $(IMPL_LYX:.lyx=.pdf)
 
+REMOVE   = rm -f
+
 .PHONY: all default
-.PHONY: install install-man
+.PHONY: install install-man1 install-man3
+.PHONY: uninstall uninstall-man1 uninstall-man3
 .PHONY: clean
 
 .SUFFIXES: .lyx .pdf
@@ -21,15 +24,40 @@ IMPL_PDF = $(IMPL_LYX:.lyx=.pdf)
 
 all default:	$(IMPL_PDF)
 
+# -------------------------------------------------------------------
+
 install:	install-man1	install-man3
 
 install-man1:	all
 	mkdir -p $(PREFIX)/man/man1
-	install -c -m 644 $(SHMEM_MANPAGES_1) $(PREFIX)/man/man1
+	for p in $(SHMEM_MANPAGES_1); do \
+		install -c -m 644 $$p $(PREFIX)/man/man1; \
+	done
 
 install-man3:	all
 	mkdir -p $(PREFIX)/man/man3
-	# install -c -m 644 $(SHMEM_MANPAGES_3) $(PREFIX)/man/man3
+	for p in $(SHMEM_MANPAGES_3); do \
+		install -c -m 644 $$p $(PREFIX)/man/man3; \
+	done
+
+# -------------------------------------------------------------------
+
+uninstall:	uninstall-man1	uninstall-man3
+	-rmdir $(PREFIX)/man
+
+uninstall-man1:
+	for p in $(SHMEM_MANPAGES_1); do \
+		$(REMOVE) $(PREFIX)/man/man1/$$p; \
+	done
+	-rmdir $(PREFIX)/man/man1
+
+uninstall-man3:
+	for p in $(SHMEM_MANPAGES_3); do \
+		$(REMOVE) $(PREFIX)/man/man3/$$p; \
+	done
+	-rmdir $(PREFIX)/man/man3
+
+# -------------------------------------------------------------------
 
 clean:
-	rm -f $(IMPL_PDF)
+	$(REMOVE) $(IMPL_PDF)

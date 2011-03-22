@@ -10,54 +10,56 @@ progname="`basename $0`"
 prefix=/usr/local
 gasnet_root=$prefix
 gasnet_conduit=mpi
+cray_compat=FALSE
 # -- end defaults --
 
 show_usage()
 {
-  if [ $# -gt 0 ]
-  then
+    if [ $# -gt 0 ]; then
+	echo ""
+	echo "$progname: unknown option \"$@\""
+	echo ""
+    fi
+    echo "Usage: $progname [options]"
     echo ""
-    echo "$progname: unknown option \"$@\""
+    echo "    --prefix=PREFIX         Install to directory root PREFIX"
+    echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
+    echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
+    echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
     echo ""
-  fi
-  echo "Usage: $progname [options]"
-  echo ""
-  echo "    --prefix=PREFIX         Install to directory root PREFIX"
-  echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
-  echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
-  echo ""
-  echo "    --help                  Show this summary and exit"
-  echo ""
+    echo "    --help                  Show this summary and exit"
+    echo ""
 }
 
-for o in $@
-do
-  case $o in
-    --prefix=*)
-      prefix="`echo $o | sed 's/--prefix=//'`"
-      ;;
-    --with-gasnet-root=*)
-      gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
-      ;;
-    --with-gasnet-conduit=*)
-      gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
-      ;;
-    --help)
-      show_usage
-      exit 0
-      ;;
-    *)
-      show_usage $o
-      exit 1
-      ;;
-  esac
+for o in $@; do
+    case $o in
+	--prefix=*)
+	    prefix="`echo $o | sed 's/--prefix=//'`"
+	    ;;
+	--with-gasnet-root=*)
+	    gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
+	    ;;
+	--with-gasnet-conduit=*)
+	    gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
+	    ;;
+	--enable-cray-compat)
+	    cray_compat=TRUE
+	    ;;
+	--help)
+	    show_usage
+	    exit 0
+	    ;;
+	*)
+	    show_usage $o
+	    exit 1
+	    ;;
+    esac
 done
 
-if [ ! -r "$gasnet_root/include/gasnet.h" ]
-then
-  echo "$progname: can't find GASNet installation in \"$gasnet_root\""
-  echo "$progname: (no gasnet.h header file)"
-  exit 1
+if [ ! -r "$gasnet_root/include/gasnet.h" ]; then
+    echo "$progname: can't find GASNet installation in \"$gasnet_root\""
+    echo "$progname: (no gasnet.h header file)"
+    exit 1
 fi
 
 # -- ok, gasnet there, check compilers (default to GNU for now) --
@@ -87,6 +89,9 @@ echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 echo "$progname:"
+echo "$progname: Cray compatibility is $cray_compat"
+echo "$progname:"
+echo "$progname: ---------------------------------------"
 
 REWRITE_DIRS="
 .
@@ -99,25 +104,25 @@ REWRITE_DIRS="
 ./examples/Fortran
 "
 
-for d in $REWRITE_DIRS
-do
-  mf="$d/Makefile"
-  mfin="$mf.in"
-  sed \
-      -e "s%@CC@%$cc_cmd%g" \
-      -e "s%@CPPFLAGS@%$cpp_flags%g" \
-      -e "s%@CFLAGS@%$c_flags%g" \
-      -e "s%@CXX@%$cxx_cmd%g" \
-      -e "s%@CXXFLAGS@%$cxx_flags%g" \
-      -e "s%@FC@%$fc_cmd%g" \
-      -e "s%@FCFLAGS@%$fc_flags%g" \
-      -e "s%@LD@%$ld_cmd%g" \
-      -e "s%@LDFLAGS@%$ld_flags%g" \
-      -e "s%@PREFIX@%$prefix%g" \
-      -e "s%@GASNET_ROOT@%$gasnet_root%g" \
-      -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
-      < $mfin > $mf
-  echo "$progname: created $mf from $mfin"
+for d in $REWRITE_DIRS; do
+    mf="$d/Makefile"
+    mfin="$mf.in"
+    sed \
+	-e "s%@CC@%$cc_cmd%g" \
+	-e "s%@CPPFLAGS@%$cpp_flags%g" \
+	-e "s%@CFLAGS@%$c_flags%g" \
+	-e "s%@CXX@%$cxx_cmd%g" \
+	-e "s%@CXXFLAGS@%$cxx_flags%g" \
+	-e "s%@FC@%$fc_cmd%g" \
+	-e "s%@FCFLAGS@%$fc_flags%g" \
+	-e "s%@LD@%$ld_cmd%g" \
+	-e "s%@LDFLAGS@%$ld_flags%g" \
+	-e "s%@PREFIX@%$prefix%g" \
+	-e "s%@GASNET_ROOT@%$gasnet_root%g" \
+	-e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+	-e "s%@CRAY_COMPAT@%$cray_compat%g" \
+	< $mfin > $mf
+    echo "$progname: created $mf from $mfin"
 done
 
 cs=config.status

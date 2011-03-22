@@ -158,6 +158,8 @@ pstart_pes(int npes)
   }
 }
 
+#ifdef CRAY_COMPAT
+
 /*
  * same as shmem_init()
  */
@@ -181,3 +183,5 @@ pshmem_finalize(void)
 #pragma weak start_pes = pstart_pes
 #pragma weak shmem_init = pshmem_init
 #pragma weak shmem_finalize = pshmem_finalize
+
+#endif /* CRAY_COMPAT */

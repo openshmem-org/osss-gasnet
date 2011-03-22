@@ -209,8 +209,10 @@ FORTRANIFY(pstart_pes)(int *npes)
   pstart_pes(*npes);
 }
 
+#ifdef CRAY_COMPAT
 FORTRANIFY_VOID_VOID(pshmem_init)
 FORTRANIFY_VOID_VOID(pshmem_finalize)
+#endif /* CRAY_COMPAT */
 
 #define SHMEM_FORTRAN_QUERY_PE(Name)		\
   int						\
@@ -219,14 +221,15 @@ FORTRANIFY_VOID_VOID(pshmem_finalize)
     return Name();				\
   }
 
-SHMEM_FORTRAN_QUERY_PE(pshmem_my_pe)
 SHMEM_FORTRAN_QUERY_PE(pmy_pe)
-SHMEM_FORTRAN_QUERY_PE(p_my_pe)
 
+SHMEM_FORTRAN_QUERY_PE(pnum_pes)
+
+#ifdef CRAY_COMPAT
+SHMEM_FORTRAN_QUERY_PE(pshmem_my_pe)
 SHMEM_FORTRAN_QUERY_PE(pshmem_num_pes)
 SHMEM_FORTRAN_QUERY_PE(pshmem_n_pes)
-SHMEM_FORTRAN_QUERY_PE(pnum_pes)
-SHMEM_FORTRAN_QUERY_PE(p_num_pes)
+#endif /* CRAY_COMPAT */
 
 char *
 FORTRANIFY(pshmem_nodename)(void)
@@ -241,19 +244,19 @@ FORTRANIFY(pshmem_version)(int *major, int *minor)
 }
 
 #pragma weak start_pes_ = pstart_pes_
-#pragma weak shmem_init_ = pshmem_init_
-#pragma weak shmem_finalize_ = pshmem_finalize_
 #pragma weak shmem_nodename_ = pshmem_nodename_
 #pragma weak shmem_version_ = pshmem_version_
 
-#pragma weak shmem_my_pe_ = pshmem_my_pe_
 #pragma weak my_pe_ = pmy_pe_
-#pragma weak _my_pe_ = p_my_pe_
+#pragma weak num_pes_ = pnum_pes_
 
+#ifdef CRAY_COMPAT
+#pragma weak shmem_init_ = pshmem_init_
+#pragma weak shmem_finalize_ = pshmem_finalize_
+#pragma weak shmem_my_pe_ = pshmem_my_pe_
 #pragma weak shmem_num_pes_ = pshmem_num_pes_
 #pragma weak shmem_n_pes_ = pshmem_n_pes_
-#pragma weak num_pes_ = pnum_pes_
-#pragma weak _num_pes_ = p_num_pes_
+#endif /* CRAY_COMPAT */
 
 /*
  * barriers & fences

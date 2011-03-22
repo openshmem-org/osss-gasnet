@@ -1,7 +1,10 @@
 .PHONY: all all-doc all-src
 .PHONY: install install-doc install-src
+.PHONY: uninstall uninstall-doc uninstall-src
 .PHONY: clean clean-doc clean-src
 .PHONY: distclean
+
+# -------------------------------------------------------------
 
 all: all-doc all-src
 
@@ -20,6 +23,16 @@ install-doc:
 
 install-src:
 	$(MAKE) -C src install
+
+# -------------------------------------------------------------
+
+uninstall: uninstall-doc uninstall-src
+
+uninstall-doc:
+	$(MAKE) -C doc uninstall
+
+uninstall-src:
+	$(MAKE) -C src uninstall
 
 # -------------------------------------------------------------
 

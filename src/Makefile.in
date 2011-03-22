@@ -50,8 +50,11 @@ LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
 # CPPFLAGS        += -MMD
-CPPFLAGS        += -DDEBUG
 CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += -DDEBUG
+ifeq ( @CRAY_COMPAT@, TRUE )
+CPPFLAGS        += -DCRAY_COMPAT
+endif
 
 CFLAGS          += -fPIC
 CFLAGS          += -std=c99
