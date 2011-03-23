@@ -3,6 +3,19 @@
 # generated from OpenSHMEM src directory, don't edit installed version
 #
 
+progname="`basename $0`"
+
+show_usage_and_exit()
+{
+  echo "Usage: $progname [flags] source | objects ..."
+  exit 1
+}
+
+if [ $# -eq 0 ]
+then
+  show_usage_and_exit
+fi
+
 SHMEM_LDFLAGS='@SHMEM_LDFLAGS@'
 
 SHMEM_LIBS='@SHMEM_LIBS@'

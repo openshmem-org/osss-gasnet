@@ -3,21 +3,18 @@
 # generated from OpenSHMEM src directory, don't edit installed version
 #
 
-prog="`basename $0`"
+progname="`basename $0`"
 
 show_usage_and_exit()
 {
-  echo "Usage: $prog [conduit options] -np PEs program"
+  echo "Usage: $progname [conduit options] -np PEs program"
   exit 1
 }
 
-case $# in
-  0)
-    show_usage_and_exit
-    ;;
-  *)
-    ;;
-esac
+if [ $# -eq 0 ]
+then
+  show_usage_and_exit
+fi
 
 #
 # pass through args, trap -np N
