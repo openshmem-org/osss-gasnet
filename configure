@@ -98,6 +98,7 @@ REWRITE_DIRS="
 ./doc
 ./src
 ./src/comms
+./src/dlmalloc
 ./examples
 ./examples/C
 ./examples/C++
