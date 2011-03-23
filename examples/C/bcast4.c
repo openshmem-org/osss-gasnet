@@ -28,8 +28,9 @@ main(void)
   }
   shmem_barrier_all();
 
+  /*Number of PEs in the active set must be set properly, this test is expected to run with 4 PEs */
   if ( (me % 2) == 0) {
-    shmem_broadcast64(target, source, nlong, 0, 0, 1, 4, pSync);
+    shmem_broadcast64(target, source, nlong, 0, 0, 1, 2, pSync);
   }
 
   for (i = 0; i < 8; i++) {
