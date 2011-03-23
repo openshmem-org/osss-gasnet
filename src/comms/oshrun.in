@@ -20,7 +20,7 @@ fi
 # pass through args, trap -np N
 #
 
-npes="not specified"
+npes=""
 args=""
 
 while [ $# -gt 0 ]
@@ -37,14 +37,17 @@ do
   shift
 done
 
-case "$npes" in
-  [0-9]*)
-    # good
-    ;;
-   *)
-    show_usage_and_exit
-    ;;
-esac
+if [ "$npes" ]
+then
+  case "$npes" in
+    [0-9]*)
+      # good, user-supplied
+      ;;
+     *)
+      show_usage_and_exit
+      ;;
+  esac
+fi
 
 cmd=$1
 shift
@@ -59,7 +62,11 @@ case "@GASNET_CONDUIT@" in
     mpi|ibv)
 	RUN_IT="@GASNET_LD@"
 	# set number of PEs if provided (or may come from job scheduler)
-	[ "$npes" ] && RUN_IT="$RUN_IT -np $npes $cmd $@"
+	if [ "$npes" ]
+        then
+          RUN_IT="$RUN_IT -np $npes"
+        fi
+        RUN_IT="$RUN_IT $cmd $@"
 	;;
     *)
 	;;
