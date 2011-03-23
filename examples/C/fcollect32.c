@@ -7,7 +7,11 @@
 
 static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
-static int dst[4];
+static int src[4] = { 11, 12, 13, 14 };
+
+#define DST_SIZE 4
+
+static int dst[DST_SIZE];
 
 int npes;
 int me;
@@ -15,14 +19,13 @@ int me;
 int
 main(void)
 {
-  int src[4] = { 11, 12, 13, 14 };
   int i;
 
   start_pes(0);
   npes = _num_pes();
   me = _my_pe();
 
-  for (i = 0; i < sizeof(dst); i++) {
+  for (i = 0; i < DST_SIZE; i++) {
     dst[i] = -1;
   }
 
@@ -31,8 +34,6 @@ main(void)
   }
 
   shmem_barrier_all();
-
-  show_dst("BEFORE");
 
   shmem_fcollect32(dst, src, 2,
                    0, 0, 4,
@@ -47,7 +48,7 @@ show_dst(char *tag)
 {
   int i;
   printf("%8s: dst[%d/%d] = ", tag, me, npes);
-  for (i = 0; i < sizeof(dst); i+= 1) {
+  for (i = 0; i < DST_SIZE; i+= 1) {
     printf("%d ", dst[i]);
   }
   printf("\n");

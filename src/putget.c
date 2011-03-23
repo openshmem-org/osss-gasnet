@@ -7,6 +7,7 @@
 #include "comms.h"
 #include "updown.h"
 #include "trace.h"
+#include "atomic.h"
 
 #include "pshmem.h"
 
@@ -40,6 +41,7 @@ symmetric_test_with_abort(void *remote_addr,
     int typed_len = sizeof(Type) * len;					\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_len);					\
+      LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\

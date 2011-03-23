@@ -1,7 +1,7 @@
 #include "state.h"
 #include "comms.h"
 #include "trace.h"
-#include "comms.h"
+#include "atomic.h"
 
 #include "shmem.h"
 
@@ -20,21 +20,23 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
     const int step = 1 << logPE_stride;
     int i;
     int thatpe;
-    /* root signals everyone else */
+
+    /* phase 1: root waits for hello from everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      shmem_long_p(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE, thatpe);
+      shmem_long_wait(& pSync[thatpe], _SHMEM_SYNC_VALUE);
     }
-    /* root waits for ack from everyone else */
+
+    /* phase 2: root signals everyone else */
     for (thatpe = PE_start, i = 1; i < PE_size; i += 1) {
       thatpe += step;
-      shmem_wait(& pSync[thatpe], ~ _SHMEM_SYNC_VALUE);
+      shmem_long_p(& pSync[thatpe], _SHMEM_SYNC_VALUE - 1, thatpe);
     }
   }
   else {
-    /* non-root waits for root to signal, then tell root we're ready */
-    shmem_wait(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE);
-    shmem_long_p(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE, PE_start);
+    /* non-root tells root, then waits for ack */
+    shmem_long_p(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE - 1, PE_start);
+    shmem_long_wait(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE);
   }
   /* restore pSync values */
   pSync[GET_STATE(mype)] = _SHMEM_SYNC_VALUE;

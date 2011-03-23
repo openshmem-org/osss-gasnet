@@ -5,6 +5,7 @@
 #include "trace.h"
 #include "symmem.h"
 #include "utils.h"
+#include "atomic.h"
 
 #include "shmem.h"
 
@@ -28,47 +29,70 @@ pshmem_collect32(void *target, const void *source, size_t nelems,
 {
   const int step = 1 << logPE_stride;
   const int last_pe = PE_start + step * (PE_size - 1);
-  long save = pSync[0];
+  const int me = GET_STATE(mype);
   long *acc_off = & (pSync[0]);
 
   INIT_CHECK();
 
-  /* make sure accumulator has been initialized on all active PEs */
-  *acc_off = (GET_STATE(mype) > PE_start) ? -1 : 0;
+  __shmem_trace(SHMEM_LOG_COLLECT,
+		"PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d",
+		PE_start,
+		step,
+		PE_size,
+		last_pe
+		);
 
-  /*
-   * wait for left neighbor (if it exists) to send accumulated
-   * offsets
-   */
-  if (GET_STATE(mype) > PE_start) {
-    shmem_long_wait(acc_off, -1);
+  /* initialize left-most or wait for left-neighbor to notify */
+  if (me == PE_start) {
+    *acc_off = 0;
   }
+
+  shmem_long_wait(acc_off, _SHMEM_SYNC_VALUE);
+  __shmem_trace(SHMEM_LOG_COLLECT,
+		"got acc_off = %ld",
+		*acc_off
+		);
 
   /*
    * forward my contribution to (notify) right neighbor if not last PE
    * in set
    */
-  if (GET_STATE(mype) < last_pe) {
-    const long next_off = *acc_off + nelems;
-    const int rnei = GET_STATE(mype) + step;
+  if (me < last_pe) {
+    long next_off = *acc_off + nelems;
+    int rnei = me + step;
 
     shmem_long_p(acc_off, next_off, rnei);
+
+    __shmem_trace(SHMEM_LOG_COLLECT,
+		  "put next_off = %ld to rnei = %d",
+		  next_off,
+		  rnei
+		  );
   }
 
   /* send my array slice to target everywhere */
   {
-    const long tidx = *acc_off * sizeof(int);
+    long tidx = *acc_off * sizeof(int);
     int i;
     int pe = PE_start;
 
     for (i = 0; i < PE_size; i += 1) {
       shmem_put32(target + tidx, source, nelems, pe);
+      __shmem_trace(SHMEM_LOG_COLLECT,
+		    "put32: tidx = %ld -> %d",
+		    tidx,
+		    pe
+		    );
       pe += step;
     }
   }
 
-  /* wait for everyone to finish and clean up */
-  *acc_off = save;
+  /* clean up, and wait for everyone to finish */
+  *acc_off = _SHMEM_SYNC_VALUE;
+  __shmem_trace(SHMEM_LOG_COLLECT,
+		"acc_off before barrier = %ld",
+		*acc_off
+		);
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
 }
 
