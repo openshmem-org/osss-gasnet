@@ -11,6 +11,7 @@ int
 pshmem_pe_accessible(int pe)
 {
   INIT_CHECK();
+  PE_RANGE_CHECK(pe);
   return __shmem_comms_ping_request(pe);
 }
 
@@ -24,6 +25,7 @@ int
 pshmem_addr_accessible(void *addr, int pe)
 {
   INIT_CHECK();
+  PE_RANGE_CHECK(pe);
   return __shmem_comms_addr_accessible(addr, pe);
 }
 

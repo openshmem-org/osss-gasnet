@@ -16,6 +16,7 @@ void *
 pshmem_ptr(void *target, int pe)
 {
   INIT_CHECK();
+  PE_RANGE_CHECK(pe);
 
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 

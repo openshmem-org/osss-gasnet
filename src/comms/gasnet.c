@@ -274,6 +274,7 @@ void __shmem_comms_globalvar_put_request(); /* forward decl */
 void
 __shmem_comms_put(void *dst, void *src, size_t len, int pe)
 {
+  
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_comms_is_globalvar(dst)) {
     __shmem_comms_globalvar_put_request(dst, src, len, pe);

@@ -21,6 +21,7 @@
     size_t ti = 0, si = 0;						\
     size_t i;								\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     for (i = 0; i < nelems; i += 1) {					\
       shmem_##Name##_p(& (target[ti]), source[si], pe);			\
       ti += tst;							\
@@ -71,6 +72,7 @@ SHMEM_EMIT_IPUT(longlong, long long)
     size_t ti = 0, si = 0;						\
     size_t i;								\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     for (i = 0; i < nelems; i += 1) {					\
       target[ti] = shmem_##Name##_g((Type *) & (source[si]), pe);	\
       ti += tst;							\

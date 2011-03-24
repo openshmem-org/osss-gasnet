@@ -8,6 +8,7 @@
 #include "updown.h"
 #include "trace.h"
 #include "atomic.h"
+#include "utils.h"
 
 #include "pshmem.h"
 
@@ -39,6 +40,8 @@ symmetric_test_with_abort(void *remote_addr,
   pshmem_##Name##_put(Type *dest, const Type *src, size_t len, int pe)	\
   {									\
     int typed_len = sizeof(Type) * len;					\
+    INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_len);					\
       LOAD_STORE_FENCE();						\
@@ -85,8 +88,11 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
   pshmem_##Name##_get(Type *dest, const Type *src, size_t len, int pe)	\
   {									\
     int typed_len = sizeof(Type) * len;					\
+    INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_len);					\
+      LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
@@ -186,6 +192,8 @@ SHMEM_TYPE_G_WRAPPER(long, long)
   void *								\
   pshmem_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
   {									\
+    INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     return __shmem_comms_##Name##_put_nb(target, source, len, pe);	\
   }
 

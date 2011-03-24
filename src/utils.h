@@ -8,6 +8,14 @@
 
 #include "state.h"
 
+#define IF_DEBUGGING(x) do { x ; } while (0)
+
+#else /* ! DEBUG */
+
+#define IF_DEBUGGING(x)
+
+#endif /* DEBUG */
+
 /*
  * if we haven't initialized through start_pes() then try to do
  * something constructive.  Obviously can't use __shmem_trace()
@@ -16,22 +24,30 @@
  */
 
 #define INIT_CHECK()							\
-  do {									\
-    if (__state.pe_status != PE_RUNNING) {				\
-      fprintf(stderr,							\
-	      "Error: OpenSHMEM library has not been initialized\n"	\
-	      );							\
-      exit(1);								\
-      /* NOT REACHED */							\
-    }									\
-  } while (0)
+  IF_DEBUGGING(								\
+	       if (GET_STATE(pe_status) != PE_RUNNING) {		\
+		 fprintf(stderr,					\
+			 "Error: OpenSHMEM library has not been initialized\n" \
+			 );						\
+		 exit(1);						\
+		 /* NOT REACHED */					\
+	       }							\
+	       )
 
-#else /* ! DEBUG */
+/*
+ * make sure a target PE is within the assigned range
+ *
+ */
 
-#define INIT_CHECK()
+#include "trace.h"
+#include "query.h"
 
-#endif /* DEBUG */
+#define PE_RANGE_CHECK(p) IF_DEBUGGING(__shmem_pe_range_check(p))
 
+/*
+ * how many elements in array T?
+ *
+ */
 #define TABLE_SIZE(T) ( sizeof(T) / sizeof((T)[0]) )
 
 #endif /* _UTILS_H */

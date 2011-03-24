@@ -34,6 +34,7 @@ __shmem_atomic_finalize(void)
   {									\
     Type retval;							\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     __shmem_comms_swap_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
@@ -68,6 +69,7 @@ SHMEM_TYPE_SWAP(float, float)
   {									\
     Type retval;							\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     __shmem_comms_cswap_request(target, &cond, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
@@ -90,7 +92,8 @@ SHMEM_TYPE_CSWAP(longlong, long long)
   {									\
     Type retval;							\
     INIT_CHECK();							\
-    __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
+    PE_RANGE_CHECK(pe);							\
+  __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
   
@@ -109,6 +112,7 @@ SHMEM_TYPE_FADD(longlong, long long)
   {									\
     Type retval;							\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     __shmem_comms_finc_request(target, sizeof(Type), pe, &retval);	\
     return retval;							\
   }
@@ -132,6 +136,7 @@ SHMEM_TYPE_FINC(longlong, long long)
   pshmem_##Name##_add(Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     __shmem_comms_add_request(target, &value, sizeof(Type), pe);	\
   }
   
@@ -149,6 +154,7 @@ SHMEM_TYPE_ADD(longlong, long long)
   pshmem_##Name##_inc(Type *target, int pe)				\
   {									\
     INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
     __shmem_comms_inc_request(target, sizeof(Type), pe);		\
   }
 
