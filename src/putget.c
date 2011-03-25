@@ -210,5 +210,5 @@ SHMEM_TYPE_PUT_NB(float, float)
 #pragma weak shmem_long_put_nb = pshmem_long_put_nb
 #pragma weak shmem_longdouble_put_nb = pshmem_longdouble_put_nb
 #pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
-#pragma weak shmem_double_g_nb = pshmem_double_put_nb
+#pragma weak shmem_double_put_nb = pshmem_double_put_nb
 #pragma weak shmem_float_put_nb = pshmem_float_put_nb
