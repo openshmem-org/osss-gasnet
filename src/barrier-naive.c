@@ -14,9 +14,10 @@ pshmem_barrier_all_naive(void)
 void
 pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  long save = pSync[0];
+  const int me = GET_STATE(mype);
+  const long save = pSync[0];
 
-  if (GET_STATE(mype) == PE_start) {
+  if (me == PE_start) {
     const int step = 1 << logPE_stride;
     int i;
     int thatpe;
@@ -35,9 +36,9 @@ pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
   }
   else {
     /* non-root tells root, then waits for ack */
-    shmem_long_p(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE - 1, PE_start);
-    shmem_long_wait(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE);
+    shmem_long_p(& pSync[me], _SHMEM_SYNC_VALUE - 1, PE_start);
+    shmem_long_wait(& pSync[me], _SHMEM_SYNC_VALUE);
   }
   /* restore pSync values */
-  pSync[GET_STATE(mype)] = save;
+  pSync[me] = save;
 }
