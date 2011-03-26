@@ -11,10 +11,11 @@ main(void)
   long *target;
   static long source[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
   int nlong = 8;
-  int me;
+  int me, npes;
 
   start_pes(0);
   me = _my_pe();
+  npes = _num_pes();
 
   target = (long *) shmalloc( 8 * sizeof(*target) );
 
@@ -23,7 +24,7 @@ main(void)
   }
   shmem_barrier_all();
 
-  shmem_broadcast64(target, source, nlong, 0, 0, 0, 4, pSync);
+  shmem_broadcast64(target, source, nlong, 0, 0, 0, npes, pSync);
 
   if (me != 0) {
     int i;
