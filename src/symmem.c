@@ -79,6 +79,8 @@ __shmalloc_no_check(size_t size)
 {
   void *addr;
 
+  shmem_barrier_all();		/* so say the SGI docs */
+
   addr = __shmem_mem_alloc(size);
 
   if (addr == (void *) NULL) {
@@ -96,8 +98,6 @@ __shmalloc_no_check(size_t size)
 		"shmalloc(%ld bytes) @ %p",
 		size, addr
 		);
-
-  shmem_barrier_all();		/* so say the SGI docs */
 
   return addr;
 }
