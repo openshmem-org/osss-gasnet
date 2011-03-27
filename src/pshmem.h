@@ -81,7 +81,7 @@ extern "C" {
   extern long double pshmem_longdouble_g(long double *addr, int pe) _WUR;
 
 
-#if 0
+#if defined(HAVE_PUTS_NB)
   /*
    * non-blocking I/O
    */
@@ -98,7 +98,7 @@ extern "C" {
   extern void * pshmem_put64_nb(void *dest, const void *src, size_t len, int pe) _WUR;
   extern void * pshmem_put128_nb(void *dest, const void *src, size_t len, int pe) _WUR;
 
-#endif /* NOTYET */
+#endif /* HAVE_PUTS_NB */
 
   /*
    * strided I/O

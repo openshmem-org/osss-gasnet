@@ -183,6 +183,8 @@ SHMEM_TYPE_G_WRAPPER(long, long)
 #pragma weak shmem_double_g = pshmem_double_g
 #pragma weak shmem_float_g = pshmem_float_g
 
+#if defined(HAVE_PUTS_NB)
+
 /*
  * non-blocking extensions
  */
@@ -212,3 +214,5 @@ SHMEM_TYPE_PUT_NB(float, float)
 #pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
 #pragma weak shmem_double_put_nb = pshmem_double_put_nb
 #pragma weak shmem_float_put_nb = pshmem_float_put_nb
+
+#endif /* HAVE_PUTS_NB */
