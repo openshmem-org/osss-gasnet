@@ -11,7 +11,7 @@ REMOVE   = rm -f
 .PHONY: all default
 .PHONY: install install-man1 install-man3
 .PHONY: uninstall uninstall-man1 uninstall-man3
-.PHONY: clean
+.PHONY: clean distclean
 
 .SUFFIXES: .lyx .pdf
 
@@ -60,4 +60,7 @@ uninstall-man3:
 # -------------------------------------------------------------------
 
 clean:
+
+distclean: clean
 	$(REMOVE) $(IMPL_PDF)
+	$(REMOVE) Makefile

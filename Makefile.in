@@ -47,5 +47,6 @@ clean-src:
 # -------------------------------------------------------------
 
 distclean:	clean
+	$(MAKE) -C doc $@
+	$(MAKE) -C src $@
 	rm -f config.status
-	rm -f src/Makefile doc/Makefile
