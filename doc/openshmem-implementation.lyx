@@ -1,4 +1,4 @@
-#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -287,7 +287,7 @@ The overall structure of the reference library is shown below.
 
 \begin_layout Title
 \begin_inset Graphics
-	filename Slide17.png
+	filename implementation.png
 	lyxscale 50
 	scale 50
 
