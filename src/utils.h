@@ -42,12 +42,21 @@
 #include "trace.h"
 #include "query.h"
 
-#define PE_RANGE_CHECK(p) IF_DEBUGGING(__shmem_pe_range_check(p))
+#define PE_RANGE_CHECK(p)						\
+  IF_DEBUGGING(								\
+	       {							\
+		 const int bot_pe = 0;					\
+		 const int top_pe = GET_STATE(numpes) - 1;		\
+		 if (pe < bot_pe || pe > top_pe) {			\
+		   __shmem_trace(SHMEM_LOG_FATAL,			\
+				 "Target PE %d not within allocated range %d .. %d", \
+				 pe, bot_pe, top_pe			\
+				 );					\
+		   /* NOT REACHED */					\
+		 }							\
+	       }							\
+	       )
 
-/*
- * check the PE is within program allocation
- */
-extern void __shmem_pe_range_check(int pe);
 
 /*
  * how many elements in array T?
