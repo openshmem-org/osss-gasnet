@@ -52,7 +52,7 @@ SHMEM_MATH_FUNC(complexf, float complex)
   static inline Type				\
   xor_##Name##_func(Type a, Type b)		\
   {						\
-    return (a) != (b);				\
+    return !(a) ^ !(b);				\
   }
 
 SHMEM_LOGIC_FUNC(short, short)
@@ -107,7 +107,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     int pe;								\
 									\
     INIT_CHECK();							\
-									\
+    									\
     void *rdest = __shmem_symmetric_addr_lookup(target, GET_STATE(mype)); \
     symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
     /* init target with own source, and wait for all */			\

@@ -56,31 +56,3 @@ SHMEM_MY_PE(shmem_my_pe)
 #pragma weak shmem_num_pes = pshmem_num_pes
 #pragma weak shmem_n_pes = pshmem_n_pes
 #endif /* CRAY_COMPAT */
-
-/*
- * check the target PE "pe" is within the program range
- *
- */
-
-void
-__shmem_pe_range_check(int pe)
-{
-  const int top_pe = GET_STATE(numpes) - 1;
-
-  if (pe < 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "Target PE out of range (%d < %d)",
-		  pe,
-		  0
-		  );
-    /* NOT REACHED */
-  }
-  else if (pe > top_pe) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "Target PE out of range (%d > %d)",
-		  pe,
-		  top_pe
-		  );
-    /* NOT REACHED */
-  }
-}

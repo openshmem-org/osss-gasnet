@@ -45,6 +45,11 @@
 #define PE_RANGE_CHECK(p) IF_DEBUGGING(__shmem_pe_range_check(p))
 
 /*
+ * check the PE is within program allocation
+ */
+extern void __shmem_pe_range_check(int pe);
+
+/*
  * how many elements in array T?
  *
  */

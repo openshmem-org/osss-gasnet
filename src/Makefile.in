@@ -91,7 +91,7 @@ SHMEM_SOURCES   +=	cache.c fence.c lock.c
 SHMEM_SOURCES   +=	putget.c strided.c
 #
 SHMEM_SOURCES   +=	query.c symmem.c updown.c waituntil.c \
-			version.c
+			version.c utils.c
 
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
