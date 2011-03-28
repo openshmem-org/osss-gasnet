@@ -1,4 +1,4 @@
-#LyX 1.6.6.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -1878,6 +1878,67 @@ Ideas for extensions to SHMEM to go into OpenSHMEM need to be requested
  A decision process will determine which ideas are eventually implemented.
  The library that this document refers to is hopefully a good platform for
  these developments.
+\end_layout
+
+\begin_layout Standard
+A number of extensions have already been proposed, and in fact have been
+ implemented in other SHMEM libraries.
+ These include (but are not limited to)
+\end_layout
+
+\begin_layout Itemize
+thread-safety: providing thread-safe SHMEM routines that can operate in
+ threaded environments, 
+\emph on
+e.g.
+
+\emph default
+ alongside OpenMP;
+\end_layout
+
+\begin_layout Itemize
+non-blocking puts: put routines that return per-communication handles to
+ the caller.
+ The handles can be tested later for completion (present in Cray and Quadrics
+ SHMEMs);
+\end_layout
+
+\begin_layout Itemize
+locality: exposing information about topology to the library and/or its
+ API;
+\end_layout
+
+\begin_layout Itemize
+regularized namespace: currently routines are a strange brew of 
+\begin_inset Quotes eld
+\end_inset
+
+shmem_
+\begin_inset Quotes erd
+\end_inset
+
+ prefixes, 
+\begin_inset Quotes eld
+\end_inset
+
+start_pes
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+_my_pe
+\begin_inset Quotes erd
+\end_inset
+
+ and so on.
+ Providing an API with a consistent naming scheme would be useful;
+\end_layout
+
+\begin_layout Itemize
+Fortran module, C++ API: provide better language support.
 \end_layout
 
 \end_body
