@@ -8,7 +8,9 @@ CFLAGS          += -fPIC
 
 .PHONY: all default clean
 
-all default:	dlmalloc.c
+all default:	dlmalloc.o
+
+dlmalloc.o:	dlmalloc.c
 	$(CC) -c -DONLY_MSPACES=1 -DUSE_LOCKS=1 $(CFLAGS) $^
 
 clean:
