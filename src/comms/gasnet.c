@@ -342,13 +342,15 @@ __shmem_comms_get_val(void *src, size_t len, int pe)
 }
 
 /*
+ * ---------------------------------------------------------------------------
+ *
  * non-blocking puts: not part of current API
  */
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
   void *								\
-  __shmem_comms_##Name##_put_nb(Type *target, Type *source, size_t len, int pe) \
+  __shmem_comms_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
-    return gasnet_put_nb(pe, target, source, sizeof(Type) * len);	\
+    return gasnet_put_nb(pe, target, (Type *) source, sizeof(Type) * len);	\
   }
 
 COMMS_TYPE_PUT_NB(short, short)
@@ -361,11 +363,35 @@ COMMS_TYPE_PUT_NB(float, float)
 
 #pragma weak __shmem_comms_putmem_nb = __shmem_comms_long_put_nb
 
+#define COMMS_TYPE_GET_NB(Name, Type)					\
+  void *								\
+  __shmem_comms_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
+  {									\
+    return gasnet_get_nb(target, pe, (Type *) source, sizeof(Type) * len);	\
+  }
+
+COMMS_TYPE_GET_NB(short, short)
+COMMS_TYPE_GET_NB(int, int)
+COMMS_TYPE_GET_NB(long, long)
+COMMS_TYPE_GET_NB(longdouble, long double)
+COMMS_TYPE_GET_NB(longlong, long long)
+COMMS_TYPE_GET_NB(double, double)
+COMMS_TYPE_GET_NB(float, float)
+
+#pragma weak __shmem_comms_getmem_nb = __shmem_comms_long_get_nb
+
 void
 __shmem_comms_wait_nb(void *h)
 {
   gasnet_wait_syncnb((gasnet_handle_t) h);
   LOAD_STORE_FENCE();
+}
+
+int
+__shmem_comms_test_nb(void *h)
+{
+  int s = gasnet_try_syncnb((gasnet_handle_t) h);
+  return (s == GASNET_OK) ? 1 : 0;
 }
 
 /*

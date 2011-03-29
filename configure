@@ -11,6 +11,7 @@ prefix=/usr/local
 gasnet_root=$prefix
 gasnet_conduit=mpi
 cray_compat=FALSE
+putget_nb=FALSE
 # -- end defaults --
 
 show_usage()
@@ -27,6 +28,7 @@ show_usage()
     echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
     echo ""
     echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
+    echo "    --enable-putget-nb      Enable the non-blocking extensions"
     echo ""
     echo "    --help                  Show this summary and exit"
     echo ""
@@ -45,6 +47,15 @@ for o in $@; do
 	    ;;
 	--enable-cray-compat)
 	    cray_compat=TRUE
+	    ;;
+	--disable-cray-compat)
+	    cray_compat=FALSE
+	    ;;
+	--enable-putget-nb)
+	    putget_nb=TRUE
+	    ;;
+	--disable-putget-nb)
+	    putget_nb=FALSE
 	    ;;
 	--help)
 	    show_usage
@@ -91,6 +102,7 @@ echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 echo "$progname:"
 echo "$progname: Cray compatibility is $cray_compat"
+echo "$progname: Non-blocking extensions are $putget_nb"
 echo "$progname:"
 echo "$progname: ---------------------------------------"
 
@@ -123,6 +135,7 @@ for d in $REWRITE_DIRS; do
 	-e "s%@GASNET_ROOT@%$gasnet_root%g" \
 	-e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
 	-e "s%@CRAY_COMPAT@%$cray_compat%g" \
+	-e "s%@PUTGET_NB@%$putget_nb%g" \
 	< $mfin > $mf
     echo "$progname: created $mf from $mfin"
 done

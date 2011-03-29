@@ -563,6 +563,24 @@ extern "C" {
   extern void pshmem_clear_lock(long *lock);
   extern int  pshmem_test_lock(long *lock) _WUR;
 
+
+  /*
+   * non-blocking I/O (If enabled at configuration)
+   */
+
+  extern void * pshmem_short_put_nb(short *target, const short *source, size_t len, int pe) _WUR;
+  extern void * pshmem_int_put_nb(int *target, const int *source, size_t len, int pe) _WUR;
+  extern void * pshmem_long_put_nb(long *target, const long *source, size_t len, int pe) _WUR;
+  extern void * pshmem_longlong_put_nb(long long *target, const long long *source, size_t len, int pe) _WUR;
+  extern void * pshmem_longdouble_put_nb(long double *target, const long double *source, size_t len, int pe) _WUR;
+  extern void * pshmem_double_put_nb(double *target, const double *source, size_t len, int pe) _WUR;
+  extern void * pshmem_float_put_nb(float *target, const float *source, size_t len, int pe) _WUR;
+  extern void * pshmem_putmem_nb(void *target, const void *source, size_t len, int pe) _WUR;
+  extern void * pshmem_put32_nb(void *target, const void *source, size_t len, int pe) _WUR;
+  extern void * pshmem_put64_nb(void *target, const void *source, size_t len, int pe) _WUR;
+  extern void * pshmem_put128_nb(void *target, const void *source, size_t len, int pe) _WUR;
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
