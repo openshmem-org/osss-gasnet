@@ -52,8 +52,12 @@ LDFLAGS          = @LDFLAGS@
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += -DDEBUG
-ifeq ( @CRAY_COMPAT@, TRUE )
+ifeq "@CRAY_COMPAT@" "TRUE"
 CPPFLAGS        += -DCRAY_COMPAT
+endif
+
+ifeq "@PUTS_NB@" "TRUE"
+CPPFLAGS        += -DHAVE_PUTS_NB
 endif
 
 CFLAGS          += -fPIC

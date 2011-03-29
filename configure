@@ -25,6 +25,7 @@ show_usage()
     echo "    --prefix=PREFIX         Install to directory root PREFIX"
     echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
     echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
+    echo ""
     echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
     echo ""
     echo "    --help                  Show this summary and exit"
