@@ -8,7 +8,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "shmem.h"
+#include "pshmem.h"
 
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
@@ -121,7 +121,7 @@ pshmalloc(size_t size)
 
   addr = __shmalloc_no_check(size);
 
-  shmem_barrier_all();		/* so say the SGI docs */
+  pshmem_barrier_all();
 
   return addr;
 }
@@ -151,7 +151,7 @@ pshfree(void *addr)
 
   malloc_error = SHMEM_MALLOC_OK;
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 }
 #pragma weak pshmem_free = pshfree
 
@@ -199,7 +199,7 @@ pshrealloc(void *addr, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 
   return newaddr;
 }
@@ -236,7 +236,7 @@ pshmemalign(size_t alignment, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  shmem_barrier_all();
+  pshmem_barrier_all();
 
   return addr;
 }
