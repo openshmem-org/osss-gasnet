@@ -13,7 +13,7 @@ main()
   int me, npes;
   int i;
 
-  for (i = 0; i < NPES; i += 1) {
+  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
     pSync[i] = _SHMEM_SYNC_VALUE;
   }
 

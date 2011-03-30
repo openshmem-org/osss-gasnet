@@ -36,5 +36,7 @@ main(void)
     printf("%s\n", (fabsf(*f - e) < epsilon) ? "OK" : "FAIL");
   }
 
+  shfree(f);
+
   return 0;
 }

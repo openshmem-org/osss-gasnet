@@ -17,7 +17,7 @@ main(void)
   me = _my_pe();
   npes = _num_pes();
 
-  source = (long *) malloc( npes * sizeof(*source) );
+  source = (long *) shmalloc( npes * sizeof(*source) );
   for (i = 0; i < npes; i += 1) {
     source[i] = i + 1;
   }
@@ -41,7 +41,7 @@ main(void)
   shmem_barrier_all();
   
   shfree(target);
-  free(source);
+  shfree(source);
 
   return 0;
 }

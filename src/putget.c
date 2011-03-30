@@ -53,6 +53,7 @@ symmetric_test_with_abort(void *remote_addr,
     }									\
   }
 
+SHMEM_TYPE_PUT(char, char)
 SHMEM_TYPE_PUT(short, short)
 SHMEM_TYPE_PUT(int, int)
 SHMEM_TYPE_PUT(long, long)
@@ -62,7 +63,7 @@ SHMEM_TYPE_PUT(double, double)
 SHMEM_TYPE_PUT(float, float)
 SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
 
-#pragma weak pshmem_putmem = pshmem_long_put
+#pragma weak pshmem_putmem = pshmem_char_put
 #pragma weak pshmem_put = pshmem_long_put
 #pragma weak pshmem_put32 = pshmem_int_put
 #pragma weak pshmem_put64 = pshmem_long_put
@@ -101,6 +102,7 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
     }									\
   }
 
+SHMEM_TYPE_GET(char, char)
 SHMEM_TYPE_GET(short, short)
 SHMEM_TYPE_GET(int, int)
 SHMEM_TYPE_GET(long, long)
@@ -109,7 +111,7 @@ SHMEM_TYPE_GET(longlong, long long)
 SHMEM_TYPE_GET(double, double)
 SHMEM_TYPE_GET(float, float)
 
-#pragma weak pshmem_getmem = pshmem_long_get
+#pragma weak pshmem_getmem = pshmem_char_get
 #pragma weak pshmem_get = pshmem_long_get
 #pragma weak pshmem_get32 = pshmem_int_get
 #pragma weak pshmem_get64 = pshmem_long_get

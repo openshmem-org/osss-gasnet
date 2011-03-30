@@ -103,8 +103,7 @@ __shmem_broadcast_dispatch_init(void)
     broadcast32_func = lookup(brtp32, n_broadcast32, DEFAULT_BROADCAST_ALGORITHM);
   }
 
-
- broadcast64_name =  __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
+  broadcast64_name =  __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
   if (broadcast64_name == (char *) NULL) {
     broadcast64_name = DEFAULT_BROADCAST_ALGORITHM;
   }

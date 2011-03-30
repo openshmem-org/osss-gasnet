@@ -121,7 +121,7 @@ pshmalloc(size_t size)
 
   addr = __shmalloc_no_check(size);
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   return addr;
 }
@@ -151,7 +151,8 @@ pshfree(void *addr)
 
   malloc_error = SHMEM_MALLOC_OK;
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
+
 }
 #pragma weak pshmem_free = pshfree
 
@@ -199,7 +200,7 @@ pshrealloc(void *addr, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   return newaddr;
 }
@@ -236,7 +237,7 @@ pshmemalign(size_t alignment, size_t size)
     malloc_error = SHMEM_MALLOC_OK;
   }
 
-  pshmem_barrier_all();
+  shmem_barrier_all();
 
   return addr;
 }

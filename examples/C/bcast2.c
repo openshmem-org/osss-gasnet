@@ -33,7 +33,6 @@ main(void)
     }
   }
   
-  shmem_barrier_all();
   shfree(target);
 
   return 0;

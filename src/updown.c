@@ -27,7 +27,6 @@
 void
 __shmem_exit(int status)
 {
-  __shmem_comms_barrier_all();
   __shmem_service_thread_finalize();
 
   /* ok, no more pending I/O ... */
@@ -102,15 +101,15 @@ pstart_pes(int npes)
   /* set up communications layer */
   __shmem_comms_init();
 
-  /* start network service thread */
-  __shmem_service_thread_init();
-
   /* see if we want to say which message/trace levels are active */
   __shmem_maybe_tracers_show_info();
   __shmem_tracers_show();
 
   /* set up any locality information */
   __shmem_place_init();
+
+  /* start network service thread */
+  __shmem_service_thread_init();
 
   /* set up PE memory management */
   __shmem_symmetric_memory_init();
@@ -124,6 +123,7 @@ pstart_pes(int npes)
   /* set up barrier selection */
   __shmem_barrier_dispatch_init();
   __shmem_broadcast_dispatch_init();
+
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,

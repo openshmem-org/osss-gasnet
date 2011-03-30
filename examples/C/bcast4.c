@@ -33,11 +33,11 @@ main(void)
     shmem_broadcast64(target, source, nlong, 0, 0, 1, 2, pSync);
   }
 
+  shmem_barrier_all();
+  
   for (i = 0; i < 8; i++) {
     printf("%d: target[%d] = %ld\n", me, i, target[i]);
   }
-  
-  shmem_barrier_all();
 
   shfree(target);
 

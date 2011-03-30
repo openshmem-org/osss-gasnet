@@ -408,6 +408,8 @@ __shmem_comms_barrier_all(void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
+  __shmem_comms_fence_request();
+
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
@@ -860,11 +862,11 @@ __shmem_comms_init(void)
    * make sure all nodes are up to speed before "declaring"
    * initialization done
    */
-  __shmem_comms_barrier_all();
-
   __shmem_trace(SHMEM_LOG_INIT,
 		"communication layer initialization complete"
 		);
+
+  __shmem_comms_barrier_all();
 
   /* Up and running! */
 }
@@ -2034,7 +2036,6 @@ void
 __shmem_comms_fence_request(void)
 {
   __shmem_service_set_mode(SERVICE_FENCE);
-
   __shmem_service_set_mode(SERVICE_POLL);
 }
 

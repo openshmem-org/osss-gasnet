@@ -8,7 +8,6 @@
 
 
 #define SHMEM_BROADCAST_TYPE(Name, Size)				\
-  /* @api */								\
   void									\
   __shmem_broadcast##Name##_naive (void *target, const void *source, size_t nlong, \
 				   int PE_root, int PE_start,		\
