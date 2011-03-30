@@ -45,12 +45,10 @@ extern "C" {
   extern void   shmem_finalize(void);
 
   extern int    shmem_my_pe(void) _WUR;
-  extern int    my_pe(void) _WUR;
   extern int    _my_pe(void) _WUR;
 
   extern int    shmem_num_pes(void) _WUR;
   extern int    shmem_n_pes(void) _WUR;
-  extern int    num_pes(void) _WUR;
   extern int    _num_pes(void) _WUR;
 
   extern char * shmem_nodename(void) _WUR;

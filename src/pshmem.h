@@ -21,12 +21,10 @@ extern "C" {
   extern void   pshmem_finalize(void);
 
   extern int    pshmem_my_pe(void) _WUR;
-  extern int    pmy_pe(void) _WUR;
   extern int    p_my_pe(void) _WUR;
 
   extern int    pshmem_num_pes(void) _WUR;
   extern int    pshmem_n_pes(void) _WUR;
-  extern int    pnum_pes(void) _WUR;
   extern int    p_num_pes(void) _WUR;
 
   extern char * pshmem_nodename(void) _WUR;

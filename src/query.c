@@ -17,7 +17,7 @@
     return GET_STATE(mype);			\
   }
 
-SHMEM_MY_PE(my_pe)
+// SHMEM_MY_PE(my_pe)
 SHMEM_MY_PE(_my_pe)
 
 #define SHMEM_NUM_PES(Variant)			\
@@ -28,7 +28,7 @@ SHMEM_MY_PE(_my_pe)
     return GET_STATE(numpes);			\
   }
 
-SHMEM_NUM_PES(num_pes)
+// SHMEM_NUM_PES(num_pes)
 SHMEM_NUM_PES(_num_pes)
 
 char *
@@ -39,10 +39,10 @@ pshmem_nodename(void)
 }
 
 
-#pragma weak my_pe = pmy_pe
+// #pragma weak my_pe = pmy_pe
 #pragma weak _my_pe = p_my_pe
 
-#pragma weak num_pes = pnum_pes
+// #pragma weak num_pes = pnum_pes
 #pragma weak _num_pes = p_num_pes
 
 #pragma weak shmem_nodename = pshmem_nodename

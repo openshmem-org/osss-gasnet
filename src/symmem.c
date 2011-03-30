@@ -133,6 +133,8 @@ pshfree(void *addr)
 {
   INIT_CHECK();
 
+  shmem_barrier_all();
+
   if (addr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_MEMORY,
 		  "address passed to shfree() already null"
@@ -150,8 +152,6 @@ pshfree(void *addr)
   __shmem_mem_free(addr);
 
   malloc_error = SHMEM_MALLOC_OK;
-
-  shmem_barrier_all();
 
 }
 #pragma weak pshmem_free = pshfree
