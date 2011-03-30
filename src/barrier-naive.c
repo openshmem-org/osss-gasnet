@@ -6,13 +6,13 @@
 #include "shmem.h"
 
 void
-pshmem_barrier_all_naive(void)
+__shmem_barrier_all_naive(void)
 {
   __shmem_comms_barrier_all();
 }
 
 void
-pshmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
+__shmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   const int me = GET_STATE(mype);
   const long save = pSync[0];

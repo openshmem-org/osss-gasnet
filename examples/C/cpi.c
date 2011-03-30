@@ -26,11 +26,10 @@ double f(double a)
  */
 int n;
 
-long pSync[SHMEM_BCAST_SYNC_SIZE];
-int sync_size = sizeof(pSync) / sizeof(pSync[0]);
+long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
 double mypi, pi;
-double pWrk[SHMEM_REDUCE_SYNC_SIZE];
+double pWrk[_SHMEM_REDUCE_SYNC_SIZE];
 
 /*
  *
@@ -56,8 +55,8 @@ int main(int argc,char *argv[])
   }
 
   /* initialize sync array */
-  for (i = 0; i < sync_size; i += 1)
-    pSync[i] = SHMEM_SYNC_VALUE;
+  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1)
+    pSync[i] = _SHMEM_SYNC_VALUE;
   shmem_barrier_all();
 
   /* send "n" out to everyone */

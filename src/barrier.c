@@ -5,6 +5,8 @@
 #include "trace.h"
 #include "utils.h"
 
+#include "pshmem.h"
+
 /*
  * pull-in all the implementations here
  *
@@ -49,7 +51,7 @@ typedef struct {
 
 static bar_table_t barrier_all_table[] =
   {
-    { "naive", pshmem_barrier_all_naive },
+    { "naive", __shmem_barrier_all_naive },
   };
 static const int n_barrier_all = TABLE_SIZE(barrier_all_table);
 
@@ -60,7 +62,7 @@ static const int n_barrier_all = TABLE_SIZE(barrier_all_table);
 
 static bar_table_t barrier_table[] =
   {
-    { "naive", pshmem_barrier_naive },
+    { "naive", __shmem_barrier_naive },
   };
 static const int n_barrier = TABLE_SIZE(barrier_table);
 
@@ -166,6 +168,8 @@ pshmem_barrier_all(void)
     /* NOT REACHED */
   }
 
+  pshmem_fence();
+
   (*bar_all_func)();
 }
 
@@ -181,6 +185,8 @@ pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 		  );
     /* NOT REACHED */
   }
+
+  pshmem_fence();
 
   (*bar_func)(PE_start, logPE_stride, PE_size, pSync);
 }

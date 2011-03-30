@@ -232,7 +232,6 @@ __shmem_comms_exit(int status)
 void
 __shmem_comms_finalize(int status)
 {
-  __shmem_comms_barrier_all();
   __shmem_comms_exit(status);
 }
 
@@ -409,17 +408,12 @@ __shmem_comms_barrier_all(void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
-  /* wait for gasnet to finish pending puts/gets */
-  __shmem_comms_fence_request();
-
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
 
   /* barcount = 1 - barcount; */
   barcount += 1;
-
-  __shmem_comms_fence_request();
 }
 
 

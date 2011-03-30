@@ -110,7 +110,7 @@ __shmem_service_thread_init(void)
   int s;
   pthread_attr_t pa;
 
-  poll_mode = SERVICE_POLL;
+  __shmem_service_set_mode(SERVICE_POLL);
 
   /* set the refractory period */
   __shmem_service_set_pause(backoff_secs);
@@ -144,7 +144,9 @@ __shmem_service_thread_finalize(void)
 {
   int s;
 
-  poll_mode = SERVICE_FINISH;
+  __shmem_comms_barrier_all();
+
+  __shmem_service_set_mode(SERVICE_FINISH);
 
   s = pthread_join(service_thr, NULL);
   if (s != 0) {

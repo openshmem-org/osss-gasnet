@@ -79,8 +79,6 @@ __shmalloc_no_check(size_t size)
 {
   void *addr;
 
-  shmem_barrier_all();		/* so say the SGI docs */
-
   addr = __shmem_mem_alloc(size);
 
   if (addr == (void *) NULL) {
@@ -106,6 +104,8 @@ __shmalloc_no_check(size_t size)
 void *
 pshmalloc(size_t size)
 {
+  void *addr;
+
   INIT_CHECK();
 
   if (__shmalloc_symmetry_check(size) != -1) {
@@ -119,7 +119,11 @@ pshmalloc(size_t size)
 		size
 		);
 
-  return __shmalloc_no_check(size);
+  addr = __shmalloc_no_check(size);
+
+  shmem_barrier_all();		/* so say the SGI docs */
+
+  return addr;
 }
 #pragma weak pshmem_malloc = pshmalloc
 
@@ -128,8 +132,6 @@ void
 pshfree(void *addr)
 {
   INIT_CHECK();
-
-  shmem_barrier_all();
 
   if (addr == (void *) NULL) {
     __shmem_trace(SHMEM_LOG_MEMORY,
@@ -148,6 +150,8 @@ pshfree(void *addr)
   __shmem_mem_free(addr);
 
   malloc_error = SHMEM_MALLOC_OK;
+
+  shmem_barrier_all();
 }
 #pragma weak pshmem_free = pshfree
 

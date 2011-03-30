@@ -27,7 +27,7 @@
 void
 __shmem_exit(int status)
 {
-  /* make sure the network service shuts down cleanly first */
+  __shmem_comms_barrier_all();
   __shmem_service_thread_finalize();
 
   /* ok, no more pending I/O ... */
@@ -156,6 +156,8 @@ pstart_pes(int npes)
 		    );
     }
   }
+
+  __shmem_comms_barrier_all();
 }
 
 #pragma weak start_pes = pstart_pes
