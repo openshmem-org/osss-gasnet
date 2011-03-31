@@ -1,4 +1,4 @@
-#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -91,7 +91,7 @@ Sponsorship
 \end_layout
 
 \begin_layout Standard
-Work on the OpenSHMEM project is sponsored by 
+Work on the OpenSHMEM project is sponsored by the 
 \begin_inset CommandInset href
 LatexCommand href
 name "Oak Ridge National Laboratory"
@@ -99,7 +99,7 @@ target "http://www.ornl.gov/"
 
 \end_inset
 
- and the 
+ Extreme Scale System Center and the 
 \begin_inset CommandInset href
 LatexCommand href
 name "U.S. Department of Defense"
