@@ -443,11 +443,15 @@ static globalvar_t *gvp = NULL; /* our global variable hash table */
  * areas storing (uninitialized and initialized resp.) global
  * variables
  */
-static size_t bss_start;
-static size_t bss_end;
 
-static size_t data_start;
-static size_t data_end;
+typedef struct {
+  size_t start;
+  size_t end;
+} global_area_t;
+
+static global_area_t elfbss;
+static global_area_t elfdata;
+
 
 /*
  * scan the ELF image to build table of global symbold and the image
@@ -516,12 +520,12 @@ table_init_helper(void)
     if (shdr.sh_type == SHT_NOBITS &&
 	strcmp(shstr_name, ".bss") == 0) {
 
-      bss_start = shdr.sh_addr;
-      bss_end = bss_start + shdr.sh_size;
+      elfbss.start = shdr.sh_addr;
+      elfbss.end = elfbss.start + shdr.sh_size;
 
       __shmem_trace(SHMEM_LOG_SYMBOLS,
 		    "ELF section .bss for global variables = 0x%lX -> 0x%lX",
-		    bss_start, bss_end
+		    elfbss.start, elfbss.end
 		    );
       continue;			/* move to next scan */
     }
@@ -530,12 +534,12 @@ table_init_helper(void)
     if (shdr.sh_type == SHT_PROGBITS &&
 	strcmp(shstr_name, ".data") == 0) {
 
-      data_start = shdr.sh_addr;
-      data_end = data_start + shdr.sh_size;
+      elfdata.start = shdr.sh_addr;
+      elfdata.end = elfdata.start + shdr.sh_size;
 
       __shmem_trace(SHMEM_LOG_SYMBOLS,
 		    "ELF section .data for global variables = 0x%lX -> 0x%lX",
-		    data_start, data_end
+		    elfdata.start, elfdata.end
 		    );
       continue;			/* move to next scan */
     }
@@ -683,7 +687,7 @@ __shmem_comms_globalvar_table_finalize(void)
  * helper to check address ranges
  */
 #define IN_RANGE(Area, Addr) \
-  ( ( Area##_start <= (Addr) ) && ( (Addr) < Area##_end ) )
+  ( ( Area.start <= (Addr) ) && ( (Addr) < Area.end ) )
 
 /*
  * chcek to see if address is global
@@ -693,7 +697,7 @@ __shmem_comms_is_globalvar(void *addr)
 {
   size_t a = (size_t) addr;
 
-  return IN_RANGE(bss, a) || IN_RANGE(data, a);
+  return IN_RANGE(elfbss, a) || IN_RANGE(elfdata, a);
 }
 
 /*
