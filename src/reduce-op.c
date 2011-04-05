@@ -7,6 +7,11 @@
 #include "shmem.h"
 
 /*
+ * pre-defined reductions in SHMEM 1.0
+ *
+ */
+
+/*
  * these are the arithmetic operations
  *
  */
@@ -87,17 +92,17 @@ SHMEM_MINIMAX_FUNC(float, float)
 SHMEM_MINIMAX_FUNC(longdouble, long double)
 
 /*
- * common reduce code.  Pass in type/operation, macro builds the
- * reduction function as defined above
+ * common reduce code.  Build generalized reduction for various types.
+ * Comparison operator passed as 1st parameter
  *
  */
 
-#define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
-  /* @api@ */								\
+#define SHMEM_UDR_TYPE_OP(Name, Type)					\
   void									\
-  pshmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
-				    int PE_start, int logPE_stride, int PE_size, \
-				    Type *pWrk, long *pSync)		\
+  __shmem_udr_##Name##_to_all(Type (*the_op)(Type, Type),		\
+			      Type *target, Type *source, int nreduce,	\
+			      int PE_start, int logPE_stride, int PE_size, \
+			      Type *pWrk, long *pSync)			\
   {									\
     const int step = 1 << logPE_stride;					\
     const int nloops = nreduce / _SHMEM_REDUCE_SYNC_SIZE;		\
@@ -111,7 +116,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     void *rdest = __shmem_symmetric_addr_lookup(target, GET_STATE(mype)); \
     symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
     /* init target with own source, and wait for all */			\
-    for (j = 0; j < nreduce; j += 1 ) {					\
+    for (j = 0; j < nreduce; j += 1) {					\
       target[j] = source[j];						\
     }									\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
@@ -125,7 +130,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	for (k = 0; k < nloops; k += 1) {				\
 	  shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	  for (j = 0; j < _SHMEM_REDUCE_SYNC_SIZE; j += 1) {		\
-	    target[ti] = OpCall##_##Name##_func(target[ti], pWrk[j]);	\
+	    target[ti] = (*the_op)(target[ti], pWrk[j]);		\
 	    ti += 1;							\
 	  }								\
 	  si += _SHMEM_REDUCE_SYNC_SIZE;				\
@@ -134,14 +139,44 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	/* now get remaining part of source */				\
 	shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	for (j = 0; j < nrem; j += 1) {					\
-	  target[ti] = OpCall##_##Name##_func(target[ti], pWrk[j]);	\
+	  target[ti] = (*the_op)(target[ti], pWrk[j]);			\
 	  ti += 1;							\
 	}								\
       }									\
       pe += step;							\
     }									\
   }
-  
+
+SHMEM_UDR_TYPE_OP(short, short)
+SHMEM_UDR_TYPE_OP(int, int)
+SHMEM_UDR_TYPE_OP(long, long)
+SHMEM_UDR_TYPE_OP(longlong, long long)
+SHMEM_UDR_TYPE_OP(double, double)
+SHMEM_UDR_TYPE_OP(float, float)
+SHMEM_UDR_TYPE_OP(longdouble, long double)
+SHMEM_UDR_TYPE_OP(complexd, double complex)
+SHMEM_UDR_TYPE_OP(complexf, float complex)
+
+/*
+ * Pass in type/operation, macro builds the reduction function as
+ * defined above
+ *
+ */
+
+#define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
+  /* @api@ */								\
+  void									\
+  pshmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
+				    int PE_start, int logPE_stride, int PE_size, \
+				    Type *pWrk, long *pSync)		\
+  {									\
+    __shmem_udr_##Name##_to_all(OpCall##_##Name##_func,			\
+				target, source, nreduce,		\
+				PE_start, logPE_stride, PE_size,	\
+				pWrk, pSync);				\
+  }
+
+
 SHMEM_REDUCE_TYPE_OP(sum, short, short)
 SHMEM_REDUCE_TYPE_OP(sum, int, int)
 SHMEM_REDUCE_TYPE_OP(sum, long, long)
