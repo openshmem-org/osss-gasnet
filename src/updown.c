@@ -1,7 +1,6 @@
 #include <stdio.h>               /* NULL                           */
 #include <stdlib.h>              /* atexit()                       */
 #include <sys/utsname.h>         /* uname()                        */
-#include <string.h>              /* strdup()                       */
 #include <sys/types.h>           /* size_t                         */
 
 #include "comms.h"

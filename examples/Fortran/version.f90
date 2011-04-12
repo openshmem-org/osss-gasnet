@@ -5,6 +5,7 @@
 program version
 
   integer me
+  integer maj, min
 
   include 'mpp/shmem.fh'
 
@@ -12,8 +13,9 @@ program version
   me = my_pe()
 
   if (me == 0) then
-     print *, 'PE ', me, ' says hello from'
-     print *, '    SHMEM library version ', shmem_version()
+     call shmem_version(maj, min)
+     write (*, *) 'PE ', me, ' says hello from OpenSHMEM version'
+     write (*, *) 'major ', maj, 'minor ',  min
   end if
 
 end program version
