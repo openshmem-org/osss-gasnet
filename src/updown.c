@@ -4,6 +4,7 @@
 #include <sys/types.h>           /* size_t                         */
 
 #include "comms.h"
+#include "globalvar.h"
 #include "state.h"
 #include "trace.h"
 #include "atomic.h"
@@ -97,6 +98,9 @@ pstart_pes(int npes)
     /* NOT REACHED */
   }
 
+  /* inspect our binary */
+  __shmem_symmetric_globalvar_table_init();
+  
   /* set up communications layer */
   __shmem_comms_init();
 

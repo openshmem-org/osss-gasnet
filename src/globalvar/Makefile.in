@@ -1,0 +1,27 @@
+# ---------------------------------------------------------
+
+HASH_DIR         = ../uthash
+HASH_CFLAGS      = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
+CC               = @CC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
+CPPFLAGS        += -I..
+
+CFLAGS          += -fPIC
+CFLAGS          += $(HASH_CFLAGS)
+
+.PHONY: all default clean
+
+all default:	globalvar.o
+
+glovalbar.o:	globalvar.c
+	$(CC) -c $(CFLAGS) $^
+
+clean:
+	rm -f globalvar.o

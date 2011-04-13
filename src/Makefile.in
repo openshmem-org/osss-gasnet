@@ -13,6 +13,14 @@ COMMS_OBJ        = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
 #
+# parsing out global variables
+#
+GLOBALVAR_DIR        = ./globalvar
+GLOBALVAR_CPPFLAGS   = -I$(GLOBALVAR_DIR)
+GLOBALVAR_OBJ        = $(GLOBALVAR_DIR)/globalvar.o
+
+# ---------------------------------------------------------
+#
 # hash table implementation
 #
 HASH_DIR         = ./uthash
@@ -51,6 +59,7 @@ LDFLAGS          = @LDFLAGS@
 
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += -DDEBUG
 ifeq "@CRAY_COMPAT@" "TRUE"
 CPPFLAGS        += -DCRAY_COMPAT
@@ -76,7 +85,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 SHMEM_SOURCES    =	service.c
 # internal
 SHMEM_SOURCES   +=	state.c memalloc.c \
-			trace.c clock.c
+			trace.c clock.c ping.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
@@ -84,19 +93,20 @@ SHMEM_SOURCES   +=	barrier.c barrier-naive.c
 #
 SHMEM_SOURCES   +=	broadcast.c broadcast-naive.c broadcast-tree.c
 #
-SHMEM_SOURCES   +=	atomic.c
+SHMEM_SOURCES   +=	atomic.c lock.c
 #
 SHMEM_SOURCES   +=	collect.c fcollect.c reduce-op.c
 #
-SHMEM_SOURCES   +=	accessible.c ping.c ptr.c
+SHMEM_SOURCES   +=	accessible.c ptr.c
 #
-SHMEM_SOURCES   +=	cache.c fence.c lock.c
+SHMEM_SOURCES   +=	cache.c fence.c
 #
 SHMEM_SOURCES   +=	putget.c strided.c
 SHMEM_SOURCES   +=	putget_nb.c
 #
-SHMEM_SOURCES   +=	query.c symmem.c updown.c waituntil.c \
-			version.c
+SHMEM_SOURCES   +=	query.c symmem.c updown.c waituntil.c
+#
+SHMEM_SOURCES   +=	version.c
 
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
@@ -114,7 +124,7 @@ REMOVE           = rm -f
 # ---------------------------------------------------------
 
 .PHONY: all default
-.PHONY:	malloc-obj-gen comms-obj-gen
+.PHONY:	malloc-obj-gen comms-obj-gen globalvar-obj-gen
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: clean distclean
@@ -161,6 +171,11 @@ uninstall-include:
 comms-obj-gen:
 	$(MAKE) -C $(COMMS_DIR) all
 
+# -- global variable----------------------------------------
+
+globalvar-obj-gen:
+	$(MAKE) -C $(GLOBALVAR_DIR) all
+
 # -- local memory management for symmetric heap ------------
 
 malloc-obj-gen:
@@ -184,9 +199,11 @@ fortran-mem.o:	fortran-mem.c
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen $(SHMEM_OBJECTS)
+$(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen globalvar-obj-gen \
+				$(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
-		$(MALLOC_OBJECT) $(COMMS_OBJ) $(SHMEM_OBJECTS) $(LIBS)
+		$(MALLOC_OBJECT) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
+		$(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
 

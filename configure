@@ -112,6 +112,7 @@ REWRITE_DIRS="
 ./src
 ./src/comms
 ./src/dlmalloc
+./src/globalvar
 ./examples
 ./examples/C
 ./examples/C++

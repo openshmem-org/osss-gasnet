@@ -2,6 +2,7 @@
 #include "trace.h"
 #include "putget.h"
 #include "comms.h"
+#include "globalvar.h"
 #include "utils.h"
 
 #include "shmem.h"

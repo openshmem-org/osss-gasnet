@@ -1,4 +1,5 @@
 #include "comms.h"
+#include "globalvar.h"
 #include "utils.h"
 
 /*
@@ -26,7 +27,7 @@ pshmem_addr_accessible(void *addr, int pe)
 {
   INIT_CHECK();
   PE_RANGE_CHECK(pe);
-  return __shmem_comms_addr_accessible(addr, pe);
+  return __shmem_symmetric_addr_accessible(addr, pe);
 }
 
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible

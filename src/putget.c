@@ -5,6 +5,7 @@
 #include "state.h"
 #include "symmem.h"
 #include "comms.h"
+#include "globalvar.h"
 #include "updown.h"
 #include "trace.h"
 #include "atomic.h"

@@ -98,6 +98,8 @@ extern void   __shmem_comms_pause(void);
  */
 #define WAIT_ON_COMPLETION(p) while (! (p)) { __shmem_comms_pause(); }
 
+#if 0
+
 /*
  * memory classification and accessibility
  */
@@ -110,6 +112,8 @@ extern int    __shmem_symmetric_var_in_range(void *addr, int pe);
 extern void * __shmem_symmetric_addr_lookup(void *dest, int pe);
 
 extern int    __shmem_comms_addr_accessible(void *addr, int pe);
+
+#endif
 
 /*
  * for accessibility timeouts
