@@ -90,8 +90,8 @@ extern int    __shmem_comms_test_nb(void *h);
  */
 extern void   __shmem_comms_fence_service(void);
 extern void   __shmem_comms_poll_service(void);
-
 extern void   __shmem_comms_pause(void);
+extern void   __shmem_comms_set_service_pause(double ms);
 
 /*
  * utility to wait on remote updates

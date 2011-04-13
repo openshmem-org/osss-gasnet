@@ -1,9 +1,4 @@
-#define _POSIX_C_SOURCE 199309
-#include <time.h>		/* for nanosleep */
-#undef _POSIX_C_SOURCE
-
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 #include <errno.h>
 
@@ -16,32 +11,7 @@
 
 #include "service.h"
 
-/*
- * TODO: should be user-controllable.  Could also make the library
- * monitor frequency of communication and allow it to fine-tune its
- * own polling speed.
- *
- */
-static double backoff_secs = 0.00001;
-/* static int num_polls_per_loop = 10; */
-
-static struct timespec backoff;
-
 static pthread_t service_thr;
-
-/*
- * unused
- *
- */
-void
-__shmem_service_set_pause(double ms)
-{
-  double s = floor(ms);
-  double f = ms - s;
-
-  backoff.tv_sec  = (long) s;
-  backoff.tv_nsec = (long) (f * 1.0e9);
-}
 
 /*
  * the real service thread: poll the network.  Should we include a
@@ -67,7 +37,6 @@ service_thread(void *unused_arg)
 
     case SERVICE_POLL:
       __shmem_comms_poll_service();
-      /* nanosleep(& backoff, (struct timespec *) NULL); */
       break;
 
     case SERVICE_FENCE:
@@ -92,8 +61,8 @@ set_low_priority(pthread_attr_t *p)
 
   pthread_attr_init(p);
   pthread_attr_getschedparam(p, & sp);
-  sp.sched_priority = sched_get_priority_min(SCHED_RR);
-  pthread_attr_setschedpolicy(p, SCHED_RR);
+  sp.sched_priority = sched_get_priority_min(SCHED_OTHER);
+  pthread_attr_setschedpolicy(p, SCHED_OTHER);
   pthread_attr_setschedparam(p, & sp);
 }
 
@@ -111,9 +80,6 @@ __shmem_service_thread_init(void)
   pthread_attr_t pa;
 
   __shmem_service_set_mode(SERVICE_POLL);
-
-  /* set the refractory period */
-  __shmem_service_set_pause(backoff_secs);
 
   /* prefer the processing thread over the service thread */
   set_low_priority(& pa);

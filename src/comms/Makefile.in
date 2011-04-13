@@ -68,12 +68,19 @@ GASNET_CONDUIT   = @GASNET_CONDUIT@
 
 include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
 
+ifeq "$(GASNET_CONDUIT)" "smp"
+HAVE_SMP_MODEL=1
+else
+HAVE_SMP_MODEL=0
+endif
+
 $(COMMS_OBJ):	$(COMMS_SRC)
 	$(CC) \
 		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(HASH_CFLAGS) \
 		$(COMMON_FLAGS) \
+		-DHAVE_SMP_MODEL=$(HAVE_SMP_MODEL) \
 		-c -o $@ $<
 
 # -- end GASNet --------------------------------------------

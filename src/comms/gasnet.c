@@ -4,6 +4,11 @@
  * non-static that starts with "__shmem_comms_"
  */
 
+#define _POSIX_C_SOURCE 199309
+#include <time.h>		/* for nanosleep */
+#undef _POSIX_C_SOURCE
+#include <math.h>
+
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -198,12 +203,50 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
 }
 
 /*
+ * ------------------------------------------------------
+ * let the service thread throttle itself if needed
+ *
+ */
+
+static double backoff_seconds = 0.00001;
+/* static int num_polls_per_loop = 10; */
+
+static struct timespec backoff;
+
+/*
+ * allow the service thread to back off
+ *
+ */
+void
+__shmem_comms_set_service_pause(double ms)
+{
+  double s = floor(ms);
+  double f = ms - s;
+
+  backoff.tv_sec  = (long) s;
+  backoff.tv_nsec = (long) (f * 1.0e9);
+}
+
+static void
+__shmem_comms_service_pause(void)
+{
+#if defined(HAVE_SMP_MODEL)
+
+# if HAVE_SMP_MODEL == 1
+  nanosleep(& backoff, (struct timespec *) NULL);
+#endif
+
+#endif
+}
+
+/*
  * used in service thread to poll for put/get/AM traffic
  */
 void
 __shmem_comms_poll_service(void)
 {
   GASNET_SAFE( gasnet_AMPoll() );
+  __shmem_comms_service_pause();
 }
 
 /*
@@ -216,6 +259,12 @@ __shmem_comms_pause(void)
   pthread_yield();
   /* __asm__ __volatile__("rep;nop": : :"memory"); */
 }
+
+/*
+ * -----------------------------------------------------
+ * exiting gracefully
+ *
+ */
 
 /*
  * bail out of run-time with STATUS error code
@@ -578,6 +627,8 @@ __shmem_comms_init(void)
 	      );
 
   __shmem_comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
+
+  __shmem_comms_set_service_pause(backoff_seconds);
 
   /*
    * make sure all nodes are up to speed before "declaring"
