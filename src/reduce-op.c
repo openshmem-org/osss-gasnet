@@ -99,7 +99,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
  */
 
 #define SHMEM_UDR_TYPE_OP(Name, Type)					\
-  void									\
+  static void								\
   __shmem_udr_##Name##_to_all(Type (*the_op)(Type, Type),		\
 			      Type *target, Type *source, int nreduce,	\
 			      int PE_start, int logPE_stride, int PE_size, \
