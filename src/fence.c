@@ -1,6 +1,8 @@
 #include "comms.h"
 #include "utils.h"
 
+#include "shmem.h"
+
 /* @api@ */
 void
 pshmem_fence(void)

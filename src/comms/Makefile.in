@@ -74,9 +74,12 @@ else
 HAVE_SMP_MODEL=0
 endif
 
+# tony: remove GASNET_CFLAGS for now, makes compiler
+#       interoperability easier
+
 $(COMMS_OBJ):	$(COMMS_SRC)
 	$(CC) \
-		$(GASNET_CPPFLAGS) $(GASNET_CFLAGS) \
+		$(GASNET_CPPFLAGS) \
 		$(DLMALLOC_CFLAGS) \
 		$(HASH_CFLAGS) \
 		$(COMMON_FLAGS) \
