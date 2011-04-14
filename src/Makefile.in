@@ -211,6 +211,7 @@ clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@
+	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 
 distclean: clean

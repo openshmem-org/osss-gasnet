@@ -142,4 +142,9 @@ extern void  __shmem_comms_inc_request(void *target, size_t nbytes,
 extern void  __shmem_comms_quiet_request(void);
 extern void  __shmem_comms_fence_request(void);
 
+/*
+ * TODO: this should be in ../globalvar
+ */
+extern void * __shmem_symmetric_addr_lookup(void *dest, int pe);
+
 #endif /* _COMMS_H */
