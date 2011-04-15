@@ -25,12 +25,12 @@ main(void)
   npes = _num_pes();
   me = _my_pe();
 
-  for (i = 0; i < DST_SIZE; i++) {
-    dst[i] = -1;
-  }
-
   for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
     pSync[i] = _SHMEM_SYNC_VALUE;
+  }
+
+  for (i = 0; i < DST_SIZE; i++) {
+    dst[i] = -1;
   }
 
   shmem_barrier_all();
