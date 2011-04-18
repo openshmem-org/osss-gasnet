@@ -61,6 +61,7 @@ LDFLAGS          = @LDFLAGS@
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += -DDEBUG
+CPPFLAGS        += -I.
 ifeq "@CRAY_COMPAT@" "TRUE"
 CPPFLAGS        += -DCRAY_COMPAT
 endif

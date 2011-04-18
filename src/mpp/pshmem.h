@@ -6,7 +6,7 @@
 #ifndef _PSHMEM_H
 #define _PSHMEM_H 1
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 #ifdef __cplusplus 
 extern "C" {
