@@ -9,7 +9,7 @@ static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
 static long src[4] = { 11, 12, 13, 14 };
 
-#define DST_SIZE 4
+#define DST_SIZE 8
 
 static long dst[DST_SIZE];
 

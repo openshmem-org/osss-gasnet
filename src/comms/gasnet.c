@@ -1870,7 +1870,7 @@ handler_globalvar_put_bak(gasnet_token_t token,
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
-  // gasnet_hsl_lock(& put_bak_lock);
+  /* gasnet_hsl_lock(& put_bak_lock); */
 
   __shmem_trace(SHMEM_LOG_INFO,
 		"about to signal completion"
@@ -1878,7 +1878,7 @@ handler_globalvar_put_bak(gasnet_token_t token,
 
   *(pp->completed_addr) = 1;
 
-  // gasnet_hsl_unlock(& put_bak_lock);
+  /* gasnet_hsl_unlock(& put_bak_lock); */
 }
 
 /*
@@ -1927,7 +1927,7 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
   size_t payload_size;
   size_t alloc_size;
 
-  // gasnet_hsl_lock(& put_out_lock);
+  /* gasnet_hsl_lock(& put_out_lock); */
 
   alloc_size = max_req;
   payload_size = max_data;
@@ -1967,7 +1967,7 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
 
   }
 
-  // gasnet_hsl_unlock(& put_out_lock);
+  /* gasnet_hsl_unlock(& put_out_lock); */
 }
 
 /*
@@ -2061,7 +2061,7 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
   size_t alloc_size;
   size_t i;
 
-  gasnet_hsl_lock(& get_out_lock);
+  /* gasnet_hsl_lock(& get_out_lock); */
 
   alloc_size = max_req;
 
@@ -2102,7 +2102,7 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
 
   }
 
-  gasnet_hsl_unlock(& get_out_lock);
+  /* gasnet_hsl_unlock(& get_out_lock); */
 }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
