@@ -10,24 +10,9 @@
 #include "trace.h"
 #include "atomic.h"
 #include "utils.h"
+#include "symmtest.h"
 
-#include "pshmem.h"
-
-void
-symmetric_test_with_abort(void *remote_addr,
-			  void *local_addr,
-			  const char *name,
-			  const char *routine)
-{
-  if (remote_addr == NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "shmem_%s_%s: address %p is not symmetric",
-		  name, routine,
-		  local_addr
-		  );
-    /* NOT REACHED */
-  }
-}
+#include "mpp/pshmem.h"
 
 /*
  * short-circuit local puts/gets, otherwise translate between
@@ -49,7 +34,7 @@ symmetric_test_with_abort(void *remote_addr,
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
-      symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "put");	\
+      __shmem_symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "put"); \
       __shmem_comms_put(rdest, (Type *) src, typed_len, pe);		\
     }									\
   }
@@ -98,7 +83,7 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
-      symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "get"); \
+      __shmem_symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "get"); \
       __shmem_comms_get(dest, their_src, typed_len, pe);		\
     }									\
   }

@@ -1,7 +1,7 @@
 #include "comms.h"
 #include "utils.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /* @api@ */
 void

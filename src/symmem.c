@@ -8,7 +8,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "pshmem.h"
+#include "mpp/pshmem.h"
 
 
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */

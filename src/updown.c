@@ -15,7 +15,7 @@
 #include "service.h"
 #include "clock.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /* ----------------------------------------------------------------- */
 

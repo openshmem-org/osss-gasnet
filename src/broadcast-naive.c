@@ -4,7 +4,7 @@
 #include "state.h"
 #include "trace.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 
 #define SHMEM_BROADCAST_TYPE(Name, Size)				\

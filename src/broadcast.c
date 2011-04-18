@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <strings.h>
 
-#include "shmem.h"
 #include "comms.h"
 #include "trace.h"
 #include "utils.h"
 
 #include "broadcast-naive.h"
 #include "broadcast-tree.h"
+
+#include "mpp/shmem.h"
 
 /*
  * these are what we use if nothing else available

@@ -1,7 +1,7 @@
-#include "shmem.h"
-
 #include "trace.h"
 #include "utils.h"
+
+#include "mpp/shmem.h"
 
 /*
  *

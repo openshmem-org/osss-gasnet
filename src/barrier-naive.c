@@ -3,7 +3,7 @@
 #include "trace.h"
 #include "atomic.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 void
 __shmem_barrier_all_naive(void)

@@ -5,7 +5,7 @@
 #include "trace.h"
 #include "utils.h"
 
-#include "pshmem.h"
+#include "mpp/pshmem.h"
 
 /*
  * pull-in all the implementations here

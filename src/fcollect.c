@@ -4,8 +4,9 @@
 #include "putget.h"
 #include "trace.h"
 #include "utils.h"
+#include "symmtest.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /*
  * fcollect puts nelems (*same* value on all PEs) from source on each

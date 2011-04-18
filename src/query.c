@@ -2,7 +2,7 @@
 #include "trace.h"
 #include "utils.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /*
  * these routines handle the questions "how many PEs?" and "which PE

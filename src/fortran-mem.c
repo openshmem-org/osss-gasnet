@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "trace.h"
 
-#include "pshmem.h"
+#include "mpp/pshmem.h"
 
 #include "fortran-common.h"
 

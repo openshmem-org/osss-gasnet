@@ -1,9 +1,10 @@
 #include <stdio.h>
 
-#include "shmem.h"
 #include "state.h"
 #include "comms.h"
 #include "trace.h"
+
+#include "mpp/shmem.h"
 
 /*
  * this waits for the variable to change but also dispatches

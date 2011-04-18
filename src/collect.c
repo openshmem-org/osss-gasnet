@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "atomic.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /*
  * collect puts nelems (can vary from PE to PE) from source on each

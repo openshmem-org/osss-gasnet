@@ -5,7 +5,7 @@
 #include "globalvar.h"
 #include "utils.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /*
  * pre-defined reductions in SHMEM 1.0
@@ -115,7 +115,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     INIT_CHECK();							\
     									\
     void *rdest = __shmem_symmetric_addr_lookup(target, GET_STATE(mype)); \
-    symmetric_test_with_abort(rdest, target, "reduce", "to_all");	\
+    __shmem_symmetric_test_with_abort(rdest, target, "reduce", "to_all"); \
     /* init target with own source, and wait for all */			\
     for (j = 0; j < nreduce; j += 1) {					\
       target[j] = source[j];						\

@@ -1,6 +1,6 @@
 #include "utils.h"
 
-#include "shmem.h"
+#include "mpp/shmem.h"
 
 /*
  * OpenSHMEM has a major.minor release number.  Return 0 if
