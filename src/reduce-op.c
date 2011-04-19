@@ -111,11 +111,6 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
     int i, j;								\
     int pe;								\
-									\
-    INIT_CHECK();							\
-    									\
-    void *rdest = __shmem_symmetric_addr_lookup(target, GET_STATE(mype)); \
-    __shmem_symmetric_test_with_abort(rdest, target, "reduce", "to_all"); \
     /* init target with own source, and wait for all */			\
     for (j = 0; j < nreduce; j += 1) {					\
       target[j] = source[j];						\
@@ -171,6 +166,10 @@ SHMEM_UDR_TYPE_OP(complexf, float complex)
 				    int PE_start, int logPE_stride, int PE_size, \
 				    Type *pWrk, long *pSync)		\
   {									\
+									\
+    INIT_CHECK();							\
+    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all");	\
+    SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all");	\
     __shmem_udr_##Name##_to_all(OpCall##_##Name##_func,			\
 				target, source, nreduce,		\
 				PE_start, logPE_stride, PE_size,	\

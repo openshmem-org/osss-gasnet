@@ -4,6 +4,7 @@
 #include "putget.h"
 #include "trace.h"
 #include "symmem.h"
+/* #include "globalvar.h" */
 #include "utils.h"
 #include "atomic.h"
 
@@ -34,6 +35,8 @@
     long *acc_off = & (pSync[0]);					\
 									\
     INIT_CHECK();							\
+    SYMMETRY_CHECK(target, 1, "shmem_collect");				\
+    SYMMETRY_CHECK(source, 2, "shmem_collect");				\
 									\
     __shmem_trace(SHMEM_LOG_COLLECT,					\
 		  "PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \

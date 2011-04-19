@@ -28,13 +28,13 @@
     int typed_len = sizeof(Type) * len;					\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
+    SYMMETRY_CHECK(dest, 1, "shmem_" #Name "_put");			\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_len);					\
       LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
-      __shmem_symmetric_test_with_abort((void *) rdest, (void *) dest, #Name, "put"); \
       __shmem_comms_put(rdest, (Type *) src, typed_len, pe);		\
     }									\
   }
@@ -77,13 +77,13 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
     int typed_len = sizeof(Type) * len;					\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
+    SYMMETRY_CHECK(src, 2, "shmem_" #Name "_get");			\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_len);					\
       LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
-      __shmem_symmetric_test_with_abort((void *) their_src, (void *) src, #Name, "get"); \
       __shmem_comms_get(dest, their_src, typed_len, pe);		\
     }									\
   }

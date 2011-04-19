@@ -17,7 +17,6 @@
 
 #include "state.h"
 #include "trace.h"
-#include "utils.h"
 
 /*
  * ---------------------------------------------------------------------------
@@ -298,14 +297,4 @@ __shmem_symmetric_is_globalvar(void *addr)
   size_t a = (size_t) addr;
 
   return IN_RANGE(elfbss, a) || IN_RANGE(elfdata, a);
-}
-
-/*
- * check that the address is accessible to shmem on that PE
- *
- */
-int
-__shmem_symmetric_addr_accessible(void *addr, int pe)
-{
-  return (__shmem_symmetric_addr_lookup(addr, pe) != NULL);
 }

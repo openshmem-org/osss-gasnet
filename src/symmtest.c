@@ -1,6 +1,14 @@
 #include <stdio.h>               /* NULL                           */
 
 #include "trace.h"
+#include "globalvar.h"
+#include "comms.h"
+#include "state.h"
+
+/*
+ * Deprecated
+ *
+ */
 
 void
 __shmem_symmetric_test_with_abort(void *remote_addr,
@@ -16,4 +24,23 @@ __shmem_symmetric_test_with_abort(void *remote_addr,
 		  );
     /* NOT REACHED */
   }
+}
+
+/*
+ * check that the address is accessible to shmem on that PE
+ *
+ */
+int
+__shmem_symmetric_addr_accessible(void *addr, int pe)
+{
+  return (__shmem_symmetric_addr_lookup(addr, pe) != NULL);
+}
+
+int
+__shmem_is_symmetric(void *addr)
+{
+  return
+    __shmem_symmetric_is_globalvar(addr)
+    ||
+    __shmem_symmetric_var_in_range(addr, GET_STATE(mype));
 }

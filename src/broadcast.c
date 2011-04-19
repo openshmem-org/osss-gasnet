@@ -147,6 +147,9 @@ pshmem_broadcast32(void *target, const void *source, size_t nlong,
     /* NOT REACHED */
   }
 
+  SYMMETRY_CHECK(target, 1, "shmem_broadcast");
+  SYMMETRY_CHECK(source, 2, "shmem_broadcast");
+
   (*broadcast32_func)(target, source, nlong,
 		      PE_root, PE_start, logPE_stride, PE_size,
 		      pSync);
@@ -166,6 +169,9 @@ pshmem_broadcast64(void *target, const void *source, size_t nlong,
     /* NOT REACHED */
   }
 
+  SYMMETRY_CHECK(target, 1, "shmem_broadcast");
+  SYMMETRY_CHECK(source, 2, "shmem_broadcast");
+
   (*broadcast64_func)(target, source, nlong,
 		      PE_root, PE_start, logPE_stride, PE_size,
 		      pSync);
@@ -180,6 +186,8 @@ pshmem_sync_init(long *pSync)
 {
   const int nb = _SHMEM_BCAST_SYNC_SIZE;
   int i;
+
+  SYMMETRY_CHECK(pSync, 1, "shmem_sync_init");
 
   for (i = 0; i < nb; i += 1) {
     pSync[i] = _SHMEM_SYNC_VALUE;

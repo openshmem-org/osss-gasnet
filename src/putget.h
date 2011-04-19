@@ -1,10 +1,6 @@
-
 #ifndef _PUTGET_H
 #define _PUTGET_H 1
 
-extern void  __shmem_symmetric_test_with_abort(void *remote_addr,
-					       void *local_addr,
-					       const char *name,
-					       const char *routine);
+/* nothing here right now */
 
 #endif /* _PUTGET_H */

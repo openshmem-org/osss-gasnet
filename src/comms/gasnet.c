@@ -884,27 +884,23 @@ __shmem_symmetric_var_in_range(void *addr, int pe)
 void *
 __shmem_symmetric_addr_lookup(void *dest, int pe)
 {
+  const int me = GET_STATE(mype);
   size_t offset;
   char *rdest;
 
-  /* short-circuit a lookup on myself */
-  if (GET_STATE(mype) == pe) {
-    return dest;
-  }
-
+  /* globals are in same place everywhere */
   if (__shmem_symmetric_is_globalvar(dest)) {
     return dest;
   }
 
-  offset = (char *) dest - (char *) __shmem_symmetric_var_base(GET_STATE(mype));
-  if (offset > seginfo_table[GET_STATE(mype)].size) {
-    __shmem_trace(SHMEM_LOG_AUTH,
-		  "offset = %ld",
-		  offset
-		  );
+  /* not symmetric if outside of heap */
+  if (! __shmem_symmetric_var_in_range(dest, pe)) {
     return NULL;
   }
 
+  /* where this is in *my* heap */
+  offset = (char *) dest - (char *) __shmem_symmetric_var_base(me);
+  /* and where it is in the remote heap */
   rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
 
   /* assume this is good */

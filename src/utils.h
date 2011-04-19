@@ -57,6 +57,26 @@
 	       }							\
 	       )
 
+/*
+ * check for symmetry of required addresses
+ *
+ */
+
+#include "symmtest.h"
+
+#define SYMMETRY_CHECK(addr, argpos, subrname)				\
+  IF_DEBUGGING(								\
+	       if (! __shmem_is_symmetric( (void *) (addr))) {		\
+		 __shmem_trace(SHMEM_LOG_FATAL,				\
+			       "%s(), argument #%d at %p is not symmetric", \
+			       subrname,				\
+			       argpos,					\
+			       addr					\
+			       );					\
+		 /* NOT REACHED */					\
+	       }							\
+	       )
+
 
 /*
  * how many elements in array T?
