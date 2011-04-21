@@ -584,25 +584,43 @@ static const int nhandlers = TABLE_SIZE(handlers);
  */
 
 /*
+ * -----------------------------------------------------------------------
+ *
  * This is where the communications layer gets set up
  */
+
 void
 __shmem_comms_init(void)
 {
+  int argc;
+  char **argv;
+
   /*
    * fake the command-line args
    */
-  int argc = 1;
-  char **argv;
+  {
+    int s;
+    static char buf[MAXPATHLEN];
 
-  argv = (char **) malloc(argc * sizeof(*argv));
-  if (argv == (char **) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "could not allocate memory for GASNet initialization"
-		  );
-    /* NOT REACHED */
+    argc = 1;
+    argv = (char **) malloc(argc * sizeof(*argv));
+    if (argv == (char **) NULL) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: could not allocate memory for GASNet initialization"
+		    );
+      /* NOT REACHED */
+    }
+    s = readlink("/proc/self/exe", buf, MAXPATHLEN);
+    if (s < 0) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: could not discover executable name"
+		    );
+      /* NOT REACHED */
+    }
+    /* readlink doesn't null-terminate */
+    buf[s] = '\0';
+    argv[0] = buf;
   }
-  argv[0] = "shmem";
 
   /*
    * let's get gasnet up and running
