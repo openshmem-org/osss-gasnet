@@ -1818,15 +1818,15 @@ typedef struct {
   volatile int *completed_addr;	/* addr of marker */
 } globalvar_payload_t;
 
+/*
+ * Puts
+ */
 
 /*
  * buffer allocated for global var puts
  */
 static void *put_buf = NULL;
 
-/*
- * Puts
- */
 static gasnet_hsl_t put_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t put_bak_lock = GASNET_HSL_INITIALIZER;
 
@@ -2017,6 +2017,9 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
  */
 static void *get_buf = NULL;
 
+static gasnet_hsl_t get_out_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t get_bak_lock = GASNET_HSL_INITIALIZER;
+
 /*
  * called by remote PE to grab remote data and return
  */
@@ -2026,7 +2029,9 @@ handler_globalvar_get_out(gasnet_token_t token,
 			  gasnet_handlerarg_t unused)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
-  globalvar_payload_t *datap = pp + sizeof(*pp);
+  globalvar_payload_t *datap = buf + sizeof(*pp);
+
+  gasnet_hsl_lock(& get_out_lock);
 
   /* fetch from remote global var into payload */
   memcpy(datap, pp->source, pp->nbytes);
@@ -2035,6 +2040,8 @@ handler_globalvar_get_out(gasnet_token_t token,
   /* return ack, copied data is returned */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
 			buf, bufsiz, unused);
+
+  gasnet_hsl_unlock(& get_out_lock);
 }
 
 /*
@@ -2047,11 +2054,15 @@ handler_globalvar_get_bak(gasnet_token_t token,
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
+  gasnet_hsl_lock(& get_bak_lock);
+
   /* write back payload data here */
-  memcpy(pp->target, pp + sizeof(*pp), pp->nbytes);
+  memcpy(pp->target, buf + sizeof(*pp), pp->nbytes);
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;
+
+  gasnet_hsl_unlock(& get_bak_lock);
 }
 
 /*
@@ -2081,24 +2092,22 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
   WAIT_ON_COMPLETION(p->completed);
 }
 
-static gasnet_hsl_t get_out_lock = GASNET_HSL_INITIALIZER;
-
 /*
  * perform the get from a global variable
  */
 void
 __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, int pe)
 {
-  size_t offset = 0;
+  /* get the buffer size and chop off control structure */
   const size_t max_req = gasnet_AMMaxMedium();
   const size_t max_data = max_req - sizeof(globalvar_payload_t);
+  /* how to split up transfers */
   const size_t nchunks = nbytes / max_data;
   const size_t rem_send = nbytes % max_data;
+  /* track size and progress of transfers */
   size_t payload_size;
   size_t alloc_size;
-  size_t i;
-
-  /* gasnet_hsl_lock(& get_out_lock); */
+  size_t offset = 0;
 
   alloc_size = max_req;
 
@@ -2145,8 +2154,6 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
                 );
 
   }
-
-  /* gasnet_hsl_unlock(& get_out_lock); */
 }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
