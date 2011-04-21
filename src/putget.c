@@ -123,7 +123,7 @@ SHMEM_TYPE_GET(float, float)
 
 #define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
   /* @api@ */								\
-  void inline								\
+  void									\
   pshmem_##Name##_p(Type *dest, Type value, int pe)			\
   {									\
     pshmem_##Name##_put(dest, &value, 1, pe);				\
@@ -147,7 +147,7 @@ SHMEM_TYPE_P_WRAPPER(long, long)
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
   /* @api@ */								\
-  Type inline								\
+  Type									\
   pshmem_##Name##_g(Type *addr, int pe)					\
   {									\
     Type retval;							\
