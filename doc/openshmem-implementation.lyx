@@ -431,6 +431,7 @@ large
  access.
  This means extra support has to be added to handle communication with global
  variables, because only the symmetric heap is exposed by GASNet.
+ Currently this is done via Active Messages.
 \end_layout
 
 \begin_layout Standard
@@ -444,7 +445,7 @@ everything
 \begin_inset Quotes erd
 \end_inset
 
- model.
+ model (at least for the architectures to hand).
 \end_layout
 
 \begin_layout Subsection
