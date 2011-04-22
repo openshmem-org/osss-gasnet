@@ -1,0 +1,27 @@
+# ---------------------------------------------------------
+
+COMMS_DIR        =    ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
+
+# ---------------------------------------------------------
+
+CC               = @CC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
+CPPFLAGS        += -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
+
+CFLAGS          += -fPIC
+
+BROADCAST_SOURCES = $(wildcard *.c)
+BROADCAST_OBJS    = $(BROADCAST_SOURCES:.c=.o)
+
+.PHONY: all default clean
+
+all default:	$(BROADCAST_OBJS)
+
+clean:
+	rm -f $(BROADCAST_OBJS)
