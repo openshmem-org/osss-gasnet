@@ -7,9 +7,17 @@ PREFIX           = @PREFIX@
 #
 # the communications API lives in .../comms.o
 #
-COMMS_DIR        = ./comms
-COMMS_CPPFLAGS   = -I$(COMMS_DIR)
-COMMS_OBJ        = $(COMMS_DIR)/comms.o
+COMMS_DIR            = ./comms
+COMMS_CPPFLAGS       = -I$(COMMS_DIR)
+COMMS_OBJ            = $(COMMS_DIR)/comms.o
+
+# ---------------------------------------------------------
+#
+# different broadcast algorithms
+#
+BROADCAST_DIR        = ./broadcast
+BROADCAST_CPPFLAGS   = -I$(BROADCAST_DIR)
+BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -59,7 +67,9 @@ LDFLAGS          = @LDFLAGS@
 
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+
 CPPFLAGS        += -DDEBUG
 CPPFLAGS        += -I.
 ifeq "@CRAY_COMPAT@" "TRUE"
@@ -91,8 +101,6 @@ SHMEM_SOURCES   +=	state.c memalloc.c \
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
 SHMEM_SOURCES   +=	barrier.c barrier-naive.c
-#
-SHMEM_SOURCES   +=	broadcast.c broadcast-naive.c broadcast-tree.c
 #
 SHMEM_SOURCES   +=	atomic.c lock.c
 #
@@ -126,6 +134,7 @@ REMOVE           = rm -f
 
 .PHONY: all default
 .PHONY:	malloc-obj-gen comms-obj-gen globalvar-obj-gen
+.PHONY: broadcast-obj-gen
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: clean distclean
@@ -172,6 +181,11 @@ uninstall-include:
 comms-obj-gen:
 	$(MAKE) -C $(COMMS_DIR) all
 
+# -- broadcast methods -------------------------------------
+
+broadcast-obj-gen:
+	$(MAKE) -C $(BROADCAST_DIR) all
+
 # -- global variable----------------------------------------
 
 globalvar-obj-gen:
@@ -201,9 +215,11 @@ fortran-mem.o:	fortran-mem.c
 # -- generate the shared object library -------------------
 
 $(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen globalvar-obj-gen \
-				$(SHMEM_OBJECTS)
+			broadcast-obj-gen \
+			$(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
 		$(MALLOC_OBJECT) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
+		$(BROADCAST_OBJ) \
 		$(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
@@ -213,6 +229,7 @@ clean:
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@
 	$(MAKE) -C $(GLOBALVAR_DIR) $@
+	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 
 distclean: clean

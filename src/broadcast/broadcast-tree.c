@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include "state.h"
-#include "comms.h"
 #include "trace.h"
 
 #include "mpp/shmem.h"
