@@ -106,40 +106,27 @@ echo "$progname: Non-blocking extensions are $putget_nb"
 echo "$progname:"
 echo "$progname: ---------------------------------------"
 
-REWRITE_DIRS="
-.
-./doc
-./src
-./src/comms
-./src/dlmalloc
-./src/globalvar
-./src/broadcast
-./examples
-./examples/C
-./examples/C++
-./examples/Fortran
-"
-
-for d in $REWRITE_DIRS; do
-    mf="$d/Makefile"
-    mfin="$mf.in"
-    sed \
-	-e "s%@CC@%$cc_cmd%g" \
-	-e "s%@CPPFLAGS@%$cpp_flags%g" \
-	-e "s%@CFLAGS@%$c_flags%g" \
-	-e "s%@CXX@%$cxx_cmd%g" \
-	-e "s%@CXXFLAGS@%$cxx_flags%g" \
-	-e "s%@FC@%$fc_cmd%g" \
-	-e "s%@FCFLAGS@%$fc_flags%g" \
-	-e "s%@LD@%$ld_cmd%g" \
-	-e "s%@LDFLAGS@%$ld_flags%g" \
-	-e "s%@PREFIX@%$prefix%g" \
-	-e "s%@GASNET_ROOT@%$gasnet_root%g" \
-	-e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
-	-e "s%@CRAY_COMPAT@%$cray_compat%g" \
-	-e "s%@PUTGET_NB@%$putget_nb%g" \
-	< $mfin > $mf
-    echo "$progname: created $mf from $mfin"
+find . -name Makefile.in -print |
+while read mfin
+do
+  mf="`echo $mfin | sed -e 's/\.in$//'`"
+  sed \
+    -e "s%@CC@%$cc_cmd%g" \
+    -e "s%@CPPFLAGS@%$cpp_flags%g" \
+    -e "s%@CFLAGS@%$c_flags%g" \
+    -e "s%@CXX@%$cxx_cmd%g" \
+    -e "s%@CXXFLAGS@%$cxx_flags%g" \
+    -e "s%@FC@%$fc_cmd%g" \
+    -e "s%@FCFLAGS@%$fc_flags%g" \
+    -e "s%@LD@%$ld_cmd%g" \
+    -e "s%@LDFLAGS@%$ld_flags%g" \
+    -e "s%@PREFIX@%$prefix%g" \
+    -e "s%@GASNET_ROOT@%$gasnet_root%g" \
+    -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+    -e "s%@CRAY_COMPAT@%$cray_compat%g" \
+    -e "s%@PUTGET_NB@%$putget_nb%g" \
+    $mfin > $mf
+  echo "$progname: created $mf from $mfin"
 done
 
 cs=config.status
@@ -163,9 +150,9 @@ export CC CXX FC
 export CPPFLAGS CFLAGS CXXFLAGS FCFLAGS
 export LD LDFLAGS
 
-echo $0 $@
+# Configured with: $@
 
-$0 $@
+$0 $@ \$@
 _EOT_
 chmod +x $cs
 echo "$progname: saved configuration in $cs"
