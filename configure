@@ -12,6 +12,7 @@ gasnet_root=$prefix
 gasnet_conduit=mpi
 cray_compat=FALSE
 putget_nb=FALSE
+debug=FALSE
 # -- end defaults --
 
 show_usage()
@@ -27,6 +28,7 @@ show_usage()
     echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
     echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
     echo ""
+    echo "    --enable-debug          Turn on run-time debugging checks"
     echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
     echo "    --enable-putget-nb      Enable the non-blocking extensions"
     echo ""
@@ -44,6 +46,12 @@ for o in $@; do
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
+	    ;;
+	--enable-debug)
+	    debug=TRUE
+	    ;;
+	--disable-debug)
+	    debug=FALSE
 	    ;;
 	--enable-cray-compat)
 	    cray_compat=TRUE
@@ -101,6 +109,7 @@ echo "$progname: installing to directory \"$prefix\""
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 echo "$progname:"
+echo "$progname: Debug is $debug"
 echo "$progname: Cray compatibility is $cray_compat"
 echo "$progname: Non-blocking extensions are $putget_nb"
 echo "$progname:"
@@ -125,6 +134,7 @@ do
     -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
     -e "s%@CRAY_COMPAT@%$cray_compat%g" \
     -e "s%@PUTGET_NB@%$putget_nb%g" \
+    -e "s%@DEBUG@%$debug%g" \
     $mfin > $mf
   echo "$progname: created $mf from $mfin"
 done
@@ -153,7 +163,7 @@ export LD LDFLAGS
 
 # Configured with: $@
 
-$0 $@ \$@
+$0 $@
 _EOT_
 cp $tmpcs $cs
 rm -f $tmpcs

@@ -11,6 +11,10 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
+ifeq "@DEBUG@" "TRUE"
+CPPFLAGS        += -DDEBUG
+endif
+
 CPPFLAGS        += -I..
 
 CFLAGS          += -fPIC
@@ -19,9 +23,6 @@ CFLAGS          += $(HASH_CFLAGS)
 .PHONY: all default clean
 
 all default:	globalvar.o
-
-glovalbar.o:	globalvar.c
-	$(CC) -c $(CFLAGS) $^
 
 clean:
 	rm -f globalvar.o

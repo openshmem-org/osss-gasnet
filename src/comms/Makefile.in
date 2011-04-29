@@ -35,6 +35,10 @@ LDFLAGS          = @LDFLAGS@
 
 CPPFLAGS        += -I..
 
+ifeq "@DEBUG@" "TRUE"
+CPPFLAGS        += -DDEBUG
+endif
+
 CFLAGS          += -fPIC
 
 COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)

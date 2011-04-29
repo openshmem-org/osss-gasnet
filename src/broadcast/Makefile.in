@@ -14,6 +14,10 @@ LDFLAGS          = @LDFLAGS@
 CPPFLAGS        += -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 
+ifeq "@DEBUG@" "TRUE"
+CPPFLAGS        += -DDEBUG
+endif
+
 CFLAGS          += -fPIC
 
 BROADCAST_SOURCES = $(wildcard *.c)

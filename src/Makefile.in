@@ -21,6 +21,14 @@ BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
 
 # ---------------------------------------------------------
 #
+# different collect algorithms
+#
+COLLECT_DIR          = ./collect
+COLLECT_CPPFLAGS     = -I$(COLLECT_DIR)
+COLLECT_OBJ          = $(COLLECT_DIR)/*.o
+
+# ---------------------------------------------------------
+#
 # parsing out global variables
 #
 GLOBALVAR_DIR        = ./globalvar
@@ -70,8 +78,12 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
-CPPFLAGS        += -DDEBUG
 CPPFLAGS        += -I.
+
+ifeq "@DEBUG@" "TRUE"
+CPPFLAGS        += -DDEBUG
+endif
+
 ifeq "@CRAY_COMPAT@" "TRUE"
 CPPFLAGS        += -DCRAY_COMPAT
 endif
@@ -104,7 +116,7 @@ SHMEM_SOURCES   +=	barrier.c barrier-naive.c
 #
 SHMEM_SOURCES   +=	atomic.c lock.c
 #
-SHMEM_SOURCES   +=	collect.c fcollect.c reduce-op.c
+SHMEM_SOURCES   +=	reduce-op.c
 #
 SHMEM_SOURCES   +=	accessible.c ptr.c
 #
@@ -134,7 +146,7 @@ REMOVE           = rm -f
 
 .PHONY: all default
 .PHONY:	malloc-obj-gen comms-obj-gen globalvar-obj-gen
-.PHONY: broadcast-obj-gen
+.PHONY: broadcast-obj-gen collect-obj-gen
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: clean distclean
@@ -186,6 +198,11 @@ comms-obj-gen:
 broadcast-obj-gen:
 	$(MAKE) -C $(BROADCAST_DIR) all
 
+# -- collect methods ---------------------------------------
+
+collect-obj-gen:
+	$(MAKE) -C $(COLLECT_DIR) all
+
 # -- global variable----------------------------------------
 
 globalvar-obj-gen:
@@ -215,11 +232,11 @@ fortran-mem.o:	fortran-mem.c
 # -- generate the shared object library -------------------
 
 $(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen globalvar-obj-gen \
-			broadcast-obj-gen \
+			broadcast-obj-gen collect-obj-gen \
 			$(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
 		$(MALLOC_OBJECT) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
-		$(BROADCAST_OBJ) \
+		$(BROADCAST_OBJ) $(COLLECT_OBJ) \
 		$(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
@@ -230,6 +247,7 @@ clean:
 	$(MAKE) -C $(COMMS_DIR) $@
 	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
+	$(MAKE) -C $(COLLECT_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 
 distclean: clean

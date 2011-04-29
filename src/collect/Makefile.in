@@ -1,21 +1,23 @@
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
+CPPFLAGS        += -I..
+
 ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
 CFLAGS          += -fPIC
+CFLAGS          += $(HASH_CFLAGS)
 
 .PHONY: all default clean
 
-all default:	dlmalloc.o
-
-dlmalloc.o:	dlmalloc.c
-	$(CC) -c -DONLY_MSPACES=1 -DUSE_LOCKS=1 $(CFLAGS) $^
+all default:	fcollect.o collect.o
 
 clean:
-	rm -f dlmalloc.o
+	rm -f fcollect.o collect.o
