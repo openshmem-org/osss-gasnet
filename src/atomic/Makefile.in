@@ -1,7 +1,7 @@
 # ---------------------------------------------------------
 
-HASH_DIR         = ../uthash
-HASH_CFLAGS      = -I$(HASH_DIR)
+COMMS_DIR        =    ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
 # ---------------------------------------------------------
 
@@ -16,6 +16,7 @@ CPPFLAGS        += -DDEBUG
 endif
 
 CPPFLAGS        += -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
 
 CFLAGS          += -fPIC
 CFLAGS          += $(HASH_CFLAGS)

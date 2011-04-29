@@ -16,7 +16,12 @@ COMMS_OBJ = $(COMMS_SRC:.c=.o)
 # ---------------------------------------------------------
 
 HASH_DIR         = ../uthash
-HASH_CFLAGS      = -I$(HASH_DIR)
+HASH_CPPFLAGS    = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
+ATOMIC_DIR       = ../atomic
+ATOMIC_CPPFLAGS  = -I$(ATOMIC_DIR)
 
 # ---------------------------------------------------------
 
@@ -85,7 +90,8 @@ $(COMMS_OBJ):	$(COMMS_SRC)
 	$(CC) \
 		$(GASNET_CPPFLAGS) \
 		$(DLMALLOC_CFLAGS) \
-		$(HASH_CFLAGS) \
+		$(HASH_CPPFLAGS) \
+		$(ATOMIC_CPPFLAGS) \
 		$(COMMON_FLAGS) \
 		-DHAVE_SMP_MODEL=$(HAVE_SMP_MODEL) \
 		-c -o $@ $<

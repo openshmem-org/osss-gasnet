@@ -13,6 +13,14 @@ COMMS_OBJ            = $(COMMS_DIR)/comms.o
 
 # ---------------------------------------------------------
 #
+# atomic operations
+#
+ATOMIC_DIR           = ./atomic
+ATOMIC_CPPFLAGS      = -I$(ATOMIC_DIR)
+ATOMIC_OBJ           = $(ATOMIC_DIR)/*.o
+
+# ---------------------------------------------------------
+#
 # different broadcast algorithms
 #
 BROADCAST_DIR        = ./broadcast
@@ -83,6 +91,7 @@ LDFLAGS          = @LDFLAGS@
 
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
@@ -121,8 +130,6 @@ SHMEM_SOURCES   +=	state.c memalloc.c \
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
-SHMEM_SOURCES   +=	atomic.c lock.c
-#
 SHMEM_SOURCES   +=	reduce-op.c
 #
 SHMEM_SOURCES   +=	accessible.c ptr.c
@@ -154,6 +161,7 @@ REMOVE           = rm -f
 .PHONY: all default
 .PHONY:	malloc-obj-gen comms-obj-gen globalvar-obj-gen
 .PHONY: broadcast-obj-gen collect-obj-gen barrier-obj-gen
+.PHONY: atomic-obj-gen
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: clean distclean
@@ -200,6 +208,11 @@ uninstall-include:
 comms-obj-gen:
 	$(MAKE) -C $(COMMS_DIR) all
 
+# -- atomics -----------------------------------------------
+
+atomic-obj-gen:
+	$(MAKE) -C $(ATOMIC_DIR) all
+
 # -- broadcast methods -------------------------------------
 
 broadcast-obj-gen:
@@ -245,10 +258,12 @@ fortran-mem.o:	fortran-mem.c
 
 $(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen globalvar-obj-gen \
 			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
+			atomic-obj-gen \
 			$(SHMEM_OBJECTS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
 		$(MALLOC_OBJECT) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
 		$(BROADCAST_OBJ) $(BARRIER_OBJ) $(COLLECT_OBJ) \
+		$(ATOMIC_OBJ) \
 		$(SHMEM_OBJECTS) $(LIBS)
 
 # ---------------------------------------------------------
@@ -261,6 +276,7 @@ clean:
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
+	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 
 distclean: clean
