@@ -1,15 +1,21 @@
 # ---------------------------------------------------------
-
-COMMS_DIR        =    ../comms
-COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
-
-# ---------------------------------------------------------
-
-MEMORY_DIR        =    ../memory
-MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
+#
+# the malloc library
+#
+MALLOC_DIR           = ../dlmalloc
+MALLOC_CPPFLAGS      = -I$(MALLOC_DIR)
 
 # ---------------------------------------------------------
 
+COMMS_DIR            =    ../comms
+COMMS_CPPFLAGS       =    -I$(COMMS_DIR)
+
+# ---------------------------------------------------------
+
+GLOBALVAR_DIR        =    ../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
 
 CC               = @CC@
 CFLAGS           = @CFLAGS@
@@ -21,13 +27,14 @@ ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
+CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 
-CPPFLAGS        += $(COMMS_CPPFLAGS)
-CPPFLAGS        += $(MEMORY_CPPFLAGS)
-
 CFLAGS          += -fPIC
-CFLAGS          += $(HASH_CFLAGS)
+
+CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(MALLOC_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
 .PHONY: all default clean
 

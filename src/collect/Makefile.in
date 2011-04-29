@@ -5,6 +5,11 @@ ATOMIC_CPPFLAGS      = -I$(ATOMIC_DIR)
 
 # ---------------------------------------------------------
 
+MEMORY_DIR           = ../memory
+MEMORY_CPPFLAGS      = -I$(MEMORY_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -14,6 +19,7 @@ LDFLAGS          = @LDFLAGS@
 CPPFLAGS        += -I..
 
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
 ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG

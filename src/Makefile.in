@@ -49,23 +49,23 @@ BARRIER_OBJ          = $(BARRIER_DIR)/*.o
 #
 GLOBALVAR_DIR        = ./globalvar
 GLOBALVAR_CPPFLAGS   = -I$(GLOBALVAR_DIR)
-GLOBALVAR_OBJ        = $(GLOBALVAR_DIR)/globalvar.o
+GLOBALVAR_OBJ        = $(GLOBALVAR_DIR)/*.o
 
 # ---------------------------------------------------------
 #
-# hash table implementation
+# memory management
 #
-HASH_DIR         = ./uthash
-HASH_CFLAGS      = -I$(HASH_DIR)
+MALLOC_DIR           = ./dlmalloc
+MALLOC_CPPFLAGS      = -I$(MALLOC_DIR)
+MALLOC_OBJ           = $(MALLOC_DIR)/*.o
 
 # ---------------------------------------------------------
 #
-# the malloc library
+# memory management
 #
-MALLOC_DIR       = ./dlmalloc
-MALLOC_SRC       = $(MALLOC_DIR)/dlmalloc.c
-MALLOC_OBJECT    = $(MALLOC_SRC:.c=.o)
-MALLOC_CPPFLAGS  = -I$(MALLOC_DIR)
+MEMORY_DIR           = ./memory
+MEMORY_CPPFLAGS      = -I$(MEMORY_DIR)
+MEMORY_OBJ           = $(MEMORY_DIR)/*.o
 
 # ---------------------------------------------------------
 
@@ -95,6 +95,8 @@ CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(MALLOC_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
 CPPFLAGS        += -I.
 
@@ -125,8 +127,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 # communication library dependent
 SHMEM_SOURCES    =	service.c
 # internal
-SHMEM_SOURCES   +=	state.c memalloc.c \
-			trace.c clock.c ping.c symmtest.c
+SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API
@@ -139,7 +140,7 @@ SHMEM_SOURCES   +=	cache.c fence.c
 SHMEM_SOURCES   +=	putget.c strided.c
 SHMEM_SOURCES   +=	putget_nb.c
 #
-SHMEM_SOURCES   +=	query.c symmem.c updown.c waituntil.c
+SHMEM_SOURCES   +=	query.c updown.c waituntil.c
 #
 SHMEM_SOURCES   +=	version.c
 
@@ -156,12 +157,15 @@ LIBS             = -lelf
 INSTALL          = install -c
 REMOVE           = rm -f
 
+OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
+			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
+			atomic-obj-gen \
+			malloc-obj-gen memory-obj-gen
+
 # ---------------------------------------------------------
 
 .PHONY: all default
-.PHONY:	malloc-obj-gen comms-obj-gen globalvar-obj-gen
-.PHONY: broadcast-obj-gen collect-obj-gen barrier-obj-gen
-.PHONY: atomic-obj-gen
+.PHONY:	$(OBJ_GEN)
 .PHONY: install install-lib install-bin install-include
 .PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
 .PHONY: clean distclean
@@ -233,13 +237,15 @@ collect-obj-gen:
 globalvar-obj-gen:
 	$(MAKE) -C $(GLOBALVAR_DIR) all
 
-# -- local memory management for symmetric heap ------------
+# -- symmetric heap allocation -----------------------------
 
 malloc-obj-gen:
 	$(MAKE) -C $(MALLOC_DIR) all
 
-memalloc.o:	memalloc.c
-	$(CC) $(COMMON_FLAGS) $(MALLOC_CPPFLAGS) -c -o $@ $<
+# -- memory management for symmetric heap ------------------
+
+memory-obj-gen:
+	$(MAKE) -C $(MEMORY_DIR) all
 
 # -- fortran interface ------------------------------------
 
@@ -256,20 +262,27 @@ fortran-mem.o:	fortran-mem.c
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY):	malloc-obj-gen comms-obj-gen globalvar-obj-gen \
-			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
-			atomic-obj-gen \
-			$(SHMEM_OBJECTS)
-	$(LD) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ \
-		$(MALLOC_OBJECT) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
-		$(BROADCAST_OBJ) $(BARRIER_OBJ) $(COLLECT_OBJ) \
+$(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
+	$(LD) \
+		$(LDFLAGS) \
+		-shared -Wl,-soname,$@ \
+		-o $@ \
+		$(COMMS_OBJ) \
+		$(GLOBALVAR_OBJ) \
+		$(BROADCAST_OBJ) \
+		$(BARRIER_OBJ) \
+		$(COLLECT_OBJ) \
 		$(ATOMIC_OBJ) \
-		$(SHMEM_OBJECTS) $(LIBS)
+		$(MALLOC_OBJ) \
+		$(MEMORY_OBJ) \
+		$(SHMEM_OBJECTS) \
+		$(LIBS)
 
 # ---------------------------------------------------------
 
 clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
+	$(MAKE) -C $(MEMORY_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@
 	$(MAKE) -C $(GLOBALVAR_DIR) $@

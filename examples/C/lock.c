@@ -20,7 +20,7 @@ main(int argc, char **argv)
 
   shmem_set_lock(&L);
 
-  printf("%d: sleeping %d seconds...\n", me, slp);
+  printf("%d: sleeping %d second%s...\n", me, slp, slp == 1 ? "" : "s");
   sleep(slp);
   printf("%d: sleeping...done\n", me);
 

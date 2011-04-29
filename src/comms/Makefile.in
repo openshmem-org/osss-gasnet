@@ -25,6 +25,11 @@ ATOMIC_CPPFLAGS  = -I$(ATOMIC_DIR)
 
 # ---------------------------------------------------------
 
+MEMORY_DIR       = ../memory
+MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
+
+# ---------------------------------------------------------
+
 INSTALL          = install -c
 REMOVE           = rm -f
 
@@ -43,6 +48,12 @@ CPPFLAGS        += -I..
 ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
+
+CPPFLAGS        += $(GASNET_CPPFLAGS)
+CPPFLAGS        += $(DLMALLOC_CFLAGS)
+CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
 CFLAGS          += -fPIC
 
@@ -88,10 +99,7 @@ endif
 
 $(COMMS_OBJ):	$(COMMS_SRC)
 	$(CC) \
-		$(GASNET_CPPFLAGS) \
-		$(DLMALLOC_CFLAGS) \
-		$(HASH_CPPFLAGS) \
-		$(ATOMIC_CPPFLAGS) \
+		$(CPPFLAGS) \
 		$(COMMON_FLAGS) \
 		-DHAVE_SMP_MODEL=$(HAVE_SMP_MODEL) \
 		-c -o $@ $<
