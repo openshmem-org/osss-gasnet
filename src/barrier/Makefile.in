@@ -1,5 +1,10 @@
 # ---------------------------------------------------------
 
+COMMS_DIR        =    ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -7,6 +12,7 @@ LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
 CPPFLAGS        += -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
 
 ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
@@ -18,9 +24,9 @@ CFLAGS          += $(HASH_CFLAGS)
 .PHONY: all default clean
 
 SOURCES          = $(wildcard *.c)
-OBJECTS          = $(SOURCES:.c=.o)          
+OBJECTS          = $(SOURCES:.c=.o)
 
-all default:     $(OBJECTS)
+all default:	 $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS)

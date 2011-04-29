@@ -20,12 +20,12 @@ endif
 
 CFLAGS          += -fPIC
 
-BROADCAST_SOURCES = $(wildcard *.c)
-BROADCAST_OBJS    = $(BROADCAST_SOURCES:.c=.o)
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
 
 .PHONY: all default clean
 
-all default:	$(BROADCAST_OBJS)
+all default:	$(OBJECTS)
 
 clean:
-	rm -f $(BROADCAST_OBJS)
+	rm -f $(OBJECTS)
