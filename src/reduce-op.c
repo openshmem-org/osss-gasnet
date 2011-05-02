@@ -40,7 +40,7 @@ SHMEM_MATH_FUNC(complexd, double complex)
 SHMEM_MATH_FUNC(complexf, float complex)
 
 /*
- * these are the logical operations
+ * these are the logical operations.  Note: these are *bitwise*.
  *
  */
 
@@ -48,24 +48,23 @@ SHMEM_MATH_FUNC(complexf, float complex)
   static inline Type				\
   and_##Name##_func(Type a, Type b)		\
   {						\
-    return (a) && (b);				\
+    return (a) & (b);				\
   }						\
   static inline Type				\
   or_##Name##_func(Type a, Type b)		\
   {						\
-    return (a) || (b);				\
+    return (a) | (b);				\
   }						\
   static inline Type				\
   xor_##Name##_func(Type a, Type b)		\
   {						\
-    return !(a) ^ !(b);				\
+    return (a) ^ (b);				\
   }
 
 SHMEM_LOGIC_FUNC(short, short)
 SHMEM_LOGIC_FUNC(int, int)
 SHMEM_LOGIC_FUNC(long, long)
 SHMEM_LOGIC_FUNC(longlong, long long)
-SHMEM_LOGIC_FUNC(complexf, float complex)
 
 /*
  * these are the minima/maxima operations
@@ -211,7 +210,6 @@ SHMEM_REDUCE_TYPE_OP(xor, short, short)
 SHMEM_REDUCE_TYPE_OP(xor, int, int)
 SHMEM_REDUCE_TYPE_OP(xor, long, long)
 SHMEM_REDUCE_TYPE_OP(xor, longlong, long long)
-SHMEM_REDUCE_TYPE_OP(xor, complexf, float complex)
 
 SHMEM_REDUCE_TYPE_OP(max, short, short)
 SHMEM_REDUCE_TYPE_OP(max, int, int)
@@ -263,7 +261,6 @@ SHMEM_REDUCE_TYPE_OP(min, longdouble, long double)
 #pragma weak shmem_long_xor_to_all = pshmem_long_xor_to_all
 #pragma weak shmem_longlong_xor_to_all = pshmem_longlong_xor_to_all
 #pragma weak shmem_short_xor_to_all = pshmem_short_xor_to_all
-#pragma weak shmem_complexf_xor_to_all = pshmem_complexf_xor_to_all
 
 #pragma weak shmem_int_max_to_all = pshmem_int_max_to_all
 #pragma weak shmem_long_max_to_all = pshmem_long_max_to_all

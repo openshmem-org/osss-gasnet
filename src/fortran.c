@@ -626,7 +626,6 @@ REDUCIFY(sum, comp4, complexf, float complex)
 REDUCIFY(sum, comp8, complexd, double complex)
 REDUCIFY(prod, comp4, complexf, float complex)
 REDUCIFY(prod, comp8, complexd, double complex)
-REDUCIFY(xor, comp4, complexf, float complex)
 
 #pragma weak shmem_int2_sum_to_all_ = pshmem_int2_sum_to_all_
 #pragma weak shmem_int4_sum_to_all_ = pshmem_int4_sum_to_all_
@@ -668,7 +667,6 @@ REDUCIFY(xor, comp4, complexf, float complex)
 #pragma weak shmem_comp8_sum_to_all_ = pshmem_comp8_sum_to_all_
 #pragma weak shmem_comp4_prod_to_all_ = pshmem_comp4_prod_to_all_
 #pragma weak shmem_comp8_prod_to_all_ = pshmem_comp8_prod_to_all_
-#pragma weak shmem_comp4_xor_to_all_ = pshmem_comp4_xor_to_all_
 
 
 /*

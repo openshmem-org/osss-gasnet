@@ -428,12 +428,6 @@ extern "C" {
 				      int PE_start, int logPE_stride, int PE_size,
 				      short *pWrk,
 				      long *pSync);
-  extern void pshmem_complexf_xor_to_all(COMPLEXIFY(float) *target,
-					 COMPLEXIFY(float) *source,
-					 int nreduce,
-					 int PE_start, int logPE_stride, int PE_size,
-					 COMPLEXIFY(float) *pWrk,
-					 long *pSync);
 
   extern void pshmem_int_max_to_all(int *target,
 				    int *source,
