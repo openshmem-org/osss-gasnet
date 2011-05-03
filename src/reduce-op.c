@@ -4,6 +4,7 @@
 #include "comms.h"
 #include "globalvar.h"
 #include "utils.h"
+#include "atomic.h"
 
 #include "mpp/shmem.h"
 
@@ -97,6 +98,8 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
  *
  */
 
+#include <string.h>
+
 #define SHMEM_UDR_TYPE_OP(Name, Type)					\
   static void								\
   __shmem_udr_##Name##_to_all(Type (*the_op)(Type, Type),		\
@@ -110,10 +113,13 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
     int i, j;								\
     int pe;								\
-    /* init target with own source, and wait for all */			\
+    /* TODO: unchecked malloc ahoy! */					\
+    Type *tmptrg = (Type *) malloc(nreduce * sizeof(Type));		\
+    /* use temp target first in case source/target overlap/same */	\
     for (j = 0; j < nreduce; j += 1) {					\
-      target[j] = source[j];						\
+      tmptrg[j] = source[j];						\
     }									\
+    /* make sure everyone has initialized */				\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
     /* now go through other PEs and get source */			\
     pe = PE_start;							\
@@ -125,7 +131,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	for (k = 0; k < nloops; k += 1) {				\
 	  shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	  for (j = 0; j < _SHMEM_REDUCE_SYNC_SIZE; j += 1) {		\
-	    target[ti] = (*the_op)(target[ti], pWrk[j]);		\
+	    tmptrg[ti] = (*the_op)(tmptrg[ti], pWrk[j]);		\
 	    ti += 1;							\
 	  }								\
 	  si += _SHMEM_REDUCE_SYNC_SIZE;				\
@@ -134,12 +140,18 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	/* now get remaining part of source */				\
 	shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	for (j = 0; j < nrem; j += 1) {					\
-	  target[ti] = (*the_op)(target[ti], pWrk[j]);			\
+	  tmptrg[ti] = (*the_op)(tmptrg[ti], pWrk[j]);			\
 	  ti += 1;							\
 	}								\
       }									\
       pe += step;							\
     }									\
+    /* everyone has to be ready with local temp target */		\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+    /* write to real target and free temp */				\
+    memcpy(target, tmptrg, nreduce * sizeof(Type));			\
+    LOAD_STORE_FENCE();							\
+    free(tmptrg);							\
   }
 
 SHMEM_UDR_TYPE_OP(short, short)
