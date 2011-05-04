@@ -100,6 +100,8 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 
 #include <string.h>
 
+#define OVERLAP_CHECK(t, s, n) ( (t) >= (s) ) && ( (t) < ( (s) + (n) ) )
+
 #define SHMEM_UDR_TYPE_OP(Name, Type)					\
   static void								\
   __shmem_udr_##Name##_to_all(Type (*the_op)(Type, Type),		\
@@ -113,15 +115,33 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
     int i, j;								\
     int pe;								\
-    Type *tmptrg = (Type *) malloc(nreduce * sizeof(Type));		\
-    if (tmptrg == (Type *) NULL) {					\
-      __shmem_trace(SHMEM_LOG_FATAL,					\
-		    "internal error: out of memory allocating temporary reduction buffer" \
+    Type *tmptrg;							\
+    Type *write_to;							\
+    const int snred = nreduce * sizeof(Type);				\
+    const int overlap = OVERLAP_CHECK(target, source, snred);		\
+    if (overlap) {							\
+      /* use temp target in case source/target overlap/same */		\
+      tmptrg = (Type *) malloc(snred);					\
+      if (tmptrg == (Type *) NULL) {					\
+	__shmem_trace(SHMEM_LOG_FATAL,					\
+		      "internal error: out of memory allocating temporary reduction buffer" \
+		      );						\
+      }									\
+      write_to = tmptrg;						\
+      __shmem_trace(SHMEM_LOG_REDUCE,					\
+		    "target (%p) and source (%p, %ld) overlap, using temporary target", \
+		    target, source, snred				\
 		    );							\
     }									\
-    /* use temp target first in case source/target overlap/same */	\
+    else {								\
+      write_to = target;						\
+      __shmem_trace(SHMEM_LOG_REDUCE,					\
+		    "target (%p) and source (%p, %ld) do not overlap",	\
+		    target, source, snred				\
+		    );							\
+    }									\
     for (j = 0; j < nreduce; j += 1) {					\
-      tmptrg[j] = source[j];						\
+      write_to[j] = source[j];						\
     }									\
     /* make sure everyone has initialized */				\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
@@ -135,7 +155,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	for (k = 0; k < nloops; k += 1) {				\
 	  shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	  for (j = 0; j < _SHMEM_REDUCE_SYNC_SIZE; j += 1) {		\
-	    tmptrg[ti] = (*the_op)(tmptrg[ti], pWrk[j]);		\
+	    write_to[ti] = (*the_op)(write_to[ti], pWrk[j]);		\
 	    ti += 1;							\
 	  }								\
 	  si += _SHMEM_REDUCE_SYNC_SIZE;				\
@@ -144,18 +164,20 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	/* now get remaining part of source */				\
 	shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	for (j = 0; j < nrem; j += 1) {					\
-	  tmptrg[ti] = (*the_op)(tmptrg[ti], pWrk[j]);			\
+	  write_to[ti] = (*the_op)(write_to[ti], pWrk[j]);		\
 	  ti += 1;							\
 	}								\
       }									\
       pe += step;							\
     }									\
-    /* everyone has to be ready with local temp target */		\
-    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-    /* write to real target and free temp */				\
-    memcpy(target, tmptrg, nreduce * sizeof(Type));			\
-    LOAD_STORE_FENCE();							\
-    free(tmptrg);							\
+    if (overlap) {							\
+      /* everyone has to be ready with local temp target */		\
+      shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+      /* write to real target and free temp */				\
+      memcpy(target, tmptrg, snred);					\
+      LOAD_STORE_FENCE();						\
+      free(tmptrg);							\
+    }									\
   }
 
 SHMEM_UDR_TYPE_OP(short, short)
