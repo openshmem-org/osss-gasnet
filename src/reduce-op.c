@@ -112,13 +112,13 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     const int step = 1 << logPE_stride;					\
     const int nloops = nreduce / _SHMEM_REDUCE_SYNC_SIZE;		\
     const int nrem = nreduce % _SHMEM_REDUCE_SYNC_SIZE;			\
-    size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
+    const int snred = sizeof(Type) * nreduce;				\
+    const int overlap = OVERLAP_CHECK(target, source, snred);		\
+    size_t nget;							\
     int i, j;								\
     int pe;								\
     Type *tmptrg;							\
     Type *write_to;							\
-    const int snred = nreduce * sizeof(Type);				\
-    const int overlap = OVERLAP_CHECK(target, source, snred);		\
     if (overlap) {							\
       /* use temp target in case source/target overlap/same */		\
       tmptrg = (Type *) malloc(snred);					\
@@ -129,17 +129,17 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
       }									\
       write_to = tmptrg;						\
       __shmem_trace(SHMEM_LOG_REDUCE,					\
-		    "target (%p) and source (%p, %ld) overlap, using temporary target", \
+		    "target (%p) and source (%p, size %ld) overlap, using temporary target", \
 		    target, source, snred				\
 		    );							\
     }									\
     else {								\
       write_to = target;						\
       __shmem_trace(SHMEM_LOG_REDUCE,					\
-		    "target (%p) and source (%p, %ld) do not overlap",	\
+		    "target (%p) and source (%p, size %ld) do not overlap", \
 		    target, source, snred				\
 		    );							\
-    }									\
+    } /* end overlap check */						\
     for (j = 0; j < nreduce; j += 1) {					\
       write_to[j] = source[j];						\
     }									\
@@ -152,6 +152,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 	int k;								\
 	int ti = 0, si = 0; /* target and source index walk */		\
 	/* pull in all the full chunks */				\
+	nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);			\
 	for (k = 0; k < nloops; k += 1) {				\
 	  shmem_getmem(pWrk, & (source[si]), nget, pe);			\
 	  for (j = 0; j < _SHMEM_REDUCE_SYNC_SIZE; j += 1) {		\
