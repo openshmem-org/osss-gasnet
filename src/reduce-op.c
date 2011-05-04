@@ -113,8 +113,12 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget = _SHMEM_REDUCE_SYNC_SIZE * sizeof(Type);		\
     int i, j;								\
     int pe;								\
-    /* TODO: unchecked malloc ahoy! */					\
     Type *tmptrg = (Type *) malloc(nreduce * sizeof(Type));		\
+    if (tmptrg == (Type *) NULL) {					\
+      __shmem_trace(SHMEM_LOG_FATAL,					\
+		    "internal error: out of memory allocating temporary reduction buffer" \
+		    );							\
+    }									\
     /* use temp target first in case source/target overlap/same */	\
     for (j = 0; j < nreduce; j += 1) {					\
       tmptrg[j] = source[j];						\
