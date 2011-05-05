@@ -168,7 +168,7 @@ pshmem_barrier_all(void)
     /* NOT REACHED */
   }
 
-  pshmem_fence();
+  shmem_fence();
 
   (*bar_all_func)();
 }
@@ -186,7 +186,7 @@ pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
     /* NOT REACHED */
   }
 
-  pshmem_fence();
+  shmem_fence();
 
   (*bar_func)(PE_start, logPE_stride, PE_size, pSync);
 }

@@ -140,10 +140,10 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
 		    target, source, snred				\
 		    );							\
     } /* end overlap check */						\
+    /* everyone must initialize */					\
     for (j = 0; j < nreduce; j += 1) {					\
       write_to[j] = source[j];						\
     }									\
-    /* make sure everyone has initialized */				\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
     /* now go through other PEs and get source */			\
     pe = PE_start;							\
@@ -171,10 +171,18 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
       }									\
       pe += step;							\
     }									\
+    /* everyone has to have finished */					\
+    __shmem_trace(SHMEM_LOG_REDUCE,					\
+		  "about to enter finish barrier: PE_start=%d, logPE_stride=%d, PE_size=%d", \
+		  PE_start, logPE_stride, PE_size, pSync		\
+		);							\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+    __shmem_trace(SHMEM_LOG_REDUCE,					\
+		  "left finish barrier: PE_start=%d, logPE_stride=%d, PE_size=%d", \
+		  PE_start, logPE_stride, PE_size, pSync		\
+		);							\
     if (overlap) {							\
-      /* everyone has to be ready with local temp target */		\
-      shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-      /* write to real target and free temp */				\
+      /* write to real local target and free temp */			\
       memcpy(target, tmptrg, snred);					\
       LOAD_STORE_FENCE();						\
       free(tmptrg);							\
