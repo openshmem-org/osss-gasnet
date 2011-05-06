@@ -172,15 +172,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
       pe += step;							\
     }									\
     /* everyone has to have finished */					\
-    __shmem_trace(SHMEM_LOG_REDUCE,					\
-		  "about to enter finish barrier: PE_start=%d, logPE_stride=%d, PE_size=%d", \
-		  PE_start, logPE_stride, PE_size, pSync		\
-		);							\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-    __shmem_trace(SHMEM_LOG_REDUCE,					\
-		  "left finish barrier: PE_start=%d, logPE_stride=%d, PE_size=%d", \
-		  PE_start, logPE_stride, PE_size, pSync		\
-		);							\
     if (overlap) {							\
       /* write to real local target and free temp */			\
       memcpy(target, tmptrg, snred);					\

@@ -15,7 +15,7 @@ CFLAGS          += -fPIC
 all default:	dlmalloc.o
 
 dlmalloc.o:	dlmalloc.c
-	$(CC) -c -DONLY_MSPACES=1 -DUSE_LOCKS=1 $(CFLAGS) $^
+	$(CC) -c -DONLY_MSPACES=1 $(CFLAGS) $^
 
 clean:
 	rm -f dlmalloc.o

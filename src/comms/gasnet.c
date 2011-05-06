@@ -256,7 +256,7 @@ __shmem_comms_poll_service(void)
 void
 __shmem_comms_pause(void)
 {
-  pthread_yield();
+  /* pthread_yield(); */
   /* __asm__ __volatile__("rep;nop": : :"memory"); */
 }
 
@@ -1489,6 +1489,11 @@ handler_inc_out(gasnet_token_t token,
   (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + 1;
   (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+
+  __shmem_trace(SHMEM_LOG_ATOMIC,
+		"%lld -> %lld",
+		old, plus
+		);
 
   gasnet_hsl_unlock(lk);
 
