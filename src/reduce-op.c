@@ -117,7 +117,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     size_t nget;							\
     int i, j;								\
     int pe;								\
-    Type *tmptrg;							\
+    Type *tmptrg = NULL;						\
     Type *write_to;							\
     if (overlap) {							\
       /* use temp target in case source/target overlap/same */		\
@@ -178,6 +178,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
       memcpy(target, tmptrg, snred);					\
       LOAD_STORE_FENCE();						\
       free(tmptrg);							\
+      tmptrg = NULL;							\
     }									\
   }
 
