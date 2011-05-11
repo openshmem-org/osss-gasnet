@@ -42,9 +42,16 @@ __shmem_mem_base(void)
 /*
  * allocate SIZE bytes from the pool
  */
+
+#define MIN_MALLOC_SIZE 64
+
 void *
 __shmem_mem_alloc(size_t size)
 {
+  /* TODO: not sure why < 64 is a problem */
+  if (size < MIN_MALLOC_SIZE) {
+    size = MIN_MALLOC_SIZE;
+  }
   return mspace_malloc(myspace, size);
 }
 
@@ -54,7 +61,7 @@ __shmem_mem_alloc(size_t size)
 void
 __shmem_mem_free(void *addr)
 {
-  return mspace_free(myspace, addr);
+  mspace_free(myspace, addr);
 }
 
 /*

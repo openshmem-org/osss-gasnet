@@ -256,8 +256,8 @@ __shmem_comms_poll_service(void)
 void
 __shmem_comms_pause(void)
 {
-  /* pthread_yield(); */
-  /* __asm__ __volatile__("rep;nop": : :"memory"); */
+  pthread_yield();
+  /* asm volatile ("rep;pause": : :"memory"); */
 }
 
 /*
@@ -827,15 +827,12 @@ __shmem_symmetric_memory_init(void)
       /* now wait on the AM replies */
       int got_all = GET_STATE(numpes) - 2; /* 0-based AND don't count myself */
       do {
-	__shmem_comms_pause();
+	GASNET_SAFE( gasnet_AMPoll() );
       } while (seg_setup_replies_received <= got_all);
     }
   }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
-
-  /* and make sure everyone is up-to-speed */
-  __shmem_comms_barrier_all();
 
   /*
    * spit out the seginfo table (but check first that the loop is
@@ -852,6 +849,9 @@ __shmem_symmetric_memory_init(void)
 		    );
     }
   }
+
+  /* and make sure everyone is up-to-speed */
+  __shmem_comms_barrier_all();
 }
 
 /*
@@ -1024,9 +1024,11 @@ handler_swap_out(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save and update */
-  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
-  (void) memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+  (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove(pp->r_symm_addr, &(pp->value), pp->nbytes);
   pp->value = old;
+
+  LOAD_STORE_FENCE();
 
   gasnet_hsl_unlock(lk);
 
@@ -1048,7 +1050,9 @@ handler_swap_bak(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save returned value */
-  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+  (void) memmove(pp->local_store, &(pp->value), pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1115,14 +1119,16 @@ handler_cswap_out(gasnet_token_t token,
   old = malloc(pp->nbytes);
 
   /* save current target */
-  memcpy(old, pp->r_symm_addr, pp->nbytes);
+  memmove(old, pp->r_symm_addr, pp->nbytes);
 
   /* update value if cond matches */
   if (memcmp(&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
-    memcpy(pp->r_symm_addr, &(pp->value), pp->nbytes);
+    memmove(pp->r_symm_addr, &(pp->value), pp->nbytes);
   }
   /* return value */
-  memcpy(&(pp->value), old, pp->nbytes);
+  memmove(&(pp->value), old, pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   free(old);
 
@@ -1147,7 +1153,9 @@ handler_cswap_bak(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save returned value */
-  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+  (void) memmove(pp->local_store, &(pp->value), pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1174,10 +1182,12 @@ __shmem_comms_cswap_request(void *target, void *cond, void *value, size_t nbytes
   cp->r_symm_addr = __shmem_symmetric_addr_lookup(target, pe);
   cp->nbytes = nbytes;
   cp->value = cp->cond = 0LL;
-  memcpy(&(cp->value), value, nbytes);
-  memcpy(&(cp->cond), cond, nbytes);
+  memmove(&(cp->value), value, nbytes);
+  memmove(&(cp->cond), cond, nbytes);
   cp->completed = 0;
   cp->completed_addr = &(cp->completed);
+
+  LOAD_STORE_FENCE();
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
@@ -1218,10 +1228,12 @@ handler_fadd_out(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save and update */
-  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + pp->value;
-  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  (void) memmove(pp->r_symm_addr, &plus, pp->nbytes);
   pp->value = old;
+
+  LOAD_STORE_FENCE();
 
   gasnet_hsl_unlock(lk);
 
@@ -1243,7 +1255,9 @@ handler_fadd_bak(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save returned value */
-  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+  (void) memmove(pp->local_store, &(pp->value), pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1310,10 +1324,12 @@ handler_finc_out(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save and update */
-  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + 1;
-  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  (void) memmove(pp->r_symm_addr, &plus, pp->nbytes);
   pp->value = old;
+
+  LOAD_STORE_FENCE();
 
   gasnet_hsl_unlock(lk);
 
@@ -1335,7 +1351,9 @@ handler_finc_bak(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save returned value */
-  (void) memcpy(pp->local_store, &(pp->value), pp->nbytes);
+  (void) memmove(pp->local_store, &(pp->value), pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1399,9 +1417,11 @@ handler_add_out(gasnet_token_t token,
   gasnet_hsl_lock(lk);
 
   /* save and update */
-  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
   plus = old + pp->value;
-  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  (void) memmove(pp->r_symm_addr, &plus, pp->nbytes);
+
+  LOAD_STORE_FENCE();
 
   gasnet_hsl_unlock(lk);
 
@@ -1421,6 +1441,8 @@ handler_add_bak(gasnet_token_t token,
   gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
   gasnet_hsl_lock(lk);
+
+  LOAD_STORE_FENCE();
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1479,16 +1501,19 @@ handler_inc_out(gasnet_token_t token,
 		gasnet_handlerarg_t unused)
 {
   long long old = 0;
-  long long plus = 1;
+  long long plus = 0;
   inc_payload_t *pp = (inc_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for(pp->r_symm_addr);
 
   gasnet_hsl_lock(lk);
 
   /* save and update */
-  (void) memcpy(&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
+  LOAD_STORE_FENCE();
+
   plus = old + 1;
-  (void) memcpy(pp->r_symm_addr, &plus, pp->nbytes);
+  (void) memmove(pp->r_symm_addr, &plus, pp->nbytes);
+  LOAD_STORE_FENCE();
 
   __shmem_trace(SHMEM_LOG_ATOMIC,
 		"%lld -> %lld",
@@ -1817,7 +1842,6 @@ void
 __shmem_comms_fence_request(void)
 {
   __shmem_service_set_mode(SERVICE_FENCE);
-  __shmem_service_set_mode(SERVICE_POLL);
 }
 
 
@@ -1899,9 +1923,9 @@ handler_globalvar_put_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof(*pp);
 
-  memcpy(pp->target, data, pp->nbytes);
-  LOAD_STORE_FENCE();
+  memmove(pp->target, data, pp->nbytes);
 
+  LOAD_STORE_FENCE();
 
   /* return ack, just need the control structure */
   gasnet_AMReplyMedium1(token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
@@ -1950,7 +1974,8 @@ put_a_chunk(void *buf, size_t bufsize,
   p->completed_addr = &(p->completed);
 
   /* data added after control structure */
-  memcpy(data, source + offset, bytes_to_send);
+  memmove(data, source + offset, bytes_to_send);
+
   LOAD_STORE_FENCE();
 
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
@@ -2039,7 +2064,8 @@ handler_globalvar_get_out(gasnet_token_t token,
 
 
   /* fetch from remote global var into payload */
-  memcpy(datap, pp->source, pp->nbytes);
+  memmove(datap, pp->source, pp->nbytes);
+
   LOAD_STORE_FENCE();
 
   /* return ack, copied data is returned */
@@ -2058,7 +2084,8 @@ handler_globalvar_get_bak(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   /* write back payload data here */
-  memcpy(pp->target, buf + sizeof(*pp), pp->nbytes);
+  memmove(pp->target, buf + sizeof(*pp), pp->nbytes);
+
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;

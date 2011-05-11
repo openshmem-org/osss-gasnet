@@ -4,11 +4,12 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 
 #include <mpp/shmem.h>
 
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
+
+int src;
 
 int
 main(void)
@@ -16,14 +17,13 @@ main(void)
   int npes;
   int me;
   int *dst;
-  static int src;
   int i;
 
   start_pes(0);
   npes = _num_pes();
   me = _my_pe();
 
-  dst = shmalloc(sizeof(*dst) * 4);
+  dst = (int *) shmalloc(64);
 
   for (i = 0; i < 4; i++) {
     dst[i] = 10101;

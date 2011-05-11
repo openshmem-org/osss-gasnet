@@ -31,7 +31,9 @@ static
 void *
 service_thread(void *unused_arg)
 {
-  while (poll_mode != SERVICE_FINISH) {
+  int polling = 1;
+
+  while (polling) {
 
     switch (poll_mode) {
 
@@ -41,6 +43,12 @@ service_thread(void *unused_arg)
 
     case SERVICE_FENCE:
       __shmem_comms_fence_service();
+      __shmem_service_set_mode(SERVICE_POLL);
+      break;
+
+    case SERVICE_FINISH:
+      __shmem_comms_fence_service();
+      polling = 0;
       break;
 
     default:

@@ -12,12 +12,12 @@
  */
 
 #define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
-  do {								\
+  while ( ! ( (* ( volatile Type *)(Var)) Op CmpValue) ) {	\
     __shmem_comms_pause();					\
-  } while ( *((volatile Type *) Var) Op CmpValue)
+  }
 
 /*
- * wait_util with operator dispatchers, type-parameterized
+ * wait_until with operator dispatchers, type-parameterized
  */
 
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
@@ -67,7 +67,7 @@ SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
   void									\
   pshmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\
-    pshmem_##Name##_wait_until(ivar, SHMEM_CMP_EQ, cmp_value);		\
+    pshmem_##Name##_wait_until(ivar, SHMEM_CMP_NE, cmp_value);		\
   }
 
 SHMEM_TYPE_WAIT(short, short)

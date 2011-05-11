@@ -36,7 +36,7 @@ main(void)
   shmem_barrier_all();
 
   shmem_fcollect32(dst, src, 2,
-                   0, 0, 4,
+                   0, 0, npes,
                    pSync);
 
   show_dst("AFTER");

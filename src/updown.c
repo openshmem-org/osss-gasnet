@@ -27,6 +27,9 @@
 void
 __shmem_exit(int status)
 {
+
+  __shmem_comms_barrier_all();
+
   __shmem_service_thread_finalize();
 
   /* ok, no more pending I/O ... */
@@ -100,22 +103,19 @@ pstart_pes(int npes)
 
   /* inspect our binary */
   __shmem_symmetric_globalvar_table_init();
-  
+
   /* set up communications layer */
   __shmem_comms_init();
-
-  /* see if we want to say which message/trace levels are active */
-  __shmem_maybe_tracers_show_info();
-  __shmem_tracers_show();
-
-  /* set up any locality information */
-  __shmem_place_init();
 
   /* start network service thread */
   __shmem_service_thread_init();
 
-  /* set up PE memory management */
+  /* handle the heap */
   __shmem_symmetric_memory_init();
+
+  /* see if we want to say which message/trace levels are active */
+  __shmem_maybe_tracers_show_info();
+  __shmem_tracers_show();
 
   /* set up the atomic ops handling */
   __shmem_atomic_init();
@@ -127,6 +127,8 @@ pstart_pes(int npes)
   __shmem_barrier_dispatch_init();
   __shmem_broadcast_dispatch_init();
 
+  /* set up any locality information */
+  __shmem_place_init();
 
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
@@ -149,11 +151,11 @@ pstart_pes(int npes)
   SET_STATE(pe_status, PE_RUNNING);
 
   {
-    int ma, mi;
-    if (shmem_version(&ma, &mi) == 0) {
+    int maj, min;
+    if (shmem_version(&maj, &min) == 0) {
       __shmem_trace(SHMEM_LOG_VERSION,
 		    "version %d.%d running on %d PE%s",
-		    ma, mi,
+		    maj, min,
 		    GET_STATE(numpes),
 		    GET_STATE(numpes) == 1 ? "" : "s"
 		    );
