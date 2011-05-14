@@ -145,6 +145,9 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
       write_to[j] = source[j];						\
     }									\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+    __shmem_trace(SHMEM_LOG_REDUCE,					\
+		  "after first barrier"					\
+		  );							\
     /* now go through other PEs and get source */			\
     pe = PE_start;							\
     for (i = 0; i < PE_size; i+= 1) {					\
@@ -176,9 +179,9 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
     if (overlap) {							\
       /* write to real local target and free temp */			\
       memcpy(target, tmptrg, snred);					\
-      LOAD_STORE_FENCE();						\
       free(tmptrg);							\
       tmptrg = NULL;							\
+      shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
     }									\
   }
 

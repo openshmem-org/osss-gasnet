@@ -27,6 +27,8 @@ __shmem_service_set_mode(poll_mode_t m)
   poll_mode = m;
 }
 
+volatile int fence_done = 0;
+
 static
 void *
 service_thread(void *unused_arg)
@@ -34,6 +36,11 @@ service_thread(void *unused_arg)
   int polling = 1;
 
   while (polling) {
+
+    __shmem_trace(SHMEM_LOG_SERVICE,
+		  "poll_mode = %d",
+		  poll_mode
+		  );
 
     switch (poll_mode) {
 
@@ -44,6 +51,7 @@ service_thread(void *unused_arg)
     case SERVICE_FENCE:
       __shmem_comms_fence_service();
       __shmem_service_set_mode(SERVICE_POLL);
+      fence_done = 1;
       break;
 
     case SERVICE_FINISH:
@@ -81,10 +89,12 @@ set_low_priority(pthread_attr_t *p)
  *
  */
 
+static const int max_create_tries = 100;
+
 void
 __shmem_service_thread_init(void)
 {
-  int s;
+  int try;
   pthread_attr_t pa;
 
   __shmem_service_set_mode(SERVICE_POLL);
@@ -92,17 +102,26 @@ __shmem_service_thread_init(void)
   /* prefer the processing thread over the service thread */
   set_low_priority(& pa);
 
-  s = pthread_create(& service_thr, & pa, service_thread, NULL);
-  if (s != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: can't create network service thread (%s)",
-		  strerror(errno)
-		  );
-    /* NOT REACHED */
+  try = 1;
+  while (try < max_create_tries) {
+    int s = pthread_create(& service_thr, & pa, service_thread, NULL);
+    if (s == 0) {
+      break;			/* created thread ok */
+    }
+    if (errno != EAGAIN) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: can't create network service thread (errno=%d, %s)",
+		    errno, strerror(errno)
+		    );
+      /* NOT REACHED */
+    }
+    try += 1;
   }
 
   __shmem_trace(SHMEM_LOG_SERVICE,
-		"thread started"
+		"thread started, after %d tr%s",
+		try,
+		try == 1 ? "y" : "ies"
 		);
 }
 

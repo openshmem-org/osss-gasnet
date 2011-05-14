@@ -27,11 +27,16 @@ __shmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 
       if (thatpe != me) {
 	shmem_long_inc(& pSync[round], thatpe);
+
+	__shmem_trace(SHMEM_LOG_BARRIER,
+		      "round = %d, sent increment to PE %d",
+		      round, thatpe
+		      );
       }
 
     }
-
     shmem_long_wait_until(& pSync[round], _SHMEM_CMP_EQ, nreplies);
+
     pSync[round] = _SHMEM_SYNC_VALUE;
 
   }

@@ -208,7 +208,7 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
  *
  */
 
-static double backoff_seconds = 0.00001;
+static double backoff_seconds = 0.000001;
 /* static int num_polls_per_loop = 10; */
 
 static struct timespec backoff;
@@ -234,7 +234,7 @@ __shmem_comms_service_pause(void)
 
 # if HAVE_SMP_MODEL == 1
   nanosleep(& backoff, (struct timespec *) NULL);
-#endif
+# endif
 
 #endif
 }
@@ -256,9 +256,10 @@ __shmem_comms_poll_service(void)
 void
 __shmem_comms_pause(void)
 {
-  pthread_yield();
+  /* pthread_yield(); */
   /* asm volatile ("rep;pause": : :"memory"); */
-}
+  nanosleep(& backoff, (struct timespec *) NULL);
+ }
 
 /*
  * -----------------------------------------------------
@@ -457,8 +458,6 @@ __shmem_comms_barrier_all(void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
-  __shmem_comms_fence_request();
-
   /* use gasnet's global barrier */
   gasnet_barrier_notify(barcount, barflag);
   GASNET_SAFE( gasnet_barrier_wait(barcount, barflag) );
@@ -656,7 +655,7 @@ __shmem_comms_init(void)
 		"communication layer initialization complete"
 		);
 
-  __shmem_comms_barrier_all();
+  // __shmem_comms_barrier_all();
 
   /* Up and running! */
 }
@@ -992,6 +991,53 @@ get_lock_for(void *addr)
 }
 
 /*
+ * -- AM tracking -----------------------------------------------------------
+ *
+ */
+
+static gasnet_hsl_t am_count_lock = GASNET_HSL_INITIALIZER;
+
+static volatile long am_count = 0L;
+
+static void inline
+inc_am_count(void)
+{
+  gasnet_hsl_lock(& am_count_lock);
+  am_count += 1L;
+  __shmem_trace(SHMEM_LOG_INFO,
+		"incremented (am_count = %d)",
+		am_count);
+  gasnet_hsl_unlock(& am_count_lock);
+}
+
+static void inline
+dec_am_count(void)
+{
+  gasnet_hsl_lock(& am_count_lock);
+  am_count -= 1L;
+  __shmem_trace(SHMEM_LOG_INFO,
+		"decremented (am_count = %d)",
+		am_count);
+  gasnet_hsl_unlock(& am_count_lock);
+}
+
+static void inline
+drain_am(void)
+{
+  __shmem_trace(SHMEM_LOG_INFO,
+		"starting drain (am_count = %d)",
+		am_count);
+
+  while (am_count > 0L) {
+    __shmem_comms_pause();
+  }
+
+  __shmem_trace(SHMEM_LOG_INFO,
+		"finished drain (am_count = %d)",
+		am_count);
+}
+
+/*
  * -- swap handlers ---------------------------------------------------------
  */
 
@@ -1086,7 +1132,12 @@ __shmem_comms_swap_request(void *target, void *value, size_t nbytes,
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SWAP_OUT,
 			  p, sizeof(*p),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
+
+  dec_am_count();
 
   free(p);
 }
@@ -1193,7 +1244,12 @@ __shmem_comms_cswap_request(void *target, void *cond, void *value, size_t nbytes
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_CSWAP_OUT,
 			  cp, sizeof(*cp),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(cp->completed);
+
+  dec_am_count();
 
   free(cp);
 }
@@ -1289,7 +1345,12 @@ __shmem_comms_fadd_request(void *target, void *value, size_t nbytes, int pe, voi
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FADD_OUT,
 			  p, sizeof(*p),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
+
+  dec_am_count();
 
   free(p);
 }
@@ -1384,7 +1445,12 @@ __shmem_comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_FINC_OUT,
 			  p, sizeof(*p),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
+
+  dec_am_count();
 
   free(p);
 }
@@ -1473,7 +1539,12 @@ __shmem_comms_add_request(void *target, void *value, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_ADD_OUT,
 			  p, sizeof(*p),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
+
+  dec_am_count();
 
   free(p);
 }
@@ -1509,8 +1580,6 @@ handler_inc_out(gasnet_token_t token,
 
   /* save and update */
   (void) memmove(&old, pp->r_symm_addr, pp->nbytes);
-  LOAD_STORE_FENCE();
-
   plus = old + 1;
   (void) memmove(pp->r_symm_addr, &plus, pp->nbytes);
   LOAD_STORE_FENCE();
@@ -1567,7 +1636,12 @@ __shmem_comms_inc_request(void *target, size_t nbytes, int pe)
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_INC_OUT,
 			  p, sizeof(*p),
 			  0);
+
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
+
+  dec_am_count();
 
   free(p);
 }
@@ -1621,8 +1695,6 @@ handler_ping_out(gasnet_token_t token,
   gasnet_hsl_lock(& ping_out_lock);
 
   pp->remote_pe_status = PE_RUNNING;
-
-  /* sleep(GET_STATE(mype)); */
 
   gasnet_hsl_unlock(& ping_out_lock);
 
@@ -1692,7 +1764,11 @@ __shmem_comms_ping_request(int pe)
 			    p, sizeof(*p),
 			    0);
 
+    inc_am_count();
+
     WAIT_ON_COMPLETION(p->completed);
+
+    dec_am_count();
   }
 
   __shmem_ping_clear_alarm();
@@ -1802,6 +1878,8 @@ __shmem_comms_quiet_request(void)
 		    "sent request to PE %d",
 		    other_pe
 		    );
+
+      inc_am_count();
     }
   }
   /* wait for all acks */
@@ -1814,6 +1892,9 @@ __shmem_comms_quiet_request(void)
 		    );
 
       WAIT_ON_COMPLETION(pa[other_pe]->completed);
+
+      dec_am_count();
+
       free(pa[other_pe]);
     }
     else {
@@ -1831,17 +1912,28 @@ __shmem_comms_quiet_request(void)
 void
 __shmem_comms_fence_service(void)
 {
-  gasnet_wait_syncnbi_all();
+  gasnet_wait_syncnbi_puts();
   LOAD_STORE_FENCE();
 }
 
 /*
  * called by mainline to tickle service thread to do fence
  */
+
+extern volatile int fence_done;
+
 void
 __shmem_comms_fence_request(void)
 {
+  drain_am();
   __shmem_service_set_mode(SERVICE_FENCE);
+  do {
+    __shmem_comms_pause();
+  } while (fence_done != 1);
+  fence_done = 0;
+  __shmem_trace(SHMEM_LOG_FENCE,
+		"leaving fence_request"
+		);
 }
 
 
@@ -1905,14 +1997,6 @@ typedef struct {
  */
 
 /*
- * buffer allocated for global var puts
- */
-static void *put_buf = NULL;
-
-static gasnet_hsl_t put_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t put_bak_lock = GASNET_HSL_INITIALIZER;
-
-/*
  * called by remote PE to grab and write to its variable
  */
 static void
@@ -1924,7 +2008,6 @@ handler_globalvar_put_out(gasnet_token_t token,
   void *data = buf + sizeof(*pp);
 
   memmove(pp->target, data, pp->nbytes);
-
   LOAD_STORE_FENCE();
 
   /* return ack, just need the control structure */
@@ -1961,8 +2044,6 @@ put_a_chunk(void *buf, size_t bufsize,
   globalvar_payload_t *p = buf;
   void *data = buf + sizeof(*p);
 
-  gasnet_hsl_lock(& put_out_lock);
-
   /*
    * build payload to send
    * (global var is trivially symmetric here, no translation needed)
@@ -1975,16 +2056,17 @@ put_a_chunk(void *buf, size_t bufsize,
 
   /* data added after control structure */
   memmove(data, source + offset, bytes_to_send);
-
   LOAD_STORE_FENCE();
 
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
 			  p, bufsize,
 			  0);
 
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
 
-  gasnet_hsl_unlock(& put_out_lock);
+  dec_am_count();
 }
 
 /*
@@ -2003,14 +2085,12 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
   size_t payload_size;
   size_t alloc_size;
   size_t offset = 0;
+  void *put_buf;
 
   alloc_size = max_req;
   payload_size = max_data;
 
-  if (put_buf == NULL) {
-    /* first time: allocate put buffer */
-    allocate_buffer_and_check(& put_buf, alloc_size);
-  }
+  allocate_buffer_and_check(& put_buf, alloc_size);
 
   if (nchunks > 0) {
     size_t i;
@@ -2036,20 +2116,14 @@ __shmem_comms_globalvar_put_request(void *target, void *source, size_t nbytes, i
 		);
 
   }
+
+  free(put_buf);
 }
 
 /*
  * Gets
  *
  */
-
-/*
- * buffer allocated for global var gets
- */
-static void *get_buf = NULL;
-
-static gasnet_hsl_t get_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t get_bak_lock = GASNET_HSL_INITIALIZER;
 
 /*
  * called by remote PE to grab remote data and return
@@ -2062,10 +2136,8 @@ handler_globalvar_get_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof(*pp);
 
-
   /* fetch from remote global var into payload */
   memmove(datap, pp->source, pp->nbytes);
-
   LOAD_STORE_FENCE();
 
   /* return ack, copied data is returned */
@@ -2085,7 +2157,6 @@ handler_globalvar_get_bak(gasnet_token_t token,
 
   /* write back payload data here */
   memmove(pp->target, buf + sizeof(*pp), pp->nbytes);
-
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;
@@ -2101,8 +2172,6 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 	    size_t offset, size_t bytes_to_send,
 	    int pe)
 {
-  gasnet_hsl_lock(& get_out_lock);
-
   /*
    * build payload to send
    * (global var is trivially symmetric here, no translation needed)
@@ -2117,9 +2186,11 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 			  p, bufsize,
 			  0);
 
+  inc_am_count();
+
   WAIT_ON_COMPLETION(p->completed);
 
-  gasnet_hsl_unlock(& get_out_lock);
+  dec_am_count();
 }
 
 /*
@@ -2138,13 +2209,11 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
   size_t payload_size;
   size_t alloc_size;
   size_t offset = 0;
+  void *get_buf;
 
   alloc_size = max_req;
 
-  if (get_buf == NULL) {
-    /* first time: allocate put buffer */
-    allocate_buffer_and_check(& get_buf, alloc_size);
-  }
+  allocate_buffer_and_check(& get_buf, alloc_size);
 
   if (nchunks > 0) {
     size_t i;
@@ -2172,6 +2241,8 @@ __shmem_comms_globalvar_get_request(void *target, void *source, size_t nbytes, i
                 );
 
   }
+
+  free(get_buf);
 }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
