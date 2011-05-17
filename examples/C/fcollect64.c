@@ -9,7 +9,7 @@ static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
 static long src[4] = { 11, 12, 13, 14 };
 
-#define DST_SIZE 8
+#define DST_SIZE 128
 
 static long dst[DST_SIZE];
 
@@ -36,7 +36,7 @@ main(void)
   shmem_barrier_all();
 
   shmem_fcollect64(dst, src, 2,
-                   0, 0, 4,
+                   0, 0, npes,
                    pSync);
 
   show_dst("AFTER");

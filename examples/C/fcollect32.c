@@ -9,12 +9,14 @@ static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
 static int src[4] = { 11, 12, 13, 14 };
 
-#define DST_SIZE 8
+#define DST_SIZE 128
 
 static int dst[DST_SIZE];
 
 int npes;
 int me;
+
+volatile int x = 1;
 
 int
 main(void)
