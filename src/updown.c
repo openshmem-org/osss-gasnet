@@ -12,7 +12,6 @@
 #include "broadcast.h"
 #include "ping.h"
 #include "utils.h"
-#include "service.h"
 #include "clock.h"
 
 #include "mpp/shmem.h"
@@ -29,9 +28,6 @@ __shmem_exit(int status)
 {
 
   __shmem_comms_barrier_all();
-
-  __shmem_service_thread_finalize();
-
   /* ok, no more pending I/O ... */
 
   /* clean up atomics and memory */
@@ -106,9 +102,7 @@ pstart_pes(int npes)
 
   /* set up communications layer */
   __shmem_comms_init();
-
-  /* start network service thread */
-  __shmem_service_thread_init();
+  __shmem_comms_barrier_all();
 
   /* handle the heap */
   __shmem_symmetric_memory_init();

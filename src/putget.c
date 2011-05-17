@@ -84,7 +84,11 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
       LOAD_STORE_FENCE();						\
     }									\
     else {								\
-      void *their_src = __shmem_symmetric_addr_lookup((Type *) src, pe); \
+      void *their_src = __shmem_symmetric_addr_lookup((void *) src, pe); \
+      __shmem_trace(SHMEM_LOG_DEBUG,					\
+		    "src = %p, their_src = %p",				\
+		    src, their_src					\
+		    );							\
       __shmem_comms_get(dest, their_src, typed_len, pe);		\
     }									\
   }

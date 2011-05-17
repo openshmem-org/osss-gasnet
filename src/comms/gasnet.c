@@ -34,7 +34,6 @@
 #include "atomic.h"
 #include "comms.h"
 #include "ping.h"
-#include "service.h"
 #include "utils.h"
 
 /*
@@ -202,64 +201,17 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
 		);
 }
 
-/*
- * ------------------------------------------------------
- * let the service thread throttle itself if needed
- *
- */
-
-static double backoff_seconds = 0.000001;
-/* static int num_polls_per_loop = 10; */
-
-static struct timespec backoff;
-
-/*
- * allow the service thread to back off
- *
- */
-void
-__shmem_comms_set_service_pause(double ms)
-{
-  double s = floor(ms);
-  double f = ms - s;
-
-  backoff.tv_sec  = (long) s;
-  backoff.tv_nsec = (long) (f * 1.0e9);
-}
-
-static void
-__shmem_comms_service_pause(void)
-{
-#if defined(HAVE_SMP_MODEL)
-
-# if HAVE_SMP_MODEL == 1
-  nanosleep(& backoff, (struct timespec *) NULL);
-# endif
-
-#endif
-}
-
-/*
- * used in service thread to poll for put/get/AM traffic
- */
-void
-__shmem_comms_poll_service(void)
-{
-  GASNET_SAFE( gasnet_AMPoll() );
-  __shmem_comms_service_pause();
-}
-
-/*
- * used in loops while waiting for variable to change
- */
-
 void
 __shmem_comms_pause(void)
 {
   /* pthread_yield(); */
-  /* asm volatile ("rep;pause": : :"memory"); */
-  nanosleep(& backoff, (struct timespec *) NULL);
- }
+  /* usleep(1); */
+  /* nanosleep(& backoff, (struct timespec *) NULL); */
+
+  GASNET_SAFE( gasnet_AMPoll() );
+
+  asm volatile ("pause" ::: "memory");
+}
 
 /*
  * -----------------------------------------------------
@@ -329,10 +281,10 @@ __shmem_comms_put(void *dst, void *src, size_t len, int pe)
     __shmem_comms_globalvar_put_request(dst, src, len, pe);
   }
   else {
-    gasnet_put_nbi(pe, dst, src, len);
+    gasnet_put_nbi_bulk(pe, dst, src, len);
   }
 #else
-  gasnet_put_nbi(pe, dst, src, len);
+  gasnet_put_nbi_bulk(pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -346,10 +298,10 @@ __shmem_comms_get(void *dst, void *src, size_t len, int pe)
     __shmem_comms_globalvar_get_request(dst, src, len, pe);
   }
   else {
-    gasnet_get(dst, pe, src, len);
+    gasnet_get_bulk(dst, pe, src, len);
   }
 #else
-  gasnet_get(dst, pe, src, len);
+  gasnet_get_bulk(dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -399,7 +351,7 @@ __shmem_comms_get_val(void *src, size_t len, int pe)
   void *								\
   __shmem_comms_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
-    return gasnet_put_nb(pe, target, (Type *) source, sizeof(Type) * len);	\
+    return gasnet_put_nb_bulk(pe, target, (Type *) source, sizeof(Type) * len);	\
   }
 
 COMMS_TYPE_PUT_NB(short, short)
@@ -416,7 +368,7 @@ COMMS_TYPE_PUT_NB(float, float)
   void *								\
   __shmem_comms_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
-    return gasnet_get_nb(target, pe, (Type *) source, sizeof(Type) * len);	\
+    return gasnet_get_nb_bulk(target, pe, (Type *) source, sizeof(Type) * len);	\
   }
 
 COMMS_TYPE_GET_NB(short, short)
@@ -645,17 +597,15 @@ __shmem_comms_init(void)
 
   __shmem_comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
-  __shmem_comms_set_service_pause(backoff_seconds);
-
   /*
    * make sure all nodes are up to speed before "declaring"
    * initialization done
    */
+  __shmem_comms_barrier_all();
+
   __shmem_trace(SHMEM_LOG_INIT,
 		"communication layer initialization complete"
 		);
-
-  // __shmem_comms_barrier_all();
 
   /* Up and running! */
 }
@@ -737,11 +687,15 @@ handler_segsetup_bak(gasnet_token_t token,
 void
 __shmem_symmetric_memory_init(void)
 {
+  const int me          = GET_STATE(mype);
+  const int npes        = GET_STATE(numpes);
+  const size_t heapsize = GET_STATE(heapsize);
+  int pm_r;
+
   /*
    * calloc zeroes for us
    */
-  seginfo_table = (gasnet_seginfo_t *) calloc(GET_STATE(numpes),
-					      sizeof(gasnet_seginfo_t));
+  seginfo_table = (gasnet_seginfo_t *) calloc(npes, sizeof(gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "could not allocate GASNet segments (%s)",
@@ -753,85 +707,73 @@ __shmem_symmetric_memory_init(void)
   /*
    * prep the segments for use across all PEs
    *
-   * each PE manages its own segment, but can see addresses from all PEs
    */
 
 #ifdef HAVE_MANAGED_SEGMENTS
 
-  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, GET_STATE(numpes)) );
-
-  /*
-   * initialize my heap
-   */
-  __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
-		   seginfo_table[GET_STATE(mype)].size
-		   );
+  /* gasnet handles the segment allocation for us */
+  GASNET_SAFE( gasnet_getSegmentInfo(seginfo_table, npes) );
 
 #else
 
   /* allocate the heap - has to be pagesize aligned */
-  if (posix_memalign(& great_big_heap,
-		     GASNET_PAGESIZE, GET_STATE(heapsize)) != 0) {
+  pm_r = posix_memalign(& great_big_heap, GASNET_PAGESIZE, heapsize);
+  if (pm_r != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		  "unable to allocate symmetric heap"
+		  "unable to allocate symmetric heap (%s)",
+		  strerror(pm_r)
 		  );
     /* NOT REACHED */
   }
 
-  /*
-   * need to make sure everyone has segment table allocated before
-   * exchanging messages
-   */
+  /* everyone has their local info before exchanging messages */
   __shmem_comms_barrier_all();
 
   __shmem_trace(SHMEM_LOG_MEMORY,
 		"symmetric heap @ %p, size is %ld bytes",
-		great_big_heap, GET_STATE(heapsize)
+		great_big_heap, heapsize
 		);
 
+  /* store my own heap entry */
+  seginfo_table[me].addr = great_big_heap;
+  seginfo_table[me].size = heapsize;
+
   {
-    gasnet_seginfo_t gsp;
+    gasnet_seginfo_t gs;
     int pe;
 
-    for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
+    gs.addr = great_big_heap;
+    gs.size = heapsize;
+
+    for (pe = 0; pe < npes; pe += 1) {
       /* send to everyone else */
-      if (GET_STATE(mype) != pe) {
-
-	gsp.addr = great_big_heap;
-        gsp.size = GET_STATE(heapsize);
-
+      if (me != pe) {
 	gasnet_AMRequestMedium1(pe, GASNET_HANDLER_SETUP_OUT,
-				&gsp, sizeof(gsp),
+				&gs, sizeof(gs),
 				0
 				);
       }
     }
 
-    /* messages swirl around...do local init then wait for responses */
+    /* now wait on the AM replies (0-based AND don't count myself) */
+    GASNET_BLOCKUNTIL(seg_setup_replies_received == npes - 1);
 
-    /*
-     * store my own heap entry
-     */
-    seginfo_table[GET_STATE(mype)].addr = great_big_heap;
-    seginfo_table[GET_STATE(mype)].size = GET_STATE(heapsize);
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "received all replies (%d)",
+		  seg_setup_replies_received
+		  );
 
-    /*
-     * initialize my heap
-     */
-    __shmem_mem_init(seginfo_table[GET_STATE(mype)].addr,
-	             seginfo_table[GET_STATE(mype)].size
-		     );
-
-    {
-      /* now wait on the AM replies */
-      int got_all = GET_STATE(numpes) - 2; /* 0-based AND don't count myself */
-      do {
-	GASNET_SAFE( gasnet_AMPoll() );
-      } while (seg_setup_replies_received <= got_all);
-    }
   }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
+
+  /* initialize my heap */
+  __shmem_mem_init(seginfo_table[me].addr,
+		   seginfo_table[me].size
+		   );
+
+  /* and make sure everyone is up-to-speed */
+  __shmem_comms_barrier_all();
 
   /*
    * spit out the seginfo table (but check first that the loop is
@@ -839,7 +781,7 @@ __shmem_symmetric_memory_init(void)
    */
   if (__shmem_trace_is_enabled(SHMEM_LOG_INIT)) {
     int pe;
-    for (pe = 0; pe < GET_STATE(numpes); pe += 1) {
+    for (pe = 0; pe < npes; pe += 1) {
       __shmem_trace(SHMEM_LOG_INIT,
 		    "cross-check: segment[%d] = { .addr = %p, .size = %ld }",
 		    pe,
@@ -848,9 +790,6 @@ __shmem_symmetric_memory_init(void)
 		    );
     }
   }
-
-  /* and make sure everyone is up-to-speed */
-  __shmem_comms_barrier_all();
 }
 
 /*
@@ -869,9 +808,9 @@ __shmem_symmetric_memory_finalize(void)
  * where the symmetric memory starts on the given PE
  */
 void *
-__shmem_symmetric_var_base(int pe)
+__shmem_symmetric_var_base(int p)
 {
-  return seginfo_table[pe].addr;
+  return seginfo_table[p].addr;
 }
 
 /*
@@ -883,9 +822,19 @@ __shmem_symmetric_var_in_range(void *addr, int pe)
   int retval;
 
   if (addr < seginfo_table[pe].addr) {
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "addr %p < seginfo %p",
+		  addr,
+		  seginfo_table[pe].addr
+		  );
     retval = 0;
   }
   else if (addr > (seginfo_table[pe].addr + seginfo_table[pe].size)) {
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "addr %p > seginfo + size %p",
+		  addr,
+		  seginfo_table[pe].addr + seginfo_table[pe].size
+		  );
     retval = 0;
   }
   else {
@@ -911,7 +860,7 @@ __shmem_symmetric_addr_lookup(void *dest, int pe)
   }
 
   /* not symmetric if outside of heap */
-  if (! __shmem_symmetric_var_in_range(dest, pe)) {
+  if (! __shmem_symmetric_var_in_range(dest, me)) {
     return NULL;
   }
 
@@ -919,6 +868,11 @@ __shmem_symmetric_addr_lookup(void *dest, int pe)
   offset = (char *) dest - (char *) __shmem_symmetric_var_base(me);
   /* and where it is in the remote heap */
   rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
+
+  __shmem_trace(SHMEM_LOG_MEMORY,
+		"%p -> %p",
+		dest, rdest
+		);
 
   /* assume this is good */
   return rdest;
@@ -988,53 +942,6 @@ get_lock_for(void *addr)
   }    
 
   return try->lock;
-}
-
-/*
- * -- AM tracking -----------------------------------------------------------
- *
- */
-
-static gasnet_hsl_t am_count_lock = GASNET_HSL_INITIALIZER;
-
-static volatile long am_count = 0L;
-
-static void inline
-inc_am_count(void)
-{
-  gasnet_hsl_lock(& am_count_lock);
-  am_count += 1L;
-  __shmem_trace(SHMEM_LOG_INFO,
-		"incremented (am_count = %d)",
-		am_count);
-  gasnet_hsl_unlock(& am_count_lock);
-}
-
-static void inline
-dec_am_count(void)
-{
-  gasnet_hsl_lock(& am_count_lock);
-  am_count -= 1L;
-  __shmem_trace(SHMEM_LOG_INFO,
-		"decremented (am_count = %d)",
-		am_count);
-  gasnet_hsl_unlock(& am_count_lock);
-}
-
-static void inline
-drain_am(void)
-{
-  __shmem_trace(SHMEM_LOG_INFO,
-		"starting drain (am_count = %d)",
-		am_count);
-
-  while (am_count > 0L) {
-    __shmem_comms_pause();
-  }
-
-  __shmem_trace(SHMEM_LOG_INFO,
-		"finished drain (am_count = %d)",
-		am_count);
 }
 
 /*
@@ -1133,11 +1040,7 @@ __shmem_comms_swap_request(void *target, void *value, size_t nbytes,
 			  p, sizeof(*p),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 
   free(p);
 }
@@ -1245,11 +1148,7 @@ __shmem_comms_cswap_request(void *target, void *cond, void *value, size_t nbytes
 			  cp, sizeof(*cp),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(cp->completed);
-
-  dec_am_count();
 
   free(cp);
 }
@@ -1346,11 +1245,7 @@ __shmem_comms_fadd_request(void *target, void *value, size_t nbytes, int pe, voi
 			  p, sizeof(*p),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 
   free(p);
 }
@@ -1446,11 +1341,7 @@ __shmem_comms_finc_request(void *target, size_t nbytes, int pe, void *retval)
 			  p, sizeof(*p),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 
   free(p);
 }
@@ -1540,11 +1431,7 @@ __shmem_comms_add_request(void *target, void *value, size_t nbytes, int pe)
 			  p, sizeof(*p),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 
   free(p);
 }
@@ -1637,11 +1524,7 @@ __shmem_comms_inc_request(void *target, size_t nbytes, int pe)
 			  p, sizeof(*p),
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 
   free(p);
 }
@@ -1764,11 +1647,7 @@ __shmem_comms_ping_request(int pe)
 			    p, sizeof(*p),
 			    0);
 
-    inc_am_count();
-
     WAIT_ON_COMPLETION(p->completed);
-
-    dec_am_count();
   }
 
   __shmem_ping_clear_alarm();
@@ -1803,7 +1682,7 @@ static gasnet_hsl_t quiet_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t quiet_bak_lock = GASNET_HSL_INITIALIZER;
 
 /*
- * called by remote PE to fence and acknowledge
+ * called by remote PE to quiet and acknowledge
  */
 static void
 handler_quiet_out(gasnet_token_t token,
@@ -1812,8 +1691,7 @@ handler_quiet_out(gasnet_token_t token,
 {
   gasnet_hsl_lock(& quiet_out_lock);
 
-  /* a quiet is a fence everywhere */
-  __shmem_comms_fence_request();
+  /* __shmem_comms_fence_request(); */
 
   gasnet_hsl_unlock(& quiet_out_lock);
 
@@ -1879,7 +1757,6 @@ __shmem_comms_quiet_request(void)
 		    other_pe
 		    );
 
-      inc_am_count();
     }
   }
   /* wait for all acks */
@@ -1893,47 +1770,26 @@ __shmem_comms_quiet_request(void)
 
       WAIT_ON_COMPLETION(pa[other_pe]->completed);
 
-      dec_am_count();
-
       free(pa[other_pe]);
     }
     else {
-      __shmem_comms_fence_request();
+      gasnet_wait_syncnbi_all();
     }
   }
 
   free(pa);
 }
 
-/*
- * used by service thread to initiate the fence
- *
- */
-void
-__shmem_comms_fence_service(void)
-{
-  gasnet_wait_syncnbi_puts();
-  LOAD_STORE_FENCE();
-}
 
 /*
  * called by mainline to tickle service thread to do fence
  */
 
-extern volatile int fence_done;
-
 void
 __shmem_comms_fence_request(void)
 {
-  drain_am();
-  __shmem_service_set_mode(SERVICE_FENCE);
-  do {
-    __shmem_comms_pause();
-  } while (fence_done != 1);
-  fence_done = 0;
-  __shmem_trace(SHMEM_LOG_FENCE,
-		"leaving fence_request"
-		);
+  gasnet_wait_syncnbi_puts();
+  return;
 }
 
 
@@ -2062,11 +1918,7 @@ put_a_chunk(void *buf, size_t bufsize,
 			  p, bufsize,
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 }
 
 /*
@@ -2186,11 +2038,7 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 			  p, bufsize,
 			  0);
 
-  inc_am_count();
-
   WAIT_ON_COMPLETION(p->completed);
-
-  dec_am_count();
 }
 
 /*

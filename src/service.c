@@ -27,8 +27,6 @@ __shmem_service_set_mode(poll_mode_t m)
   poll_mode = m;
 }
 
-volatile int fence_done = 0;
-
 static
 void *
 service_thread(void *unused_arg)
@@ -37,12 +35,10 @@ service_thread(void *unused_arg)
 
   while (polling) {
 
-    __shmem_trace(SHMEM_LOG_SERVICE,
-		  "poll_mode = %d",
-		  poll_mode
-		  );
-
     switch (poll_mode) {
+
+    case SERVICE_SPINUP:
+      break;
 
     case SERVICE_POLL:
       __shmem_comms_poll_service();
@@ -51,11 +47,9 @@ service_thread(void *unused_arg)
     case SERVICE_FENCE:
       __shmem_comms_fence_service();
       __shmem_service_set_mode(SERVICE_POLL);
-      fence_done = 1;
       break;
 
     case SERVICE_FINISH:
-      __shmem_comms_fence_service();
       polling = 0;
       break;
 
@@ -77,8 +71,8 @@ set_low_priority(pthread_attr_t *p)
 
   pthread_attr_init(p);
   pthread_attr_getschedparam(p, & sp);
-  sp.sched_priority = sched_get_priority_min(SCHED_OTHER);
-  pthread_attr_setschedpolicy(p, SCHED_OTHER);
+  sp.sched_priority = sched_get_priority_min(SCHED_RR);
+  pthread_attr_setschedpolicy(p, SCHED_RR);
   pthread_attr_setschedparam(p, & sp);
 }
 
@@ -97,7 +91,9 @@ __shmem_service_thread_init(void)
   int try;
   pthread_attr_t pa;
 
-  __shmem_service_set_mode(SERVICE_POLL);
+  return;
+
+  __shmem_service_set_mode(SERVICE_SPINUP);
 
   /* prefer the processing thread over the service thread */
   set_low_priority(& pa);
@@ -118,6 +114,8 @@ __shmem_service_thread_init(void)
     try += 1;
   }
 
+  __shmem_service_set_mode(SERVICE_POLL);
+
   __shmem_trace(SHMEM_LOG_SERVICE,
 		"thread started, after %d tr%s",
 		try,
@@ -136,6 +134,8 @@ void
 __shmem_service_thread_finalize(void)
 {
   int s;
+
+  return;
 
   __shmem_comms_barrier_all();
 

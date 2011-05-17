@@ -96,7 +96,7 @@ extern void   __shmem_comms_set_service_pause(double ms);
 /*
  * utility to wait on remote updates
  */
-#define WAIT_ON_COMPLETION(p) while (! (p)) { __shmem_comms_pause(); }
+#define WAIT_ON_COMPLETION(p) do { __shmem_comms_pause(); } while (! (p))
 
 /*
  * for accessibility timeouts
@@ -108,7 +108,7 @@ extern int   __shmem_comms_ping_request(int pe);
  */
 extern void __shmem_comms_barrier_all(void);
 extern void __shmem_comms_barrier(int PE_start, int logPE_stride,
-			    int PE_size, long *pSync);
+				  int PE_size, long *pSync);
 
 /*
  * swaps, other atomics

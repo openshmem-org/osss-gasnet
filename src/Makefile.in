@@ -125,8 +125,11 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # ---------------------------------------------------------
 
-# communication library dependent
-SHMEM_SOURCES    =	service.c
+SHMEM_SOURCES    =
+
+# not used right now
+# SHMEM_SOURCES   +=	service.c
+
 # internal
 SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c
 # Fortran API

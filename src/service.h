@@ -8,6 +8,7 @@ typedef enum {
   SERVICE_FINISH=0,
   SERVICE_POLL,
   SERVICE_FENCE,
+  SERVICE_SPINUP,
 } poll_mode_t;
 
 extern void __shmem_service_set_mode(poll_mode_t m);
