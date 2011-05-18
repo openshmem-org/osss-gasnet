@@ -186,11 +186,7 @@ __shmem_broadcast32_tree(void *target, const void *source,
 		  "at the end of bcast32"
 		  );
 
- /* shmem_barrier(PE_start, logPE_stride, PE_size, pSync);*/
-  /* restore pSync values */
-  pSync[GET_STATE(mype)] = _SHMEM_SYNC_VALUE;
-
-  shmem_fence();
+  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
   
 }	
 
