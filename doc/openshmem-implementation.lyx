@@ -682,34 +682,13 @@ Servicing Communications
 \end_layout
 
 \begin_layout Standard
-A separate service thread handles network traffic.
- Waits and spins on variables yield to the service thread which is just
- a continuous poll on the communication layer.
- The initialization phase creates the service thread and the registered
- shutdown handler turns off the thread.
- If the 
-\begin_inset Quotes eld
-\end_inset
+GASNet provides this functionality.
+ The mainline code needs to spin on variable waits (
+\emph on
+e.g.
 
-mainline
-\begin_inset Quotes erd
-\end_inset
-
- sleeps or otherwise can't handle communication, this thread takes up the
- work.
- It's meant to look like the way dedicated hardware solutions do this kind
- of thing.
- A routine provides the ability to send requests to the service thread.
- This is how 
-\family typewriter
-shmem_fence()
-\family default
- and
-\family typewriter
- shmem_quiet()
-\family default
- are handled: we tell the service thread to wait for pending operations,
- and then resume polling.
+\emph default
+ shmem_long_waituntil) to poll GASNet, otherwise progress is automatic.
 \end_layout
 
 \begin_layout Subsection

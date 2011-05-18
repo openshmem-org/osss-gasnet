@@ -26,7 +26,6 @@
 void
 __shmem_exit(int status)
 {
-
   __shmem_comms_barrier_all();
   /* ok, no more pending I/O ... */
 

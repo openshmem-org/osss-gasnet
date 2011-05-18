@@ -204,13 +204,9 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
 void
 __shmem_comms_pause(void)
 {
-  /* pthread_yield(); */
-  /* usleep(1); */
-  /* nanosleep(& backoff, (struct timespec *) NULL); */
-
   GASNET_SAFE( gasnet_AMPoll() );
 
-  asm volatile ("pause" ::: "memory");
+  /* asm volatile ("pause" ::: "memory"); */
 }
 
 /*
