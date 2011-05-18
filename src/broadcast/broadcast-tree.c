@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
 #include "state.h"
 #include "trace.h"
-
 #include "mpp/shmem.h"
 
 /*
@@ -136,6 +134,7 @@ __shmem_broadcast32_tree(void *target, const void *source,
   int my_pe = GET_STATE(mype);
   int *target_ptr, *source_ptr;
   int old_target;
+  int thatpe, i;
 
   target_ptr = (int *) target;
   source_ptr = (int *) source;
@@ -164,11 +163,10 @@ __shmem_broadcast32_tree(void *target, const void *source,
       shmem_int_put(target_ptr, source_ptr, nlong, child_r);		
     }
 
-    /* __comms_fence(); */
   }
   else {
-    shmem_int_wait_until(target_ptr, SHMEM_CMP_EQ, old_target);
-
+    shmem_int_wait_until(target_ptr, SHMEM_CMP_NE, old_target);
+    shmem_long_p(& pSync[GET_STATE(mype)], _SHMEM_SYNC_VALUE, PE_start);  
     __shmem_trace(SHMEM_LOG_BROADCAST,
 		  "inside else"
 		  );
@@ -188,7 +186,12 @@ __shmem_broadcast32_tree(void *target, const void *source,
 		  "at the end of bcast32"
 		  );
 
-  shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
+ /* shmem_barrier(PE_start, logPE_stride, PE_size, pSync);*/
+  /* restore pSync values */
+  pSync[GET_STATE(mype)] = _SHMEM_SYNC_VALUE;
+
+  shmem_fence();
+  
 }	
 
 void
@@ -237,7 +240,7 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
     /*__comms_fence(); */
   }
   else {
-    shmem_long_wait_until(target_ptr, SHMEM_CMP_EQ, old_target);
+    shmem_long_wait_until(target_ptr, SHMEM_CMP_NE, old_target);
 
     __shmem_trace(SHMEM_LOG_BROADCAST,
 		  "inside else"
