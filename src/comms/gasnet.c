@@ -871,11 +871,6 @@ __shmem_symmetric_addr_lookup(void *dest, int pe)
   /* and where it is in the remote heap */
   rdest = (char *) __shmem_symmetric_var_base(pe) + offset;
 
-  __shmem_trace(SHMEM_LOG_MEMORY,
-		"%p -> %p",
-		dest, rdest
-		);
-
   /* assume this is good */
   return rdest;
 }
