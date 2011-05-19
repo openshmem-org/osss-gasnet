@@ -123,6 +123,7 @@ pstart_pes(int npes)
   /* set up any locality information */
   __shmem_place_init();
 
+  /* register shutdown handler */
   if (atexit(__shmem_exit_handler) != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
 		  "internal error: cannot register shutdown handler"
@@ -130,6 +131,7 @@ pstart_pes(int npes)
     /* NOT REACHED */
   }
 
+  /* just note start_pes() not passed 0, it's not a big deal */
   if (npes != 0) {
     __shmem_trace(SHMEM_LOG_INFO,
 		  "start_pes() was passed %d, should be 0",
@@ -160,11 +162,14 @@ pstart_pes(int npes)
 
 #pragma weak start_pes = pstart_pes
 
+
+
 #ifdef CRAY_COMPAT
 
 /*
- * same as shmem_init()
+ * same as start_pes()
  */
+
 /* @api@ */
 void
 pshmem_init(void)
@@ -173,8 +178,9 @@ pshmem_init(void)
 }
 
 /*
- * does nothing here (just for compatibility with other shmems)
+ * does nothing here: just for compatibility
  */
+
 /* @api@ */
 void
 pshmem_finalize(void)

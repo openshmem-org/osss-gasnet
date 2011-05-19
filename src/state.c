@@ -1,24 +1,40 @@
 #include "state.h"
 #include "utils.h"
 
+/*
+ * initialize the PE's state (this is all we need to initialize)
+ */
+
 state_t __state = {
-  .pe_status = PE_UNINITIALIZED /* other fields = don't care yet */
+  .pe_status = PE_UNINITIALIZED
 };
+
+/*
+ * PE status and its human description
+ */
 
 struct state_desc {
   pe_status_t s;
   const char *desc;
 };
 
+/*
+ * table of known PE status
+ */
+
 static struct state_desc d[] =
   {
     { PE_UNINITIALIZED, "PE has not been initialized yet" },
     { PE_UNKNOWN,       "I have no information about PE" },
-    { PE_RUNNING,       "PE is already running" },
+    { PE_RUNNING,       "PE is running" },
     { PE_SHUTDOWN,      "PE has been cleanly shut down" },
     { PE_FAILED,        "PE has failed" },
   };
 static const int nd = TABLE_SIZE(d);
+
+/*
+ * translate PE status to human description
+ */
 
 const char *
 __shmem_state_as_string(pe_status_t s)

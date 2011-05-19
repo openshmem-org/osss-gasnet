@@ -14,13 +14,20 @@
 #include "utils.h"
 
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
+static const char *shmem_logfile_envvar   = "SHMEM_LOG_FILE";
 
-static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
+/*
+ * tracing states
+ */
 
 typedef enum {
   OFF=0,
   ON,
-} shmem_trace_state_t;		/* tracing states */
+} shmem_trace_state_t;
+
+/*
+ * trace levels and states
+ */
 
 typedef struct {
   const shmem_trace_t level;	/* SHMEM_LOG_XXX symbol for logging */
@@ -90,6 +97,10 @@ __shmem_trace_enable_text(char *trace)
   return 0;
 }
 
+/*
+ * enable all message categories
+ */
+
 static void
 __shmem_trace_enable_all(void)
 {
@@ -123,7 +134,11 @@ __level_to_string(shmem_trace_t level)
   return "?";
 }
 
-/* -- end of static -- */
+/* -- end of private routines -- */
+
+/*
+ * is the trace LEVEL currently enabled?
+ */
 
 int
 __shmem_trace_is_enabled(shmem_trace_t level)
@@ -140,6 +155,10 @@ __shmem_trace_is_enabled(shmem_trace_t level)
   }
   return 0;
 }
+
+/*
+ * where to send trace output
+ */
 
 static FILE *trace_log_stream;
 
@@ -221,6 +240,10 @@ sgi_compat_environment_init(void)
   }
 }
 
+/*
+ * check environment for settings, and enable listed levels
+ */
+
 static void
 parse_log_levels(void)
 {
@@ -240,6 +263,11 @@ parse_log_levels(void)
     }
   }
 }
+
+/*
+ * spit out information about environment variables known, if
+ * requested
+ */
 
 #define INFO_MSG(Var, Text)			\
   __shmem_trace(SHMEM_LOG_INFO,			\
@@ -301,6 +329,10 @@ __shmem_maybe_tracers_show_info(void)
 	   );
 }
 
+/*
+ * enable the tracers sub-system
+ */
+
 void
 __shmem_tracers_init(void)
 {
@@ -341,6 +373,10 @@ __shmem_tracers_show(void)
 		  );
   }
 }
+
+/*
+ * produce a trace message
+ */
 
 void
 __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
