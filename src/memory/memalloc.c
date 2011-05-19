@@ -48,12 +48,6 @@ __shmem_mem_base(void)
 void *
 __shmem_mem_alloc(size_t size)
 {
-  /* TODO: not sure why < 64 is a problem */
-#if 0
-  if (size < MIN_MALLOC_SIZE) {
-    size = MIN_MALLOC_SIZE;
-  }
-#endif
   return mspace_malloc(myspace, size);
 }
 

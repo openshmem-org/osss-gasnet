@@ -591,6 +591,12 @@ __shmem_comms_init(void)
 			    )
 	      );
 
+  __shmem_trace(SHMEM_LOG_INIT,
+		"gasnet attached, %d handlers registered, heap = %ld bytes",
+		nhandlers,
+		GET_STATE(heapsize)
+		);
+
   __shmem_comms_set_waitmode(SHMEM_COMMS_SPINBLOCK);
 
   /*
