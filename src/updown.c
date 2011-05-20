@@ -13,6 +13,7 @@
 #include "ping.h"
 #include "utils.h"
 #include "clock.h"
+#include "exe.h"
 
 #include "mpp/shmem.h"
 
@@ -96,7 +97,13 @@ pstart_pes(int npes)
     /* NOT REACHED */
   }
 
-  /* inspect our binary */
+  /* find out what this executable image is */
+  __shmem_executable_init();
+
+  /*
+   * find the global symbols (i.e. those addressable outside the
+   * symmetric heap)
+   */
   __shmem_symmetric_globalvar_table_init();
 
   /* set up communications layer */

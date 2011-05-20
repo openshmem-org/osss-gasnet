@@ -125,13 +125,14 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # ---------------------------------------------------------
 
+# init.
 SHMEM_SOURCES    =
 
 # not used right now
 # SHMEM_SOURCES   +=	service.c
 
 # internal
-SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c
+SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c exe.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 # API

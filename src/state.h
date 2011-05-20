@@ -2,6 +2,7 @@
 #define _STATE_H 1
 
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
 
@@ -29,13 +30,18 @@ extern const char * __shmem_state_as_string(pe_status_t s);
 
 typedef struct {
   pe_status_t pe_status;	/* up and running yet?             */
+
   int numpes;                   /* # of processing elements        */
   int mype;                     /* rank of this processing element   */
+
   size_t heapsize;		/* size of symmetric heap (bytes)  */
 
   struct itimerval ping_timeout; /* wait for remote PE to ack ping  */
 
   struct utsname loc;		/* location information            */
+
+  char exe_name[MAXPATHLEN];	/* real name of executable */
+  int exe_fd;			/* file descriptor of executable */
 
 } state_t;
 

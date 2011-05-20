@@ -17,6 +17,7 @@
 
 #include "state.h"
 #include "trace.h"
+#include "exe.h"
 
 /*
  * ---------------------------------------------------------------------------
@@ -66,24 +67,15 @@ table_init_helper(void)
   Elf_Scn *scn;
   GElf_Shdr shdr;
   Elf_Data *data;
-  int fd;
   int ret = -1;
-
-  /*
-   * Linux has a handy short-cut to find the executable
-   */
-  fd = open("/proc/self/exe", O_RDONLY, 0);
-  if (fd < 0) {
-    return ret;
-  }
 
   /* unrecognized format */
   if (elf_version(EV_CURRENT) == EV_NONE) {
     goto bail;
   }
 
-  /* get the ELF object */
-  e = elf_begin(fd, ELF_C_READ, NULL);
+  /* get the ELF object from already opened state */
+  e = elf_begin(GET_STATE(exe_fd), ELF_C_READ, NULL);
   if (e == NULL) {
     goto bail;
   }
@@ -202,10 +194,6 @@ table_init_helper(void)
  bail:
 
   if (elf_end(e) != 0) {
-    ret = -1;
-  }
-
-  if (close(fd) != 0) {
     ret = -1;
   }
 

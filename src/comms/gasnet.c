@@ -35,6 +35,7 @@
 #include "comms.h"
 #include "ping.h"
 #include "utils.h"
+#include "exe.h"
 
 /*
  * gasnet model choice
@@ -545,29 +546,15 @@ __shmem_comms_init(void)
   /*
    * fake the command-line args
    */
-  {
-    int s;
-    static char buf[MAXPATHLEN];
-
-    argc = 1;
-    argv = (char **) malloc(argc * sizeof(*argv));
-    if (argv == (char **) NULL) {
-      __shmem_trace(SHMEM_LOG_FATAL,
-		    "internal error: could not allocate memory for GASNet initialization"
-		    );
-      /* NOT REACHED */
-    }
-    s = readlink("/proc/self/exe", buf, MAXPATHLEN);
-    if (s < 0) {
-      __shmem_trace(SHMEM_LOG_FATAL,
-		    "internal error: could not discover executable name"
-		    );
-      /* NOT REACHED */
-    }
-    /* readlink doesn't null-terminate */
-    buf[s] = '\0';
-    argv[0] = buf;
+  argc = 1;
+  argv = (char **) malloc(argc * sizeof(*argv));
+  if (argv == (char **) NULL) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: could not allocate memory for GASNet initialization"
+		  );
+    /* NOT REACHED */
   }
+  argv[0] = GET_STATE(exe_name);
 
   /*
    * let's get gasnet up and running
