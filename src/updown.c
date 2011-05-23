@@ -34,6 +34,12 @@ __shmem_exit(int status)
   __shmem_atomic_finalize();
   __shmem_symmetric_memory_finalize();
 
+  /* tidy up binary inspector */
+  __shmem_executable_finalize();
+
+  /* stop run time clock */
+  __shmem_elapsed_clock_finalize();
+
   /* update our state */
   SET_STATE(pe_status, PE_SHUTDOWN);
 

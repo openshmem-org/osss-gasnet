@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <mpp/shmem.h>
 
-int completely_unknown_wait_operator = 69;
-
 int
 main(void)
 {
@@ -46,13 +44,6 @@ main(void)
       if (src != 9L)
         break;
     }
-  }
-
-  shmem_barrier_all();
-
-  if (me == 1) {
-    shmem_long_wait_until(dest, completely_unknown_wait_operator, 9L);
-    fprintf(stderr, "PE %d finished wait, got %d\n", me, *dest);
   }
 
   shmem_barrier_all();
