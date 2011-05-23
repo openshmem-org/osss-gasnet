@@ -206,8 +206,6 @@ void
 __shmem_comms_pause(void)
 {
   GASNET_SAFE( gasnet_AMPoll() );
-
-  /* asm volatile ("pause" ::: "memory"); */
 }
 
 /*
@@ -1675,7 +1673,7 @@ handler_quiet_out(gasnet_token_t token,
 {
   gasnet_hsl_lock(& quiet_out_lock);
 
-  /* __shmem_comms_fence_request(); */
+  __shmem_comms_fence_request();
 
   gasnet_hsl_unlock(& quiet_out_lock);
 
@@ -1757,7 +1755,7 @@ __shmem_comms_quiet_request(void)
       free(pa[other_pe]);
     }
     else {
-      gasnet_wait_syncnbi_all();
+      __shmem_comms_fence_request();
     }
   }
 
@@ -1766,7 +1764,7 @@ __shmem_comms_quiet_request(void)
 
 
 /*
- * called by mainline to tickle service thread to do fence
+ * called by mainline to fence off outstanding requests
  */
 
 void
