@@ -38,6 +38,24 @@
 #include "exe.h"
 
 /*
+ * gasnet put model: this is just for testing different put
+ * emulations; generally we want the nbi routines to get performance.
+ *
+ */
+
+#define USING_IMPLICIT_HANDLES
+
+#ifdef USING_IMPLICIT_HANDLES
+# define GASNET_PUT(pe, dst, src, len)     gasnet_put_nbi(pe, dst, src, len)
+# define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_nbi_val(pe, dst, src, len)
+# define GASNET_WAIT_PUTS()                gasnet_wait_syncnbi_puts()
+#else
+# define GASNET_PUT(pe, dst, src, len)     gasnet_put(pe, dst, src, len)
+# define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_val(pe, dst, src, len)
+# define GASNET_WAIT_PUTS()
+#endif /* USING_IMPLICIT_HANDLES */
+
+/*
  * gasnet model choice
  *
  */
@@ -276,10 +294,10 @@ __shmem_comms_put(void *dst, void *src, size_t len, int pe)
     __shmem_comms_globalvar_put_request(dst, src, len, pe);
   }
   else {
-    gasnet_put_nbi_bulk(pe, dst, src, len);
+    GASNET_PUT(pe, dst, src, len);
   }
 #else
-  gasnet_put_nbi_bulk(pe, dst, src, len);
+  GASNET_PUT(pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -293,10 +311,10 @@ __shmem_comms_get(void *dst, void *src, size_t len, int pe)
     __shmem_comms_globalvar_get_request(dst, src, len, pe);
   }
   else {
-    gasnet_get_bulk(dst, pe, src, len);
+    gasnet_get(dst, pe, src, len);
   }
 #else
-  gasnet_get_bulk(dst, pe, src, len);
+  gasnet_get(dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -313,10 +331,10 @@ __shmem_comms_put_val(void *dst, long src, size_t len, int pe)
     __shmem_comms_globalvar_put_request(dst, & src, len, pe);
   }
   else {
-    gasnet_put_nbi_val(pe, dst, src, len);
+    GASNET_PUT_VAL(pe, dst, src, len);
   }
 #else
-  gasnet_put_nbi_val(pe, dst, src, len);
+  GASNET_PUT_VAL(pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -1723,7 +1741,7 @@ __shmem_comms_quiet_request(void)
 		  );
   }
   /* build payload to send */
-  for (other_pe = npes - 1; other_pe >= 0; other_pe -= 1) {
+  for (other_pe = 0; other_pe < npes; other_pe += 1) {
     quiet_payload_t *p = (quiet_payload_t *) malloc(sizeof(*p));
     if (me != other_pe) {
       p->completed = 0;
@@ -1770,7 +1788,10 @@ __shmem_comms_quiet_request(void)
 void
 __shmem_comms_fence_request(void)
 {
-  gasnet_wait_syncnbi_puts();
+  GASNET_WAIT_PUTS();
+
+  LOAD_STORE_FENCE();
+
   return;
 }
 

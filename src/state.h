@@ -29,16 +29,16 @@ extern const char * __shmem_state_as_string(pe_status_t s);
  */
 
 typedef struct {
-  pe_status_t pe_status;	/* up and running yet?             */
+  pe_status_t pe_status;	/* up and running yet? */
 
-  int numpes;                   /* # of processing elements        */
-  int mype;                     /* rank of this processing element   */
+  int numpes;                   /* # of processing elements */
+  int mype;                     /* rank of this processing element */
 
-  size_t heapsize;		/* size of symmetric heap (bytes)  */
+  size_t heapsize;		/* size of symmetric heap (bytes) */
 
-  struct itimerval ping_timeout; /* wait for remote PE to ack ping  */
+  struct itimerval ping_timeout; /* wait for remote PE to ack ping */
 
-  struct utsname loc;		/* location information            */
+  struct utsname loc;  /* location information (currently not used) */
 
   char exe_name[MAXPATHLEN];	/* real name of executable */
   int exe_fd;			/* file descriptor of executable */
