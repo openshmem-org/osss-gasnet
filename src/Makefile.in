@@ -25,7 +25,7 @@ ATOMIC_OBJ           = $(ATOMIC_DIR)/*.o
 #
 BROADCAST_DIR        = ./broadcast
 BROADCAST_CPPFLAGS   = -I$(BROADCAST_DIR)
-BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
+BROADCAST_OBJ        = $(BROADCAST_DIR)/broadcast.o
 
 # ---------------------------------------------------------
 #
@@ -66,6 +66,14 @@ MALLOC_OBJ           = $(MALLOC_DIR)/*.o
 MEMORY_DIR           = ./memory
 MEMORY_CPPFLAGS      = -I$(MEMORY_DIR)
 MEMORY_OBJ           = $(MEMORY_DIR)/*.o
+
+# ---------------------------------------------------------
+#
+# loadable modules management
+#
+MODULES_DIR           = ./modules
+MODULES_CPPFLAGS      = -I$(MODULES_DIR)
+MODULES_OBJ           = $(MODULES_DIR)/*.o
 
 # ---------------------------------------------------------
 
@@ -135,6 +143,7 @@ SHMEM_SOURCES    =
 SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c exe.c
 # Fortran API
 SHMEM_SOURCES   +=	fortran-mem.c fortran.c
+
 # API
 SHMEM_SOURCES   +=	reduce-op.c
 #
@@ -157,7 +166,7 @@ SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_INC_DIR    = $(PREFIX)/include
 
-LIBS             = -lelf
+LIBS             = -lelf -ldl
 
 INSTALL          = install -c
 REMOVE           = rm -f
@@ -165,7 +174,8 @@ REMOVE           = rm -f
 OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
 			atomic-obj-gen \
-			malloc-obj-gen memory-obj-gen
+			malloc-obj-gen memory-obj-gen \
+			modules-obj-gen
 
 # ---------------------------------------------------------
 
@@ -184,6 +194,7 @@ install:	install-lib install-bin install-include
 install-lib:	all
 	mkdir -p $(PREFIX)/lib
 	$(INSTALL) $(SHMEM_LIBRARY) $(PREFIX)/lib
+	$(MAKE) -C $(BROADCAST_DIR) $@
 
 install-bin:	all
 	$(MAKE) -C $(COMMS_DIR) $@
@@ -201,6 +212,7 @@ uninstall:	uninstall-lib uninstall-bin uninstall-include
 	- rmdir $(PREFIX)
 
 uninstall-lib:
+	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(REMOVE) $(PREFIX)/lib/$(SHMEM_LIBRARY)
 	- rmdir $(PREFIX)/lib
 
@@ -252,6 +264,11 @@ malloc-obj-gen:
 memory-obj-gen:
 	$(MAKE) -C $(MEMORY_DIR) all
 
+# -- loadable modules for algorithms (broadcast etc) -------
+
+modules-obj-gen:
+	$(MAKE) -C $(MODULES_DIR) all
+
 # -- fortran interface ------------------------------------
 
 fortran.o:	fortran.c
@@ -280,6 +297,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(ATOMIC_OBJ) \
 		$(MALLOC_OBJ) \
 		$(MEMORY_OBJ) \
+		$(MODULES_OBJ) \
 		$(SHMEM_OBJECTS) \
 		$(LIBS)
 

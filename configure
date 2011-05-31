@@ -15,6 +15,9 @@ putget_nb=FALSE
 debug=FALSE
 # -- end defaults --
 
+libdir=
+modulesdir=
+
 show_usage()
 {
     if [ $# -gt 0 ]; then
@@ -25,6 +28,8 @@ show_usage()
     echo "Usage: $progname [options]"
     echo ""
     echo "    --prefix=PREFIX         Install to directory root PREFIX"
+    echo "    --with-libdir=DIR       Libraries installed to DIR"
+    echo "    --with-modulesdir=DIR   Pluggable modules installed to DIR"
     echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
     echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
     echo ""
@@ -40,6 +45,12 @@ for o in $@; do
     case $o in
 	--prefix=*)
 	    prefix="`echo $o | sed 's/--prefix=//'`"
+	    ;;
+	--with-libdir=*)
+	    libdir="`echo $o | sed 's/--with-libdir=//'`"
+	    ;;
+	--with-modulesdir=*)
+	    modulesdir="`echo $o | sed 's/--with-modulesdir=//'`"
 	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
@@ -82,6 +93,9 @@ if [ ! -r "$gasnet_root/include/gasnet.h" ]; then
     exit 1
 fi
 
+[ -z "$libdir" ] && libdir=$prefix/lib
+[ -z "$modulesdir" ] && modulesdir=$libdir/modules
+
 # -- ok, gasnet there, check compilers (default to GNU for now) --
 
 cc_cmd=${CC-cc}
@@ -106,6 +120,9 @@ echo "$progname: linker flags are \"$ld_flags\""
 echo "$progname:"
 
 echo "$progname: installing to directory \"$prefix\""
+echo "$progname: installing libraries to directory \"$libdir\""
+echo "$progname: installing modules to directory \"$modulesdir\""
+echo "$progname:"
 echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 echo "$progname:"
@@ -129,12 +146,14 @@ do
     -e "s%@FCFLAGS@%$fc_flags%g" \
     -e "s%@LD@%$ld_cmd%g" \
     -e "s%@LDFLAGS@%$ld_flags%g" \
-    -e "s%@PREFIX@%$prefix%g" \
     -e "s%@GASNET_ROOT@%$gasnet_root%g" \
     -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
     -e "s%@CRAY_COMPAT@%$cray_compat%g" \
     -e "s%@PUTGET_NB@%$putget_nb%g" \
     -e "s%@DEBUG@%$debug%g" \
+    -e "s%@PREFIX@%$prefix%g" \
+    -e "s%@LIB_DIR@%$libdir%g" \
+    -e "s%@MODULES_DIR@%$modulesdir%g" \
     $mfin > $mf
   echo "$progname: created $mf from $mfin"
 done

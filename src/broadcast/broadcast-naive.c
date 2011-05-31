@@ -6,7 +6,6 @@
 
 #include "mpp/shmem.h"
 
-
 #define SHMEM_BROADCAST_TYPE(Name, Size)				\
   void									\
   __shmem_broadcast##Name##_naive (void *target, const void *source, size_t nlong, \
@@ -21,7 +20,14 @@
       shmem_getmem(target, source, typed_len, root);			\
     }									\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-  }
+  }									\
 
 SHMEM_BROADCAST_TYPE(32, 4)
 SHMEM_BROADCAST_TYPE(64, 8)
+
+#include "module_info.h"
+module_info_t module_info =
+  {
+    __shmem_broadcast32_naive,
+    __shmem_broadcast64_naive,
+  };

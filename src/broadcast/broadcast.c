@@ -5,74 +5,24 @@
 #include "trace.h"
 #include "utils.h"
 
-#include "broadcast-naive.h"
-#include "broadcast-tree.h"
-
 #include "mpp/shmem.h"
+
+#include "modules.h"
 
 /*
  * these are what we use if nothing else available
  *
  */
 
-static char *DEFAULT_BROADCAST_ALGORITHM     = "naive";
+static char *DEFAULT_BROADCAST_ALGORITHM  = "naive";
 
 /*
  * handlers for broadcast implementations
  *
  */
 
-typedef void (*dispatch_function)();
+static module_info_t mi;
 
-static dispatch_function broadcast32_func = NULL;
-static dispatch_function broadcast64_func = NULL;
-
-/*
- * build tables of names and corresponding functions to call.
- */
-
-typedef struct {
-  char *name;
-  dispatch_function func;
-} broadcast_table_t;
-
-static broadcast_table_t broadcast32_table[] =
-  {
-    { "naive", __shmem_broadcast32_naive },
-    { "tree",  __shmem_broadcast32_tree  },
-  };
-static const int n_broadcast32 = TABLE_SIZE(broadcast32_table);
-
-static broadcast_table_t broadcast64_table[] =
-  {
-    { "naive", __shmem_broadcast64_naive },
-    { "tree",  __shmem_broadcast64_tree  },
-  };
-static const int n_broadcast64 = TABLE_SIZE(broadcast64_table);
-
-
-/*
- * called during library initialization to find the right broadcast
- * algorithm.  Return function pointer, or NULL if we can't find
- * the name.
- *
- */
-
-static dispatch_function
-lookup(broadcast_table_t *tp, int n, char *name)
-{
-  int i;
-
-  for (i = 0; i < n; i += 1) {
-    if (strcasecmp(name, tp->name) == 0) {
-      return tp->func;
-      break;
-      /* NOT REACHED */
-    }
-    tp += 1;
-  }
-  return (dispatch_function) NULL;
-}
 
 /*
  * called during initialization of shmem
@@ -82,49 +32,33 @@ lookup(broadcast_table_t *tp, int n, char *name)
 void
 __shmem_broadcast_dispatch_init(void)
 {
-  char *broadcast32_name, *broadcast64_name;
-  broadcast_table_t *brtp32, *brtp64;
+  char *name;
+  int s;
 
   /*
    * choose the broadcast
    *
    */
 
-  broadcast32_name =  __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
-  if (broadcast32_name == (char *) NULL) {
-    broadcast32_name = DEFAULT_BROADCAST_ALGORITHM;
+  name = __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
+  if (name == (char *) NULL) {
+    name = DEFAULT_BROADCAST_ALGORITHM;
   }
-  brtp32 = broadcast32_table;
-  broadcast32_func = lookup(brtp32, n_broadcast32, broadcast32_name);
-  if (broadcast32_func == (dispatch_function) NULL) {
-    __shmem_trace(SHMEM_LOG_BROADCAST,
-		  "unknown broadcast alogrithm \"%s\", using default \"%s\"",
-		  broadcast32_name, DEFAULT_BROADCAST_ALGORITHM
+  s = __shmem_modules_load("broadcast", name, &mi);
+  if (s != 0) {
+    __shmem_trace(SHMEM_LOG_FATAL,
+		  "internal error: couldn't load broadcast module \"%s\"",
+		  name
 		  );
-    broadcast32_func = lookup(brtp32, n_broadcast32, DEFAULT_BROADCAST_ALGORITHM);
+    /* NOT REACHED */
   }
-
-  broadcast64_name =  __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
-  if (broadcast64_name == (char *) NULL) {
-    broadcast64_name = DEFAULT_BROADCAST_ALGORITHM;
-  }
-  brtp64 = broadcast64_table;
-  broadcast64_func = lookup(brtp64, n_broadcast64, broadcast64_name);
-  if (broadcast64_func == (dispatch_function) NULL) {
-    __shmem_trace(SHMEM_LOG_BROADCAST,
-                  "unknown broadcast alogrithm \"%s\", using default \"%s\"",
-                  broadcast64_name, DEFAULT_BROADCAST_ALGORITHM
-                  );
-    broadcast64_func = lookup(brtp64, n_broadcast64, DEFAULT_BROADCAST_ALGORITHM);
-  }
-
 
   /*
    * report which broadcast implementations we set up
    */
   __shmem_trace(SHMEM_LOG_BROADCAST,
 		"using broadcast \"%s\"",
-		broadcast32_name
+		name
 		);
 }
 
@@ -140,19 +74,12 @@ pshmem_broadcast32(void *target, const void *source, size_t nlong,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
 		   long *pSync)
 {
-  if (broadcast32_func == (dispatch_function) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: no broadcast handler defined"
-		  );
-    /* NOT REACHED */
-  }
+  SYMMETRY_CHECK(target, 1, "shmem_broadcast32");
+  SYMMETRY_CHECK(source, 2, "shmem_broadcast32");
 
-  SYMMETRY_CHECK(target, 1, "shmem_broadcast");
-  SYMMETRY_CHECK(source, 2, "shmem_broadcast");
-
-  (*broadcast32_func)(target, source, nlong,
-		      PE_root, PE_start, logPE_stride, PE_size,
-		      pSync);
+  (*mi.func_32)(target, source, nlong,
+		 PE_root, PE_start, logPE_stride, PE_size,
+		 pSync);
 }
 
 
@@ -162,19 +89,12 @@ pshmem_broadcast64(void *target, const void *source, size_t nlong,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
 		   long *pSync)
 {
-  if (broadcast64_func == (dispatch_function) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-                  "internal error: no broadcast handler defined"
-                  );
-    /* NOT REACHED */
-  }
+  SYMMETRY_CHECK(target, 1, "shmem_broadcast64");
+  SYMMETRY_CHECK(source, 2, "shmem_broadcast64");
 
-  SYMMETRY_CHECK(target, 1, "shmem_broadcast");
-  SYMMETRY_CHECK(source, 2, "shmem_broadcast");
-
-  (*broadcast64_func)(target, source, nlong,
-		      PE_root, PE_start, logPE_stride, PE_size,
-		      pSync);
+  (*mi.func_64)(target, source, nlong,
+		 PE_root, PE_start, logPE_stride, PE_size,
+		 pSync);
 }
 
 #pragma weak shmem_broadcast32 = pshmem_broadcast32

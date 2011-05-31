@@ -261,4 +261,9 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
   shmem_barrier(PE_start, logPE_stride, PE_size, pSync);
 }
 
-
+#include "module_info.h"
+module_info_t module_info =
+  {
+    __shmem_broadcast32_tree,
+    __shmem_broadcast64_tree,
+  };
