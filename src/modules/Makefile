@@ -1,5 +1,5 @@
 CC               = gcc
-CFLAGS           = -ggdb -O3 -pipe
+CFLAGS           = -ggdb -O3
 CPPFLAGS         = 
 LD               = gcc
 LDFLAGS          = 

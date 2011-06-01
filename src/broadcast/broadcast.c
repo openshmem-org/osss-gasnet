@@ -54,7 +54,7 @@ __shmem_broadcast_dispatch_init(void)
   }
 
   /*
-   * report which broadcast implementations we set up
+   * report which broadcast implementation we set up
    */
   __shmem_trace(SHMEM_LOG_BROADCAST,
 		"using broadcast \"%s\"",
@@ -77,9 +77,9 @@ pshmem_broadcast32(void *target, const void *source, size_t nlong,
   SYMMETRY_CHECK(target, 1, "shmem_broadcast32");
   SYMMETRY_CHECK(source, 2, "shmem_broadcast32");
 
-  (*mi.func_32)(target, source, nlong,
-		 PE_root, PE_start, logPE_stride, PE_size,
-		 pSync);
+  mi.func_32(target, source, nlong,
+	     PE_root, PE_start, logPE_stride, PE_size,
+	     pSync);
 }
 
 
@@ -92,9 +92,9 @@ pshmem_broadcast64(void *target, const void *source, size_t nlong,
   SYMMETRY_CHECK(target, 1, "shmem_broadcast64");
   SYMMETRY_CHECK(source, 2, "shmem_broadcast64");
 
-  (*mi.func_64)(target, source, nlong,
-		 PE_root, PE_start, logPE_stride, PE_size,
-		 pSync);
+  mi.func_64(target, source, nlong,
+	     PE_root, PE_start, logPE_stride, PE_size,
+	     pSync);
 }
 
 #pragma weak shmem_broadcast32 = pshmem_broadcast32

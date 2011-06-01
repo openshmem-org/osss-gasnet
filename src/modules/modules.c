@@ -6,6 +6,11 @@
 #include "trace.h"
 #include "modules.h"
 
+/*
+ * TODO: currently keeping .so file open during run,
+ * should really clean up
+ */
+
 int
 __shmem_modules_load(const char *group, char *name, module_info_t *mip)
 {
@@ -25,9 +30,7 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
     return -1;
   }
 
-  (void) memcpy(mip, rh, sizeof(mip));
-
-  (void) dlclose(mh);
+  (void) memcpy(mip, rh, sizeof(*mip));
 
   return 0;
 }
