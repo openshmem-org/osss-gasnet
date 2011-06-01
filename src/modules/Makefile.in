@@ -1,3 +1,5 @@
+prefix           = @PREFIX@
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -10,7 +12,7 @@ endif
 
 # CPPFLAGS        += -I.
 CPPFLAGS        += -I..
-CPPFLAGS        += -DMODULES_DIR="\"@PREFIX@/lib/modules\""
+CPPFLAGS        += -DMODULES_DIR="\"$(prefix)/lib/modules\""
 
 CFLAGS          += -fPIC
 

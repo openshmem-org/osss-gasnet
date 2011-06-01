@@ -305,6 +305,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 
 clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
+	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(MEMORY_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@

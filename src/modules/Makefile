@@ -1,3 +1,5 @@
+prefix           = /home/tonyc/opt/OpenSHMEM
+
 CC               = gcc
 CFLAGS           = -ggdb -O3
 CPPFLAGS         = 
@@ -10,7 +12,7 @@ endif
 
 # CPPFLAGS        += -I.
 CPPFLAGS        += -I..
-CPPFLAGS        += -DMODULES_DIR="\"/home/tonyc/opt/OpenSHMEM/lib/modules\""
+CPPFLAGS        += -DMODULES_DIR="\"$(prefix)/lib/modules\""
 
 CFLAGS          += -fPIC
 

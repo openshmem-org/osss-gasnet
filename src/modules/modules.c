@@ -32,5 +32,7 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
 
   (void) memcpy(mip, rh, sizeof(*mip));
 
+  /* (void) dlclose(mh); */
+
   return 0;
 }
