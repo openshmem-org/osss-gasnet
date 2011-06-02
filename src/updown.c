@@ -106,15 +106,15 @@ pstart_pes(int npes)
   /* find out what this executable image is */
   __shmem_executable_init();
 
+  /* set up communications layer */
+  __shmem_comms_init();
+  __shmem_comms_barrier_all();
+
   /*
    * find the global symbols (i.e. those addressable outside the
    * symmetric heap)
    */
   __shmem_symmetric_globalvar_table_init();
-
-  /* set up communications layer */
-  __shmem_comms_init();
-  __shmem_comms_barrier_all();
 
   /* handle the heap */
   __shmem_symmetric_memory_init();
