@@ -1758,6 +1758,20 @@ SHMEM_PE_ACCESSIBLE_TIMEOUT
 \end_layout
 
 \begin_layout Section
+Alternate collective algorithms
+\end_layout
+
+\begin_layout Standard
+A module sytem coupled with the above environment variables allows for runtime
+ decisions to be made about which algorithm should be used for different
+ collective routines.
+ These are installed as dynamic objects and the selected algorithm is then
+ loaded as needed.
+ Each module defines a structure that maps the interface it provides to
+ its routines.
+\end_layout
+
+\begin_layout Section
 Compiling and Running Programs
 \end_layout
 

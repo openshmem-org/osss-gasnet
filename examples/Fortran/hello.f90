@@ -9,7 +9,7 @@ program whoami
   integer npes, me
   character*32 h
 
-  call shmem_init
+  call start_pes(0)
 
   npes = num_pes()
   me = my_pe()

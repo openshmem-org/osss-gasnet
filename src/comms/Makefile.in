@@ -38,6 +38,8 @@ REMOVE           = rm -f
 #
 
 CC               = @CC@
+CXX              = @CXX@
+FC               = @FC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
@@ -118,7 +120,7 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@SHMEM_LD@%$(CC)%" \
 		< $(COMP_WRAPPER) > $(SHMEM_CC)
 
 $(SHMEM_CXX):	$(COMP_WRAPPER)
@@ -129,7 +131,7 @@ $(SHMEM_CXX):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@SHMEM_LD@%$(CXX)%" \
 		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpic++%' \
 		-e 's%^\(SHMEM_LD=..*\)cc%\1++%' \
 		< $(COMP_WRAPPER) > $(SHMEM_CXX)
@@ -142,7 +144,7 @@ $(SHMEM_FC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@SHMEM_LD@%$(FC)%" \
 		-e 's%^\(SHMEM_LD=..*\)cc%\1fortran%' \
 		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpif90%' \
 		< $(COMP_WRAPPER) > $(SHMEM_FC)

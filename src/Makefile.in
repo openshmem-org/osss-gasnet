@@ -76,6 +76,14 @@ MODULES_CPPFLAGS      = -I$(MODULES_DIR)
 MODULES_OBJ           = $(MODULES_DIR)/*.o
 
 # ---------------------------------------------------------
+#
+# fortran interface
+#
+FORTRAN_DIR           = ./fortran
+FORTRAN_CPPFLAGS      = -I$(FORTRAN_DIR)
+FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
+
+# ---------------------------------------------------------
 
 #
 # this is where the C compiler gets chosen along with the various
@@ -92,6 +100,8 @@ MODULES_OBJ           = $(MODULES_DIR)/*.o
 # WARNINGS        += -pedantic
 
 CC               = @CC@
+CXX              = @CXX@
+FC               = @FC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
@@ -141,8 +151,6 @@ SHMEM_SOURCES    =
 
 # internal
 SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c exe.c
-# Fortran API
-SHMEM_SOURCES   +=	fortran-mem.c fortran.c
 
 # API
 SHMEM_SOURCES   +=	reduce-op.c
@@ -175,7 +183,8 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
 			atomic-obj-gen \
 			malloc-obj-gen memory-obj-gen \
-			modules-obj-gen
+			modules-obj-gen \
+			fortran-obj-gen
 
 # ---------------------------------------------------------
 
@@ -271,11 +280,8 @@ modules-obj-gen:
 
 # -- fortran interface ------------------------------------
 
-fortran.o:	fortran.c
-	$(CC) $(WARNINGS) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
-
-fortran-mem.o:	fortran-mem.c
-	$(CC) $(WARNINGS) $(COMMON_FLAGS) -DFORTRAN_SINGLE_UNDERSCORE -c -o $@ $<
+fortran-obj-gen:
+	$(MAKE) -C $(FORTRAN_DIR) all
 
 # -- otherwise, compile everything else like this ---------
 
@@ -298,6 +304,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(MALLOC_OBJ) \
 		$(MEMORY_OBJ) \
 		$(MODULES_OBJ) \
+		$(FORTRAN_OBJ) \
 		$(SHMEM_OBJECTS) \
 		$(LIBS)
 
@@ -305,6 +312,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 
 clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
+	$(MAKE) -C $(FORTRAN_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(MEMORY_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
