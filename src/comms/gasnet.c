@@ -490,11 +490,15 @@ static void handler_inc_bak();
 static void handler_ping_out();
 static void handler_ping_bak();
 
+#if 0 /* not used */
+
 #define GASNET_HANDLER_QUIET_OUT     144
 #define GASNET_HANDLER_QUIET_BAK     145
 
 static void handler_quiet_out();
 static void handler_quiet_bak();
+
+#endif /* not used */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
@@ -532,8 +536,10 @@ static gasnet_handlerentry_t handlers[] =
     { GASNET_HANDLER_INC_BAK,           handler_inc_bak           },
     { GASNET_HANDLER_PING_OUT,          handler_ping_out          },
     { GASNET_HANDLER_PING_BAK,          handler_ping_bak          },
+#if 0 /* not used */
     { GASNET_HANDLER_QUIET_OUT,         handler_quiet_out         },
     { GASNET_HANDLER_QUIET_BAK,         handler_quiet_bak         },
+#endif /* not used */
 #if defined(HAVE_MANAGED_SEGMENTS)
     { GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out },
     { GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak },
@@ -1666,6 +1672,8 @@ __shmem_comms_ping_request(int pe)
 }
 
 
+#if 0 /* not used */
+
 /*
  * ---------------------------------------------------------------------------
  */
@@ -1780,6 +1788,7 @@ __shmem_comms_quiet_request(void)
   free(pa);
 }
 
+#endif /* not used */
 
 /*
  * called by mainline to fence off outstanding requests
