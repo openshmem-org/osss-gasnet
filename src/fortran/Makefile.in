@@ -1,0 +1,32 @@
+# ---------------------------------------------------------
+
+MEMORY_DIR       = ../memory
+MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
+
+# ---------------------------------------------------------
+
+CC               = @CC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
+ifeq "@DEBUG@" "TRUE"
+CPPFLAGS        += -DDEBUG
+endif
+
+CPPFLAGS        += -I..
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
+
+CFLAGS          += -fPIC
+
+.PHONY: all default clean
+
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
+
+all default:	$(OBJECTS)
+
+clean:
+	rm -f $(OBJECTS)
