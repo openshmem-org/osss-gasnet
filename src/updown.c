@@ -108,7 +108,7 @@ pstart_pes(int npes)
 
   /* set up communications layer */
   __shmem_comms_init();
-  __shmem_comms_barrier_all();
+  /* __shmem_comms_barrier_all(); */
 
   /*
    * find the global symbols (i.e. those addressable outside the

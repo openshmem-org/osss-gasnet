@@ -405,6 +405,7 @@ __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
 
     if (msg_type == SHMEM_LOG_FATAL) {
       __shmem_exit(1);
+      /* NOT REACHED */
     }
   }
 }

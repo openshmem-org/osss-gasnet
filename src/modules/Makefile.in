@@ -12,7 +12,7 @@ endif
 
 # CPPFLAGS        += -I.
 CPPFLAGS        += -I..
-CPPFLAGS        += -DMODULES_DIR="\"$(prefix)/lib/modules\""
+CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(prefix)/lib/modules\""
 
 CFLAGS          += -fPIC
 

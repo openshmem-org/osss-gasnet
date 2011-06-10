@@ -18,15 +18,26 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
   module_info_t *rh;
   char path_to_so[PATH_MAX];
 
-  snprintf(path_to_so, PATH_MAX, "%s/%s-%s.so", MODULES_DIR, group, name);
+  snprintf(path_to_so, PATH_MAX, "%s/%s-%s.so",
+           INSTALLED_MODULES_DIR, group, name);
 
   mh = dlopen(path_to_so, RTLD_LAZY);
   if (mh == NULL) {
+    __shmem_trace(SHMEM_LOG_AUTH,
+		  "internal error: couldn't open shared library \"%s\" (%s)",
+		  path_to_so,
+		  dlerror()
+		  );
     return -1;
   }
 
   rh = (module_info_t *) dlsym(mh, "module_info");
   if (rh == NULL) {
+    __shmem_trace(SHMEM_LOG_AUTH,
+		  "internal error: couldn't find module_info symbol in \"%s\" (%s)",
+		  path_to_so,
+		  dlerror()
+		  );
     return -1;
   }
 
