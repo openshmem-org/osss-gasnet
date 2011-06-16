@@ -704,5 +704,5 @@ FORTRANIFY(pshmem_test_lock)(long *lock)
 void
 FORTRANIFY(shmem_pcontrol)(int *level)
 {
-  return shmem_pcontrol(*level);
+  shmem_pcontrol(*level);
 }
