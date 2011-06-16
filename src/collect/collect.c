@@ -35,7 +35,8 @@
     const int step = 1 << logPE_stride;					\
     const int last_pe = PE_start + step * (PE_size - 1);		\
     const int me = GET_STATE(mype);					\
-    long *acc_off = & (pSync[0]);					\
+    /* TODO: temp fix: I know barrier doesn't use this many indices */	\
+    long *acc_off = & (pSync[SHMEM_BCAST_SYNC_SIZE - 1]);		\
 									\
     INIT_CHECK();							\
     SYMMETRY_CHECK(target, 1, "shmem_collect");				\
@@ -53,12 +54,13 @@
     if (me == PE_start) {						\
       *acc_off = 0;							\
     }									\
-									\
-    shmem_long_wait(acc_off, _SHMEM_SYNC_VALUE);			\
-    __shmem_trace(SHMEM_LOG_COLLECT,					\
-		  "got acc_off = %ld",					\
-		  *acc_off						\
-		  );							\
+    else {								\
+      shmem_long_wait(acc_off, _SHMEM_SYNC_VALUE);			\
+      __shmem_trace(SHMEM_LOG_COLLECT,					\
+		    "got acc_off = %ld",				\
+		    *acc_off						\
+		    );							\
+    }									\
 									\
     /*									\
      * forward my contribution to (notify) right neighbor if not last PE \
