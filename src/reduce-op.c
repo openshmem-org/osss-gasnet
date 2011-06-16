@@ -99,6 +99,7 @@ SHMEM_MINIMAX_FUNC(longdouble, long double)
  */
 
 #include <string.h>
+#include <stdlib.h>
 
 #define OVERLAP_CHECK(t, s, n) ( (t) >= (s) ) && ( (t) < ( (s) + (n) ) )
 
