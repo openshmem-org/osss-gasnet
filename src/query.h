@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _QUERY_H
 #define _QUERY_H 1
 

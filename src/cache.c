@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * so apparently these are compatibility routines
  * for older SGI architectures.  So probably fine

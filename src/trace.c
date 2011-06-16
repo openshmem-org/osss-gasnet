@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>

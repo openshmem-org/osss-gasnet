@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _EXE_H
 #define _EXE_H 1
 

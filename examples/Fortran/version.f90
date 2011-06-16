@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 ! simply prints out the version of OpenSHMEM from PE 0 only
 !

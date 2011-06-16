@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * conditional swap-to-self test (for local in-memory writes)
  *

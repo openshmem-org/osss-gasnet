@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * reduce by OR() [1,2,3,4,...n] across all PEs, giving 2n - 1 (bit-wise)
  *

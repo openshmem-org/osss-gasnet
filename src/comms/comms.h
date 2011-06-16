@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _COMMS_H
 #define _COMMS_H 1
 

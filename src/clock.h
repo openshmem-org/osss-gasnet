@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _CLOCK_H
 #define _CLOCK_H 1
 

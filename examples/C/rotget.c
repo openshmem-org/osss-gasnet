@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * get from right neighbor, with wrap-around
  */

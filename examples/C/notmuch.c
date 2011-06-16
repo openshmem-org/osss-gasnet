@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * not included in Makefile, just a play area
  */

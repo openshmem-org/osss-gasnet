@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * reduce [0,1,2] + _my_pe() across 4 PEs with MAX()
  *

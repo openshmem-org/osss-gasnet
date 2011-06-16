@@ -1,3 +1,5 @@
+# (c) University of Houston System.  All rights reserved.
+
 SHMEM_FC = oshfort
 
 TESTS = $(wildcard *.f90)

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * reduce by SUM() [1,2,3,4] across 4 PEs
  *

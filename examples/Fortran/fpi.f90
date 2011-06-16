@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !**********************************************************************
 !   pi.f - compute pi by integrating f(x) = 4/(1 + x**2)     
 !

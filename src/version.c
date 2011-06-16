@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #include "utils.h"
 
 #include "mpp/shmem.h"

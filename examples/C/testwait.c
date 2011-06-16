@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * PE 1 waits for PE 0 to send something other than 9.
  * Send 4 9s to test wait condition, then some random values until != 9.

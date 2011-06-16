@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _ATOMIC_H
 #define _ATOMIC_H 1
 

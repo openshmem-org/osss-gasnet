@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * Layer to sit on top of the malloc library, exposed to the shmem runtime.
  * This is PE-local and sits just below SHMEM itself.

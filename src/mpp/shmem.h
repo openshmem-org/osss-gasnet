@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _SHMEM_H
 #define _SHMEM_H 1
 

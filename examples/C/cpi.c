@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * SGI/SHMEM version of the C "pi" program that is part of the MPICH
  * distribution

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _SYMMEM_H
 #define _SYMMEM_H 1
 

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 //****************************************************************************80
 //
 //    This program uses SHMEM to do a Buffon-Laplace simulation in parallel.

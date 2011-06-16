@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _PUTGET_H
 #define _PUTGET_H 1
 

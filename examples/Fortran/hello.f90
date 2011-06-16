@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 ! the ubiquitous hello world program
 !

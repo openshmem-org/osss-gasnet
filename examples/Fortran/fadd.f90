@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 ! expected output on 2 PEs:
 !

@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 ! man page (SGI) says barrier is synonym for shmem_barrier_all, but isn't
 ! true (confirmed by SGI)

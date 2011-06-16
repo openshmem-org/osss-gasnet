@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  *    Copyright (c) 1996-2002 by Quadrics Supercomputers World Ltd.
  *    Copyright (c) 2003-2005 by Quadrics Ltd.

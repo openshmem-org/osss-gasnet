@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * TODO: shmem_ptr only makes sense on platforms where puts and gets
  * occur exclusively in shared-memory.  On a multi-node cluster, it

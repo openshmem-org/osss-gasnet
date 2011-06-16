@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _MODULE_INFO_H
 #define _MODULE_INFO_H 1
 

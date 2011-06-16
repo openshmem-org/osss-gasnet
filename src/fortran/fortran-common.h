@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef FORTRAN_COMMON_H
 #define FORTRAN_COMMON_H 1
 

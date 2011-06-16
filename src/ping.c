@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #include <sys/time.h>
 #include <stdlib.h>
 #include <math.h>

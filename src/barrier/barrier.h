@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _BARRIER_H
 #define _BARRIER_H 1
 

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * get on PE 0 (master) from PE 1, but with a non-symmetric variable
  */

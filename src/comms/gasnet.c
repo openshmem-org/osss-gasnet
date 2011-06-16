@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 /*
  * This file provides the layer on top of GASNet, ARMCI or whatever.
  * API should be formalized at some point, but basically everything

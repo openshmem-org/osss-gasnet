@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _SYMMTEST_H
 #define _SYMMTEST_H 1
 

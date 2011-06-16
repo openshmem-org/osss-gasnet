@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 !
 ! swap values between odd numbered PEs and their right (modulo)

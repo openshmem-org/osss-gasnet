@@ -1,4 +1,5 @@
 #!/bin/sh
+# (c) University of Houston System.  All rights reserved.
 
 #
 # NB: this will turn into the GNU autotools setup at some point.

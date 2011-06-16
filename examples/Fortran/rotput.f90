@@ -1,3 +1,6 @@
+! (c) 2011 University of Houston.  All rights reserved.
+
+
 !
 ! rotate PE id to right neighbor (dest), with wrap-around
 !

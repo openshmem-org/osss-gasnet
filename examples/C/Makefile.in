@@ -1,3 +1,5 @@
+# (c) University of Houston System.  All rights reserved.
+
 SHMEM_CC       = oshcc
 SHMEM_CFLAGS   = -ggdb -O0
 

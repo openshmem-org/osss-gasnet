@@ -1,3 +1,5 @@
+# (c) University of Houston System.  All rights reserved.
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@

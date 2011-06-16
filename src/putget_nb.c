@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #if defined(HAVE_PUTGET_NB)
 
 #include "state.h"

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #ifndef _MEMALLOC_H
 #define _MEMALLOC_H 1
 

@@ -1,3 +1,6 @@
+/* (c) 2011 University of Houston.  All rights reserved. */
+
+
 #include <stdio.h>               /* NULL                           */
 #include <string.h>              /* memcpy()                       */
 #include <sys/types.h>           /* size_t                         */
