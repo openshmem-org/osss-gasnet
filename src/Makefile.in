@@ -165,6 +165,8 @@ SHMEM_SOURCES   +=	putget_nb.c
 SHMEM_SOURCES   +=	query.c updown.c waituntil.c
 #
 SHMEM_SOURCES   +=	version.c
+#
+SHMEM_SOURCES   +=	profiling.c
 
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)

@@ -144,7 +144,7 @@ $(SHMEM_FC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@SHMEM_LD@%$(FC)%" \
 		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpif90%' \
 		< $(COMP_WRAPPER) > $(SHMEM_FC)
 

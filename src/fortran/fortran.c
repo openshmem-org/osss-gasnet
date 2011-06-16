@@ -263,7 +263,7 @@ FORTRANIFY(pshmem_version)(int *major, int *minor)
 
 void
 FORTRANIFY(pshmem_barrier)(int *PE_start, int *logPE_stride, int *PE_size,
-			  long *pSync)
+			   long *pSync)
 {
   pshmem_barrier(*PE_start, *logPE_stride, *PE_size, pSync);
 }
@@ -473,7 +473,7 @@ FORTRANIFY(pshmem_broadcast8)(void *target, const void *source, size_t *nlong,
 			      int *logPE_stride, int *PE_size,
 			      long *pSync)
 {
-  pshmem_broadcast32(target, source,
+  pshmem_broadcast64(target, source,
 		     *nlong, *PE_root, *PE_start, *logPE_stride, *PE_size,
 		     pSync);
 }

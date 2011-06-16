@@ -31,6 +31,8 @@ extern "C" {
 
   extern int    pshmem_version(int *major, int *minor) _WUR;
 
+  extern void   shmem_pcontrol(int level);
+
   /*
    * I/O
    */

@@ -44,7 +44,11 @@ program main
   call start_pes(0)
   myid = my_pe()
   numprocs = num_pes()
-  print *, "Process ", myid, " of ", numprocs, " is alive"
+! print *, "Process ", myid, " of ", numprocs, " is alive"
+
+  psync = SHMEM_SYNC_VALUE
+  call shmem_barrier_all
+
 
 10 if ( myid .eq. 0 ) then
      write(6,98)
@@ -53,10 +57,7 @@ program main
 99   format(i10)
   endif
 
-  psync = SHMEM_SYNC_VALUE
-  call shmem_barrier_all()
-
-  call shmem_broadcast8(n, n, 1, 0, 0, 0, numprocs, psync)
+  call shmem_broadcast4(n, n, 1, 0, 0, 0, numprocs, psync)
 
   !                                 check for quit signal
   if ( n .le. 0 ) goto 30
@@ -72,7 +73,7 @@ program main
   mypi = h * sum
 
   !                                 collect all the partial sums
-  call shmem_barrier_all()
+  call shmem_barrier_all
   call shmem_real8_sum_to_all(pi, mypi, 1, 0, 0, numprocs, pwrk, psync)
 
   !                                 node 0 prints the answer.
