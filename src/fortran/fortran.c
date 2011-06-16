@@ -695,3 +695,14 @@ FORTRANIFY(pshmem_test_lock)(long *lock)
 #pragma weak shmem_clear_lock_ = pshmem_clear_lock_
 #pragma weak shmem_set_lock_ = pshmem_set_lock_
 #pragma weak shmem_test_lock_ = pshmem_test_lock_
+
+/*
+ * proposed profiling interface
+ *
+ */
+
+void
+FORTRANIFY(shmem_pcontrol)(int *level)
+{
+  return shmem_pcontrol(*level);
+}
