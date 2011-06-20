@@ -33,13 +33,13 @@
     pshmem_##CName##_put(target, src, *size, *pe);		\
   }
 
-SHMEM_FORTRAN_PUT(character, int, int)
+SHMEM_FORTRAN_PUT(character, char, char)
 SHMEM_FORTRAN_PUT(double,    double, double)
 SHMEM_FORTRAN_PUT(integer,   int, int)
 SHMEM_FORTRAN_PUT(logical,   int, int)
 SHMEM_FORTRAN_PUT(real,      int, int)
 
-SHMEM_FORTRAN_PUT(complex,   complexd, COMPLEXIFY(double))
+SHMEM_FORTRAN_PUT(complex,   complexf, COMPLEXIFY(float))
 
 SHMEM_FORTRAN_PUT_SIZE(4,    int, int)
 SHMEM_FORTRAN_PUT_SIZE(8,    long, long)
@@ -91,7 +91,7 @@ SHMEM_FORTRAN_GET(integer,   int, int)
 SHMEM_FORTRAN_GET(logical,   int, int)
 SHMEM_FORTRAN_GET(real,      int, int)
 
-SHMEM_FORTRAN_GET(complex, complexf,  COMPLEXIFY(double))
+SHMEM_FORTRAN_GET(complex, complexf,  COMPLEXIFY(float))
 
 SHMEM_FORTRAN_GET_SIZE(4,    int, int)
 SHMEM_FORTRAN_GET_SIZE(8,    long, long)
