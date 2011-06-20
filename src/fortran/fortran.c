@@ -83,7 +83,7 @@ FORTRANIFY(pshmem_putmem)(long *target, const long *src, size_t *size, int *pe)
     pshmem_##Name##_get(target, src, *size, *pe);		\
   }
 
-SHMEM_FORTRAN_GET(character, int)
+SHMEM_FORTRAN_GET(character, char)
 SHMEM_FORTRAN_GET(double,    double)
 SHMEM_FORTRAN_GET(integer,   long)
 SHMEM_FORTRAN_GET(logical,   long)
