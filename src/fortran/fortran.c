@@ -35,9 +35,9 @@
 
 SHMEM_FORTRAN_PUT(character, int, int)
 SHMEM_FORTRAN_PUT(double,    double, double)
-SHMEM_FORTRAN_PUT(integer,   long, long)
-SHMEM_FORTRAN_PUT(logical,   long, long)
-SHMEM_FORTRAN_PUT(real,      double, double)
+SHMEM_FORTRAN_PUT(integer,   int, int)
+SHMEM_FORTRAN_PUT(logical,   int, int)
+SHMEM_FORTRAN_PUT(real,      int, int)
 
 SHMEM_FORTRAN_PUT(complex,   complexd, COMPLEXIFY(double))
 
@@ -59,6 +59,8 @@ FORTRANIFY(pshmem_putmem)(long *target, const long *src, size_t *size, int *pe)
 #pragma weak shmem_logical_put_ = pshmem_logical_put_
 #pragma weak shmem_real_put_ = pshmem_real_put_
 
+#pragma weak shmem_complex_put_ = pshmem_complex_put_
+
 #pragma weak shmem_put4_ = pshmem_put4_
 #pragma weak shmem_put8_ = pshmem_put8_
 #pragma weak shmem_put32_ = pshmem_put32_
@@ -67,27 +69,29 @@ FORTRANIFY(pshmem_putmem)(long *target, const long *src, size_t *size, int *pe)
 
 #pragma weak shmem_putmem_ = pshmem_putmem_
 
-#define SHMEM_FORTRAN_GET(Name, CType)					\
+#define SHMEM_FORTRAN_GET(FName, CName, CType)				\
   void									\
-  FORTRANIFY(pshmem_##Name##_get)(CType *target, const CType *src,	\
-				 size_t *size, int *pe)			\
+  FORTRANIFY(pshmem_##FName##_get)(CType *target, const CType *src,	\
+				   size_t *size, int *pe)		\
   {									\
-    pshmem_##CType##_get(target, src, *size, *pe);			\
+    pshmem_##CName##_get(target, src, *size, *pe);			\
   }
 
-#define SHMEM_FORTRAN_GET_SIZE(Size, Name, CType)		\
-  void								\
+#define SHMEM_FORTRAN_GET_SIZE(Size, Name, CType)			\
+  void									\
   FORTRANIFY(pshmem_get##Size) (CType *target, const CType *src,	\
-			       size_t *size, int *pe)		\
-  {								\
-    pshmem_##Name##_get(target, src, *size, *pe);		\
+				size_t *size, int *pe)			\
+  {									\
+    pshmem_##Name##_get(target, src, *size, *pe);			\
   }
 
-SHMEM_FORTRAN_GET(character, char)
-SHMEM_FORTRAN_GET(double,    double)
-SHMEM_FORTRAN_GET(integer,   long)
-SHMEM_FORTRAN_GET(logical,   long)
-SHMEM_FORTRAN_GET(real,      double)
+SHMEM_FORTRAN_GET(character, char, char)
+SHMEM_FORTRAN_GET(double,    double, double)
+SHMEM_FORTRAN_GET(integer,   int, int)
+SHMEM_FORTRAN_GET(logical,   int, int)
+SHMEM_FORTRAN_GET(real,      int, int)
+
+SHMEM_FORTRAN_GET(complex, complexf,  COMPLEXIFY(double))
 
 SHMEM_FORTRAN_GET_SIZE(4,    int, int)
 SHMEM_FORTRAN_GET_SIZE(8,    long, long)
@@ -106,6 +110,8 @@ FORTRANIFY(pshmem_getmem)(long *target, const long *src, size_t *size, int *pe)
 #pragma weak shmem_integer_get_ = pshmem_integer_get_
 #pragma weak shmem_logical_get_ = pshmem_logical_get_
 #pragma weak shmem_real_get_ = pshmem_real_get_
+
+#pragma weak shmem_complex_get_ = pshmem_complex_get_
 
 #pragma weak shmem_get4_ = pshmem_get4_
 #pragma weak shmem_get8_ = pshmem_get8_
