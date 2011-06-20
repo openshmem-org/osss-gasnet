@@ -63,9 +63,9 @@ trace_table_t tracers[] =
     INIT_LEVEL(SERVICE,    OFF),
     INIT_LEVEL(SYMBOLS,    OFF),
     INIT_LEVEL(VERSION,    OFF),
+    INIT_LEVEL(PROFILING,  OFF),
   };
 static const int n_tracers = TABLE_SIZE(tracers);
-
 
 /*
  * big enough?  I reckon so, we're not writing a novel...

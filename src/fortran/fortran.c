@@ -671,6 +671,8 @@ REDUCIFY(prod, comp8, complexd, double complex)
 #pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
 
 #pragma weak shmem_int2_xor_to_all_ = pshmem_int2_xor_to_all_
+#pragma weak shmem_int4_xor_to_all_ = pshmem_int4_xor_to_all_
+#pragma weak shmem_int8_xor_to_all_ = pshmem_int8_xor_to_all_
 
 #pragma weak shmem_comp4_sum_to_all_ = pshmem_comp4_sum_to_all_
 #pragma weak shmem_comp8_sum_to_all_ = pshmem_comp8_sum_to_all_
