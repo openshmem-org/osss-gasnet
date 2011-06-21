@@ -2,11 +2,6 @@
 
 # ---------------------------------------------------------
 
-ATOMIC_DIR           = ../atomic
-ATOMIC_CPPFLAGS      = -I$(ATOMIC_DIR)
-
-# ---------------------------------------------------------
-
 COMMS_DIR        =    ../comms
 COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
@@ -17,6 +12,10 @@ MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
+ATOMIC_DIR        =    ../atomic
+ATOMIC_CPPFLAGS   =    -I$(ATOMIC_DIR)
+
+# ---------------------------------------------------------
 
 CC               = @CC@
 CFLAGS           = @CFLAGS@
@@ -26,23 +25,35 @@ LDFLAGS          = @LDFLAGS@
 
 CPPFLAGS        += -I..
 
-CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += -I../modules
 
 ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
 CFLAGS          += -fPIC
-CFLAGS          += $(HASH_CFLAGS)
 
-.PHONY: all default clean
+MODULES = $(wildcard barrier-*.c)
+OBJECTS = $(MODULES:.c=.o)
+SHOBJECTS = $(MODULES:.c=.so)
 
-SOURCES          = $(wildcard *.c)
-OBJECTS          = $(SOURCES:.c=.o)
+.PHONY: all default install-lib uninstall-lib clean
 
-all default:	 $(OBJECTS)
+all default:	$(SHOBJECTS) barrier.o
+
+install-lib:	all default
+	mkdir -p @MODULES_DIR@
+	cp $(SHOBJECTS) @MODULES_DIR@
+
+uninstall-lib:
+	for f in $(SHOBJECTS); do rm -f @MODULES_DIR@/$$f; done
+	- rmdir @MODULES_DIR@
+
+%.so:	%.o
+	$(LD) -shared $(LDFLAGS) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(SHOBJECTS) barrier.o

@@ -47,7 +47,7 @@ FCOLLECT_OBJ         = $(FCOLLECT_DIR)/fcollect.o
 #
 BARRIER_DIR          = ./barrier
 BARRIER_CPPFLAGS     = -I$(BARRIER_DIR)
-BARRIER_OBJ          = $(BARRIER_DIR)/*.o
+BARRIER_OBJ          = $(BARRIER_DIR)/barrier.o
 
 # ---------------------------------------------------------
 #
@@ -218,6 +218,7 @@ install-lib:	all
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(FCOLLECT_DIR) $@
+	$(MAKE) -C $(BARRIER_DIR) $@
 
 install-bin:	all
 	$(MAKE) -C $(COMMS_DIR) $@

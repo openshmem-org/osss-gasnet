@@ -137,7 +137,7 @@ pstart_pes(int npes)
   __shmem_ping_init();
 
   /* set up module selection */
-  __shmem_barrier_dispatch_init();
+  __shmem_barriers_dispatch_init();
   __shmem_broadcast_dispatch_init();
   __shmem_collect_dispatch_init();
   __shmem_fcollect_dispatch_init();

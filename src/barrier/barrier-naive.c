@@ -44,3 +44,10 @@ __shmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 
   }
 }
+
+#include "module_info.h"
+module_info_t module_info =
+  {
+    __shmem_barrier_naive,
+    __shmem_barrier_naive,
+  };
