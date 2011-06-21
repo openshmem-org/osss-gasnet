@@ -30,13 +30,13 @@ endif
 
 CFLAGS          += -fPIC
 
-MODULES = $(wildcard collect-*.c)
+MODULES = $(wildcard fcollect-*.c)
 OBJECTS = $(MODULES:.c=.o)
 SHOBJECTS = $(MODULES:.c=.so)
 
 .PHONY: all default install-lib uninstall-lib clean
 
-all default:	$(SHOBJECTS) collect.o
+all default:	$(SHOBJECTS) fcollect.o
 
 install-lib:	all default
 	mkdir -p @MODULES_DIR@
@@ -50,4 +50,4 @@ uninstall-lib:
 	$(LD) -shared $(LDFLAGS) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(OBJECTS) $(SHOBJECTS) collect.o
+	rm -f $(OBJECTS) $(SHOBJECTS) fcollect.o

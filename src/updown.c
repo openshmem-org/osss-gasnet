@@ -11,8 +11,11 @@
 #include "state.h"
 #include "trace.h"
 #include "atomic.h"
+
 #include "barrier.h"
 #include "broadcast.h"
+#include "collect.h"
+
 #include "ping.h"
 #include "utils.h"
 #include "clock.h"
@@ -132,9 +135,10 @@ pstart_pes(int npes)
   /* set up timeouts */
   __shmem_ping_init();
 
-  /* set up barrier selection */
+  /* set up module selection */
   __shmem_barrier_dispatch_init();
   __shmem_broadcast_dispatch_init();
+  __shmem_collect_dispatch_init();
 
   /* set up any locality information */
   __shmem_place_init();

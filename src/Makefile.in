@@ -35,7 +35,11 @@ BROADCAST_OBJ        = $(BROADCAST_DIR)/broadcast.o
 #
 COLLECT_DIR          = ./collect
 COLLECT_CPPFLAGS     = -I$(COLLECT_DIR)
-COLLECT_OBJ          = $(COLLECT_DIR)/*.o
+COLLECT_OBJ          = $(COLLECT_DIR)/collect.o
+
+FCOLLECT_DIR         = ./fcollect
+FCOLLECT_CPPFLAGS    = -I$(FCOLLECT_DIR)
+FCOLLECT_OBJ         = $(FCOLLECT_DIR)/fcollect.o
 
 # ---------------------------------------------------------
 #
@@ -114,6 +118,8 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
+CPPFLAGS        += $(COLLECT_CPPFLAGS)
+CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
@@ -184,7 +190,9 @@ INSTALL          = install -c
 REMOVE           = rm -f
 
 OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
-			broadcast-obj-gen collect-obj-gen barrier-obj-gen \
+			broadcast-obj-gen \
+			collect-obj-gen fcollect-obj-gen \
+			barrier-obj-gen \
 			atomic-obj-gen \
 			malloc-obj-gen memory-obj-gen \
 			modules-obj-gen \
@@ -208,6 +216,8 @@ install-lib:	all
 	mkdir -p $(PREFIX)/lib
 	$(INSTALL) $(SHMEM_LIBRARY) $(PREFIX)/lib
 	$(MAKE) -C $(BROADCAST_DIR) $@
+	$(MAKE) -C $(COLLECT_DIR) $@
+	$(MAKE) -C $(FCOLLECT_DIR) $@
 
 install-bin:	all
 	$(MAKE) -C $(COMMS_DIR) $@
@@ -262,6 +272,9 @@ barrier-obj-gen:
 collect-obj-gen:
 	$(MAKE) -C $(COLLECT_DIR) all
 
+fcollect-obj-gen:
+	$(MAKE) -C $(FCOLLECT_DIR) all
+
 # -- global variable----------------------------------------
 
 globalvar-obj-gen:
@@ -303,6 +316,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(GLOBALVAR_OBJ) \
 		$(BROADCAST_OBJ) \
 		$(BARRIER_OBJ) \
+		$(FCOLLECT_OBJ) \
 		$(COLLECT_OBJ) \
 		$(ATOMIC_OBJ) \
 		$(MALLOC_OBJ) \
@@ -324,6 +338,7 @@ clean:
 	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
+	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)

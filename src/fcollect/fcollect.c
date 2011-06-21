@@ -17,7 +17,7 @@
  *
  */
 
-static char *DEFAULT_COLLECT_ALGORITHM  = "naive";
+static char *DEFAULT_FCOLLECT_ALGORITHM  = "naive";
 
 /*
  * handlers for implementations
@@ -33,24 +33,24 @@ static module_info_t mi;
  */
 
 void
-__shmem_collect_dispatch_init(void)
+__shmem_fcollect_dispatch_init(void)
 {
   char *name;
   int s;
 
   /*
-   * choose the collect
+   * choose the fcollect
    *
    */
 
-  name = __shmem_comms_getenv("SHMEM_COLLECT_ALGORITHM");
+  name = __shmem_comms_getenv("SHMEM_FCOLLECT_ALGORITHM");
   if (name == (char *) NULL) {
-    name = DEFAULT_COLLECT_ALGORITHM;
+    name = DEFAULT_FCOLLECT_ALGORITHM;
   }
-  s = __shmem_modules_load("collect", name, &mi);
+  s = __shmem_modules_load("fcollect", name, &mi);
   if (s != 0) {
     __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: couldn't load collect module \"%s\"",
+		  "internal error: couldn't load fcollect module \"%s\"",
 		  name
 		  );
     /* NOT REACHED */
@@ -60,7 +60,7 @@ __shmem_collect_dispatch_init(void)
    * report which implementation we set up
    */
   __shmem_trace(SHMEM_LOG_BROADCAST,
-		"using collect \"%s\"",
+		"using fcollect \"%s\"",
 		name
 		);
 }
@@ -73,12 +73,12 @@ __shmem_collect_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_collect32(void *target, const void *source, size_t nlong,
+pshmem_fcollect32(void *target, const void *source, size_t nlong,
 		 int PE_start, int logPE_stride, int PE_size,
 		 long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_collect32");
-  SYMMETRY_CHECK(source, 2, "shmem_collect32");
+  SYMMETRY_CHECK(target, 1, "shmem_fcollect32");
+  SYMMETRY_CHECK(source, 2, "shmem_fcollect32");
 
   mi.func_32(target, source, nlong,
 	     PE_start, logPE_stride, PE_size,
@@ -87,17 +87,17 @@ pshmem_collect32(void *target, const void *source, size_t nlong,
 
 /* @api@ */
 void
-pshmem_collect64(void *target, const void *source, size_t nlong,
+pshmem_fcollect64(void *target, const void *source, size_t nlong,
 		 int PE_start, int logPE_stride, int PE_size,
 		 long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_collect64");
-  SYMMETRY_CHECK(source, 2, "shmem_collect64");
+  SYMMETRY_CHECK(target, 1, "shmem_fcollect64");
+  SYMMETRY_CHECK(source, 2, "shmem_fcollect64");
 
   mi.func_64(target, source, nlong,
 	     PE_start, logPE_stride, PE_size,
 	     pSync);
 }
 
-#pragma weak shmem_collect32 = pshmem_collect32
-#pragma weak shmem_collect64 = pshmem_collect64
+#pragma weak shmem_fcollect32 = pshmem_fcollect32
+#pragma weak shmem_fcollect64 = pshmem_fcollect64
