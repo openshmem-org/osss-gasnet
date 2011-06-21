@@ -15,6 +15,7 @@
 #include "barrier.h"
 #include "broadcast.h"
 #include "collect.h"
+#include "fcollect.h"
 
 #include "ping.h"
 #include "utils.h"
@@ -139,6 +140,7 @@ pstart_pes(int npes)
   __shmem_barrier_dispatch_init();
   __shmem_broadcast_dispatch_init();
   __shmem_collect_dispatch_init();
+  __shmem_fcollect_dispatch_init();
 
   /* set up any locality information */
   __shmem_place_init();

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <strings.h>
 
-/* #include "comms.h" */
+#include "comms.h"
 #include "trace.h"
 #include "utils.h"
 

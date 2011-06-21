@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <strings.h>
 
-/* #include "comms.h" */
+#include "comms.h"
 #include "trace.h"
 #include "utils.h"
 
@@ -74,8 +74,8 @@ __shmem_fcollect_dispatch_init(void)
 /* @api@ */
 void
 pshmem_fcollect32(void *target, const void *source, size_t nlong,
-		 int PE_start, int logPE_stride, int PE_size,
-		 long *pSync)
+		  int PE_start, int logPE_stride, int PE_size,
+		  long *pSync)
 {
   SYMMETRY_CHECK(target, 1, "shmem_fcollect32");
   SYMMETRY_CHECK(source, 2, "shmem_fcollect32");
@@ -88,8 +88,8 @@ pshmem_fcollect32(void *target, const void *source, size_t nlong,
 /* @api@ */
 void
 pshmem_fcollect64(void *target, const void *source, size_t nlong,
-		 int PE_start, int logPE_stride, int PE_size,
-		 long *pSync)
+		  int PE_start, int logPE_stride, int PE_size,
+		  long *pSync)
 {
   SYMMETRY_CHECK(target, 1, "shmem_fcollect64");
   SYMMETRY_CHECK(source, 2, "shmem_fcollect64");
