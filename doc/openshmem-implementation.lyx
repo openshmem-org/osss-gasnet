@@ -1,4 +1,4 @@
-#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -166,7 +166,8 @@ other
 \end_inset
 
  PE does not participate: the data transfer does not cause the other PE
- to be interrupted to acknowledge the transfer.
+ to be interrupted to acknowledge the transfer (assuming the hardware underneath
+ SHMEM allows this).
 \end_layout
 
 \begin_layout Section
@@ -216,9 +217,9 @@ get
 \end_layout
 
 \begin_layout Standard
-Clusers that use interconnects with remote direct memory access (rDMA) are
- of particular interest to the PGAS community as they provide hardware off-load
- capability to avoid interrupts during one-sided communications.
+Clusters that use interconnects with remote direct memory access (rDMA)
+ are of particular interest to the PGAS community as they provide hardware
+ off-load capability to avoid interrupts during one-sided communications.
 \end_layout
 
 \begin_layout Section
@@ -274,8 +275,8 @@ The overall structure of the reference library is shown below.
  a more direct approach being used.
  Internally, the reference implementation of OpenSHMEM provides private
  APIs for memory management, the communications layer, tracing/debugging
- and (eventually) support for adaptivity to choose things like barrier algorithm
- at run-time.
+ and (eventually) support for adaptivity to choose things like a barrier
+ algorithm at run-time.
 \end_layout
 
 \begin_layout Standard
@@ -316,6 +317,10 @@ GASNet provides access to the symmetric memory areas.
  like 
 \family typewriter
 shmalloc()
+\family default
+ or 
+\family typewriter
+shmfree()
 \family default
 .
 \end_layout
@@ -464,11 +469,12 @@ src/updown.c
 main()
 \family default
  exits.
- (Cray SHMEM has an explicit finalize call, however.) The segment exchange
+ (Cray SHMEM has an explicit finalize call, however, and a profiling interface
+ proposal has suggested introducing this to OpenSHMEM.) The segment exchange
  is a target for future optimization: in large programs, the start-up time
- will become burdensome due to the large number of address/size communication.
+ will become burdensome due to the large number of address/size communications.
  Strategies for avoiding this include lazy initialization and hierarchical
- lookups.
+ or directory-based lookups.
 \end_layout
 
 \begin_layout Subsection
@@ -571,12 +577,12 @@ main(int argc, char *argv[])
 
 \begin_layout Plain Layout
 
-  me = _my_pe();       /* which PE I am */
+  me   = _my_pe();       /* which PE I am */
 \end_layout
 
 \begin_layout Plain Layout
 
-  npes = _num_pes();   /* how many PEs in program */
+  npes = _num_pes();     /* how many PEs in program */
 \end_layout
 
 \begin_layout Plain Layout
@@ -623,7 +629,7 @@ program hello
 
 \begin_layout Plain Layout
 
-  integer me, npes
+  integer :: me, npes
 \end_layout
 
 \begin_layout Plain Layout
@@ -637,7 +643,7 @@ program hello
 
 \begin_layout Plain Layout
 
-  me = my_pe()
+  me   = my_pe()
 \end_layout
 
 \begin_layout Plain Layout
@@ -666,11 +672,11 @@ Communications Substrate
 
 \begin_layout Standard
 The OpenSHMEM library has been written to sit on top of any communications
- library that can provide the required functionalty.
+ library that can provide the required functionality.
  Initially we have targetted GASNet, and an ARMCI version is also planned.
- The 
+ The directory
 \family typewriter
-directory trunk/src/comms
+ trunk/src/comms
 \family default
  provides implementations of the internal API.
  All subsequent references to GASNet should be read with an eye on the abstracti
@@ -696,7 +702,8 @@ Memory Management
 \end_layout
 
 \begin_layout Standard
-Initially we tried to use the TLSF library:
+Initially we tried to use the TLSF library (as used in the SiCortex SHMEM
+ implementation):
 \end_layout
 
 \begin_layout Standard
@@ -776,12 +783,15 @@ Point-to-point operations are a thin layer on top of GASNet.
  The non-blocking put operations with implicit handles provide a way to
  subsequently fence and barrier.
  However, tracking individual handles explicitly with a hash table keyed
- on the address of symmetric variables may give better performance.
+ on the address of symmetric variables may give better performance, and
+ this needs to be looked into.
 \end_layout
 
 \begin_layout Standard
 The Quadrics extensions that add non-blocking calls into the API proper
  have already been requested for the OpenSHMEM development.
+ An initial attempt at these are already in the library and they pass the
+ Cray verification tests.
 \end_layout
 
 \begin_layout Subsection
@@ -855,8 +865,8 @@ Barrier and broadcast
 
 \begin_layout Standard
 The initial version is naive, making the root of the broadcast a bottleneck.
- This is partly intentional, to allow Swaroop to explore better algorithms
- and work out how to demonstrate and document the improvements.
+ This is partly intentional, to allow Swaroop (PhD student at UH) to explore
+ better algorithms and work out how to demonstrate and document the improvements.
  We would like to collect some locality information inside the library to
  help decide communication order inside these algorithms: PEs that differ
  in rank by large amounts are likely to be further away topologically too,
@@ -894,13 +904,13 @@ Collects
 \end_layout
 
 \begin_layout Standard
-The files 
+The directories 
 \family typewriter
-src/fcollect.c
+src/fcollect
 \family default
  and 
 \family typewriter
-src/collect.c
+src/collect
 \family default
  implement the collector routines (concatenating arrays on a set of PEs
  into a target array on all of those PEs).
@@ -957,7 +967,9 @@ Reductions coalesce data from a number of PEs into either a single variable
  A version with puts that can overlap communication and the computation
  of the reduction operation should be more scalable.
  However, the code is rather compact and all ops use the same template.
- A future version of OpenSHMEM may add user-defined reductions.
+ A future version of OpenSHMEM may add user-defined reductions, and in fact
+ the framework for this is already in place: all that is needed is a specificati
+on of the SHMEM API.
 \end_layout
 
 \begin_layout Subsection
@@ -1711,7 +1723,7 @@ M
 
  etc.
  modifiers.
- The default is 1M.
+ The default is 2G.
 \end_layout
 
 \begin_layout List
@@ -1847,6 +1859,11 @@ The run wrapper currently detects which GASNet conduit is being used and
  should work this out in advance to streamline the installed code.
 \end_layout
 
+\begin_layout Standard
+There is no requirement in OpenSHMEM to provide anything like this, it's
+ merely a convenience.
+\end_layout
+
 \begin_layout Section
 Configuration and Installation
 \end_layout
@@ -1859,7 +1876,7 @@ trunk/configure
  script that is a simplified version of the GNU autotools.
  This script will eventually become the GNU setup and will do lots more
  feature tests.
- So the usual procedure applies: configure, make, make install.
+ So the usual procedure applies: configure; make; make install.
 \end_layout
 
 \begin_layout Section
