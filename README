@@ -1,6 +1,12 @@
 # (c) University of Houston System.  All rights reserved.
 # Emacs: -*- mode: text; mode: auto-fill; -*-
 
+Acknowledgement
+---------------
+
+This work was supported by Oak Ridge National Laboratory's Extreme Scale
+System Center.
+
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
 
@@ -21,12 +27,13 @@ series), but there's a relatively small number of changes that need to
 be made to change that (e.g. debugging and optimization flags, PIC
 option, C99 compliance).
 
-There's now a configure script.  This will eventually be the GNU
-autotools setup, but for now it's just a basic shell script to give
-the same kind of look-and-feel.  Accepts a --help option.
+There's a configure script.  This will eventually be the GNU autotools
+setup, but for now it's just a basic shell script to give the same kind
+of look-and-feel.  Accepts a --help option.  Doesn't currently support
+the GNU separate-build-directory thing.
 
-By default I'm using "mpi" for development on an SMP platform, but for
-an Infiniband cluster, just change this to "ibv" by choosing a
+By default I'm using "smp" for development on a singe machine, but for
+e.g. an Infiniband cluster, just change this to "ibv" by choosing a
 different conduit in the configure command.
 
 Configure Usage
@@ -43,7 +50,7 @@ machine:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=mpi     \
-                --with-gasnet_root=/usr
+                --with-gasnet_root=/opt/gasnet/everything
 
 Optimized for SMP:
 
