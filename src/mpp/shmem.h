@@ -23,13 +23,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+  /*
+   * "Orange Mocha Frappuccino" SHMEM release
+   */
+
 #define SHMEM_MAJOR_VERSION 1
 #define SHMEM_MINOR_VERSION 0
 
   /*
    * not all compilers support this annotation
    *
-   * Yes: GNU, PGI, Intel   (others?)
+   * Yes: GNU, PGI, Intel, Open64/UH   (others?)
    * No: Sun/Oracle Studio
    *
    */
@@ -110,6 +114,7 @@ extern "C" {
    * strided I/O
    */
 
+#undef ptrdiff_t
   typedef long ptrdiff_t;
 
   extern void  shmem_double_iput(double *target, const double *source,
@@ -302,7 +307,7 @@ extern "C" {
   extern void      shmem_longlong_inc(long long *target, int pe);
 
   /*
-   * cache flushing
+   * cache flushing (deprecated)
    */
 
   extern void         shmem_clear_cache_inv(void);

@@ -21,6 +21,16 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
   module_info_t *rh;
   char path_to_so[PATH_MAX];
 
+  if (group == (char *) NULL) {
+    return -1;
+  }
+  if (name == (char *) NULL) {
+    return -1;
+  }
+  if (mip == (module_info_t *) NULL) {
+    return -1;
+  }
+
   snprintf(path_to_so, PATH_MAX, "%s/%s-%s.so",
            INSTALLED_MODULES_DIR, group, name);
 
