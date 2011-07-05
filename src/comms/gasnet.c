@@ -223,34 +223,14 @@ __shmem_comms_set_waitmode(comms_spinmode_t mode)
 		);
 }
 
+/*
+ * traffic progress
+ *
+ */
 void
 __shmem_comms_pause(void)
 {
   GASNET_SAFE( gasnet_AMPoll() );
-}
-
-/*
- * -----------------------------------------------------
- * exiting gracefully
- *
- */
-
-/*
- * bail out of run-time with STATUS error code
- */
-void
-__shmem_comms_exit(int status)
-{
-  gasnet_exit(status);
-}
-
-/*
- * make sure everyone finishes stuff, then exit with STATUS.
- */
-void
-__shmem_comms_finalize(int status)
-{
-  __shmem_comms_exit(status);
 }
 
 /*
@@ -273,7 +253,7 @@ __shmem_comms_mynode(void)
 }
 
 /*
- * how many nodes (Pes) take part in this program?
+ * how many nodes (PEs) take part in this program?
  */
 int
 __shmem_comms_nodes(void)
@@ -559,15 +539,15 @@ static const int nhandlers = TABLE_SIZE(handlers);
 /*
  * -----------------------------------------------------------------------
  *
- * This is where the communications layer gets set up
+ * This is where the communications layer gets set up and torn down
  */
+
+static int argc;
+static char **argv;
 
 void
 __shmem_comms_init(void)
 {
-  int argc;
-  char **argv;
-
   /*
    * fake the command-line args
    */
@@ -622,6 +602,28 @@ __shmem_comms_init(void)
 		);
 
   /* Up and running! */
+}
+
+/*
+ * bail out of run-time with STATUS error code
+ */
+void
+__shmem_comms_exit(int status)
+{
+  gasnet_exit(status);
+}
+
+/*
+ * make sure everyone finishes stuff, then exit with STATUS.
+ */
+void
+__shmem_comms_finalize(int status)
+{
+  if (argv != NULL) {
+    free(argv);
+  }
+
+  __shmem_comms_exit(status);
 }
 
 /*
