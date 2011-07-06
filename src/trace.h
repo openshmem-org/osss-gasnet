@@ -29,6 +29,7 @@ typedef enum {
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */
   SHMEM_LOG_VERSION,		/* show library version */
   SHMEM_LOG_PROFILING,		/* for the PSHMEM profiling interface */
+  SHMEM_LOG_MODULES,		/* loadable routines modules */
 } shmem_trace_t;
 
 extern void __shmem_tracers_init(void);

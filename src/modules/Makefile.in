@@ -1,5 +1,12 @@
 # (c) 2011 University of Houston System.  All rights reserved.
 
+# ---------------------------------------------------------
+
+HASH_DIR         = ../uthash
+HASH_CPPFLAGS    = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
 prefix           = @PREFIX@
 
 CC               = @CC@
@@ -15,6 +22,7 @@ endif
 # CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(prefix)/lib/modules\""
+CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
 

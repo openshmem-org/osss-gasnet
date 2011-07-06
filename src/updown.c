@@ -22,6 +22,8 @@
 #include "clock.h"
 #include "exe.h"
 
+#include "modules.h"
+
 #include "mpp/shmem.h"
 
 /* ----------------------------------------------------------------- */
@@ -137,6 +139,8 @@ pstart_pes(int npes)
   __shmem_ping_init();
 
   /* set up module selection */
+  __shmem_modules_init();
+
   __shmem_barriers_dispatch_init();
   __shmem_broadcast_dispatch_init();
   __shmem_collect_dispatch_init();

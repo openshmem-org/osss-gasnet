@@ -64,6 +64,7 @@ trace_table_t tracers[] =
     INIT_LEVEL(SYMBOLS,    OFF),
     INIT_LEVEL(VERSION,    OFF),
     INIT_LEVEL(PROFILING,  OFF),
+    INIT_LEVEL(MODULES,    OFF),
   };
 static const int n_tracers = TABLE_SIZE(tracers);
 

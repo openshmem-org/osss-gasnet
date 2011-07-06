@@ -5,9 +5,131 @@
 #include <dlfcn.h>
 #include <limits.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "trace.h"
 #include "modules.h"
+
+/*
+ * read in the config file and set up tables
+ *
+ */
+
+#include "uthash.h"
+
+typedef struct {
+  char *name;                   /* key */
+
+  int lineno;                   /* line in the config file */
+  char *impl;                   /* name of implementation */
+
+  UT_hash_handle hh;
+
+} module_table_t;
+
+static module_table_t *mtp = NULL;
+
+/*
+ * get rid of newline
+ */
+#define CHOMP(L) (L)[strlen(L) - 1] = '\0'
+
+static void
+parse_config_file(char *cfg_file)
+{
+  FILE *fp;
+  char *modname;
+  char *modimpl;
+  char *hash;
+  int lineno = 0;
+  const char *delims = "\t ";
+  char line[PATH_MAX];
+  module_table_t *mp = NULL;
+
+  fp = fopen(cfg_file, "r");
+  if (fp == (FILE *) NULL) {
+    return;
+  }
+
+  __shmem_trace(SHMEM_LOG_MODULES,
+		"about to read modules from %s",
+		cfg_file
+		);
+
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    lineno += 1;
+
+    /*
+     * trim blank lines and comments
+     */
+    CHOMP(line);
+    hash = strchr(line, '#');
+    if (hash != NULL) {
+      *hash = '\0';
+    }
+
+    modname = strtok(line, delims);
+    if (modname == NULL) {
+      continue;
+    }
+
+    modimpl = strtok(NULL, delims);
+    if (modimpl == NULL) {
+      __shmem_trace(SHMEM_LOG_MODULES,
+		    "no implementation for module \"%s\" in \"%s\" at line %d, will use default",
+		    modname,
+		    cfg_file,
+		    lineno
+		    );
+      continue;
+    }
+
+    mp = (module_table_t *) malloc(sizeof(*mp));
+    mp->lineno = lineno;
+    mp->name = strdup(modname);
+    mp->impl = strdup(modimpl);
+
+    HASH_ADD_PTR(mtp, name, mp);
+
+    __shmem_trace(SHMEM_LOG_MODULES,
+		  "module %s, implementation %s at line %d in %s",
+		  modname,
+		  modimpl,
+		  lineno,
+		  cfg_file
+		  );
+  }
+
+  fclose(fp);
+}
+
+/*
+ * initialize modules: read from global config file if it exists
+ *
+ */
+
+void
+__shmem_modules_init(void)
+{
+  char path_to_cfg[PATH_MAX];
+
+  snprintf(path_to_cfg, PATH_MAX, "%s/config",
+	   INSTALLED_MODULES_DIR
+	   );
+
+  parse_config_file(path_to_cfg);
+}
+
+/*
+ * shut modules down: nothing to do so far
+ *
+ */
+
+void
+__shmem_modules_finalize(void)
+{
+  return;
+}
 
 /*
  * TODO: currently keeping .so file open during run,

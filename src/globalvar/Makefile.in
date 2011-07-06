@@ -3,7 +3,7 @@
 # ---------------------------------------------------------
 
 HASH_DIR         = ../uthash
-HASH_CFLAGS      = -I$(HASH_DIR)
+HASH_CPPFLAGS    = -I$(HASH_DIR)
 
 # ---------------------------------------------------------
 
@@ -18,9 +18,9 @@ CPPFLAGS        += -DDEBUG
 endif
 
 CPPFLAGS        += -I..
+CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
-CFLAGS          += $(HASH_CFLAGS)
 
 .PHONY: all default clean
 
