@@ -18,7 +18,7 @@
 #include "uthash.h"
 
 typedef struct {
-  char *name;                   /* key */
+  char *name;                   /* module = key */
 
   int lineno;                   /* line in the config file */
   char *impl;                   /* name of implementation */
@@ -35,7 +35,7 @@ static module_table_t *mtp = NULL;
 #define CHOMP(L) (L)[strlen(L) - 1] = '\0'
 
 static void
-parse_config_file(char *cfg_file)
+create_module_table_from_config(char *cfg_file)
 {
   FILE *fp;
   char *modname;
@@ -76,7 +76,8 @@ parse_config_file(char *cfg_file)
     modimpl = strtok(NULL, delims);
     if (modimpl == NULL) {
       __shmem_trace(SHMEM_LOG_MODULES,
-		    "no implementation for module \"%s\" in \"%s\" at line %d, will use default",
+		    "no implementation for module \"%s\" in \"%s\" at line %d, "
+		    "will use default",
 		    modname,
 		    cfg_file,
 		    lineno
@@ -85,6 +86,12 @@ parse_config_file(char *cfg_file)
     }
 
     mp = (module_table_t *) malloc(sizeof(*mp));
+    if (mp == (module_table_t *) NULL) {
+      __shmem_trace(SHMEM_LOG_FATAL,
+		    "internal error: unable to allocate memory for module table"
+		    );
+      /* NOT REACHED */
+    }
     mp->lineno = lineno;
     mp->name = strdup(modname);
     mp->impl = strdup(modimpl);
@@ -100,7 +107,39 @@ parse_config_file(char *cfg_file)
 		  );
   }
 
-  fclose(fp);
+  (void) fclose(fp);
+}
+
+static void
+free_module_table(void)
+{
+  module_table_t *current;
+  module_table_t *tmp;
+
+  HASH_ITER(hh, mtp, current, tmp) {
+    HASH_DEL(mtp, current);
+    free(current);
+  }
+}
+
+/*
+ * retrieve implementation for a given module
+ *
+ */
+char *
+__shmem_modules_get_implementation(char *mod)
+{
+  module_table_t *match;
+
+  HASH_FIND_PTR(mtp, mod, match);
+  if (match == (module_table_t *) NULL) {
+    HASH_FIND_PTR(mtp, "default", match);
+    if (match == (module_table_t *) NULL) {
+      return NULL;
+    }
+  }
+
+  return match->impl;
 }
 
 /*
@@ -113,22 +152,23 @@ __shmem_modules_init(void)
 {
   char path_to_cfg[PATH_MAX];
 
-  snprintf(path_to_cfg, PATH_MAX, "%s/config",
+  snprintf(path_to_cfg, PATH_MAX,
+	   "%s/config",
 	   INSTALLED_MODULES_DIR
 	   );
 
-  parse_config_file(path_to_cfg);
+  create_module_table_from_config(path_to_cfg);
 }
 
 /*
- * shut modules down: nothing to do so far
+ * shut modules down: clean up hash table
  *
  */
 
 void
 __shmem_modules_finalize(void)
 {
-  return;
+  free_module_table();
 }
 
 /*

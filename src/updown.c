@@ -43,6 +43,9 @@ __shmem_exit(int status)
   __shmem_atomic_finalize();
   __shmem_symmetric_memory_finalize();
 
+  /* clean up plugin modules */
+  __shmem_modules_finalize();
+
   /* tidy up binary inspector */
   __shmem_executable_finalize();
 
