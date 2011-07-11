@@ -466,46 +466,46 @@ FORTRANIFY(pshmem_int8_cswap)(long *target, long *cond, long *value, int *pe)
 
 
 void
-FORTRANIFY(pshmem_broadcast4)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_broadcast4)(void *target, const void *source, size_t *nelems,
 			      int *PE_root, int *PE_start,
 			      int *logPE_stride, int *PE_size,
 			      long *pSync)
 {
   pshmem_broadcast32(target, source,
-		     *nlong, *PE_root, *PE_start, *logPE_stride, *PE_size,
+		     *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
 		     pSync);
 }
 
 void
-FORTRANIFY(pshmem_broadcast8)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_broadcast8)(void *target, const void *source, size_t *nelems,
 			      int *PE_root, int *PE_start,
 			      int *logPE_stride, int *PE_size,
 			      long *pSync)
 {
   pshmem_broadcast64(target, source,
-		     *nlong, *PE_root, *PE_start, *logPE_stride, *PE_size,
+		     *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
 		     pSync);
 }
 
 void
-FORTRANIFY(pshmem_broadcast32)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_broadcast32)(void *target, const void *source, size_t *nelems,
 			       int *PE_root, int *PE_start,
 			       int *logPE_stride, int *PE_size,
 			       long *pSync)
 {
   pshmem_broadcast32(target, source,
-		     *nlong, *PE_root, *PE_start, *logPE_stride, *PE_size,
+		     *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
 		     pSync);
 }
 
 void
-FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, size_t *nelems,
 			       int *PE_root, int *PE_start,
 			       int *logPE_stride, int *PE_size,
 			       long *pSync)
 {
   pshmem_broadcast64(target, source,
-		     *nlong, *PE_root, *PE_start, *logPE_stride, *PE_size,
+		     *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
 		     pSync);
 }
 
@@ -521,22 +521,22 @@ FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, size_t *nlong,
  */
 
 void
-FORTRANIFY(pshmem_fcollect4)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_fcollect4)(void *target, const void *source, size_t *nelems,
 			     int *PE_start, int *logPE_stride, int *PE_size,
 			     long *pSync)
 {
   pshmem_fcollect32(target, source,
-		    *nlong, *PE_start, *logPE_stride, *PE_size,
+		    *nelems, *PE_start, *logPE_stride, *PE_size,
 		    pSync);
 }
 
 void
-FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, size_t *nelems,
 			     int *PE_start, int *logPE_stride, int *PE_size,
 			     long *pSync)
 {
   pshmem_fcollect64(target, source,
-		    *nlong, *PE_start, *logPE_stride, *PE_size,
+		    *nelems, *PE_start, *logPE_stride, *PE_size,
 		    pSync);
 }
 
@@ -549,22 +549,22 @@ FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, size_t *nlong,
  */
 
 void
-FORTRANIFY(pshmem_collect4)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_collect4)(void *target, const void *source, size_t *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {
   pshmem_collect32(target, source,
-		   *nlong, *PE_start, *logPE_stride, *PE_size,
+		   *nelems, *PE_start, *logPE_stride, *PE_size,
 		   pSync);
 }
 
 void
-FORTRANIFY(pshmem_collect8)(void *target, const void *source, size_t *nlong,
+FORTRANIFY(pshmem_collect8)(void *target, const void *source, size_t *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {
   pshmem_collect64(target, source,
-		   *nlong, *PE_start, *logPE_stride, *PE_size,
+		   *nelems, *PE_start, *logPE_stride, *PE_size,
 		   pSync);
 }
 

@@ -26,19 +26,19 @@
 #define SHMEM_TYPE_PUT(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_put(Type *dest, const Type *src, size_t len, int pe)	\
+  pshmem_##Name##_put(Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_len = sizeof(Type) * len;					\
+    int typed_nelems = sizeof(Type) * nelems;				\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
     SYMMETRY_CHECK(dest, 1, "shmem_" #Name "_put");			\
     if (GET_STATE(mype) == pe) {					\
-      memmove(dest, src, typed_len);					\
+      memmove(dest, src, typed_nelems);					\
       LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
-      __shmem_comms_put(rdest, (Type *) src, typed_len, pe);		\
+      __shmem_comms_put(rdest, (Type *) src, typed_nelems, pe);		\
     }									\
   }
 
@@ -78,19 +78,19 @@ SHMEM_TYPE_PUT(complexd, COMPLEXIFY(double))
 #define SHMEM_TYPE_GET(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_get(Type *dest, const Type *src, size_t len, int pe)	\
+  pshmem_##Name##_get(Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_len = sizeof(Type) * len;					\
+    int typed_nelems = sizeof(Type) * nelems;				\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
     SYMMETRY_CHECK(src, 2, "shmem_" #Name "_get");			\
     if (GET_STATE(mype) == pe) {					\
-      memmove(dest, src, typed_len);					\
+      memmove(dest, src, typed_nelems);					\
       LOAD_STORE_FENCE();						\
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((void *) src, pe); \
-      __shmem_comms_get(dest, their_src, typed_len, pe);		\
+      __shmem_comms_get(dest, their_src, typed_nelems, pe);		\
     }									\
   }
 

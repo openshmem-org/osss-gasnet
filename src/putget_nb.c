@@ -17,11 +17,11 @@
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
+  pshmem_##Name##_put_nb(Type *target, const Type *source, size_t nelems, int pe) \
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    return __shmem_comms_##Name##_put_nb(target, source, len, pe);	\
+    return __shmem_comms_##Name##_put_nb(target, source, nelems, pe);	\
   }
 
 SHMEM_TYPE_PUT_NB(short, short)
@@ -44,11 +44,11 @@ SHMEM_TYPE_PUT_NB(float, float)
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
+  pshmem_##Name##_get_nb(Type *target, const Type *source, size_t nelems, int pe) \
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    return __shmem_comms_##Name##_get_nb(target, source, len, pe);	\
+    return __shmem_comms_##Name##_get_nb(target, source, nelems, pe);	\
   }
 
 SHMEM_TYPE_GET_NB(short, short)

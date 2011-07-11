@@ -127,7 +127,7 @@ build_tree(int PE_start, int step, int PE_root, int PE_size,
 
 void
 __shmem_broadcast32_tree(void *target, const void *source,
-			 size_t nlong,
+			 size_t nelems,
 			 int PE_root, int PE_start,
 			 int logPE_stride, int PE_size,
 			 long *pSync)				
@@ -159,11 +159,11 @@ __shmem_broadcast32_tree(void *target, const void *source,
   if (my_pe == (PE_start + step * PE_root)) {
 
     if (child_l != -1) {
-      shmem_int_put(target_ptr, source_ptr, nlong, child_l);		
+      shmem_int_put(target_ptr, source_ptr, nelems, child_l);		
     }
 
     if (child_r != -1) {
-      shmem_int_put(target_ptr, source_ptr, nlong, child_r);		
+      shmem_int_put(target_ptr, source_ptr, nelems, child_r);		
     }
 
   }
@@ -174,14 +174,14 @@ __shmem_broadcast32_tree(void *target, const void *source,
 		  "inside else"
 		  );
 
-    memcpy(source_ptr,target_ptr, nlong* sizeof(int));
+    memcpy(source_ptr,target_ptr, nelems * sizeof(int));
 
     if (child_l != -1) {
-      shmem_int_put(target_ptr, source_ptr, nlong, child_l);
+      shmem_int_put(target_ptr, source_ptr, nelems, child_l);
     }
 
     if(child_r != -1) {
-      shmem_int_put(target_ptr, source_ptr, nlong, child_r);	
+      shmem_int_put(target_ptr, source_ptr, nelems, child_r);	
     }
   }
 
@@ -194,7 +194,7 @@ __shmem_broadcast32_tree(void *target, const void *source,
 }	
 
 void
-__shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
+__shmem_broadcast64_tree(void *target, const void *source, size_t nelems,
 			 int PE_root, int PE_start,
 			 int logPE_stride, int PE_size,
 			 long *pSync)
@@ -229,11 +229,11 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
   if (my_pe == (PE_start + step * PE_root)) {
 
     if (child_l != -1) {
-      shmem_long_put(target_ptr, source_ptr, nlong, child_l);
+      shmem_long_put(target_ptr, source_ptr, nelems, child_l);
     }
 
     if (child_r != -1) {
-      shmem_long_put(target_ptr, source_ptr, nlong, child_r);
+      shmem_long_put(target_ptr, source_ptr, nelems, child_r);
     }
 
     /*__comms_fence(); */
@@ -245,14 +245,14 @@ __shmem_broadcast64_tree(void *target, const void *source, size_t nlong,
 		  "inside else"
 		  );
 
-    memcpy(source_ptr, target_ptr, nlong * sizeof(long));
+    memcpy(source_ptr, target_ptr, nelems * sizeof(long));
 
     if (child_l != -1) {
-      shmem_long_put(target_ptr, source_ptr, nlong, child_l);
+      shmem_long_put(target_ptr, source_ptr, nelems, child_l);
     }
 
     if (child_r != -1) {
-      shmem_long_put(target_ptr, source_ptr, nlong, child_r);
+      shmem_long_put(target_ptr, source_ptr, nelems, child_r);
     }
 
   }

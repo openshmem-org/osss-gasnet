@@ -40,30 +40,30 @@ extern "C" {
    * I/O
    */
 
-  extern void   pshmem_short_put(short *dest, const short *src, size_t len, int pe);
-  extern void   pshmem_int_put(int *dest, const int *src, size_t len, int pe);
-  extern void   pshmem_long_put(long *dest, const long *src, size_t len, int pe);
-  extern void   pshmem_longlong_put(long long *dest, const long long *src, size_t len, int pe);
-  extern void   pshmem_longdouble_put(long double *dest, const long double *src, size_t len, int pe);
-  extern void   pshmem_double_put(double *dest, const double *src, size_t len, int pe);
-  extern void   pshmem_complexd_put(COMPLEXIFY(double) *dest, const COMPLEXIFY(double) *src, size_t len, int pe);
-  extern void   pshmem_float_put(float *dest, const float *src, size_t len, int pe);
-  extern void   pshmem_putmem(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_put32(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_put64(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_put128(void *dest, const void *src, size_t len, int pe);
+  extern void   pshmem_short_put(short *dest, const short *src, size_t nelems, int pe);
+  extern void   pshmem_int_put(int *dest, const int *src, size_t nelems, int pe);
+  extern void   pshmem_long_put(long *dest, const long *src, size_t nelems, int pe);
+  extern void   pshmem_longlong_put(long long *dest, const long long *src, size_t nelems, int pe);
+  extern void   pshmem_longdouble_put(long double *dest, const long double *src, size_t nelems, int pe);
+  extern void   pshmem_double_put(double *dest, const double *src, size_t nelems, int pe);
+  extern void   pshmem_complexd_put(COMPLEXIFY(double) *dest, const COMPLEXIFY(double) *src, size_t nelems, int pe);
+  extern void   pshmem_float_put(float *dest, const float *src, size_t nelems, int pe);
+  extern void   pshmem_putmem(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_put32(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_put64(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_put128(void *dest, const void *src, size_t nelems, int pe);
 
-  extern void   pshmem_short_get(short *dest, const short *src, size_t len, int pe);
-  extern void   pshmem_int_get(int *dest, const int *src, size_t len, int pe);
-  extern void   pshmem_long_get(long *dest, const long *src, size_t len, int pe);
-  extern void   pshmem_longlong_get(long long *dest, const long long *src, size_t len, int pe);
-  extern void   pshmem_longdouble_get(long double *dest, const long double *src, size_t len, int pe);
-  extern void   pshmem_double_get(double *dest, const double *src, size_t len, int pe);
-  extern void   pshmem_float_get(float *dest, const float *src, size_t len, int pe);
-  extern void   pshmem_getmem(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_get32(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_get64(void *dest, const void *src, size_t len, int pe);
-  extern void   pshmem_get128(void *dest, const void *src, size_t len, int pe);
+  extern void   pshmem_short_get(short *dest, const short *src, size_t nelems, int pe);
+  extern void   pshmem_int_get(int *dest, const int *src, size_t nelems, int pe);
+  extern void   pshmem_long_get(long *dest, const long *src, size_t nelems, int pe);
+  extern void   pshmem_longlong_get(long long *dest, const long long *src, size_t nelems, int pe);
+  extern void   pshmem_longdouble_get(long double *dest, const long double *src, size_t nelems, int pe);
+  extern void   pshmem_double_get(double *dest, const double *src, size_t nelems, int pe);
+  extern void   pshmem_float_get(float *dest, const float *src, size_t nelems, int pe);
+  extern void   pshmem_getmem(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_get32(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_get64(void *dest, const void *src, size_t nelems, int pe);
+  extern void   pshmem_get128(void *dest, const void *src, size_t nelems, int pe);
 
   extern void   pshmem_char_p(char *addr, char value, int pe);
   extern void   pshmem_short_p(short *addr, short value, int pe);
@@ -89,65 +89,65 @@ extern "C" {
    */
 
   extern void  pshmem_double_iput(double *target, const double *source,
-				  ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				  ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_float_iput(float *target, const float *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_int_iput(int *target, const int *source,  ptrdiff_t  tst,
-			       ptrdiff_t sst, size_t len, int pe);
+			       ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iput32(void  *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t len, int pe);
+			     ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iput64(void *target, const void *source,  ptrdiff_t  tst,
-			     ptrdiff_t sst, size_t len, int pe);
+			     ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iput128(void *target, const void *source, ptrdiff_t tst,
-			      ptrdiff_t sst, size_t len, int pe);
+			      ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_long_iput(long *target, const long *source, ptrdiff_t tst,
-				ptrdiff_t sst, size_t len, int pe);
+				ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_longdouble_iput(long double *target, const long double *source,
-				      ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_longlong_iput(long long *target, const long long *source,
-				   ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				   ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_short_iput(short *target, const short *source, ptrdiff_t tst,
-				 ptrdiff_t sst, size_t len, int pe);
+				 ptrdiff_t sst, size_t nelems, int pe);
 
 
   extern void  pshmem_double_iget(double *target, const double *source,
-				  ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				  ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_float_iget(float *target, const float *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_int_iget(int *target, const int *source,  ptrdiff_t  tst,
-			       ptrdiff_t sst, size_t len, int pe);
+			       ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iget32(void  *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t len, int pe);
+			     ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iget64(void *target, const void *source,  ptrdiff_t  tst,
-			     ptrdiff_t sst, size_t len, int pe);
+			     ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_iget128(void *target, const void *source, ptrdiff_t tst,
-			      ptrdiff_t sst, size_t len, int pe);
+			      ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_long_iget(long *target, const long *source, ptrdiff_t tst,
-				ptrdiff_t sst, size_t len, int pe);
+				ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_longdouble_iget(long double *target, const long double *source,
-				      ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_longlong_iget(long long *target, const long long *source,
-				   ptrdiff_t tst, ptrdiff_t sst, size_t len, int pe);
+				   ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe);
 
   extern void  pshmem_short_iget(short *target, const short *source, ptrdiff_t tst,
-				 ptrdiff_t sst, size_t len, int pe);
+				 ptrdiff_t sst, size_t nelems, int pe);
 
 
   /*
@@ -524,11 +524,11 @@ extern "C" {
    * broadcasts
    */
 
-  extern void pshmem_broadcast32(void *target, const void *source, size_t nlong,
+  extern void pshmem_broadcast32(void *target, const void *source, size_t nelems,
 				 int PE_root, int PE_start, int logPE_stride, int PE_size,
 				 long *pSync);
 
-  extern void pshmem_broadcast64(void *target, const void *source, size_t nlong,
+  extern void pshmem_broadcast64(void *target, const void *source, size_t nelems,
 				 int PE_root, int PE_start, int logPE_stride, int PE_size,
 				 long *pSync);
 
@@ -538,17 +538,17 @@ extern "C" {
    * collects
    */
 
-  extern void pshmem_fcollect32(void *target, const void *source, size_t nlong,
+  extern void pshmem_fcollect32(void *target, const void *source, size_t nelems,
 				int PE_start, int logPE_stride, int PE_size,
 				long *pSync);
-  extern void pshmem_fcollect64(void *target, const void *source, size_t nlong,
+  extern void pshmem_fcollect64(void *target, const void *source, size_t nelems,
 				int PE_start, int logPE_stride, int PE_size,
 				long *pSync);
 
-  extern void pshmem_collect32(void *target, const void *source, size_t nlong,
+  extern void pshmem_collect32(void *target, const void *source, size_t nelems,
 			       int PE_start, int logPE_stride, int PE_size,
 			       long *pSync);
-  extern void pshmem_collect64(void *target, const void *source, size_t nlong,
+  extern void pshmem_collect64(void *target, const void *source, size_t nelems,
 			       int PE_start, int logPE_stride, int PE_size,
 			       long *pSync);
 
@@ -565,17 +565,17 @@ extern "C" {
    * non-blocking I/O (If enabled at configuration)
    */
 
-  extern void * pshmem_short_put_nb(short *target, const short *source, size_t len, int pe) _WUR;
-  extern void * pshmem_int_put_nb(int *target, const int *source, size_t len, int pe) _WUR;
-  extern void * pshmem_long_put_nb(long *target, const long *source, size_t len, int pe) _WUR;
-  extern void * pshmem_longlong_put_nb(long long *target, const long long *source, size_t len, int pe) _WUR;
-  extern void * pshmem_longdouble_put_nb(long double *target, const long double *source, size_t len, int pe) _WUR;
-  extern void * pshmem_double_put_nb(double *target, const double *source, size_t len, int pe) _WUR;
-  extern void * pshmem_float_put_nb(float *target, const float *source, size_t len, int pe) _WUR;
-  extern void * pshmem_putmem_nb(void *target, const void *source, size_t len, int pe) _WUR;
-  extern void * pshmem_put32_nb(void *target, const void *source, size_t len, int pe) _WUR;
-  extern void * pshmem_put64_nb(void *target, const void *source, size_t len, int pe) _WUR;
-  extern void * pshmem_put128_nb(void *target, const void *source, size_t len, int pe) _WUR;
+  extern void * pshmem_short_put_nb(short *target, const short *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_int_put_nb(int *target, const int *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_long_put_nb(long *target, const long *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_longlong_put_nb(long long *target, const long long *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_longdouble_put_nb(long double *target, const long double *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_double_put_nb(double *target, const double *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_float_put_nb(float *target, const float *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_putmem_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_put32_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_put64_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
+  extern void * pshmem_put128_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
 
 
 #ifdef __cplusplus

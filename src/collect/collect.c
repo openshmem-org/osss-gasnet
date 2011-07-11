@@ -73,28 +73,28 @@ __shmem_collect_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_collect32(void *target, const void *source, size_t nlong,
+pshmem_collect32(void *target, const void *source, size_t nelems,
 		 int PE_start, int logPE_stride, int PE_size,
 		 long *pSync)
 {
   SYMMETRY_CHECK(target, 1, "shmem_collect32");
   SYMMETRY_CHECK(source, 2, "shmem_collect32");
 
-  mi.func_32(target, source, nlong,
+  mi.func_32(target, source, nelems,
 	     PE_start, logPE_stride, PE_size,
 	     pSync);
 }
 
 /* @api@ */
 void
-pshmem_collect64(void *target, const void *source, size_t nlong,
+pshmem_collect64(void *target, const void *source, size_t nelems,
 		 int PE_start, int logPE_stride, int PE_size,
 		 long *pSync)
 {
   SYMMETRY_CHECK(target, 1, "shmem_collect64");
   SYMMETRY_CHECK(source, 2, "shmem_collect64");
 
-  mi.func_64(target, source, nlong,
+  mi.func_64(target, source, nelems,
 	     PE_start, logPE_stride, PE_size,
 	     pSync);
 }
