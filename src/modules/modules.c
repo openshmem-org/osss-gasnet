@@ -1,4 +1,4 @@
-/* (c) 2011 University of Houston.  All rights reserved. */
+/* (c) 2011 University of Houston System.  All rights reserved. */
 
 
 #include <stdio.h>
@@ -30,9 +30,14 @@ typedef struct {
 static module_table_t *mtp = NULL;
 
 /*
- * get rid of newline
+ * pretend to be Perl: get rid of newline
  */
 #define CHOMP(L) (L)[strlen(L) - 1] = '\0'
+
+/*
+ * read in config file and build table of module/algorithm lookups
+ *
+ */
 
 static void
 create_module_table_from_config(char *cfg_file)
@@ -110,6 +115,11 @@ create_module_table_from_config(char *cfg_file)
   (void) fclose(fp);
 }
 
+/*
+ * clean up hash table when shutting down
+ *
+ */
+
 static void
 free_module_table(void)
 {
@@ -123,7 +133,8 @@ free_module_table(void)
 }
 
 /*
- * retrieve implementation for a given module
+ * retrieve implementation for a given module, or the default
+ * if nothing specific
  *
  */
 char *
@@ -161,7 +172,7 @@ __shmem_modules_init(void)
 }
 
 /*
- * shut modules down: clean up hash table
+ * shut modules down
  *
  */
 
@@ -174,6 +185,8 @@ __shmem_modules_finalize(void)
 /*
  * TODO: currently keeping .so file open during run,
  * should really clean up
+ *
+ * return 0 if module located and info filled out, -1 if problem
  */
 
 int
@@ -183,6 +196,9 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
   module_info_t *rh;
   char path_to_so[PATH_MAX];
 
+  /*
+   * sanity-check the request
+   */
   if (group == (char *) NULL) {
     return -1;
   }
@@ -193,8 +209,15 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
     return -1;
   }
 
-  snprintf(path_to_so, PATH_MAX, "%s/%s-%s.so",
-           INSTALLED_MODULES_DIR, group, name);
+  /*
+   * locate the .so file
+   */
+  snprintf(path_to_so, PATH_MAX,
+	   "%s/%s-%s.so",
+           INSTALLED_MODULES_DIR,
+	   group,
+	   name
+	   );
 
   mh = dlopen(path_to_so, RTLD_LAZY);
   if (mh == NULL) {
@@ -206,6 +229,9 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
     return -1;
   }
 
+  /*
+   * pull out & save the routine lookup structure
+   */
   rh = (module_info_t *) dlsym(mh, "module_info");
   if (rh == NULL) {
     __shmem_trace(SHMEM_LOG_AUTH,

@@ -1,3 +1,5 @@
+# (c) 2011 University of Houston System.  All rights reserved.
+
 PREFIX = @PREFIX@
 
 SHMEM_MANPAGES_1 = $(wildcard *.1)

@@ -1,4 +1,4 @@
-/* (c) 2011 University of Houston.  All rights reserved. */
+/* (c) 2011 University of Houston System.  All rights reserved. */
 
 
 #ifndef _COLLECT_H
