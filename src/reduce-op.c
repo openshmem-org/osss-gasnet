@@ -212,7 +212,6 @@ SHMEM_UDR_TYPE_OP(complexf, float complex)
 				    int PE_start, int logPE_stride, int PE_size, \
 				    Type *pWrk, long *pSync)		\
   {									\
-									\
     INIT_CHECK();							\
     SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all");	\
     SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all");	\

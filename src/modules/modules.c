@@ -47,7 +47,7 @@ create_module_table_from_config(char *cfg_file)
   char *modimpl;
   char *hash;
   int lineno = 0;
-  const char *delims = "\t ";
+  const char *delims = "=\t ";	/* equal, tab, space */
   char line[PATH_MAX];
   module_table_t *mp = NULL;
 
@@ -57,7 +57,7 @@ create_module_table_from_config(char *cfg_file)
   }
 
   __shmem_trace(SHMEM_LOG_MODULES,
-		"about to read modules from %s",
+		"about to read modules from \"%s\"",
 		cfg_file
 		);
 
@@ -104,13 +104,13 @@ create_module_table_from_config(char *cfg_file)
     HASH_ADD_PTR(mtp, name, mp);
 
     __shmem_trace(SHMEM_LOG_MODULES,
-		  "module %s, implementation %s at line %d in %s",
+		  "module \"%s\", implementation \"%s\" in \"%s\" at line %d",
 		  modname,
 		  modimpl,
-		  lineno,
-		  cfg_file
+		  cfg_file,
+		  lineno
 		  );
-  }
+  } /* end line parser */
 
   (void) fclose(fp);
 }
