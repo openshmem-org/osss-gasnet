@@ -13,7 +13,12 @@
 
 #include "mpp/pshmem.h"
 
-
+/*
+ * Not present in SGI any more.
+ * I'm going to leave it in the code, but we'll ignore it
+ * and it's removed from shmem.h
+ *
+ */
 long malloc_error = SHMEM_MALLOC_OK; /* exposed for error codes */
 
 

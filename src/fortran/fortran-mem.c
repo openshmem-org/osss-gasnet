@@ -29,6 +29,13 @@
  *   missing, the program will hang.
  */
 
+/*
+ * we've removed this from the API since it's a hold-over
+ * from an old SGI version.  Left it in the code for now,
+ * though, in case people want it back.
+ */
+extern long malloc_error;
+
 void
 FORTRANIFY(pshpalloc)(long *addr, size_t *length, long *errcode, int *abort)
 {

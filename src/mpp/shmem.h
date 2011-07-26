@@ -224,7 +224,9 @@ extern "C" {
 #define	_SHMEM_MALLOC_REALLOC_FAILED      SHMEM_MALLOC_REALLOC_FAILED
 #define	_SHMEM_MALLOC_SYMMSIZE_FAILED     SHMEM_MALLOC_SYMMSIZE_FAILED
 
+#if 0
   extern long   malloc_error;
+#endif /* not present in SGI version */
 
   extern void * shmalloc(size_t size) _WUR;
   extern void   shfree(void *ptr);
