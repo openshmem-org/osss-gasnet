@@ -818,7 +818,7 @@ reference "sub:Locks"
 \end_layout
 
 \begin_layout Standard
-Eaarlier versions of the implementation had a single handler lock variable
+Earlier versions of the implementation had a single handler lock variable
  per operation (one for all adds, one for all increments, 
 \emph on
 etc.
