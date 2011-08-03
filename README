@@ -10,7 +10,7 @@ System Center.
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
 
-The library installs on top of GASNet & in some cases, MPI.  MPI is
+The library installs on top of GASNet and, when required, MPI.  MPI is
 used purely for process launch.  GASNet provides a portable
 communications layer for OpenSHMEM to work on top of.
 
@@ -19,7 +19,7 @@ suspect any version that adheres to the "mpi" prefix for the
 command-line tools will slot right in, and if not, the fix is pretty
 trivial.
 
-The main GASNet version has been 1.16.0 during development, although
+The main GASNet version has been 1.16.x during development, although
 1.42.2 was used as well as a comparison.
 
 Currently the Makefile is set up to use the GNU C Compiler (4.x
@@ -28,13 +28,13 @@ be made to change that (e.g. debugging and optimization flags, PIC
 option, C99 compliance).
 
 There's a configure script.  This will eventually be the GNU autotools
-setup, but for now it's just a basic shell script to give the same kind
-of look-and-feel.  Accepts a --help option.  Doesn't currently support
-the GNU separate-build-directory thing.
+setup, but for now it's just a basic shell script to give the same
+kind of look-and-feel.  Accepts a --help option.  Doesn't (yet)
+support the GNU separate-build-directory thing.
 
-By default I'm using "smp" for development on a singe machine, but for
-e.g. an Infiniband cluster, just change this to "ibv" by choosing a
-different conduit in the configure command.
+By default I'm using "smp" for development on a single machine, but
+for e.g. an Infiniband cluster, just change this to "ibv" by choosing
+a different conduit in the configure command.
 
 Configure Usage
 ---------------
@@ -43,20 +43,20 @@ Here is how configure might be called on a cluster using Infiniband:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=ibv     \
-                --with-gasnet_root=/usr
+                --with-gasnet-root=/usr
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=mpi     \
-                --with-gasnet_root=/opt/gasnet/everything
+                --with-gasnet-root=/opt/gasnet/everything
 
 Optimized for SMP:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=smp     \
-                --with-gasnet_root=/usr
+                --with-gasnet-root=/usr
 
     (GASNet built with fast/large model)
 
