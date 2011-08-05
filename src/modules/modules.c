@@ -29,6 +29,8 @@ typedef struct {
 
 static module_table_t *mtp = NULL;
 
+static char *fallback_algorithm = "naive";
+
 /*
  * pretend to be Perl: get rid of newline
  */
@@ -49,7 +51,6 @@ create_module_table_from_config(char *cfg_file)
   int lineno = 0;
   const char *delims = "=\t ";	/* equal, tab, space */
   char line[PATH_MAX];
-  module_table_t *mp = NULL;
 
   fp = fopen(cfg_file, "r");
   if (fp == (FILE *) NULL) {
@@ -69,17 +70,17 @@ create_module_table_from_config(char *cfg_file)
      */
     CHOMP(line);
     hash = strchr(line, '#');
-    if (hash != NULL) {
+    if (hash != (char *) NULL) {
       *hash = '\0';
     }
 
     modname = strtok(line, delims);
-    if (modname == NULL) {
+    if (modname == (char *) NULL) {
       continue;
     }
 
-    modimpl = strtok(NULL, delims);
-    if (modimpl == NULL) {
+    modimpl = strtok((char *) NULL, delims);
+    if (modimpl == (char *) NULL) {
       __shmem_trace(SHMEM_LOG_MODULES,
 		    "no implementation for module \"%s\" in \"%s\" at line %d, "
 		    "will use default",
@@ -90,18 +91,20 @@ create_module_table_from_config(char *cfg_file)
       continue;
     }
 
-    mp = (module_table_t *) malloc(sizeof(*mp));
-    if (mp == (module_table_t *) NULL) {
-      __shmem_trace(SHMEM_LOG_FATAL,
-		    "internal error: unable to allocate memory for module table"
-		    );
-      /* NOT REACHED */
-    }
-    mp->lineno = lineno;
-    mp->name = strdup(modname);
-    mp->impl = strdup(modimpl);
+    {    
+      module_table_t *mp = (module_table_t *) malloc(sizeof(*mp));
+      if (mp == (module_table_t *) NULL) {
+	__shmem_trace(SHMEM_LOG_FATAL,
+		      "internal error: unable to allocate memory for module table"
+		      );
+	/* NOT REACHED */
+      }
+      mp->lineno = lineno;
+      mp->name = strdup(modname);
+      mp->impl = strdup(modimpl);
 
-    HASH_ADD_PTR(mtp, name, mp);
+      HASH_ADD_KEYPTR(hh, mtp, mp->name, strlen(mp->name), mp);
+    }
 
     __shmem_trace(SHMEM_LOG_MODULES,
 		  "module \"%s\", implementation \"%s\" in \"%s\" at line %d",
@@ -134,7 +137,7 @@ free_module_table(void)
 
 /*
  * retrieve implementation for a given module, or the default
- * if nothing specific
+ * if nothing specific given
  *
  */
 char *
@@ -142,15 +145,17 @@ __shmem_modules_get_implementation(char *mod)
 {
   module_table_t *match;
 
-  HASH_FIND_PTR(mtp, mod, match);
-  if (match == (module_table_t *) NULL) {
-    HASH_FIND_PTR(mtp, "default", match);
-    if (match == (module_table_t *) NULL) {
-      return NULL;
-    }
+  HASH_FIND_STR(mtp, mod, match);
+  if (match != (module_table_t *) NULL) {
+    return match->impl;
   }
 
-  return match->impl;
+  HASH_FIND_STR(mtp, "default", match);
+  if (match != (module_table_t *) NULL) {
+    return match->impl;
+  }
+
+  return fallback_algorithm;
 }
 
 /*

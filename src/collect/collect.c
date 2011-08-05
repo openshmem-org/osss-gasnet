@@ -13,13 +13,6 @@
 #include "modules.h"
 
 /*
- * these are what we use if nothing else available
- *
- */
-
-static char *DEFAULT_COLLECT_ALGORITHM  = "naive";
-
-/*
  * handlers for implementations
  *
  */
@@ -45,7 +38,7 @@ __shmem_collect_dispatch_init(void)
 
   name = __shmem_comms_getenv("SHMEM_COLLECT_ALGORITHM");
   if (name == (char *) NULL) {
-    name = DEFAULT_COLLECT_ALGORITHM;
+    name = __shmem_modules_get_implementation("collect");
   }
   s = __shmem_modules_load("collect", name, &mi);
   if (s != 0) {

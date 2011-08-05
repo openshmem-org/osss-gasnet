@@ -13,13 +13,6 @@
 #include "modules.h"
 
 /*
- * these are what we use if nothing else available
- *
- */
-
-static char *DEFAULT_BROADCAST_ALGORITHM  = "naive";
-
-/*
  * handlers for broadcast implementations
  *
  */
@@ -39,13 +32,12 @@ __shmem_broadcast_dispatch_init(void)
   int s;
 
   /*
-   * choose the broadcast
+   * choose the broadcast: env >> config file
    *
    */
-
   name = __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
   if (name == (char *) NULL) {
-    name = DEFAULT_BROADCAST_ALGORITHM;
+    name = __shmem_modules_get_implementation("broadcast");
   }
   s = __shmem_modules_load("broadcast", name, &mi);
   if (s != 0) {

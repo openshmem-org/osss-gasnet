@@ -12,14 +12,6 @@
 #include "mpp/pshmem.h"
 
 /*
- * these are what we use if nothing else available
- *
- */
-
-static char *DEFAULT_BARRIER_ALL_ALGORITHM = "naive";
-static char *DEFAULT_BARRIER_ALGORITHM     = "naive";
-
-/*
  * handlers for broadcast implementations
  *
  */
@@ -45,7 +37,7 @@ __shmem_barriers_dispatch_init(void)
 
   all_name = __shmem_comms_getenv("SHMEM_BARRIER_ALL_ALGORITHM");
   if (all_name == (char *) NULL) {
-    all_name = DEFAULT_BARRIER_ALL_ALGORITHM;
+    all_name = __shmem_modules_get_implementation("barrier-all");
   }
   sa = __shmem_modules_load("barrier-all", all_name, &mi_all);
   if (sa != 0) {
@@ -63,7 +55,7 @@ __shmem_barriers_dispatch_init(void)
 
   bar_name = __shmem_comms_getenv("SHMEM_BARRIER_ALGORITHM");
   if (bar_name == (char *) NULL) {
-    bar_name = DEFAULT_BARRIER_ALGORITHM;
+    bar_name = __shmem_modules_get_implementation("barrier");
   }
   sb = __shmem_modules_load("barrier", bar_name, &mi_bar);
   if (sb != 0) {

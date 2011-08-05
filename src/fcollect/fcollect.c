@@ -12,12 +12,6 @@
 
 #include "modules.h"
 
-/*
- * these are what we use if nothing else available
- *
- */
-
-static char *DEFAULT_FCOLLECT_ALGORITHM  = "naive";
 
 /*
  * handlers for implementations
@@ -45,7 +39,7 @@ __shmem_fcollect_dispatch_init(void)
 
   name = __shmem_comms_getenv("SHMEM_FCOLLECT_ALGORITHM");
   if (name == (char *) NULL) {
-    name = DEFAULT_FCOLLECT_ALGORITHM;
+    name = __shmem_modules_get_implementation("fcollect");
   }
   s = __shmem_modules_load("fcollect", name, &mi);
   if (s != 0) {
