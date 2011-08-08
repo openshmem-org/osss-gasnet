@@ -103,7 +103,7 @@ pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   INIT_CHECK();
 
-  shmem_fence();
+  /* not implied by documetnation: shmem_fence(); */
 
   mi_bar.func_32(PE_start, logPE_stride, PE_size, pSync);
 }
