@@ -1,22 +1,24 @@
-%% LyX 1.6.10 created this file.  For more info, see http://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
 \documentclass[english]{article}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
 \usepackage{listings}
 \usepackage{babel}
-
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage[unicode=true]{hyperref}
 
-\makeatletter
+\usepackage[usenames,dvipsnames]{color}
+\definecolor{ListingBG}{rgb}{0.91,0.91,0.91}
+\usepackage{courier}
+\usepackage{listings}
+\lstset{
+basicstyle=\scriptsize\ttfamily,
+backgroundcolor=\color{ListingBG},
+frame=tlBR
+}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
-%% Because html converters don't know tabularnewline
 \providecommand{\tabularnewline}{\\}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
 \newcommand{\lyxrightaddress}[1]{
 \par {\raggedleft \begin{tabular}{l}\ignorespaces
 #1
@@ -32,16 +34,12 @@
  \renewcommand{\makelabel}[1]{##1\hfil}}}
 {\end{list}}
 
-\makeatother
-
 \begin{document}
 
 \title{OpenSHMEM Reference Library Implementation}
 
 
-\author{Tony Curtis%
-\thanks{Email address: arcurtis@mail.uh.edu%
-}}
+\author{Tony Curtis <arcurtis@mail.uh.edu>}
 
 \maketitle
 
@@ -248,8 +246,9 @@ is assumed to be fixed throughout the lifetime of the program, but
 fault tolerance extensions could generalize this notion. Below are
 simple C and Fortran program templates:
 
-
-\begin{lstlisting}[basicstyle={\ttfamily}]
+\vspace{0.1in}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
 #include <stdio.h>
 #include <mpp/shmem.h>
 
@@ -265,11 +264,11 @@ main(int argc, char *argv[])
   return 0;
 }
 \end{lstlisting}
+\end{minipage}
 
-
-
-\begin{lstlisting}[basicstyle={\ttfamily},language={[90]Fortran}]
-
+\vspace{0.1in}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
 program hello
   include 'mpp/shmem.fh'
   integer :: me, npes
@@ -280,7 +279,7 @@ program hello
   print *, 'Hello from PE ', me, ' of ', npes
 end program hello
 \end{lstlisting}
-
+\end{minipage}
 
 
 \subsection{Communications Substrate}

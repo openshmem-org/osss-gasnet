@@ -5,8 +5,8 @@ PREFIX = @PREFIX@
 SHMEM_MANPAGES_1 = $(wildcard *.1)
 SHMEM_MANPAGES_3 = $(wildcard *.3)
 
-IMPL_LYX = openshmem-implementation.lyx
-IMPL_PDF = $(IMPL_LYX:.lyx=.pdf)
+IMPL_TEX = openshmem-implementation.tex
+IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
 
 REMOVE   = rm -f
 
@@ -15,14 +15,15 @@ REMOVE   = rm -f
 .PHONY: uninstall uninstall-man1 uninstall-man3
 .PHONY: clean distclean
 
-.SUFFIXES: .lyx .pdf
+.SUFFIXES: .tex .pdf
 
 #
-# don't go nuts if lyx not installed
+# don't go nuts if pdflatex not installed
 #
 
-.lyx.pdf:
-	-lyx -e pdf $<
+%.pdf:	%.tex
+	-pdflatex $<
+	-pdflatex $<
 
 all default:	$(IMPL_PDF)
 
