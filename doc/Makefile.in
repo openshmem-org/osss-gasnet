@@ -63,6 +63,7 @@ uninstall-man3:
 # -------------------------------------------------------------------
 
 clean:
+	$(REMOVE) *.aux *.log *.out *.toc
 
 distclean: clean
 	$(REMOVE) $(IMPL_PDF)
