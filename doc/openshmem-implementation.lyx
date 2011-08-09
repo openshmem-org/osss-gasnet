@@ -1,4 +1,4 @@
-#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.10 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -1781,6 +1781,69 @@ A module sytem coupled with the above environment variables allows for runtime
  loaded as needed.
  Each module defines a structure that maps the interface it provides to
  its routines.
+ The choice of algorithm can also be steered through an optional configuration
+ file (overridden by the environment variables).
+ The file is
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+<installdir>/lib/modules/config
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and has a simple
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+algorithm = implementation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+format, 
+\emph on
+e.g.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+default = tree
+\end_layout
+
+\begin_layout Plain Layout
+
+barrier-all = bruck
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
