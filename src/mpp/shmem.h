@@ -48,19 +48,8 @@ extern "C" {
    */
 
   extern void   start_pes(int npes);
-  extern void   shmem_init(void);
-  extern void   shmem_finalize(void);
-
-  extern int    shmem_my_pe(void) _WUR;
   extern int    _my_pe(void) _WUR;
-
-  extern int    shmem_num_pes(void) _WUR;
-  extern int    shmem_n_pes(void) _WUR;
   extern int    _num_pes(void) _WUR;
-
-  extern char * shmem_nodename(void) _WUR;
-
-  extern int    shmem_version(int *major, int *minor) _WUR;
 
   /*
    * I/O
@@ -232,14 +221,6 @@ extern "C" {
   extern void   shfree(void *ptr);
   extern void * shrealloc(void *ptr, size_t size) _WUR;
   extern void * shmemalign(size_t alignment, size_t size) _WUR;
-
-  extern void * shmem_malloc(size_t size) _WUR;
-  extern void   shmem_free(void *ptr);
-  extern void * shmem_realloc(void *ptr, size_t size) _WUR;
-  extern void * shmem_memalign(size_t alignment, size_t size) _WUR;
-
-  extern char * sherror(void) _WUR;
-  extern char * shmem_error(void) _WUR;
 
   /*
    * wait operations
@@ -616,8 +597,6 @@ extern "C" {
 				int PE_root, int PE_start, int logPE_stride, int PE_size,
 				long *pSync);
 
-  extern void shmem_sync_init(long *pSync);
-
   /*
    * collects
    */
@@ -643,6 +622,28 @@ extern "C" {
   extern void shmem_set_lock(long *lock);
   extern void shmem_clear_lock(long *lock);
   extern int  shmem_test_lock(long *lock) _WUR;
+
+  /*
+   * new ideas (not part of formal 1.0 API)
+   */
+  extern void   shmem_init(void);
+  extern void   shmem_finalize(void);
+  extern int    shmem_my_pe(void) _WUR;
+  extern int    shmem_num_pes(void) _WUR;
+  extern int    shmem_n_pes(void) _WUR;
+  extern char * shmem_nodename(void) _WUR;
+  extern int    shmem_version(int *major, int *minor) _WUR;
+  extern void * shmem_malloc(size_t size) _WUR;
+  extern void   shmem_free(void *ptr);
+  extern void * shmem_realloc(void *ptr, size_t size) _WUR;
+  extern void * shmem_memalign(size_t alignment, size_t size) _WUR;
+  extern char * sherror(void) _WUR;
+  extern char * shmem_error(void) _WUR;
+  extern void shmem_sync_init(long *pSync);
+
+  /*
+   * --end--
+   */
 
 #ifdef __cplusplus
 }
