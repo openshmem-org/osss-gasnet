@@ -102,16 +102,17 @@ __shmem_place_init(void)
 void
 pstart_pes(int npes)
 {
-  /* this has to happen first to enable messages */
+  /* these have to happen first to enable messages */
   __shmem_elapsed_clock_init();	/* start the tracking clock */
   __shmem_tracers_init();	/* messages set up */
 
   /* I shouldn't really call this more than once */
   if (GET_STATE(pe_status) != PE_UNINITIALIZED) {
-    __shmem_trace(SHMEM_LOG_FATAL,
+    __shmem_trace(SHMEM_LOG_INFO,
 		  "shmem has already been initialized (%s)",
 		  __shmem_state_as_string(GET_STATE(pe_status))
 		  );
+    return;
     /* NOT REACHED */
   }
 
