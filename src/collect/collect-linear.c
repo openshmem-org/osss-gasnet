@@ -28,9 +28,9 @@
 #define SHMEM_COLLECT(Bits, Bytes)					\
   /* @api@ */								\
   void									\
-  __shmem_collect##Bits##_naive(void *target, const void *source, size_t nelems,	\
-		       int PE_start, int logPE_stride, int PE_size,	\
-		       long *pSync)					\
+  __shmem_collect##Bits##_linear(void *target, const void *source, size_t nelems,	\
+				 int PE_start, int logPE_stride, int PE_size, \
+				 long *pSync)				\
   {									\
     const int step = 1 << logPE_stride;					\
     const int last_pe = PE_start + step * (PE_size - 1);		\
@@ -112,6 +112,6 @@ SHMEM_COLLECT(64, 8)
 #include "module_info.h"
 module_info_t module_info =
   {
-    __shmem_collect32_naive,
-    __shmem_collect64_naive,
+    __shmem_collect32_linear,
+    __shmem_collect64_linear,
   };

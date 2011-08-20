@@ -4,7 +4,7 @@
 #include "comms.h"
 
 void
-__shmem_barrier_all_naive(void)
+__shmem_barrier_all_linear(void)
 {
   __shmem_comms_barrier_all();
 }
@@ -12,6 +12,6 @@ __shmem_barrier_all_naive(void)
 #include "module_info.h"
 module_info_t module_info =
   {
-    __shmem_barrier_all_naive,
-    __shmem_barrier_all_naive,
+    __shmem_barrier_all_linear,
+    __shmem_barrier_all_linear,
   };

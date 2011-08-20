@@ -11,7 +11,7 @@
 
 #define SHMEM_BROADCAST_TYPE(Name, Size)				\
   void									\
-  __shmem_broadcast##Name##_naive (void *target, const void *source, size_t nelems, \
+  __shmem_broadcast##Name##_linear(void *target, const void *source, size_t nelems, \
 				   int PE_root, int PE_start,		\
 				   int logPE_stride, int PE_size,	\
 				   long *pSync)				\
@@ -31,6 +31,6 @@ SHMEM_BROADCAST_TYPE(64, 8)
 #include "module_info.h"
 module_info_t module_info =
   {
-    __shmem_broadcast32_naive,
-    __shmem_broadcast64_naive,
+    __shmem_broadcast32_linear,
+    __shmem_broadcast64_linear,
   };

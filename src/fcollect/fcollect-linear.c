@@ -21,9 +21,9 @@
 #define SHMEM_FCOLLECT(Bits, Bytes)					\
   /* @api@ */								\
   void									\
-  __shmem_fcollect##Bits##_naive(void *target, const void *source, size_t nelems, \
-				 int PE_start, int logPE_stride, int PE_size, \
-				 long *pSync)				\
+  __shmem_fcollect##Bits##_linear(void *target, const void *source, size_t nelems, \
+				  int PE_start, int logPE_stride, int PE_size, \
+				  long *pSync)				\
   {									\
     const int step = 1 << logPE_stride;					\
     const int vpe = (GET_STATE(mype) - PE_start) >> logPE_stride;	\
@@ -49,6 +49,6 @@ SHMEM_FCOLLECT(64, 8)
 #include "module_info.h"
 module_info_t module_info =
   {
-    __shmem_fcollect32_naive,
-    __shmem_fcollect64_naive,
+    __shmem_fcollect32_linear,
+    __shmem_fcollect64_linear,
   };

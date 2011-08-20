@@ -8,13 +8,7 @@
 #include "mpp/shmem.h"
 
 void
-__shmem_barrier_all_naive(void)
-{
-  __shmem_comms_barrier_all();
-}
-
-void
-__shmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
+__shmem_barrier_linear(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   const int me = _my_pe();
   const int step = 1 << logPE_stride;
@@ -48,6 +42,6 @@ __shmem_barrier_naive(int PE_start, int logPE_stride, int PE_size, long *pSync)
 #include "module_info.h"
 module_info_t module_info =
   {
-    __shmem_barrier_naive,
-    __shmem_barrier_naive,
+    __shmem_barrier_linear,
+    __shmem_barrier_linear,
   };

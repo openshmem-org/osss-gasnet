@@ -29,7 +29,7 @@ typedef struct {
 
 static module_table_t *mtp = NULL;
 
-static char *fallback_algorithm = "naive";
+static char *fallback_algorithm = "linear";
 
 /*
  * pretend to be Perl: get rid of newline
