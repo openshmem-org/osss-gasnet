@@ -9,6 +9,8 @@ HASH_CPPFLAGS    = -I$(HASH_DIR)
 
 prefix           = @PREFIX@
 
+MODDIR           = $(prefix)/lib/modules
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -21,17 +23,23 @@ endif
 
 # CPPFLAGS        += -I.
 CPPFLAGS        += -I..
-CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(prefix)/lib/modules\""
+CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(MODDIR)\""
 CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
 
-.PHONY: all default clean
+.PHONY: all default install-lib uninstall-lib clean
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
 all default:	$(OBJECTS)
+
+install-lib:
+	cp config $(MODDIR)
+
+uninstall-lib:
+	rm -f $(MODDIR)/config
 
 clean:
 	rm -f $(OBJECTS)

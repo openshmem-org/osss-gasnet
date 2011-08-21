@@ -22,56 +22,9 @@ $ oshrun -np 4 ./sping.x -e
 .LP
 runs the Quadrics ping-pong example code on 4 processing elements,
 and passes the "-e" option to the OpenSHMEM program.
-.SH CONFIGURATION
-A file called "config" can be placed in the directory containing the
-installed algorithms for collectives (prefix/lib/modules).  This file
-has a simple
-.LP
-.RS
-collective = implementation
-.RE
-.LP
-syntax, with "#" introducing comments.  The "implementation" is one of
-the installed collectives, which are named with the form
-.LP
-.RS
-\fBcollective\fP-\fBimplementation\fP.so
-.RE
-.LP
-e.g.
-.LP
-.RS
-barrier-tree.so
-.RE
-.LP
-.SH ENVIRONMENT
-The following environment variables affect the behavior of OpenSHMEM
-programs:
-.IP "SHMEM_BROADCAST_ALGORITHM" 4
-Name of implementation for broadcast (as above).
-.IP "SHMEM_COLLECT_ALGORITHM, SHMEM_FCOLLECT_ALGORITHM" 4
-Name of implementation for collects and fixed collects.
-.IP "SHMEM_BARRIER_ALGORITHM, SHMEM_BARRIER_ALL_ALGORITHM" 4
-Name of implementation for barrier and barrier_all.
-.IP "SHMEM_SYMMETRIC_HEAP_SIZE" 4
-Size of symmetric heap allocated on each PE.  Can use "K", "M", "G",
-"T" modifiers.
-.IP "SHMEM_LOG_LEVELS" 4
-Events to trace during the OpenSHMEM program run.
-.LP
-The environment variables understood by the SGI implementation are
-also honored:
-.IP "SMA_DEBUG" 4
-Set to any value, enables internal event tracing.
-.IP "SMA_INFO" 4
-Set to any value, traces informational events.
-.IP "SMA_MALLOC_DEBUG" 4
-Set to any value, traces symmetric-memory-related events.
-.IP "SMA_VERSION" 4
-Set to any value, displays the OpenSHMEM version.
-.IP "SMA_SYMMETRIC_SIZE" 4
-Size of symmetric heap, in bytes.
 .SH SEE ALSO
+.RE
 intro_shmem(3),
 oshcc(1),
-oshfort(1)
+oshfort(1),
+oshconfig(5)

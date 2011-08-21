@@ -220,6 +220,7 @@ install-lib:	all
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
+	$(MAKE) -C $(MODULES_DIR) $@
 
 install-bin:	all
 	$(MAKE) -C $(COMMS_DIR) $@
@@ -227,7 +228,6 @@ install-bin:	all
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
 	for f in $(SHMEM_HEADERS); do $(INSTALL) -m 644 mpp/$$f $(PREFIX)/include/mpp; done
-	(cd $(PREFIX)/include; for f in $(SHMEM_HEADERS); do $(REMOVE) $$f; ln -s mpp/$$f; done)
 
 # we may be sharing the install area with other packages, so don't
 # blindly zap directories when uninstalling, allow them to remain
@@ -237,6 +237,10 @@ uninstall:	uninstall-lib uninstall-bin uninstall-include
 	- rmdir $(PREFIX)
 
 uninstall-lib:
+	$(MAKE) -C $(MODULES_DIR) $@
+	$(MAKE) -C $(BARRIER_DIR) $@
+	$(MAKE) -C $(FCOLLECT_DIR) $@
+	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(REMOVE) $(PREFIX)/lib/$(SHMEM_LIBRARY)
 	- rmdir $(PREFIX)/lib
@@ -245,7 +249,7 @@ uninstall-bin:
 	$(MAKE) -C $(COMMS_DIR) $@
 
 uninstall-include:
-	for h in $(SHMEM_HEADERS); do $(REMOVE) $(PREFIX)/include/mpp/$$h; $(REMOVE) $(PREFIX)/include/$$h; done
+	for h in $(SHMEM_HEADERS); do $(REMOVE) $(PREFIX)/include/mpp/$$h; done
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
 

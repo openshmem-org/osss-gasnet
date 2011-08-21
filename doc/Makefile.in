@@ -4,6 +4,7 @@ PREFIX = @PREFIX@
 
 SHMEM_MANPAGES_1 = $(wildcard *.1)
 SHMEM_MANPAGES_3 = $(wildcard *.3)
+SHMEM_MANPAGES_5 = $(wildcard *.5)
 
 IMPL_TEX = openshmem-implementation.tex
 IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
@@ -11,8 +12,8 @@ IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
 REMOVE   = rm -f
 
 .PHONY: all default
-.PHONY: install install-man1 install-man3
-.PHONY: uninstall uninstall-man1 uninstall-man3
+.PHONY: install install-man1 install-man3 install-man5
+.PHONY: uninstall uninstall-man1 uninstall-man3 uninstall-man5
 .PHONY: clean distclean
 
 .SUFFIXES: .tex .pdf
@@ -29,36 +30,48 @@ all default:	$(IMPL_PDF)
 
 # -------------------------------------------------------------------
 
-install:	install-man1	install-man3
+install:	install-man1	install-man3	install-man5
 
 install-man1:	all
-	mkdir -p $(PREFIX)/man/man1
+	mkdir -p $(PREFIX)/share/man/man1
 	for p in $(SHMEM_MANPAGES_1); do \
-		install -c -m 644 $$p $(PREFIX)/man/man1; \
+		install -c -m 644 $$p $(PREFIX)/share/man/man1; \
 	done
 
 install-man3:	all
-	mkdir -p $(PREFIX)/man/man3
+	mkdir -p $(PREFIX)/share/man/man3
 	for p in $(SHMEM_MANPAGES_3); do \
-		install -c -m 644 $$p $(PREFIX)/man/man3; \
+		install -c -m 644 $$p $(PREFIX)/share/man/man3; \
+	done
+
+install-man5:	all
+	mkdir -p $(PREFIX)/share/man/man5
+	for p in $(SHMEM_MANPAGES_5); do \
+		install -c -m 644 $$p $(PREFIX)/share/man/man5; \
 	done
 
 # -------------------------------------------------------------------
 
-uninstall:	uninstall-man1	uninstall-man3
-	-rmdir $(PREFIX)/man
+uninstall:	uninstall-man1	uninstall-man3 uninstall-man5
+	-rmdir $(PREFIX)/share/man
 
 uninstall-man1:
 	for p in $(SHMEM_MANPAGES_1); do \
-		$(REMOVE) $(PREFIX)/man/man1/$$p; \
+		$(REMOVE) $(PREFIX)/share/man/man1/$$p; \
 	done
-	-rmdir $(PREFIX)/man/man1
+	-rmdir $(PREFIX)/share/man/man1
 
 uninstall-man3:
 	for p in $(SHMEM_MANPAGES_3); do \
-		$(REMOVE) $(PREFIX)/man/man3/$$p; \
+		$(REMOVE) $(PREFIX)/share/man/man3/$$p; \
 	done
-	-rmdir $(PREFIX)/man/man3
+	-rmdir $(PREFIX)/share/man/man3
+
+uninstall-man5:
+	for p in $(SHMEM_MANPAGES_5); do \
+		$(REMOVE) $(PREFIX)/share/man/man5/$$p; \
+	done
+	-rmdir $(PREFIX)/share/man/man5
 
 # -------------------------------------------------------------------
 
