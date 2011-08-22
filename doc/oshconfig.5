@@ -61,14 +61,14 @@ Set to any value, displays the OpenSHMEM version.
 .IP "SMA_SYMMETRIC_SIZE" 4
 Size of symmetric heap, in bytes.
 .SH EXAMPLE
-.RS
 .nf
 # barriers use the tree algorithm
 barrier-all = tree
 barrier = tree
 broadcast = bruck # try the Bruck shift algorithm
 .fi
-.RE
+.SH FILES
+\&.../prefix/lib/modules/config
 .SH SEE ALSO
 .RE
 intro_shmem(3),
