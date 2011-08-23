@@ -247,17 +247,17 @@ extern "C" {
 
   typedef enum {
     SHMEM_CMP_EQ=0,
-    _SHMEM_CMP_EQ=0,
-    SHMEM_CMP_NE=1,
-    _SHMEM_CMP_NE=1,
-    SHMEM_CMP_GT=2,
-    _SHMEM_CMP_GT=2,
-    SHMEM_CMP_LE=3,
-    _SHMEM_CMP_LE=3,
-    SHMEM_CMP_LT=4,
-    _SHMEM_CMP_LT=4,
-    SHMEM_CMP_GE=5,
-    _SHMEM_CMP_GE=5,
+    SHMEM_CMP_NE,
+    SHMEM_CMP_GT,
+    SHMEM_CMP_LE,
+    SHMEM_CMP_LT,
+    SHMEM_CMP_GE,
+    _SHMEM_CMP_EQ,
+    _SHMEM_CMP_NE,
+    _SHMEM_CMP_GT,
+    _SHMEM_CMP_LE,
+    _SHMEM_CMP_LT,
+    _SHMEM_CMP_GE,
   } shmem_cmp_t;
 
   extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
