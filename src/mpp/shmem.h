@@ -258,7 +258,7 @@ extern "C" {
     _SHMEM_CMP_LT=4,
     SHMEM_CMP_GE=5,
     _SHMEM_CMP_GE=5,
-  } wait_op_t;
+  } shmem_cmp_t;
 
   extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
   extern void   shmem_int_wait_until(int *ivar, int cmp, int cmp_value);
