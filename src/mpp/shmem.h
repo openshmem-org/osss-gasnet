@@ -229,6 +229,7 @@ extern "C" {
   /*
    * values aren't important
    */
+#if 0
 #define SHMEM_CMP_EQ 0
 #define SHMEM_CMP_NE 1
 #define SHMEM_CMP_GT 2
@@ -242,6 +243,22 @@ extern "C" {
 #define _SHMEM_CMP_LE SHMEM_CMP_LE
 #define _SHMEM_CMP_LT SHMEM_CMP_LT
 #define _SHMEM_CMP_GE SHMEM_CMP_GE
+#endif
+
+  typedef enum {
+    SHMEM_CMP_EQ=0,
+    _SHMEM_CMP_EQ=0,
+    SHMEM_CMP_NE=1,
+    _SHMEM_CMP_NE=1,
+    SHMEM_CMP_GT=2,
+    _SHMEM_CMP_GT=2,
+    SHMEM_CMP_LE=3,
+    _SHMEM_CMP_LE=3,
+    SHMEM_CMP_LT=4,
+    _SHMEM_CMP_LT=4,
+    SHMEM_CMP_GE=5,
+    _SHMEM_CMP_GE=5,
+  } wait_op_t;
 
   extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
   extern void   shmem_int_wait_until(int *ivar, int cmp, int cmp_value);
