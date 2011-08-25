@@ -618,6 +618,9 @@ extern "C" {
    * collects
    */
 
+#define SHMEM_COLLECT_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_COLLECT_SYNC_SIZE SHMEM_COLLECT_SYNC_SIZE
+
   extern void shmem_fcollect32(void *target, const void *source, size_t nelems,
 			       int PE_start, int logPE_stride, int PE_size,
 			       long *pSync);

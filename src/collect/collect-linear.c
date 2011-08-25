@@ -36,7 +36,7 @@
     const int last_pe = PE_start + step * (PE_size - 1);		\
     const int me = GET_STATE(mype);					\
     /* TODO: temp fix: I know barrier doesn't use this many indices */	\
-    long *acc_off = & (pSync[SHMEM_BCAST_SYNC_SIZE - 1]);		\
+    long *acc_off = & (pSync[SHMEM_COLLECT_SYNC_SIZE - 1]);		\
 									\
     INIT_CHECK();							\
     SYMMETRY_CHECK(target, 1, "shmem_collect");				\

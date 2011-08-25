@@ -1,7 +1,7 @@
 ! Emacs: -*- mode: f90; -*-
 
 integer SHMEM_BCAST_SYNC_SIZE
-parameter ( SHMEM_BCAST_SYNC_SIZE=128 )
+parameter ( SHMEM_BCAST_SYNC_SIZE=8 )
 
 integer SHMEM_SYNC_VALUE
 parameter ( SHMEM_SYNC_VALUE=-1 )
@@ -11,6 +11,9 @@ parameter ( SHMEM_REDUCE_SYNC_SIZE=128 )
 
 integer SHMEM_REDUCE_MIN_WRKDATA_SIZE
 parameter ( SHMEM_REDUCE_MIN_WRKDATA_SIZE=128 )
+
+integer SHMEM_COLLECT_SYNC_SIZE
+parameter ( SHMEM_COLLECT_SYNC_SIZE=8 )
 
 !
 ! shpalloc errors
