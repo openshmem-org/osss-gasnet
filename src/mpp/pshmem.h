@@ -20,21 +20,8 @@ extern "C" {
    */
 
   extern void   pstart_pes(int npes);
-  extern void   pshmem_init(void);
-  extern void   pshmem_finalize(void);
-
-  extern int    pshmem_my_pe(void) _WUR;
   extern int    p_my_pe(void) _WUR;
-
-  extern int    pshmem_num_pes(void) _WUR;
-  extern int    pshmem_n_pes(void) _WUR;
   extern int    p_num_pes(void) _WUR;
-
-  extern char * pshmem_nodename(void) _WUR;
-
-  extern int    pshmem_version(int *major, int *minor) _WUR;
-
-  extern void   shmem_pcontrol(int level);
 
   /*
    * I/O
@@ -180,9 +167,6 @@ extern "C" {
   extern void   pshmem_free(void *ptr);
   extern void * pshmem_realloc(void *ptr, size_t size) _WUR;
   extern void * pshmem_memalign(size_t alignment, size_t size) _WUR;
-
-  extern char * psherror(void) _WUR;
-  extern char * pshmem_error(void) _WUR;
 
   /*
    * wait operations
@@ -532,8 +516,6 @@ extern "C" {
 				 int PE_root, int PE_start, int logPE_stride, int PE_size,
 				 long *pSync);
 
-  extern void pshmem_sync_init(long *pSync);
-
   /*
    * collects
    */
@@ -577,6 +559,27 @@ extern "C" {
   extern void * pshmem_put64_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
   extern void * pshmem_put128_nb(void *target, const void *source, size_t nelems, int pe) _WUR;
 
+  /*
+   * new ideas (not part of formal 1.0 API)
+   */
+  extern void   pshmem_init(void);
+  extern void   pshmem_finalize(void);
+  extern int    pshmem_my_pe(void) _WUR;
+  extern int    pshmem_num_pes(void) _WUR;
+  extern int    pshmem_n_pes(void) _WUR;
+  extern char * pshmem_nodename(void) _WUR;
+  extern int    pshmem_version(int *major, int *minor) _WUR;
+  extern void * pshmem_malloc(size_t size) _WUR;
+  extern void   pshmem_free(void *ptr);
+  extern void * pshmem_realloc(void *ptr, size_t size) _WUR;
+  extern void * pshmem_memalign(size_t alignment, size_t size) _WUR;
+  extern char * psherror(void) _WUR;
+  extern char * pshmem_error(void) _WUR;
+  extern void   pshmem_sync_init(long *pSync);
+
+  /*
+   * --end--
+   */
 
 #ifdef __cplusplus
 }

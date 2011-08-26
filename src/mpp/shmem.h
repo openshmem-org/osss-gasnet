@@ -229,6 +229,7 @@ extern "C" {
   /*
    * values aren't important
    */
+#if 0
 #define SHMEM_CMP_EQ 0
 #define SHMEM_CMP_NE 1
 #define SHMEM_CMP_GT 2
@@ -242,6 +243,22 @@ extern "C" {
 #define _SHMEM_CMP_LE SHMEM_CMP_LE
 #define _SHMEM_CMP_LT SHMEM_CMP_LT
 #define _SHMEM_CMP_GE SHMEM_CMP_GE
+#endif
+
+  typedef enum {
+    SHMEM_CMP_EQ=0,
+    SHMEM_CMP_NE,
+    SHMEM_CMP_GT,
+    SHMEM_CMP_LE,
+    SHMEM_CMP_LT,
+    SHMEM_CMP_GE,
+    _SHMEM_CMP_EQ,
+    _SHMEM_CMP_NE,
+    _SHMEM_CMP_GT,
+    _SHMEM_CMP_LE,
+    _SHMEM_CMP_LT,
+    _SHMEM_CMP_GE,
+  } shmem_cmp_t;
 
   extern void   shmem_short_wait_until(short *ivar, int cmp, short cmp_value);
   extern void   shmem_int_wait_until(int *ivar, int cmp, int cmp_value);
@@ -304,7 +321,7 @@ extern "C" {
    * reductions
    */
 
-#define SHMEM_BCAST_SYNC_SIZE 128
+#define SHMEM_BCAST_SYNC_SIZE 8
 #define SHMEM_SYNC_VALUE (-1L)
 #define SHMEM_REDUCE_SYNC_SIZE 128
 #define SHMEM_REDUCE_MIN_WRKDATA_SIZE SHMEM_REDUCE_SYNC_SIZE
@@ -600,6 +617,9 @@ extern "C" {
   /*
    * collects
    */
+
+#define SHMEM_COLLECT_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_COLLECT_SYNC_SIZE SHMEM_COLLECT_SYNC_SIZE
 
   extern void shmem_fcollect32(void *target, const void *source, size_t nelems,
 			       int PE_start, int logPE_stride, int PE_size,

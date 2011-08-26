@@ -28,25 +28,32 @@
   void									\
   pshmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
-    if (cmp == SHMEM_CMP_EQ) {						\
+    switch (cmp) {							\
+    case SHMEM_CMP_EQ:							\
+    case _SHMEM_CMP_EQ:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==, cmp_value);		\
-    }									\
-    else if (cmp == SHMEM_CMP_NE) {					\
+      break;								\
+    case SHMEM_CMP_NE:							\
+    case _SHMEM_CMP_NE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, !=, cmp_value);		\
-    }									\
-    else if (cmp == SHMEM_CMP_GT) {					\
+      break;								\
+    case SHMEM_CMP_GT:							\
+    case _SHMEM_CMP_GT:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >, cmp_value);		\
-    }									\
-    else if (cmp == SHMEM_CMP_LE) {					\
+      break;								\
+    case SHMEM_CMP_LE:							\
+    case _SHMEM_CMP_LE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <=, cmp_value);		\
-    }									\
-    else if (cmp == SHMEM_CMP_LT) {					\
+      break;								\
+    case SHMEM_CMP_LT:							\
+    case _SHMEM_CMP_LT:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <, cmp_value);		\
-    }									\
-    else if (cmp == SHMEM_CMP_GE) {					\
+      break;								\
+    case SHMEM_CMP_GE:							\
+    case _SHMEM_CMP_GE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=, cmp_value);		\
-    }									\
-    else {								\
+      break;								\
+    default:								\
       __shmem_trace(SHMEM_LOG_FATAL,					\
 		    "unknown operator (code %d) in shmem_%s_wait_until()", \
 		    cmp,						\
