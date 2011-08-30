@@ -11,7 +11,7 @@
 
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
-  int
+int
 main(void)
 {
   int i,success32, success64;
@@ -31,7 +31,7 @@ main(void)
     for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
       pSync[i] = _SHMEM_SYNC_VALUE;
     }
-  
+
     /*Test shmem_broadcast32*/
     src = (int *) shmalloc( npes * sizeof(*src) );
     for (i = 0; i < npes; i += 1) {
@@ -43,12 +43,12 @@ main(void)
       targ[i] = -999;
     }
 
-    
+
     shmem_barrier_all();
 
     shmem_broadcast32(targ, src, npes, 0, 0, 0, npes, pSync);
-	
-	shmem_barrier_all();
+
+    shmem_barrier_all();
 
     if(me == 1){
       for (i = 0; i < npes; i++) {
@@ -60,12 +60,12 @@ main(void)
       else
         printf("Test shmem_broadcast32: Passed\n");
     }
-	
+
     shmem_barrier_all();
-	
-	/*Test shmem_broadcast64*/
-	
-	source = (long *) shmalloc( npes * sizeof(*source) );
+
+    /*Test shmem_broadcast64*/
+
+    source = (long *) shmalloc( npes * sizeof(*source) );
     for (i = 0; i < npes; i += 1) {
       source[i] = i + 1;
     }
@@ -75,12 +75,12 @@ main(void)
       target[i] = -999;
     }
 
-   
+
     shmem_barrier_all();
 
     shmem_broadcast64(target, source, npes, 0, 0, 0, npes, pSync);
-	
-	shmem_barrier_all();
+
+    shmem_barrier_all();
 
     if(me == 1){
       for (i = 0; i < npes; i++) {
@@ -93,7 +93,7 @@ main(void)
         printf("Test shmem_broadcast64: Passed\n");
     }
 
-	shfree(targ);
+    shfree(targ);
     shfree(src);
     shfree(target);
     shfree(source);

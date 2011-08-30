@@ -5,7 +5,7 @@
  * Calls tested
  * shmem_short_put, shmem_int_put, shmem_long_put, shmem_longdouble_put,
  * shmem_longlong_put, shmem_double_put, shmem_float_put,
- * shmem_complexf_put, shmem_complexd_put
+ * TODO: shmem_complexf_put, shmem_complexd_put
  * shmem_putmem, shmem_put32, shmem_put64, shmem_put128
  * shmem_double_p, shmem_float_p, shmem_int_p, shmem_long_p, shmem_short_p
  *
@@ -19,7 +19,7 @@
 
 #define N 7
 
-  int
+int
 main(int argc, char **argv)
 {
   int i,j;
@@ -82,12 +82,12 @@ main(int argc, char **argv)
       src7[i] = (float)me;
       src8[i] = (char)me;
     }
-	src9 = (short)me;
+    src9 = (short)me;
     src10 = me;
     src11 =(long)me;
     src12 = (double)me;
     src13 = (float)me;
-	
+
 
     dest1 = (short *)shmalloc( N * sizeof(*dest1) );
     dest2 = (int *)shmalloc( N * sizeof(*dest2) );
@@ -100,7 +100,7 @@ main(int argc, char **argv)
     dest9 = (short *)shmalloc( sizeof(*dest9) );
     dest10 = (int *)shmalloc( sizeof(*dest10) );
     dest11 = (long *)shmalloc( sizeof(*dest11) );
-	dest12 = (double *)shmalloc( sizeof(*dest12) );
+    dest12 = (double *)shmalloc( sizeof(*dest12) );
     dest13 = (float *)shmalloc( sizeof(*dest13) );
 
     for (i = 0; i < N; i += 1) {
@@ -114,11 +114,11 @@ main(int argc, char **argv)
       dest8[i] = -9;
     }
     *dest9 = -9;
-	*dest10 = -9;
-	*dest11 = -9;
-	*dest12 = -9;
-	*dest13 = -9.0;
-	
+    *dest10 = -9;
+    *dest11 = -9;
+    *dest12 = -9;
+    *dest13 = -9.0;
+
     nextpe = (me + 1) % npes;
 
     /*Testing shmem_short_put, shmem_short_put, shmem_int_put, shmem_long_put, shmem_longdouble_put, shmem_longlong_put, shmem_double_put, shmem_float_put, shmem_putmem*/
@@ -292,45 +292,45 @@ main(int argc, char **argv)
           printf("Test shmem_put128: Failed\n");	
       }
     }	
-	
-	/* Testing shmem_double_p, shmem_float_p, shmem_int_p, shmem_long_p, shmem_short_p */
-	shmem_barrier_all();
-	  
-	shmem_short_p(dest9, src9, nextpe);
+
+    /* Testing shmem_double_p, shmem_float_p, shmem_int_p, shmem_long_p, shmem_short_p */
+    shmem_barrier_all();
+
+    shmem_short_p(dest9, src9, nextpe);
     shmem_int_p(dest10, src10, nextpe);
     shmem_long_p(dest11, src11, nextpe);
-	shmem_double_p(dest12, src12, nextpe);
+    shmem_double_p(dest12, src12, nextpe);
     shmem_float_p(dest13, src13, nextpe);
 
     shmem_barrier_all();
 
-      if(me == 0){
-        if(*dest9 == (npes-1))
-          printf("Test shmem_short_p: Passed\n");  
-        else
-          printf("Test shmem_short_p: Failed\n");
-        if(*dest10 == (npes-1))
-          printf("Test shmem_int_p: Passed\n");  
-        else
-          printf("Test shmem_int_p: Failed\n");
-        if(*dest11 == (npes-1))
-          printf("Test shmem_long_p: Passed\n");  
-        else
-          printf("Test shmem_long_p: Failed\n");
-		if(*dest12 == (npes-1))
-          printf("Test shmem_double_p: Passed\n");  
-        else
-          printf("Test shmem_double_p: Failed\n");
-		if(*dest13 == (npes-1))
-          printf("Test shmem_float_p: Passed\n");  
-        else
-          printf("Test shmem_float_p: Failed\n");
-        
-		
-      }
+    if(me == 0){
+      if(*dest9 == (npes-1))
+        printf("Test shmem_short_p: Passed\n");  
+      else
+        printf("Test shmem_short_p: Failed\n");
+      if(*dest10 == (npes-1))
+        printf("Test shmem_int_p: Passed\n");  
+      else
+        printf("Test shmem_int_p: Failed\n");
+      if(*dest11 == (npes-1))
+        printf("Test shmem_long_p: Passed\n");  
+      else
+        printf("Test shmem_long_p: Failed\n");
+      if(*dest12 == (npes-1))
+        printf("Test shmem_double_p: Passed\n");  
+      else
+        printf("Test shmem_double_p: Failed\n");
+      if(*dest13 == (npes-1))
+        printf("Test shmem_float_p: Passed\n");  
+      else
+        printf("Test shmem_float_p: Failed\n");
+
+
+    }
 
     shmem_barrier_all();
-	
+
     shfree(dest1);
     shfree(dest2);
     shfree(dest3);
@@ -339,12 +339,12 @@ main(int argc, char **argv)
     shfree(dest6);
     shfree(dest7);
     shfree(dest8);
-	shfree(dest9);
-	shfree(dest10);
-	shfree(dest11);
-	shfree(dest12);
-	shfree(dest13);
-    
+    shfree(dest9);
+    shfree(dest10);
+    shfree(dest11);
+    shfree(dest12);
+    shfree(dest13);
+
   }
   else{
     printf("Number of PEs must be > 1 to test shmem put, test skipped\n");

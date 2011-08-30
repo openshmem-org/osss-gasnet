@@ -5,7 +5,7 @@
  * Calls tested
  * shmem_short_get, shmem_int_get, shmem_long_get, shmem_longdouble_get,
  * shmem_longlong_get, shmem_double_get, shmem_float_get,
- * shmem_complexf_get, shmem_complexd_get
+ * TODO:shmem_complexf_get, shmem_complexd_get
  * shmem_getmem, shmem_get32, shmem_get64, shmem_get128
  *
  *
@@ -19,7 +19,7 @@
 
 #define N 7
 
-  int
+int
 main(int argc, char **argv)
 {
   int i,j;
@@ -72,7 +72,7 @@ main(int argc, char **argv)
     success8 =0;
     dest8 = (char *)malloc(N*sizeof(char));
 
-	for (i = 0; i < N; i += 1) {
+    for (i = 0; i < N; i += 1) {
       dest1[i] = -9;
       dest2[i] = -9;
       dest3[i] = -9;
@@ -82,12 +82,12 @@ main(int argc, char **argv)
       dest7[i] = -9.0;
       dest8[i] = -9;
     }
-	dest9 = -9;
-	dest10 = -9;
-	dest11 = -9;
-	dest12 = -9;
-	dest13 = -9;
-    
+    dest9 = -9;
+    dest10 = -9;
+    dest11 = -9;
+    dest12 = -9;
+    dest13 = -9;
+
 
     src1 = (short *)shmalloc( N * sizeof(*src1) );
     src2 = (int *)shmalloc( N * sizeof(*src2) );
@@ -97,13 +97,13 @@ main(int argc, char **argv)
     src6 = (double *)shmalloc( N * sizeof(*src6) );
     src7 = (float *)shmalloc( N * sizeof(*src7) );
     src8 = (char *)shmalloc( 4 * sizeof(*src8) );
-	src9 = (short *)shmalloc( sizeof(*src9) );
+    src9 = (short *)shmalloc( sizeof(*src9) );
     src10 = (int *)shmalloc( sizeof(*src10) );
     src11 = (long *)shmalloc( sizeof(*src11) );
-	src12 = (double *)shmalloc( sizeof(*src12) );
+    src12 = (double *)shmalloc( sizeof(*src12) );
     src13 = (float *)shmalloc( sizeof(*src13) );
-	
-	for (i = 0; i < N; i += 1) {
+
+    for (i = 0; i < N; i += 1) {
       src1[i] = (short)me;
       src2[i] = me;
       src3[i] = (long)me;
@@ -113,10 +113,10 @@ main(int argc, char **argv)
       src7[i] = (float)me;
       src8[i] = (char)me;
     }
-	*src9 = (short)me;
+    *src9 = (short)me;
     *src10 = me;
     *src11 = (long)me;
-	*src12 = (double)me;
+    *src12 = (double)me;
     *src13 = (float)me;
 
 
@@ -294,42 +294,42 @@ main(int argc, char **argv)
           printf("Test shmem_get128: Failed\n");	
       }
     }	
-	
-	/* Testing shmem_double_g, shmem_float_g, shmem_int_g, shmem_long_g, shmem_short_g */
-	shmem_barrier_all();
-	  
-	dest9 = shmem_short_g(src9, nextpe);
+
+    /* Testing shmem_double_g, shmem_float_g, shmem_int_g, shmem_long_g, shmem_short_g */
+    shmem_barrier_all();
+
+    dest9 = shmem_short_g(src9, nextpe);
     dest10 = shmem_int_g(src10, nextpe);
     dest11 = shmem_long_g(src11, nextpe);
-	dest12 = shmem_double_g(src12, nextpe);
+    dest12 = shmem_double_g(src12, nextpe);
     dest13 = shmem_float_g(src13, nextpe);
 
     shmem_barrier_all();
 
-      if(me == 0){
-        if(dest9 == 1)
-          printf("Test shmem_short_g: Passed\n");  
-        else
-          printf("Test shmem_short_g: Failed\n");
-        if(dest10 == 1)
-          printf("Test shmem_int_g: Passed\n");  
-        else
-          printf("Test shmem_int_g: Failed\n");
-        if(dest11 == 1)
-          printf("Test shmem_long_g: Passed\n");  
-        else
-          printf("Test shmem_long_g: Failed\n");
-		if(dest12 == 1)
-          printf("Test shmem_double_g: Passed\n");  
-        else
-          printf("Test shmem_double_g: Failed\n");
-		if(dest13 == 1)
-          printf("Test shmem_float_g: Passed\n");  
-        else
-          printf("Test shmem_float_g: Failed\n");
-        
-		
-      }
+    if(me == 0){
+      if(dest9 == 1)
+        printf("Test shmem_short_g: Passed\n");  
+      else
+        printf("Test shmem_short_g: Failed\n");
+      if(dest10 == 1)
+        printf("Test shmem_int_g: Passed\n");  
+      else
+        printf("Test shmem_int_g: Failed\n");
+      if(dest11 == 1)
+        printf("Test shmem_long_g: Passed\n");  
+      else
+        printf("Test shmem_long_g: Failed\n");
+      if(dest12 == 1)
+        printf("Test shmem_double_g: Passed\n");  
+      else
+        printf("Test shmem_double_g: Failed\n");
+      if(dest13 == 1)
+        printf("Test shmem_float_g: Passed\n");  
+      else
+        printf("Test shmem_float_g: Failed\n");
+
+
+    }
 
     shmem_barrier_all();
 
