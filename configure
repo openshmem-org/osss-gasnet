@@ -177,9 +177,15 @@ FCFLAGS="$fc_flags"
 LD="$ld_cmd"
 LDFLAGS="$ld_flags"
 
-export CC CXX FC
-export CPPFLAGS CFLAGS CXXFLAGS FCFLAGS
-export LD LDFLAGS
+export CC
+export CXX
+export FC
+export CPPFLAGS
+export CFLAGS
+export CXXFLAGS
+export FCFLAGS
+export LD
+export LDFLAGS
 
 # Configured with: $@
 
