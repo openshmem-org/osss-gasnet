@@ -69,7 +69,6 @@ main()
     swapped_val4 = shmem_double_swap(target4, new_val4, (me + 1) % npes);
     swapped_val5 = shmem_longlong_swap(target5, new_val5, (me + 1) % npes);
 
-    shmem_barrier_all();
 
     /* To validate the working of swap we need to check the value received at the PE that initiated the swap 
      *  as well as the target PE
@@ -168,7 +167,6 @@ main()
     swapped_val3 = shmem_long_cswap(target3, me+1, (long)me, 1);
     swapped_val5 = shmem_longlong_cswap(target5, me+1, (long)me, 1);
 
-    shmem_barrier_all();
 
     /* To validate the working of conditionalswap we need to check the value received at the PE that initiated 
      * the conditional swap as well as the target PE
@@ -237,17 +235,16 @@ main()
 
     shmem_barrier_all();
 
-    swapped_val1 = shmem_int_fadd(target1, me, (me+1)%npes);
-    swapped_val3 = shmem_long_fadd(target3, me, (me+1)%npes);
-    swapped_val5 = shmem_longlong_fadd(target5, me, (me+1)%npes);
+    swapped_val1 = shmem_int_fadd(target1, 1, 0);
+    swapped_val3 = shmem_long_fadd(target3, 1, 0);
+    swapped_val5 = shmem_longlong_fadd(target5, 1, 0);
 
-    shmem_barrier_all();
 
     /* To validate the working of fetch and add we need to check the old value received at the PE that initiated 
      * the fetch and increment as well as the new value on the target PE
      */
 
-    if(me == npes-1){
+    if(me != 0){
       if(swapped_val1 == 0 ){
         success1_p1=1 ;
       }
@@ -310,17 +307,16 @@ main()
 
     shmem_barrier_all();
 
-    swapped_val1 = shmem_int_finc(target1, (me+1)%npes);
-    swapped_val3 = shmem_long_finc(target3, (me+1)%npes);
-    swapped_val5 = shmem_longlong_finc(target5, (me+1)%npes);
+    swapped_val1 = shmem_int_finc(target1, 0);
+    swapped_val3 = shmem_long_finc(target3, 0);
+    swapped_val5 = shmem_longlong_finc(target5, 0);
 
-    shmem_barrier_all();
 
     /* To validate the working of fetch and increment we need to check the old value received at the PE that initiated 
      * the fetch and increment as well as the new value on the target PE
      */
 
-    if(me == npes-1){
+    if(me != 0){
       if(swapped_val1 == 0 ){
         success1_p1=1 ;
       }
@@ -335,15 +331,15 @@ main()
     }
 
     if(me == 0){
-      if(*target1 == 1){
+      if(*target1 == npes-1){
         shmem_int_put(&success1_p2, &success, 1, npes-1);
       }
 
-      if(*target3 == 1){
+      if(*target3 == npes-1){
         shmem_int_put(&success3_p2, &success, 1, npes-1);
       }
 
-      if(*target5 == 1){
+      if(*target5 == npes-1){
         shmem_int_put(&success5_p2, &success, 1, npes-1);
       }
     }
