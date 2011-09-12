@@ -143,8 +143,8 @@ extern void  __shmem_comms_inc_request(void *target, size_t nbytes,
 /*
  * fence and quiet initiators
  */
-extern void  __shmem_comms_quiet_request(void);
 extern void  __shmem_comms_fence_request(void);
+extern void  __shmem_comms_quiet_request(void);
 
 /*
  * TODO: this should be in ../globalvar

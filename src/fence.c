@@ -17,7 +17,7 @@ void
 pshmem_quiet(void)
 {
   INIT_CHECK();
-  __shmem_comms_fence_request();
+  __shmem_comms_quiet_request();
 }
 
 #pragma weak shmem_fence = pshmem_fence
