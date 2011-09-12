@@ -46,16 +46,18 @@
  *
  */
 
-#define USING_IMPLICIT_HANDLES
+#define USING_IMPLICIT_HANDLES 1
 
 #ifdef USING_IMPLICIT_HANDLES
 # define GASNET_PUT(pe, dst, src, len)     gasnet_put_nbi(pe, dst, src, len)
 # define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_nbi_val(pe, dst, src, len)
 # define GASNET_WAIT_PUTS()                gasnet_wait_syncnbi_puts()
+# define GASNET_WAIT_ALL()                 gasnet_wait_syncnbi_all()
 #else
 # define GASNET_PUT(pe, dst, src, len)     gasnet_put(pe, dst, src, len)
 # define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_val(pe, dst, src, len)
 # define GASNET_WAIT_PUTS()
+# define GASNET_WAIT_ALL()
 #endif /* USING_IMPLICIT_HANDLES */
 
 /*
@@ -1803,9 +1805,15 @@ void
 __shmem_comms_fence_request(void)
 {
   GASNET_WAIT_PUTS();
-
   LOAD_STORE_FENCE();
+  return;
+}
 
+void
+__shmem_comms_quiet_request(void)
+{
+  GASNET_WAIT_ALL();
+  LOAD_STORE_FENCE();
   return;
 }
 
