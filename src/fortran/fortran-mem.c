@@ -30,26 +30,26 @@
  */
 
 /*
- * we've removed this from the API since it's a hold-over
- * from an old SGI version.  Left it in the code for now,
- * though, in case people want it back.
+ * we've removed this from the C API since it's a hold-over from an
+ * old SGI version.  Left it in the code for now, though, (a) for
+ * Fortran to use and (b) in case people want it back.
  */
 extern long malloc_error;
 
 void
-FORTRANIFY(pshpalloc)(long *addr, int *length, long *errcode, int *abort)
+FORTRANIFY(pshpalloc)(void *addr, int *length, long *errcode, int *abort)
 {
-  long *symm_addr;
+  char *symm_addr;
 
   INIT_CHECK();
 
   __shmem_trace(SHMEM_LOG_MEMORY,
-		"addr = %p, length = %d, errcode = %d, abort = %d",
+		"shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
 		addr, *length, *errcode, *abort
 		);
 
   /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
-  symm_addr = (long *) pshmalloc(*length);
+  symm_addr = (char *) pshmalloc(*length);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -67,7 +67,7 @@ FORTRANIFY(pshpalloc)(long *addr, int *length, long *errcode, int *abort)
 		);
   /* MAYBE NOT REACHED */
 
-  addr = (long *) NULL;
+  addr = (void *) NULL;
 }
 
 /*
@@ -89,6 +89,11 @@ void
 FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
 {
   INIT_CHECK();
+
+  __shmem_trace(SHMEM_LOG_MEMORY,
+		"shpdeallc(addr = %p, errcode = %d, abort = %d)",
+		addr, *errcode, *abort
+		);
 
   pshfree(addr);
 
