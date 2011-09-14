@@ -37,7 +37,7 @@
 extern long malloc_error;
 
 void
-FORTRANIFY(pshpalloc)(long *addr, size_t *length, long *errcode, int *abort)
+FORTRANIFY(pshpalloc)(long *addr, int *length, long *errcode, int *abort)
 {
   long *symm_addr;
 
@@ -48,7 +48,8 @@ FORTRANIFY(pshpalloc)(long *addr, size_t *length, long *errcode, int *abort)
 		addr, *length, *errcode, *abort
 		);
 
-  symm_addr = (long *) pshmalloc(*length * sizeof(long));
+  /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
+  symm_addr = (long *) pshmalloc(*length);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -127,7 +128,7 @@ FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
  */ 
 
 void
-FORTRANIFY(pshpclmove)(void *addr, size_t *length, long *errcode, int *abort)
+FORTRANIFY(pshpclmove)(void *addr, int *length, long *errcode, int *abort)
 {
   INIT_CHECK();
 

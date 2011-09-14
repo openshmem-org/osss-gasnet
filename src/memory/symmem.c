@@ -160,7 +160,6 @@ pshfree(void *addr)
   __shmem_mem_free(addr);
 
   malloc_error = SHMEM_MALLOC_OK;
-
 }
 #pragma weak pshmem_free = pshfree
 
