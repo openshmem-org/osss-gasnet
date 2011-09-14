@@ -182,7 +182,7 @@ If the platform allows it, GASNet can align all the segments at the
 same address, which means that all PEs see the same address for
 symmetric variables and there's no address translation.
 
-In the general case though, segments are not aligned (e.g. due to a
+In the general case though, segments are not aligned (e.g.\ due to a
 security measure like process address space randomization by the
 OS). However, each PE can see the addresses of the segments of the
 other PEs locally, and can therefore do address translation.
@@ -286,7 +286,7 @@ an eye on the abstraction process.
 \subsection{Servicing Communications}
 
 GASNet provides this functionality. The mainline code needs to spin on
-variable waits (\emph{e.g.} shmem\_long\_waituntil) to poll GASNet,
+variable waits (e.g.\ shmem\_long\_waituntil) to poll GASNet,
 otherwise progress is automatic.
 
 \subsection{Memory Management}
@@ -365,7 +365,7 @@ likely to be further away topologically too, so by sending to more
 distant PEs first, we can stagger the network traffic and balance the
 latencies better. A proper measurement of ``distance'' is needed
 here. ``hwloc'' provides a per-system distance metric in NUMA
-terms. A simple extension could \emph{e.g.} just multiply the distance
+terms. A simple extension could e.g.\ just multiply the distance
 by some constant when moving off-node to penalize network traffic.
 
 \subsection{Collects}
@@ -394,7 +394,7 @@ offset notification with a wave of writes moving up the PE numbers.
 
 Reductions coalesce data from a number of PEs into either a single
 variable or array on all participating PEs. The coalescing involves
-some kind of arithmetic or logic operation (e.g. sum, product,
+some kind of arithmetic or logic operation (e.g.\ sum, product,
 exclusive-or).  Currently probably naive, using gets. A version with
 puts that can overlap communication and the computation of the
 reduction operation should be more scalable. However, the code is
@@ -426,14 +426,14 @@ understand the order in which events happened.
 The C++ interface is basically the C one. There is one point of
 contention, namely complex numbers. The SGI documentation refers only
 to the use of C99 ``complex'' modifiers, not to C++'s
-\texttt{complex<T>}.  The use of complex number routines (\emph{e.g.}
+\texttt{complex<T>}.  The use of complex number routines (e.g.\
 reductions) in C++ is thus not clearly specified.
 
 \subsection{Fortran}
 
 The Fortran interface is very similar to that of C. The names of
 various routines are different to accommodate the various type
-differences, e.g. \texttt{shmem\_integer\_put()} instead of
+differences, e.g.\ \texttt{shmem\_integer\_put()} instead of
 \texttt{shmem\_int\_put()}.
 
 The biggest difference is in the symmetric memory management routines.
@@ -448,7 +448,7 @@ The main development has been on a CentOS platform with GNU
 4.1.2-redhat.  There seem to be some issues with this compilers'
 handling of cray-pointers: even the simplest programs (no OpenSHMEM
 content at all) produce a segmentation fault. Later versions
-(\emph{e.g. }4.5.0 ++) behave better.
+(e.g.\ 4.5.0 ++) behave better.
 
 \section{Undefined Behavior}
 
@@ -548,10 +548,10 @@ barrier to use. The default is ``naive''. Designed to allow people
 to plug other variants in easily and test.
 \item [{\texttt{SHMEM\_BARRIER\_ALL\_ALGORITHM}:}] as for
 \texttt{SHMEM\_BARRIER\_ALGORITHM}, but separating these two allows us
-to optimize if e.g. hardware has special support for global barriers.
+to optimize if e.g.\ hardware has special support for global barriers.
 \item [{\texttt{SHMEM\_PE\_ACCESSIBLE\_TIMEOUT}:}] the number of
 seconds to wait for PEs to reply to accessiblity checks. The default
-is 1.0 (i.e may be fractional).
+is 1.0 (i.e\ may be fractional).
 \end{lyxlist}
 
 \section{Alternate collective algorithms}
@@ -575,7 +575,7 @@ and has a simple
 algorithm = implementation
 \end{lstlisting}
 
-format, \emph{e.g.}
+format, e.g.\
 
 \begin{lstlisting}
 default = tree
@@ -588,7 +588,7 @@ The SGI SHMEM is provided as part of the Message-Passing Toolkit (MPT)
 in the
 \href{http://www.sgi.com/products/software/propack.html}{ProPack}
 suite. Compilation uses a standard C, C++ or Fortran compiler
-(\emph{e.g.}  GNU, Intel) and links against the SMA and MPI libraries.
+(e.g.\  GNU, Intel) and links against the SMA and MPI libraries.
 
 In order to abstract the compilation and launching process for
 OpenSHMEM we have provided 4 wrapper programs:
@@ -602,7 +602,7 @@ OpenSHMEM we have provided 4 wrapper programs:
 
 The similarity to the style of wrappers found in many MPI
 implementations is obvious and intentional. Currently these wrappers
-do handle a few situations (e.g. oshcc/CC and oshfort detect that they
+do handle a few situations (e.g.\ oshcc/CC and oshfort detect that they
 shouldn't do linking and stop the underlying compiler complaining
 about link options being present, but unused). The compiler scripts
 are generated from a common template.
@@ -637,7 +637,7 @@ limited to)
 
 \begin{itemize}
 \item thread-safety: providing thread-safe SHMEM routines that can
-operate in threaded environments, \emph{e.g.} alongside OpenMP;
+operate in threaded environments, e.g.\ alongside OpenMP;
 \item non-blocking puts: put routines that return per-communication
 handles to the caller. The handles can be tested later for completion
 (present in Cray and Quadrics SHMEMs); this extension may require
