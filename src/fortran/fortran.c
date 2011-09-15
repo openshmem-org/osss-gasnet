@@ -317,7 +317,7 @@ FORTRANIFY_VOID_VOID(pshmem_quiet)
   {									\
     pshmem_##Name##_wait_until(ivar, *cmp, *cmp_value);			\
   }
-
+  
 #define FORTRANIFY_WAIT(Name, Type)				\
   void								\
   FORTRANIFY(pshmem_##Name##_wait)(Type *ivar, Type *cmp_value)	\
@@ -325,30 +325,17 @@ FORTRANIFY_VOID_VOID(pshmem_quiet)
     pshmem_##Name##_wait(ivar, *cmp_value);			\
   }
 
-FORTRANIFY_WAIT_UNTIL(short, short)
-FORTRANIFY_WAIT_UNTIL(int, int)
-FORTRANIFY_WAIT_UNTIL(long, long)
-FORTRANIFY_WAIT_UNTIL(longlong, long long)
+FORTRANIFY_WAIT_UNTIL(int4, int)
+FORTRANIFY_WAIT_UNTIL(int8, long)
 
-FORTRANIFY_WAIT(short, short)
-FORTRANIFY_WAIT(int, int)
-FORTRANIFY_WAIT(long, long)
-FORTRANIFY_WAIT(longlong, long long)
+FORTRANIFY_WAIT(int4, int)
+FORTRANIFY_WAIT(int8, long)
 
-#pragma weak pshmem_wait_until_ = pshmem_long_wait_until_
-#pragma weak pshmem_wait_ = pshmem_long_wait_
+#pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
+#pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
 
-#pragma weak shmem_short_wait_until_ = pshmem_short_wait_until_
-#pragma weak shmem_int_wait_until_ = pshmem_int_wait_until_
-#pragma weak shmem_long_wait_until_ = pshmem_long_wait_until_
-#pragma weak shmem_longlong_wait_until_ = pshmem_longlong_wait_until_
-#pragma weak shmem_wait_until_ = pshmem_long_wait_until_
-
-#pragma weak shmem_short_wait_ = pshmem_short_wait_
-#pragma weak shmem_int_wait_ = pshmem_int_wait_
-#pragma weak shmem_long_wait_ = pshmem_long_wait_
-#pragma weak shmem_longlong_wait_ = pshmem_longlong_wait_
-#pragma weak shmem_wait_ = pshmem_long_wait_
+#pragma weak pshmem_wait_ = pshmem_int4_wait_
+#pragma weak shmem_wait_ = pshmem_int4_wait_
 
 /*
  * cache flushing
@@ -454,6 +441,18 @@ FORTRANIFY(pshmem_int8_swap)(long *target, long *value, int *pe)
   return pshmem_long_swap(target, *value, *pe);
 }
 
+int
+FORTRANIFY(pshmem_real4_swap)(float *target, float *value, int *pe)
+{
+  return pshmem_int_swap(target, *value, *pe);
+}
+
+long
+FORTRANIFY(pshmem_real8_swap)(double *target, double *value, int *pe)
+{
+  return pshmem_long_swap(target, *value, *pe);
+}
+
 long
 FORTRANIFY(pshmem_swap)(long *target, long *value, int *pe)
 {
@@ -462,6 +461,8 @@ FORTRANIFY(pshmem_swap)(long *target, long *value, int *pe)
 
 #pragma weak shmem_int4_swap_ = pshmem_int4_swap_
 #pragma weak shmem_int8_swap_ = pshmem_int8_swap_
+#pragma weak shmem_real4_swap_ = pshmem_real4_swap_
+#pragma weak shmem_real8_swap_ = pshmem_real8_swap_
 #pragma weak shmem_swap_ = pshmem_swap_
 
 int
