@@ -14,6 +14,37 @@
 #include "fortran-common.h"
 
 /*
+ * init & query functions
+ */
+
+void
+FORTRANIFY(pstart_pes)(int *npes)
+{
+  pstart_pes(*npes);
+}
+
+#ifdef CRAY_COMPAT
+FORTRANIFY_VOID_VOID(pshmem_init)
+FORTRANIFY_VOID_VOID(pshmem_finalize)
+#endif /* CRAY_COMPAT */
+
+#define SHMEM_FORTRAN_QUERY_PE(Name)		\
+  int						\
+  FORTRANIFY(Name)(void)			\
+  {						\
+    return Name();				\
+  }
+
+SHMEM_FORTRAN_QUERY_PE(p_my_pe)
+SHMEM_FORTRAN_QUERY_PE(p_num_pes)
+
+#ifdef CRAY_COMPAT
+SHMEM_FORTRAN_QUERY_PE(pshmem_my_pe)
+SHMEM_FORTRAN_QUERY_PE(pshmem_num_pes)
+SHMEM_FORTRAN_QUERY_PE(pshmem_n_pes)
+#endif /* CRAY_COMPAT */
+
+/*
  * puts and gets
  */
 
@@ -208,37 +239,6 @@ SHMEM_FORTRAN_IGET_SIZE(128,  longdouble, long double)
 #pragma weak shmem_iget64_ = pshmem_iget64_
 #pragma weak shmem_iget128_ = pshmem_iget128_
 
-/*
- * init & query functions
- */
-
-void
-FORTRANIFY(pstart_pes)(int *npes)
-{
-  pstart_pes(*npes);
-}
-
-#ifdef CRAY_COMPAT
-FORTRANIFY_VOID_VOID(pshmem_init)
-FORTRANIFY_VOID_VOID(pshmem_finalize)
-#endif /* CRAY_COMPAT */
-
-#define SHMEM_FORTRAN_QUERY_PE(Name)		\
-  int						\
-  FORTRANIFY(Name)(void)			\
-  {						\
-    return Name();				\
-  }
-
-SHMEM_FORTRAN_QUERY_PE(p_my_pe)
-SHMEM_FORTRAN_QUERY_PE(p_num_pes)
-
-#ifdef CRAY_COMPAT
-SHMEM_FORTRAN_QUERY_PE(pshmem_my_pe)
-SHMEM_FORTRAN_QUERY_PE(pshmem_num_pes)
-SHMEM_FORTRAN_QUERY_PE(pshmem_n_pes)
-#endif /* CRAY_COMPAT */
-
 char *
 FORTRANIFY(pshmem_nodename)(void)
 {
@@ -265,6 +265,26 @@ FORTRANIFY(pshmem_version)(int *major, int *minor)
 #pragma weak shmem_num_pes_ = pshmem_num_pes_
 #pragma weak shmem_n_pes_ = pshmem_n_pes_
 #endif /* CRAY_COMPAT */
+
+/*
+ * accessibility
+ */
+
+int
+FORTRANIFY(pshmem_addr_accessible)(void *addr, int *pe)
+{
+  return pshmem_addr_accessible(addr, *pe);
+}
+
+int
+FORTRANIFY(pshmem_pe_accessible)(int *pe)
+{
+  return pshmem_pe_accessible(*pe);
+}
+
+#pragma weak shmem_addr_accessible_ = pshmem_addr_accessible_
+#pragma weak shmem_pe_accessible_ = pshmem_pe_accessible_
+
 
 /*
  * barriers & fences
