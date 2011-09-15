@@ -315,14 +315,14 @@ FORTRANIFY_VOID_VOID(pshmem_quiet)
   void									\
   FORTRANIFY(pshmem_##Name##_wait_until)(Type *ivar, int *cmp, Type *cmp_value) \
   {									\
-    pshmem_##Name##_wait_until(ivar, *cmp, *cmp_value);			\
+    pshmem_##Type##_wait_until(ivar, *cmp, *cmp_value);			\
   }
   
 #define FORTRANIFY_WAIT(Name, Type)				\
   void								\
   FORTRANIFY(pshmem_##Name##_wait)(Type *ivar, Type *cmp_value)	\
   {								\
-    pshmem_##Name##_wait(ivar, *cmp_value);			\
+    pshmem_##Type##_wait(ivar, *cmp_value);			\
   }
 
 FORTRANIFY_WAIT_UNTIL(int4, int)
@@ -333,9 +333,13 @@ FORTRANIFY_WAIT(int8, long)
 
 #pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
 #pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
+#pragma weak shmem_int4_wait_until_ = pshmem_int4_wait_until_
+#pragma weak shmem_int8_wait_until_ = pshmem_int8_wait_until_
 
 #pragma weak pshmem_wait_ = pshmem_int4_wait_
 #pragma weak shmem_wait_ = pshmem_int4_wait_
+#pragma weak shmem_int4_wait_ = pshmem_int4_wait_
+#pragma weak shmem_int8_wait_ = pshmem_int8_wait_
 
 /*
  * cache flushing
