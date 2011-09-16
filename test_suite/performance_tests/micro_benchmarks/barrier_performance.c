@@ -13,7 +13,7 @@ int
 main()
 {
   int me, npes, src;
-  int i;
+  int i,j;
   struct timeval start, end;
   long time_taken,start_time,end_time;
 
