@@ -37,11 +37,13 @@ program main
   parameter        (PI25DT = 3.141592653589793238462643d0)
 
   double precision, save :: mypi, pi
-  double precision  h, sum, x, f, a
-  integer, save :: n
-  integer myid, numprocs, i, rc
+  double precision       :: h, sum, x, a
+  integer, save          :: n
+  integer                :: myid, numprocs, i, rc
 
-  integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync
+  integer psync(SHMEM_REDUCE_SYNC_SIZE)
+  data psync /SHMEM_REDUCE_SYNC_SIZE*SHMEM_SYNC_VALUE/
+
   real, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE), save :: pwrk
 
   call start_pes(0)
@@ -49,9 +51,7 @@ program main
   numprocs = num_pes()
 ! print *, "Process ", myid, " of ", numprocs, " is alive"
 
-  psync = SHMEM_SYNC_VALUE
   call shmem_barrier_all
-
 
 10 if ( myid .eq. 0 ) then
      write(6,98)
