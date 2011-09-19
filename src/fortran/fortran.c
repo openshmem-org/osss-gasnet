@@ -502,7 +502,7 @@ FORTRANIFY(pshmem_broadcast4)(void *target, const void *source, int *nelems,
 }
 
 void
-FORTRANIFY(pshmem_broadcast8)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_broadcast8)(void *target, const void *source, int *nelems,
 			      int *PE_root, int *PE_start,
 			      int *logPE_stride, int *PE_size,
 			      long *pSync)
@@ -524,7 +524,7 @@ FORTRANIFY(pshmem_broadcast32)(void *target, const void *source, int *nelems,
 }
 
 void
-FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, int *nelems,
 			       int *PE_root, int *PE_start,
 			       int *logPE_stride, int *PE_size,
 			       long *pSync)
