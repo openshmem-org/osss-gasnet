@@ -448,13 +448,13 @@ FORTRANIFY(pshmem_int8_swap)(long *target, long *value, int *pe)
 int
 FORTRANIFY(pshmem_real4_swap)(float *target, float *value, int *pe)
 {
-  return pshmem_int_swap(target, *value, *pe);
+  return pshmem_float_swap(target, *value, *pe);
 }
 
 long
 FORTRANIFY(pshmem_real8_swap)(double *target, double *value, int *pe)
 {
-  return pshmem_long_swap(target, *value, *pe);
+  return pshmem_double_swap(target, *value, *pe);
 }
 
 long
@@ -546,7 +546,7 @@ FORTRANIFY(pshmem_broadcast64)(void *target, const void *source, int *nelems,
  */
 
 void
-FORTRANIFY(pshmem_fcollect4)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_fcollect4)(void *target, const void *source, int *nelems,
 			     int *PE_start, int *logPE_stride, int *PE_size,
 			     long *pSync)
 {
@@ -556,7 +556,7 @@ FORTRANIFY(pshmem_fcollect4)(void *target, const void *source, size_t *nelems,
 }
 
 void
-FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, int *nelems,
 			     int *PE_start, int *logPE_stride, int *PE_size,
 			     long *pSync)
 {
@@ -574,7 +574,7 @@ FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, size_t *nelems,
  */
 
 void
-FORTRANIFY(pshmem_collect4)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_collect4)(void *target, const void *source, int *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {
@@ -584,7 +584,7 @@ FORTRANIFY(pshmem_collect4)(void *target, const void *source, size_t *nelems,
 }
 
 void
-FORTRANIFY(pshmem_collect8)(void *target, const void *source, size_t *nelems,
+FORTRANIFY(pshmem_collect8)(void *target, const void *source, int *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {

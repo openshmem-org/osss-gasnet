@@ -19,6 +19,6 @@
 #endif /* FORTRAN_SINGLE_UNDERSCORE */
 
 #define FORTRANIFY_VOID_VOID(F) \
-  void FORTRANIFY(F) (void) { F(); }
+  void inline FORTRANIFY(F) (void) { F(); }
 
 #endif /* FORTRAN_COMMON_H */
