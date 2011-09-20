@@ -63,34 +63,37 @@ integer SHMEM_CMP_GE
 parameter ( SHMEM_CMP_GE=5 )
 
 
-!
-! for routines that return values
-!
+! For routines that return values (Currently adding only those that
+! are in the SGI header file, the rest are here but commented out for
+! now)
 
-integer shmem_my_pe
-integer my_pe
-integer shmem_num_pes
-integer shmem_n_pes
-integer num_pes
+! integer shmem_my_pe
+! integer my_pe
+! integer shmem_num_pes
+! integer shmem_n_pes
+! integer num_pes
 
 logical shmem_pe_accessible
 logical shmem_addr_accessible
 
-integer shmem_int4_swap
-integer shmem_int8_swap
-integer shmem_swap
-integer shmem_real4_swap
-integer shmem_real8_swap
+integer*8 shmem_ptr
 
-integer shmem_int4_cswap
-integer shmem_int8_cswap
-integer shmem_real4_cswap
-integer shmem_real8_cswap
-
-integer shmem_int4_fadd
-integer shmem_int8_fadd
-
-integer shmem_int4_finc
-integer shmem_int8_finc
-
-integer shmem_test_lock
+! integer shmem_int4_swap
+! integer shmem_int8_swap
+! integer shmem_swap
+! integer shmem_real4_swap
+! integer shmem_real8_swap
+! 
+! integer shmem_int4_cswap
+! integer shmem_int8_cswap
+! integer shmem_real4_cswap
+! integer shmem_real8_cswap
+! 
+! integer shmem_int4_fadd
+! integer shmem_int8_fadd
+! 
+! integer shmem_int4_finc
+! integer shmem_int8_finc
+! 
+! integer shmem_test_lock
+ 

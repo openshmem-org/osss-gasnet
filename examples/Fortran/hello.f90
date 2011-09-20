@@ -7,7 +7,7 @@
 
 program whoami
 
-  include 'shmem.fh'
+  include 'mpp/shmem.fh'
 
   integer npes, me
   character*32 h
