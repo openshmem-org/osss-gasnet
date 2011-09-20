@@ -10,6 +10,9 @@ program test_shmem_barrier
   integer, save :: x
   integer       :: me, npes, i
 
+! Function definitions
+  integer                   :: my_pe, num_pes
+
   x = 10101
   
   call start_pes(0);

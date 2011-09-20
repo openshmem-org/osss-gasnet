@@ -38,7 +38,11 @@ program test_shmem_get
 
   integer          :: length, errcode, abort
 
+! Function definitions
+  integer                   :: my_pe, num_pes
+
   call start_pes(0)
+  
   me   = my_pe();
   npes = num_pes();
 

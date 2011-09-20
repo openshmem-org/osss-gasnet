@@ -1,7 +1,8 @@
 # (c) University of Houston System.  All rights reserved.
 
 SHMEM_F90        = oshfort
-SHMEM_F90FLAGS   = -ggdb -O0
+SHMEM_F90CFLAGS   = -ggdb -O0 -fcray-pointer
+SHMEM_F90LFLAGS   =
 
 F90_TESTS        = $(wildcard *.f90)
 
@@ -16,7 +17,7 @@ all default:	$(EXES)
 .SUFFIXES: .x
 
 %.x:	%.f90
-	-$(SHMEM_F90) $(SHMEM_F90FLAGS) -o $@ $^
+	-$(SHMEM_F90) $(SHMEM_F90CFLAGS) $(SHMEM_F90LFLAGS) -o $@ $^
 
 clean:
 	rm -f $(EXES)

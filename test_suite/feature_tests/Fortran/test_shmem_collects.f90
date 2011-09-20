@@ -30,6 +30,9 @@ program test_shmem_collects
 
   integer         :: length, errcode, abort
 
+! Function definitions
+  integer                   :: my_pe, num_pes
+  
   x = 1
 
   call start_pes(0)
@@ -185,7 +188,7 @@ program test_shmem_collects
     ! Create the output of collect8 and save in compare_dst array
     k = 1
 
-    do i = 1, npes, 1
+    do i = 0, npes - 1, 1
       do j = 1, mod(i, 4) + 1, 1
         compare_dst4(k) = src4(j)
         k = k + 1

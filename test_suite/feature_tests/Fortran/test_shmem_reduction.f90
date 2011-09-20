@@ -26,6 +26,9 @@ program test_shmem_reduction
   integer              :: me, npes
   integer              :: success
 
+  ! Function definitions
+  integer                   :: my_pe, num_pes
+
   success = 0
 
   call start_pes(0)

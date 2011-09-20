@@ -18,7 +18,7 @@ program test_shmem_atomics
 
   integer                   :: me, npes
 
-  integer,          save    :: target1
+  integer*4,        save    :: target1
   real*4,           save    :: target2
   integer*8,        save    :: target3
   real*8,           save    :: target4
@@ -28,15 +28,22 @@ program test_shmem_atomics
   integer*8                 :: swapped_val3, new_val3
   real*8                    :: swapped_val4, new_val4
 
-  integer, save             ::  success
-  integer, save             ::  success1_p1
-  integer, save             ::  success2_p1
-  integer, save             ::  success3_p1
-  integer, save             ::  success4_p1 
+  integer, save             :: success
+  integer, save             :: success1_p1
+  integer, save             :: success2_p1
+  integer, save             :: success3_p1
+  integer, save             :: success4_p1 
 
-  integer                   ::  errcode, abort, length
+  integer                   :: errcode, abort, length
 
-	success = 1
+! Function definitions
+  integer                   :: my_pe, num_pes
+  integer*4                 :: shmem_int4_swap, shmem_int4_cswap, shmem_int4_fadd, shmem_int4_finc
+  integer*8                 :: shmem_int8_swap, shmem_int8_cswap, shmem_int8_fadd, shmem_int8_finc      
+  real*4                    :: shmem_real4_swap
+  real*8                    :: shmem_real8_swap
+
+  success = 1
 
   call start_pes(0)
   me = my_pe()
@@ -156,12 +163,20 @@ program test_shmem_atomics
     success3_p1 = -1 
     success3_p2 = -1 
 
+    if(me .eq. 1) then
+      write (*,*) "Value before change: ", target3
+    end if
+      
     call shmem_barrier_all()
 
     swapped_val1 = shmem_int4_cswap(target1, me + 1, me, 1)
-    swapped_val3 = shmem_int8_cswap(target3, int(me + 1, kind=8), me, 1)
+    swapped_val3 = shmem_int8_cswap(target3, int(me + 1, kind=8), int(me, kind=8), 1)
 
     call shmem_barrier_all()
+
+    if(me .eq. 1) then
+      write (*,*) "Value after change: ", target3
+    end if
 
     ! To validate the working of conditionalswap we need to check the value received at the PE that initiated 
     ! the conditional swap as well as the target PE

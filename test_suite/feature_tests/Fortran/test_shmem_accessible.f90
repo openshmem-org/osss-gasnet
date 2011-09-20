@@ -21,7 +21,10 @@ program test_shmem_accessible
   integer            :: errcode, abort, length
   
   common /globalvars/   global_target
-  
+
+! Function definitions
+  integer                   :: my_pe, num_pes
+
   static_target  = 1
   pe_acc_success = .false.
   
@@ -59,7 +62,7 @@ program test_shmem_accessible
       write (*,*) "Test Shmalloc-ed Address Accessable: Passed" 
     end if
     
-    do i = 1, npes, 1
+    do i = 0, npes - 1, 1
       pe_acc_success = shmem_pe_accessible(i)
       if(.not.pe_acc_success) then
         write (*,*) "Test shmem_pe_accessible: Failed"
