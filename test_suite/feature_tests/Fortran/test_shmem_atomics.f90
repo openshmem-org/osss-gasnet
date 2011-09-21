@@ -163,20 +163,12 @@ program test_shmem_atomics
     success3_p1 = -1 
     success3_p2 = -1 
 
-    if(me .eq. 1) then
-      write (*,*) "Value before change: ", target3
-    end if
-      
     call shmem_barrier_all()
 
     swapped_val1 = shmem_int4_cswap(target1, me + 1, me, 1)
     swapped_val3 = shmem_int8_cswap(target3, int(me + 1, kind=8), int(me, kind=8), 1)
 
     call shmem_barrier_all()
-
-    if(me .eq. 1) then
-      write (*,*) "Value after change: ", target3
-    end if
 
     ! To validate the working of conditionalswap we need to check the value received at the PE that initiated 
     ! the conditional swap as well as the target PE
