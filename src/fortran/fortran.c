@@ -578,8 +578,8 @@ FORTRANIFY(pshmem_collect4)(void *target, const void *source, int *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {
-  pshmem_collect32(target, source,
-		   *nelems, *PE_start, *logPE_stride, *PE_size,
+  pshmem_collect32(target, source, *nelems,
+		   *PE_start, *logPE_stride, *PE_size,
 		   pSync);
 }
 
@@ -588,8 +588,8 @@ FORTRANIFY(pshmem_collect8)(void *target, const void *source, int *nelems,
 			    int *PE_start, int *logPE_stride, int *PE_size,
 			    long *pSync)
 {
-  pshmem_collect64(target, source,
-		   *nelems, *PE_start, *logPE_stride, *PE_size,
+  pshmem_collect64(target, source, *nelems,
+		   *PE_start, *logPE_stride, *PE_size,
 		   pSync);
 }
 

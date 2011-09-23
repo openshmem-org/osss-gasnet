@@ -28,7 +28,7 @@
 #define SHMEM_COLLECT(Bits, Bytes)					\
   /* @api@ */								\
   void									\
-  __shmem_collect##Bits##_linear(void *target, const void *source, size_t nelems,	\
+  __shmem_collect##Bits##_linear(void *target, const void *source, size_t nelems, \
 				 int PE_start, int logPE_stride, int PE_size, \
 				 long *pSync)				\
   {									\
@@ -36,15 +36,16 @@
     const int last_pe = PE_start + step * (PE_size - 1);		\
     const int me = GET_STATE(mype);					\
     /* TODO: temp fix: I know barrier doesn't use this many indices */	\
-    long *acc_off = & (pSync[SHMEM_COLLECT_SYNC_SIZE - 1]);		\
+    long *acc_off = & (pSync[_SHMEM_COLLECT_SYNC_SIZE - 1]);		\
 									\
     INIT_CHECK();							\
     SYMMETRY_CHECK(target, 1, "shmem_collect");				\
     SYMMETRY_CHECK(source, 2, "shmem_collect");				\
 									\
     __shmem_trace(SHMEM_LOG_COLLECT,					\
-		  "PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \
-		  PE_start,						\
+		  "nelems = %ld, PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \
+		  nelems,						\
+PE_start,								\
 		  step,							\
 		  PE_size,						\
 		  last_pe						\
@@ -67,8 +68,8 @@
      * in set								\
      */									\
     if (me < last_pe) {							\
-      long next_off = *acc_off + nelems;				\
-      int rnei = me + step;						\
+      const long next_off = *acc_off + nelems;				\
+      const int rnei = me + step;					\
 									\
       shmem_long_p(acc_off, next_off, rnei);				\
 									\
@@ -81,7 +82,7 @@
 									\
     /* send my array slice to target everywhere */			\
     {									\
-      long tidx = *acc_off * Bytes;					\
+      const long tidx = *acc_off * Bytes;				\
       int i;								\
       int pe = PE_start;						\
 									\
