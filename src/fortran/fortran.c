@@ -565,8 +565,13 @@ FORTRANIFY(pshmem_fcollect8)(void *target, const void *source, int *nelems,
 		    pSync);
 }
 
+#pragma weak pshmem_fcollect32_ = pshmem_fcollect4_
+#pragma weak pshmem_fcollect64_ = pshmem_fcollect8_
+
 #pragma weak shmem_fcollect4_ = pshmem_fcollect4_
 #pragma weak shmem_fcollect8_ = pshmem_fcollect8_
+#pragma weak shmem_fcollect32_ = pshmem_fcollect32_
+#pragma weak shmem_fcollect64_ = pshmem_fcollect64_
 
 
 /*
@@ -593,8 +598,13 @@ FORTRANIFY(pshmem_collect8)(void *target, const void *source, int *nelems,
 		   pSync);
 }
 
+#pragma weak pshmem_collect32_ = pshmem_collect4_
+#pragma weak pshmem_collect64_ = pshmem_collect8_
+
 #pragma weak shmem_collect4_ = pshmem_collect4_
 #pragma weak shmem_collect8_ = pshmem_collect8_
+#pragma weak shmem_collect32_ = pshmem_collect32_
+#pragma weak shmem_collect64_ = pshmem_collect64_
 
 
 /*
