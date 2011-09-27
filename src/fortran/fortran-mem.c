@@ -37,26 +37,27 @@
 extern long malloc_error;
 
 void
-FORTRANIFY(pshpalloc)(void *addr, int *length, long *errcode, int *abort)
+FORTRANIFY(pshpalloc)(void **addr, int *length, long *errcode, int *abort)
 {
-  char *symm_addr;
+  void *symm_addr;
 
   INIT_CHECK();
 
-  __shmem_trace(SHMEM_LOG_MEMORY,
-		"shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
-		addr, *length, *errcode, *abort
-		);
-
   /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
-  symm_addr = (char *) pshmalloc(*length);
+  symm_addr = pshmalloc(*length);
 
   /* pass back status code */
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
   if (malloc_error == SHMEM_MALLOC_OK) {
-    addr = symm_addr;
+    *addr = symm_addr;
+
+    __shmem_trace(SHMEM_LOG_MEMORY,
+		  "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
+		  addr, *length, *errcode, *abort
+		  );
+
     return;
     /* NOT REACHED */
   }
@@ -86,7 +87,7 @@ FORTRANIFY(pshpalloc)(void *addr, int *length, long *errcode, int *abort)
  */
 
 void
-FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
+FORTRANIFY(pshpdeallc)(void **addr, long *errcode, int *abort)
 {
   INIT_CHECK();
 
@@ -95,7 +96,7 @@ FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
 		addr, *errcode, *abort
 		);
 
-  pshfree(addr);
+  pshfree(*addr);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -133,7 +134,7 @@ FORTRANIFY(pshpdeallc)(void *addr, long *errcode, int *abort)
  */ 
 
 void
-FORTRANIFY(pshpclmove)(void *addr, int *length, long *errcode, int *abort)
+FORTRANIFY(pshpclmove)(int *addr, int *length, long *errcode, int *abort)
 {
   INIT_CHECK();
 
