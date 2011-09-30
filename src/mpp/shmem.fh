@@ -1,4 +1,4 @@
-!     Emacs: -*- mode: f77; -*-
+!     Emacs: -*- mode: fortran; -*-
 
       integer SHMEM_BCAST_SYNC_SIZE
       parameter ( SHMEM_BCAST_SYNC_SIZE=64 )
