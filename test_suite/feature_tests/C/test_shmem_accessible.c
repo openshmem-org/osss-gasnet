@@ -1,14 +1,12 @@
 /* (c) 2011 University of Houston System.  All rights reserved. */
 
-
-/*
- * Test whether various types of variables are accessible
+/* Test whether various types of variables are accessible
  * Test if all PEs are accessible
  */
 
 #include <stdio.h>
 #include <mpp/shmem.h>
-
+  
 static int
 check_it(void *addr)
 {
@@ -40,40 +38,45 @@ main(int argc, char *argv[])
     if (! check_it(&global_target)) { /* long global: yes */
       printf("Test Global Address Accessable: Failed\n");
     }
-	else{
-	  printf("Test Global Address Accessable: Passed\n");  
-	}
+    else{
+      printf("Test Global Address Accessable: Passed\n");  
+    }
     if (! check_it(&static_target)) { /* static int global: yes */
       printf("Test Static Global Address Accessable: Failed\n");
     }
-	else{
-	  printf("Test Static Global Address Accessable: Passed\n");  
-	}
+    else{
+      printf("Test Static Global Address Accessable: Passed\n");  
+    }
     if (check_it(&local_target)) { /* main() stack: no  */
       printf("Test Stack Address Accessable: Failed\n");
+
     }
-	else{
-	  printf("Test Stack Address Accessable: Passed\n");  
-	}
+    else{
+      printf("Test Stack Address Accessable: Passed\n");  
+    }
     if (! check_it(shm_target)) { /* shmalloc: yes */
+
       printf("Test Shmalloc-ed Address Accessable: Failed\n");
     }
-	else{
-	  printf("Test Shmalloc-ed Address Accessable: Passed\n");  
-	}
-	
-	for(i=1;i<npes;i++){
-	  if(shmem_pe_accessible(i)!=1){
-	    pe_acc_success=1;
-	  }
-	}
-	if(pe_acc_success==1){
+    else{
+      printf("Test Shmalloc-ed Address Accessable: Passed\n");  
+    }
+
+
+    for(i=1;i<npes;i++){
+
+      if(shmem_pe_accessible(i)!=1){
+        pe_acc_success=1;
+      }
+
+    }
+    if(pe_acc_success==1){
       printf("Test shmem_pe_accessible: Failed\n");
     }
-	else{
-	  printf("Test shmem_pe_accessible: Passed\n");  
-	}
-	  
+    else{
+      printf("Test shmem_pe_accessible: Passed\n");  
+    }
+
 
   }
 
