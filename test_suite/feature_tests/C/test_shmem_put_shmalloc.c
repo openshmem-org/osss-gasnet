@@ -409,7 +409,7 @@ main(int argc, char **argv)
     shmem_int_iput(dest2, src2, 1, 2, N, nextpe);
     shmem_long_iput(dest3, src3, 1, 2, N, nextpe);
     shmem_double_iput(dest6, src6, 1, 2, N, nextpe);
-    //shmem_float_iput(dest7, src7, 1, 2, N, nextpe);
+    /*shmem_float_iput(dest7, src7, 1, 2, N, nextpe);*/
     
     shmem_barrier_all();
 
