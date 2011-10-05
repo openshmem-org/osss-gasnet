@@ -336,8 +336,8 @@ FORTRANIFY_WAIT(int8, long)
 #pragma weak shmem_int4_wait_until_ = pshmem_int4_wait_until_
 #pragma weak shmem_int8_wait_until_ = pshmem_int8_wait_until_
 
-#pragma weak pshmem_wait_ = pshmem_int4_wait_
-#pragma weak shmem_wait_ = pshmem_int4_wait_
+#pragma weak pshmem_wait_ = pshmem_int8_wait_
+#pragma weak shmem_wait_ = pshmem_int8_wait_
 #pragma weak shmem_int4_wait_ = pshmem_int4_wait_
 #pragma weak shmem_int8_wait_ = pshmem_int8_wait_
 
