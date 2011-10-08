@@ -48,6 +48,7 @@ SHMEM_EMIT_IPUT(longlong, long long)
 #pragma weak shmem_int_iput = pshmem_int_iput
 #pragma weak shmem_long_iput = pshmem_long_iput
 #pragma weak shmem_double_iput = pshmem_double_iput
+#pragma weak shmem_float_iput = pshmem_float_iput
 #pragma weak shmem_longdouble_iput = pshmem_longdouble_iput
 #pragma weak shmem_longlong_iput = pshmem_longlong_iput
 #pragma weak shmem_iput32 = pshmem_iput32
@@ -99,6 +100,7 @@ SHMEM_EMIT_IGET(longlong, long long)
 #pragma weak shmem_int_iget = pshmem_int_iget
 #pragma weak shmem_long_iget = pshmem_long_iget
 #pragma weak shmem_double_iget = pshmem_double_iget
+#pragma weak shmem_float_iget = pshmem_float_iget
 #pragma weak shmem_longdouble_iget = pshmem_longdouble_iget
 #pragma weak shmem_longlong_iget = pshmem_longlong_iget
 #pragma weak shmem_iget32 = pshmem_iget32
