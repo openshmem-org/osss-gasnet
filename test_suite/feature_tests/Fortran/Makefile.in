@@ -1,8 +1,24 @@
-# (c) University of Houston System.  All rights reserved.
+
+SHELL = /bin/sh
 
 SHMEM_F90        = oshfort
 SHMEM_F90CFLAGS   = -ggdb -O0 -fcray-pointer
 SHMEM_F90LFLAGS   =
+
+
+# Please set these variables. They are used in execution time.
+# #
+# # the run command consists
+# # > $RUNCMD $RUNOPT $NCOREOPT $NCORE[...] $NPROCOPT $NPROC[...]  executable
+
+RUNCMD=oshrun
+RUNOPT=
+NCOREOPT= 
+NCORE=
+NPROCOPT=-np
+NPROC=2
+
+
 
 F90_TESTS        = $(wildcard *.f90)
 
@@ -12,12 +28,32 @@ EXES             = $(F90_EXES)
 
 .PHONY: clean all default
 
-all default:	$(EXES)
+all default:    $(EXES)
 
 .SUFFIXES: .x
 
-%.x:	%.f90
-	-$(SHMEM_F90) $(SHMEM_F90CFLAGS) $(SHMEM_F90LFLAGS) -o $@ $^
+%.x:    %.f90
+	        -$(SHMEM_F90) $(SHMEM_F90CFLAGS) $(SHMEM_F90LFLAGS) -o $@ $^
 
 clean:
-	rm -f $(EXES)
+	        rm -f $(EXES)
+
+
+run:
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_accessible.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_atomics.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_barrier.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_broadcast.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_collects.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_get.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_lock.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_put.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_shpalloc.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_reduction.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./test_shmem_synchronization.x
+
+
+clean:
+	        rm -f $(EXES)
+
+
