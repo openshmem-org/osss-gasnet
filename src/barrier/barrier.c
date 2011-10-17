@@ -92,7 +92,7 @@ pshmem_barrier_all(void)
 {
   INIT_CHECK();
 
-  shmem_fence();
+  pshmem_quiet();
 
   mi_all.func_32();
 }
@@ -103,7 +103,7 @@ pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   INIT_CHECK();
 
-  shmem_fence();
+  /* barrier doesn't imply pshmem_quiet(); */
 
   mi_bar.func_32(PE_start, logPE_stride, PE_size, pSync);
 }
