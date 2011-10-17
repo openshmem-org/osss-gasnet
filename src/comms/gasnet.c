@@ -1799,6 +1799,9 @@ __shmem_comms_quiet_request(void)
 
 /*
  * called by mainline to fence off outstanding requests
+ *
+ * strictly speaking, fence applies only to the most recent
+ * PE so could think about optimization here
  */
 
 void
@@ -1812,7 +1815,7 @@ __shmem_comms_fence_request(void)
 void
 __shmem_comms_quiet_request(void)
 {
-  GASNET_WAIT_ALL();
+  GASNET_WAIT_PUTS();
   LOAD_STORE_FENCE();
   return;
 }
