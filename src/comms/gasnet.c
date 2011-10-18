@@ -1843,6 +1843,8 @@ handler_globalvar_put_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof(*pp);
 
+  atomic_inc_put_counter();
+
   memmove(pp->target, data, pp->nbytes);
   LOAD_STORE_FENCE();
 
@@ -1862,6 +1864,8 @@ handler_globalvar_put_bak(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   *(pp->completed_addr) = 1;
+
+  atomic_dec_put_counter();
 }
 
 /*
@@ -1879,8 +1883,6 @@ put_a_chunk(void *buf, size_t bufsize,
 {
   globalvar_payload_t *p = buf;
   void *data = buf + sizeof(*p);
-
-  atomic_inc_put_counter();
 
   /*
    * build payload to send
@@ -1901,8 +1903,6 @@ put_a_chunk(void *buf, size_t bufsize,
 			  0);
 
   WAIT_ON_COMPLETION(p->completed);
-
-  atomic_dec_put_counter();
 }
 
 /*
@@ -1972,6 +1972,8 @@ handler_globalvar_get_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof(*pp);
 
+  atomic_inc_get_counter();
+
   /* fetch from remote global var into payload */
   memmove(datap, pp->source, pp->nbytes);
   LOAD_STORE_FENCE();
@@ -1996,6 +1998,8 @@ handler_globalvar_get_bak(gasnet_token_t token,
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;
+
+  atomic_dec_get_counter();
 }
 
 /*
@@ -2008,8 +2012,6 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 	    size_t offset, size_t bytes_to_send,
 	    int pe)
 {
-  atomic_inc_get_counter();
-
   /*
    * build payload to send
    * (global var is trivially symmetric here, no translation needed)
@@ -2025,8 +2027,6 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
 			  0);
 
   WAIT_ON_COMPLETION(p->completed);
-
-  atomic_dec_get_counter();
 }
 
 /*
