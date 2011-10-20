@@ -38,6 +38,8 @@ typedef struct {
   shmem_trace_state_t state;	/* off or on */
 } trace_table_t;
 
+#ifdef HAVE_TRACE
+
 #define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
 static
@@ -413,3 +415,13 @@ __shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
     }
   }
 }
+
+#else /* HAVE_TRACE */
+
+inline void __shmem_tracers_init(void) {}
+inline void __shmem_tracers_show(void) {}
+inline void __shmem_maybe_tracers_show_info(void) {}
+inline void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...) {}
+inline int  __shmem_trace_is_enabled(shmem_trace_t level) { return 0; }
+
+#endif /* HAVE_TRACE */

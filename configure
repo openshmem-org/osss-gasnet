@@ -14,6 +14,7 @@ gasnet_conduit=mpi
 cray_compat=FALSE
 putget_nb=FALSE
 debug=FALSE
+trace=FALSE
 # -- end defaults --
 
 libdir=
@@ -35,6 +36,7 @@ show_usage()
     echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
     echo ""
     echo "    --enable-debug          Turn on run-time debugging checks"
+    echo "    --enable-trace          Turn on run-time traces"
     echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
     echo "    --enable-putget-nb      Enable the non-blocking extensions"
     echo ""
@@ -64,6 +66,12 @@ for o in $@; do
 	    ;;
 	--disable-debug)
 	    debug=FALSE
+	    ;;
+	--enable-trace)
+	    trace=TRUE
+	    ;;
+	--disable-trace)
+	    trace=FALSE
 	    ;;
 	--enable-cray-compat)
 	    cray_compat=TRUE
@@ -128,6 +136,7 @@ echo "$progname: using GASNet in \"$gasnet_root\""
 echo "$progname: using conduit \"$gasnet_conduit\""
 echo "$progname:"
 echo "$progname: Debug is $debug"
+echo "$progname: Trace is $trace"
 echo "$progname: Cray compatibility is $cray_compat"
 echo "$progname: Non-blocking extensions are $putget_nb"
 echo "$progname:"
@@ -152,6 +161,7 @@ do
     -e "s%@CRAY_COMPAT@%$cray_compat%g" \
     -e "s%@PUTGET_NB@%$putget_nb%g" \
     -e "s%@DEBUG@%$debug%g" \
+    -e "s%@TRACE@%$trace%g" \
     -e "s%@PREFIX@%$prefix%g" \
     -e "s%@LIB_DIR@%$libdir%g" \
     -e "s%@MODULES_DIR@%$modulesdir%g" \
