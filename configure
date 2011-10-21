@@ -27,21 +27,34 @@ show_usage()
 	echo "$progname: unknown option \"$@\""
 	echo ""
     fi
-    echo "Usage: $progname [options]"
-    echo ""
-    echo "    --prefix=PREFIX         Install to directory root PREFIX"
-    echo "    --with-libdir=DIR       Libraries installed to DIR"
-    echo "    --with-modulesdir=DIR   Pluggable modules installed to DIR"
-    echo "    --with-gasnet-root=G    GASNet installed under directory \"G\""
-    echo "    --with-gasnet-conduit=C Use GASNet conduit \"C\""
-    echo ""
-    echo "    --enable-debug          Turn on run-time debugging checks"
-    echo "    --enable-trace          Turn on run-time traces"
-    echo "    --enable-cray-compat    Subroutine synonyms for the Cray SHMEM"
-    echo "    --enable-putget-nb      Enable the non-blocking extensions"
-    echo ""
-    echo "    --help                  Show this summary and exit"
-    echo ""
+    cat <<__EOT__
+Usage: $progname [options]
+
+  Installation choices:
+
+    --prefix=PREFIX              Install to directory root PREFIX
+    --with-libdir=DIR            Libraries installed to DIR
+    --with-modulesdir=DIR        Pluggable modules installed to DIR
+    --with-gasnet-root=G         GASNet installed under directory "G"
+    --with-gasnet-conduit=C      Use GASNet conduit "C"
+
+  Optional features:
+
+    --enable-debug               Run-time debugging checks
+    --disable-debug              No run-time debugging checks
+
+    --enable-trace               Run-time traces
+    --disable-trace              No run-time traces
+
+    --enable-cray-compat         Subroutine synonyms for the Cray SHMEM
+    --disable-cray-compat        No subroutine synonyms for the Cray SHMEM
+
+    --enable-putget-nb           Non-blocking extensions
+    --disable-putget-nb          No non-blocking extensions
+
+    --help                       Show this summary and exit
+
+__EOT__
 }
 
 for o in $@; do
