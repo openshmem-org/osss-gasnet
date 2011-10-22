@@ -39,10 +39,13 @@ all default:    $(EXES)
 
 run:
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./hello.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./hellofrom.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./cpi.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./sping.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_daxpy.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_2dheat.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_matrix.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_heat_image.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_heat_image.x 10 10
 
 
 clean:
