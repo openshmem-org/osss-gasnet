@@ -131,6 +131,10 @@ ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
+ifeq "@TRACE@" "TRUE"
+CPPFLAGS        += -DHAVE_TRACE
+endif
+
 ifeq "@CRAY_COMPAT@" "TRUE"
 CPPFLAGS        += -DCRAY_COMPAT
 endif

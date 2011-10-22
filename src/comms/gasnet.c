@@ -1678,143 +1678,98 @@ __shmem_comms_ping_request(int pe)
   return pe_acked;
 }
 
-
-#if 0 /* not used */
-
 /*
  * ---------------------------------------------------------------------------
  */
 
-typedef struct {
-  volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	/* addr of marker */
-} quiet_payload_t;
+#if defined(HAVE_MANAGED_SEGMENTS)
 
 /*
- * can use single static lock here, no per-addr needed
+ * atomic counters
  */
-static gasnet_hsl_t quiet_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t quiet_bak_lock = GASNET_HSL_INITIALIZER;
+static unsigned int put_counter = 0;
+static unsigned int get_counter = 0;
 
-/*
- * called by remote PE to quiet and acknowledge
- */
-static void
-handler_quiet_out(gasnet_token_t token,
-		  void *buf, size_t bufsiz,
-		  gasnet_handlerarg_t unused)
+static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
+
+static void inline
+atomic_inc_put_counter(void)
 {
-  gasnet_hsl_lock(& quiet_out_lock);
-
-  __shmem_comms_fence_request();
-
-  gasnet_hsl_unlock(& quiet_out_lock);
-
-  __shmem_trace(SHMEM_LOG_QUIET,
-		"sending ack"
-		);
-
-  /* return ack, payload not modified in this case */
-  gasnet_AMReplyMedium1(token, GASNET_HANDLER_QUIET_BAK, buf, bufsiz, unused);
+  gasnet_hsl_lock(& put_counter_lock);
+  put_counter += 1;
+  gasnet_hsl_unlock(& put_counter_lock);
 }
 
-/*
- * called to ack remote fence
- */
-static void
-handler_quiet_bak(gasnet_token_t token,
-		  void *buf, size_t bufsiz,
-		  gasnet_handlerarg_t unused)
+static void inline
+atomic_dec_put_counter(void)
 {
-  quiet_payload_t *pp = (quiet_payload_t *) buf;
-
-  gasnet_hsl_lock(& quiet_bak_lock);
-
-  /* done it */
-  *(pp->completed_addr) = 1;
-
-  gasnet_hsl_unlock(& quiet_bak_lock);
-
-  __shmem_trace(SHMEM_LOG_QUIET,
-		"ack'ed remote fence"
-		);
+  gasnet_hsl_lock(& put_counter_lock);
+  put_counter -= 1;
+  gasnet_hsl_unlock(& put_counter_lock);
 }
 
-/*
- * perform the quiet
- */
-void
-__shmem_comms_quiet_request(void)
+static int
+atomic_wait_put_zero(void)
 {
-  int other_pe;
-  const int npes = GET_STATE(numpes);
-  const int me   = GET_STATE(mype);
-  quiet_payload_t **pa = (quiet_payload_t **) malloc(npes * sizeof(*pa));
-  if (pa == (quiet_payload_t **) NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: unable to allocate quiet payload array"
-		  );
-  }
-  /* build payload to send */
-  for (other_pe = 0; other_pe < npes; other_pe += 1) {
-    quiet_payload_t *p = (quiet_payload_t *) malloc(sizeof(*p));
-    if (me != other_pe) {
-      p->completed = 0;
-      p->completed_addr = &(p->completed);
-      pa[other_pe] = p;
-
-      /* send and wait for ack */
-      gasnet_AMRequestMedium1(other_pe, GASNET_HANDLER_QUIET_OUT,
-			      p, sizeof(*p),
-			      0);
-      __shmem_trace(SHMEM_LOG_QUIET,
-		    "sent request to PE %d",
-		    other_pe
-		    );
-
-    }
-  }
-  /* wait for all acks */
-  for (other_pe = npes -1; other_pe >= 0; other_pe -= 1) {
-    if (me != other_pe) {
-
-      __shmem_trace(SHMEM_LOG_QUIET,
-		    "waiting for ack from PE %d",
-		    other_pe
-		    );
-
-      WAIT_ON_COMPLETION(pa[other_pe]->completed);
-
-      free(pa[other_pe]);
-    }
-    else {
-      __shmem_comms_fence_request();
-    }
-  }
-
-  free(pa);
+  GASNET_BLOCKUNTIL(put_counter == 0);
 }
 
-#endif /* not used */
+static void inline
+atomic_inc_get_counter(void)
+{
+  gasnet_hsl_lock(& get_counter_lock);
+  get_counter += 1;
+  gasnet_hsl_unlock(& get_counter_lock);
+}
+
+static void inline
+atomic_dec_get_counter(void)
+{
+  gasnet_hsl_lock(& get_counter_lock);
+  get_counter -= 1;
+  gasnet_hsl_unlock(& get_counter_lock);
+}
+
+static int
+atomic_wait_get_zero(void)
+{
+  GASNET_BLOCKUNTIL(get_counter == 0);
+}
+
+#else /* ! HAVE_MANAGED_SEGMENTS */
+
+#define atomic_inc_put_counter()
+#define atomic_dec_put_counter()
+
+#define atomic_inc_get_counter()
+#define atomic_dec_get_counter()
+
+#define atomic_wait_put_zero()
+#define atomic_wait_get_zero()
+
+#endif /* HAVE_MANAGED_SEGMENTS */
+
 
 /*
  * called by mainline to fence off outstanding requests
+ *
+ * chanes here for fence/quiet differentiation and optimization
  */
 
 void
-__shmem_comms_fence_request(void)
+__shmem_comms_quiet_request(void)
 {
+  atomic_wait_put_zero();
   GASNET_WAIT_PUTS();
   LOAD_STORE_FENCE();
   return;
 }
 
-void
-__shmem_comms_quiet_request(void)
+void inline
+__shmem_comms_fence_request(void)
 {
-  GASNET_WAIT_ALL();
-  LOAD_STORE_FENCE();
-  return;
+  __shmem_comms_quiet_request();
 }
 
 
@@ -1888,6 +1843,8 @@ handler_globalvar_put_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof(*pp);
 
+  atomic_inc_put_counter();
+
   memmove(pp->target, data, pp->nbytes);
   LOAD_STORE_FENCE();
 
@@ -1907,6 +1864,8 @@ handler_globalvar_put_bak(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   *(pp->completed_addr) = 1;
+
+  atomic_dec_put_counter();
 }
 
 /*
@@ -2013,6 +1972,8 @@ handler_globalvar_get_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof(*pp);
 
+  atomic_inc_get_counter();
+
   /* fetch from remote global var into payload */
   memmove(datap, pp->source, pp->nbytes);
   LOAD_STORE_FENCE();
@@ -2037,6 +1998,8 @@ handler_globalvar_get_bak(gasnet_token_t token,
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;
+
+  atomic_dec_get_counter();
 }
 
 /*
