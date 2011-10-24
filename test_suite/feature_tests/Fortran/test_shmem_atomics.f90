@@ -1,10 +1,10 @@
 ! (c) 2011 University of Houston System.  All rights reserved. */
 ! 
 ! Tests all atomics   
-! shmem_int_swap, shmem_float_swap, shmem_long_swap, shmem_double_swap, shmem_longlong_swap,
-! shmem_longlong_cswap, shmem_long_cswap, shmem_int_cswap,
-! shmem_long_fadd, shmem_int_fadd,  shmem_longlong_fadd,  
-! shmem_long_finc, shmem_int_finc, shmem_longlong_finc,
+! shmem_int4_swap, shmem_int8_swap, ,shmem_real4_swap, shmem_real8_swap
+! shmem_int4_cswap, shmem_int8_cswap
+! shmem_int4_fadd, shmem_int8_fadd  
+! shmem_int4_finc, shmem_int8_finc
 ! 
 program test_shmem_atomics
   implicit none
@@ -15,8 +15,6 @@ program test_shmem_atomics
   integer, save             :: success3_p2 
   integer, save             :: success4_p2 
   integer, save             :: success5_p2 
-
-  integer                   :: me, npes
 
   integer*4,        save    :: target1
   real*4,           save    :: target2
@@ -35,13 +33,15 @@ program test_shmem_atomics
   integer, save             :: success4_p1 
 
   integer                   :: errcode, abort, length
+  integer                   :: me, npes
 
-! Function definitions
+  ! Function definitions
   integer                   :: my_pe, num_pes
   integer*4                 :: shmem_int4_swap, shmem_int4_cswap, shmem_int4_fadd, shmem_int4_finc
   integer*8                 :: shmem_int8_swap, shmem_int8_cswap, shmem_int8_fadd, shmem_int8_finc      
   real*4                    :: shmem_real4_swap
   real*8                    :: shmem_real8_swap
+  !
 
   success = 1
 
@@ -51,7 +51,7 @@ program test_shmem_atomics
 
   call shmem_barrier_all()
 
-  ! Checks if there are atleast 2 executing PEs
+  ! Make sure this job is running with at least 2 PEs.
 
   if (npes .gt. 1) then
     length = 1
@@ -86,7 +86,6 @@ program test_shmem_atomics
 
     ! To validate the working of swap we need to check the value received at the PE that initiated the swap 
     !  as well as the target PE
-    ! 
 
     if(me .eq. 0) then
       if(swapped_val1 .eq. 1) then

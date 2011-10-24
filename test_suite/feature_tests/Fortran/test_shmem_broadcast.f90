@@ -2,7 +2,7 @@
 ! 
 ! Tests shmem_broadcast32 shmem_broadcast64 calls
 ! PE 0 broadcasts to all other PEs
-! source and destination arrays are shmalloc-ed
+! source and destination arrays are static so they can be remotely accessible
 ! 
 program test_shmem_broadcast
   implicit none
@@ -71,7 +71,7 @@ program test_shmem_broadcast
       source(i) = i + 1
     end do
 
-    do i = 0, npes, 1
+    do i = 1, npes, 1
       target(i) = -999
     end do
 

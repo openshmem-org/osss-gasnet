@@ -8,20 +8,25 @@ program test_shmem_barrier
 
   integer, save :: pSync(SHMEM_BCAST_SYNC_SIZE)
   integer, save :: x
+
   integer       :: me, npes, i
 
-! Function definitions
+  ! Function definitions
   integer                   :: my_pe, num_pes
+  !
 
   x = 10101
   
   call start_pes(0);
+
   me   = my_pe();
   npes = num_pes();
 
   do i = 1, SHMEM_BCAST_SYNC_SIZE
     pSync(i) = SHMEM_SYNC_VALUE
   end do
+
+  ! Make sure this job is running on at least 2 PEs.
 
   if (npes .gt. 1) then
 
