@@ -6,6 +6,8 @@
  * shmem_short_get, shmem_int_get, shmem_long_get, shmem_longdouble_get,
  * shmem_longlong_get, shmem_double_get, shmem_float_get,
  * shmem_getmem, shmem_get32, shmem_get64, shmem_get128
+ * shmem_iput8, shmem_iput32, shmem_iput64, shmem_iput128
+ * shmem_double_iput, shmem_float_iput, shmem_int_iput, shmem_long_iput, shmem_short_iput
  * TODO:shmem_complexf_get, shmem_complexd_get
  *
  *
@@ -309,9 +311,9 @@ main(int argc, char **argv)
 
       shmem_barrier_all();
 
-      shmem_iget32(dest2, src2, 1, 2, N, nextpe);
-      shmem_iget64(dest3, src3, 1, 2, N, nextpe);
-      shmem_iget128(dest4, src4, 1, 2, N, nextpe);
+      shmem_iget32(dest2, src2, 1, 2, N, npes-1);
+      shmem_iget64(dest3, src3, 1, 2, N, npes-1);
+      shmem_iget128(dest4, src4, 1, 2, N, npes-1);
 
       shmem_barrier_all();
 
@@ -355,9 +357,9 @@ main(int argc, char **argv)
 
       shmem_barrier_all();
 
-      shmem_iget32(dest1, src1, 1, 2, N, nextpe);
-      shmem_iget64(dest2, src2, 1, 2, N, nextpe);
-      shmem_iget128(dest3, src3, 1, 2, N, nextpe);
+      shmem_iget32(dest1, src1, 1, 2, N, npes-1);
+      shmem_iget64(dest2, src2, 1, 2, N, npes-1);
+      shmem_iget128(dest3, src3, 1, 2, N, npes-1);
 
       shmem_barrier_all();
 
@@ -406,11 +408,11 @@ main(int argc, char **argv)
       
     shmem_barrier_all();
 
-    shmem_short_iget(dest1, src1, 1, 2, N, nextpe);
-    shmem_int_iget(dest2, src2, 1, 2, N, nextpe);
-    shmem_long_iget(dest3, src3, 1, 2, N, nextpe);
-    shmem_double_iget(dest6, src6, 1, 2, N, nextpe);
-    /*shmem_float_iget(dest7, src7, 1, 2, N, nextpe);*/
+    shmem_short_iget(dest1, src1, 1, 2, N, npes-1);
+    shmem_int_iget(dest2, src2, 1, 2, N, npes-1);
+    shmem_long_iget(dest3, src3, 1, 2, N, npes-1);
+    shmem_double_iget(dest6, src6, 1, 2, N, npes-1);
+    shmem_float_iget(dest7, src7, 1, 2, N, npes-1);
     
     shmem_barrier_all();
 
