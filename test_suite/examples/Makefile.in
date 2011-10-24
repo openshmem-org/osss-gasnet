@@ -33,7 +33,7 @@ all default:    $(EXES)
 .SUFFIXES: .x
 
 %.x:    %.c
-	        $(CC) $(SHMEM_CFLAGS) -o $@ $^
+	        $(CC) $(SHMEM_CFLAGS) -o $@ $^ -lm
 
 
 
