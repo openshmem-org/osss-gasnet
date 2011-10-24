@@ -1687,8 +1687,8 @@ __shmem_comms_ping_request(int pe)
 /*
  * atomic counters
  */
-static unsigned int put_counter = 0;
-static unsigned int get_counter = 0;
+static volatile unsigned int put_counter = 0;
+static volatile unsigned int get_counter = 0;
 
 static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
@@ -1709,10 +1709,10 @@ atomic_dec_put_counter(void)
   gasnet_hsl_unlock(& put_counter_lock);
 }
 
-static int
+static void inline
 atomic_wait_put_zero(void)
 {
-  GASNET_BLOCKUNTIL(put_counter == 0);
+  WAIT_ON_COMPLETION(put_counter == 0);
 }
 
 static void inline
@@ -1731,10 +1731,10 @@ atomic_dec_get_counter(void)
   gasnet_hsl_unlock(& get_counter_lock);
 }
 
-static int
+static void inline
 atomic_wait_get_zero(void)
 {
-  GASNET_BLOCKUNTIL(get_counter == 0);
+  WAIT_ON_COMPLETION(get_counter == 0);
 }
 
 #else /* ! HAVE_MANAGED_SEGMENTS */
@@ -1843,8 +1843,6 @@ handler_globalvar_put_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof(*pp);
 
-  atomic_inc_put_counter();
-
   memmove(pp->target, data, pp->nbytes);
   LOAD_STORE_FENCE();
 
@@ -1864,8 +1862,6 @@ handler_globalvar_put_bak(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
   *(pp->completed_addr) = 1;
-
-  atomic_dec_put_counter();
 }
 
 /*
@@ -1894,6 +1890,8 @@ put_a_chunk(void *buf, size_t bufsize,
   p->completed      = 0;
   p->completed_addr = &(p->completed);
 
+  atomic_inc_put_counter();
+
   /* data added after control structure */
   memmove(data, source + offset, bytes_to_send);
   LOAD_STORE_FENCE();
@@ -1903,6 +1901,8 @@ put_a_chunk(void *buf, size_t bufsize,
 			  0);
 
   WAIT_ON_COMPLETION(p->completed);
+
+  atomic_dec_put_counter();
 }
 
 /*
@@ -1972,8 +1972,6 @@ handler_globalvar_get_out(gasnet_token_t token,
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof(*pp);
 
-  atomic_inc_get_counter();
-
   /* fetch from remote global var into payload */
   memmove(datap, pp->source, pp->nbytes);
   LOAD_STORE_FENCE();
@@ -1998,8 +1996,6 @@ handler_globalvar_get_bak(gasnet_token_t token,
   LOAD_STORE_FENCE();
 
   *(pp->completed_addr) = 1;
-
-  atomic_dec_get_counter();
 }
 
 /*
@@ -2022,11 +2018,15 @@ get_a_chunk(globalvar_payload_t *p, size_t bufsize,
   p->completed      = 0;
   p->completed_addr = &(p->completed);
 
+  atomic_inc_get_counter();
+
   gasnet_AMRequestMedium1(pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
 			  p, bufsize,
 			  0);
 
   WAIT_ON_COMPLETION(p->completed);
+
+  atomic_dec_get_counter();
 }
 
 /*
