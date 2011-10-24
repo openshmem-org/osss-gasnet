@@ -4,8 +4,8 @@
  * Sample run: oshrun -np 2 shmem_2dheat -h 10 -w 10 -v -m 1 // for method 1 of jacobi 
  */
 
-#define _WIDTH   500 
-#define _HEIGHT  500 
+#define _WIDTH   20 
+#define _HEIGHT  20 
 #define H       1.0   
 #define _EPSILON 0.1 
 /* 
@@ -141,10 +141,15 @@ int main(int argc, char** argv) {
           break;
       }
   }
-/*
-  if (0 < errflg) 
-      exit(EXIT_FAILURE);
-*/
+
+  if (ROOT == my_rank && argc < 2) {
+   printf("Usage: oshrun -np <np> %s -h <nrows> -w <ncolumns> -m <method>\n", argv[0] );
+   printf("Using defaults: -h 20 -w 20 -m 2\n");
+  } 
+
+//  if (0 < errflg) 
+//      exit(EXIT_FAILURE);
+
 
   /* wait for user to input runtime params */
   //MPI_Barrier(MPI_COMM_WORLD);
@@ -241,14 +246,7 @@ int main(int argc, char** argv) {
     //time = MPI_Wtime() - time;
     tv[1] = gettime();
     t = dt (&tv[1], &tv[0]);
-    if (0 < verbose)
-    {   printf("Estimated time to convergence in %d iterations using %d processors on a %dx%d grid is %f seconds\n",k,p,(int)floor(WIDTH/H),(int)floor(HEIGHT/H),t/1000000.0);
-    } 
-    else if (show_time)  
-    {   printf("%f\n",time); }
-
-    /* else show nothing */
-
+     printf("Estimated time to convergence in %d iterations using %d processors on a %dx%d grid is %f seconds\n",k,p,(int)floor(WIDTH/H),(int)floor(HEIGHT/H),t/1000000.0);
   }
 
   //MPI_Finalize();

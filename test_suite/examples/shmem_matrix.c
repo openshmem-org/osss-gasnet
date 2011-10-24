@@ -23,8 +23,8 @@ double dt (double *tv1, double *tv2)
 
 
 /* set the number of rows and column here */
-#define ROWS 8 
-#define COLUMNS 8 
+#define ROWS 800 
+#define COLUMNS 800 
 
 // routine to print the partial array
 void print_array(double **array,int blocksize)
@@ -36,8 +36,8 @@ void print_array(double **array,int blocksize)
       }//end for loop j
       printf("\n");
  }//end for loop i
-      printf("\n");
-      printf("\n");
+ printf("\n");
+ printf("\n");
 }
 
 // needed for reduction operation
@@ -58,9 +58,8 @@ int main ( int argc, char **argv )
   double **c_local;
   int B_matrix_displacement;
 
-  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
+  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) 
     pSync[i] = _SHMEM_SYNC_VALUE;
-  }
 
   tv[0] = gettime();
 
@@ -72,71 +71,84 @@ int main ( int argc, char **argv )
   blocksize = COLUMNS/np; // block size
   B_matrix_displacement = rank * blocksize ;
 
+  // initialize the input arrays
   shmem_barrier_all();
   a_local = (double **)shmalloc(ROWS*sizeof(double *));
   b_local = (double **)shmalloc(ROWS*sizeof(double *));
   c_local = (double **)shmalloc(ROWS*sizeof(double *));
   for(i=0; i<ROWS; i++) {
-        a_local[i] = (double *)shmalloc(blocksize*sizeof(double));
-        b_local[i] = (double *)shmalloc(blocksize*sizeof(double));
-        c_local[i] = (double *)shmalloc(blocksize*sizeof(double));
-        for(j=0; j<blocksize ; j++) {
-                a_local[i][j]= i+1*j+1*rank+1; // random values
-                b_local[i][j] = i+2*j+2*rank+1; // random values
-                c_local[i][j]=0.0 ;
-        }
+   a_local[i] = (double *)shmalloc(blocksize*sizeof(double));
+   b_local[i] = (double *)shmalloc(blocksize*sizeof(double));
+   c_local[i] = (double *)shmalloc(blocksize*sizeof(double));
+   for(j=0; j<blocksize ; j++) {
+    a_local[i][j]= i+1*j+1*rank+1; // random values
+    b_local[i][j] = i+2*j+2*rank+1; // random values
+    c_local[i][j]=0.0 ;
+   }
   }
 
-
- shmem_barrier_all();
- #ifdef DEBUG // print the input arrays from root process
- if(rank==0)  {
-	printf("matrix a from %d\n",rank);
-  	print_array(a_local,blocksize);
-	printf("matrix b from %d\n",rank);
-  	print_array(b_local,blocksize);
- }
- #endif
- shmem_barrier_all();
-
- for(i=0; i<ROWS; i++) {
-        for(p=1; p<=np; p++) {
-                for(k=0; k<blocksize; k++) {
-                        for(j=0; j<blocksize; j++) {
-                          	c_local[i][j] = c_local[i][j] + a_local[i][k] * b_local[k+B_matrix_displacement][j];
-                        }
- 		}
- 	shmem_barrier_all();
- 	if(rank == np-1) 
-      		shmem_double_put(&a_local[i][0],&a_local[i][0],blocksize,0);
- 	else 
-       		shmem_double_put(&a_local[i][0],&a_local[i][0],blocksize,rank+1);
- 	shmem_barrier_all();
- 	if(B_matrix_displacement == 0)
-        	B_matrix_displacement = (np-1) * blocksize;
- 	else
-        	B_matrix_displacement = B_matrix_displacement-blocksize;
- 	}
- }
-
- shmem_barrier_all();
- tv[1] = gettime();
- t = dt (&tv[1], &tv[0]);
-#if DEBUG
- printf("Process %d: %4.2f Sec \n",rank,t/1000000.0);
+  shmem_barrier_all();
+#ifdef DEBUG // print the input arrays from root process if DEBUG enabled
+  if(rank==0)  {
+   printf("matrix a from %d\n",rank);
+   print_array(a_local,blocksize);
+   printf("matrix b from %d\n",rank);
+   print_array(b_local,blocksize);
+  }
 #endif
 
- shmem_double_max_to_all(&maxtime, &t, 1, 0, 0, size, pWrk, pSync);
+  shmem_barrier_all();
 
- #if DEBUG // print the resultant array from root process
- if(rank==0) {
-	printf("matrix c from %d\n",rank);
-  	print_array(c_local,blocksize);
- }
- #endif
+  // start the matrix multiplication
+  for(i=0; i<ROWS; i++) {
+   for(p=1; p<=np; p++) {
 
- if(rank==0)
-    printf("Maximum time =%4.2f seconds\n",maxtime/1000000.0);
+     // compute the partial product of c[i][j]
+     for(k=0; k<blocksize; k++) {
+      for(j=0; j<blocksize; j++) {
+       c_local[i][j] = c_local[i][j] + a_local[i][k] 
+		       * b_local[k+B_matrix_displacement][j];
+      }
+     }
 
- return (0);
+   // send a block of matrix A to the adjacent PE
+   shmem_barrier_all();
+   if(rank == np-1) 
+    shmem_double_put(&a_local[i][0],&a_local[i][0],blocksize,0);
+   else 
+    shmem_double_put(&a_local[i][0],&a_local[i][0],blocksize,rank+1);
+   shmem_barrier_all();
+
+   // reset the displacement of matrix B to the next block
+   if(B_matrix_displacement == 0)
+    B_matrix_displacement = (np-1) * blocksize;
+   else
+    B_matrix_displacement = B_matrix_displacement-blocksize;
+
+   }
+  }
+
+  shmem_barrier_all();
+  tv[1] = gettime();
+  t = dt (&tv[1], &tv[0]);
+#if DEBUG
+  printf("Process %d runtime: %4.2f Sec\n",rank,t/1000000.0);
+#endif
+
+  // Determine the maximum of the execution time for individual PEs
+  shmem_double_max_to_all(&maxtime, &t, 1, 0, 0, size, pWrk, pSync);
+
+#if DEBUG // print the resultant array from root process if DEBUG enabled
+  if(rank==0) {
+   printf("matrix c from %d\n",rank);
+   print_array(c_local,blocksize);
+  }
+#endif
+
+  if(rank==0){
+   printf("Execution time in seconds =%4.2f \n",maxtime/1000000.0);
+   printf("Execution time in milli seconds =%4.2f \n",maxtime/1000.0);
+  }
+
+  return (0);
 }
