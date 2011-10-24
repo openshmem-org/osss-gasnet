@@ -38,6 +38,8 @@ all default:    $(EXES)
 
 
 run:
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./put_performance.x
+	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./get_performance.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./barrier_performance.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./broadcast32_performance.x
 	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./collect32_performance.x
