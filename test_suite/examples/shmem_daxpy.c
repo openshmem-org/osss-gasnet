@@ -77,10 +77,12 @@ int main(int argc, char *argv[]) {
   e = es;
 
   //... // output x, e
+#if DEBUG
   for (i=n_local0; i<n_local1; ++i) {
   	printf("x%d[%d]=%f \n",my_pe,i,x[i]);
   }
   printf("\n");
+#endif
 
   x += (n_local0 - 1); // x=x,x=x+3
   y += (n_local0 - 1); // y=y,y=y+3
@@ -91,8 +93,10 @@ int main(int argc, char *argv[]) {
   t = dt (&tv[1], &tv[0]);
   shmem_double_max_to_all(&maxtime, &t, 1, 0, 0, num_pes, dpWrk, pSync);
 
-  if(my_pe==1)
-    printf("Maximum time =%f\n",maxtime/1000000.0);
+  if(my_pe==1){
+    printf("Execution time in seconds=%f\n",maxtime/1000000.0);
+    printf("Execution time in micro seconds=%f\n",maxtime/1000.0);
+  }
 
   return 0;
 } 
