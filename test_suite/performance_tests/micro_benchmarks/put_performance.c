@@ -6,8 +6,8 @@
 #include <time.h>
 #include <mpp/shmem.h>
 
-#define N_ELEMENTS 25600
-  int
+#define N_ELEMENTS 25600/*Data size chosen to be able to capture time required*/
+int
 main(void)
 {
   int i,j,k;

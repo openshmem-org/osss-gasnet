@@ -7,7 +7,7 @@
 #include <mpp/shmem.h>
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
-#define N_ELEMENTS 10
+#define N_ELEMENTS 25600/*Data size chosen to be able to capture time required*/
   int
 main(void)
 {
@@ -54,7 +54,7 @@ main(void)
 
   }
   if(me == 0)
-    printf("Time required for a broadcast of %d bytes of data, with %d PEs is %ld microseconds\n",(4 * N_ELEMENTS),npes,time_taken/10000);
+    printf("Time required for a broadcast of 100 Kbytes of data, with %d PEs is %ld microseconds\n",npes,time_taken/10000);
 
   shmem_barrier_all();
 
