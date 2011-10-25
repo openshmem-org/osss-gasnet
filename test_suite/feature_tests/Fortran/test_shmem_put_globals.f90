@@ -3,11 +3,9 @@
 ! 
 ! 
 ! Calls tested
-! shmem_short_put, shmem_int_put, shmem_long_put, shmem_longdouble_put,
-! shmem_longlong_put, shmem_double_put, shmem_float_put,
-! TODO:shmem_complexf_put, shmem_complexd_put
-! shmem_putmem, shmem_put32, shmem_put64, shmem_put128
-! 
+! shmem_integer_put, shmem_realput, shmem_double_put
+! shmem_character_put, shmem_logical_put
+! shmem_putmem, shmem_put32, shmem_put64
 ! 
 ! All PEs put an array on the right neighbor 
 !  
@@ -28,6 +26,7 @@ program test_shmem_put
   character        , save :: dest4(N)
   character        , save :: dest5(N)
   logical          , save :: dest6(N)
+  integer*8        , save :: dest7(N)
 
   integer                 :: src1(N)
   real                    :: src2(N)
@@ -35,6 +34,7 @@ program test_shmem_put
   character               :: src4(N)
   character               :: src5(N)
   logical                 :: src6(N)
+  integer*8               :: src7(N)
 
   integer                 :: length, errcode, abort
 
@@ -45,6 +45,7 @@ program test_shmem_put
   me   = my_pe();
   npes = num_pes();
 
+! Make sure this job is running on at least 2 PEs
   if(npes .gt. 1) then
 
     success1 = 0
@@ -63,14 +64,8 @@ program test_shmem_put
       dest4(i) = char(9)
       dest5(i) = char(9)      
       dest6(i) = .false.
+      dest7(i) = int(-9, KIND=8)
     end do 
-
-!   call shpalloc(src1, N, errcode, abort)
-!   call shpalloc(src2, N, errcode, abort)
-!   call shpalloc(src3, N, errcode, abort)
-!   call shpalloc(src4, N, errcode, abort)
-!   call shpalloc(src5, N, errcode, abort)
-!   call shpalloc(src6, N, errcode, abort)
 
     do i = 1, N, 1
       src1(i) = me
@@ -79,6 +74,7 @@ program test_shmem_put
       src4(i) = char(me)
       src5(i) = char(me)
       src6(i) = .true.
+      src7(i) = int(me, KIND=8)
     end do 
 
     nextpe = mod((me + 1), npes)
@@ -151,9 +147,10 @@ program test_shmem_put
     call shmem_barrier_all()
 
     ! Testing shmem_put32, shmem_put64, shmem_put128 
-    if(2 .eq. 4) then
+    if(2 .eq. 2) then
       do i = 1, N, 1
         dest1(i) = -9
+        dest7(i) = -9
       end do 
 
       success1 = 0
@@ -161,8 +158,7 @@ program test_shmem_put
       call shmem_barrier_all()
 
       call shmem_put32(dest1, src1, N, nextpe)
-      call shmem_put64(dest3, src3, N, nextpe)
-      call shmem_put128(dest4, src4, N, nextpe)
+      call shmem_put64(dest7, src7, N, nextpe)
 
       call shmem_barrier_all()
 
@@ -171,11 +167,8 @@ program test_shmem_put
           if(dest2(i) .ne. npes - 1) then
             success2 = success2 + 1
           end if
-          if(dest3(i) .ne. npes - 1) then
+          if(dest7(i) .ne. npes - 1) then
             success3 = success3 + 1
-          end if
-          if(dest4(i) .ne. char(npes - 1)) then
-            success4 = success4 + 1
           end if
         end do
 
@@ -191,11 +184,6 @@ program test_shmem_put
           write(*,*) "Test shmem_put64: Failed"
         end if
 
-        if(success4 .eq. 0) then
-          write(*,*) "Test shmem_put128: Passed"  
-        else
-          write(*,*) "Test shmem_put128: Failed"
-        end if
       end if
     end if
 
