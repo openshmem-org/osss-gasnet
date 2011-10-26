@@ -34,7 +34,7 @@ do
 	  npes=$1
 	  ;;
       *)
-	  break
+          args="$args $1"
 	  ;;
   esac
   shift
@@ -52,15 +52,12 @@ then
   esac
 fi
 
-cmd=$1
-shift
-
 case "@GASNET_CONDUIT@" in
     smp)
-	RUN_IT="env GASNET_PSHM_NODES=$npes $cmd $@"
+	RUN_IT="env GASNET_PSHM_NODES=$npes $cmd $args"
 	;;
     udp)
-        RUN_IT="$cmd $npes $@"
+        RUN_IT="$cmd $npes $args"
         ;;
     mpi|ibv)
 	RUN_IT="@GASNET_LD@"
@@ -69,7 +66,7 @@ case "@GASNET_CONDUIT@" in
         then
           RUN_IT="$RUN_IT -np $npes"
         fi
-        RUN_IT="$RUN_IT $cmd $@"
+        RUN_IT="$RUN_IT $cmd $args"
 	;;
     *)
 	;;
