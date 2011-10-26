@@ -1,14 +1,47 @@
-! (c) 2011 University of Houston System.  All rights reserved. */
+!
+! Copyright (c) 2011, University of Houston System and Oak Ridge National
+! Loboratory.
+! 
+! All rights reserved.
+! 
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+! 
+! o Redistributions of source code must retain the above copyright notice,
+!   this list of conditions and the following disclaimer.
+! 
+! o Redistributions in binary form must reproduce the above copyright
+!   notice, this list of conditions and the following disclaimer in the
+!   documentation and/or other materials provided with the distribution.
+! 
+! o Neither the name of the University of Houston System, Oak Ridge
+!   National Loboratory nor the names of its contributors may be used to
+!   endorse or promote products derived from this software without specific
+!   prior written permission.
+! 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+! A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+! HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+! PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+! NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 ! Tests shmem_fcollect4/8 shmem_collect4/8 
 ! Each PE contributes 4 elements 
-! 
+
 program test_shmem_collects
   implicit none
   include 'mpp/shmem.fh'
  
   integer  , parameter :: dst_size = 8 ! assuming 2 pes ( 2 x 4 elements)
 
-  integer,   save :: pSync(SHMEM_BCAST_SYNC_SIZE)
+  integer,   save :: pSync(SHMEM_COLLECT_SYNC_SIZE)
 
   integer*4, save :: src1(4) = (/ 11, 12, 13, 14 /) 
   integer*8, save :: src2(4) = (/ 101, 102, 103, 104 /)
@@ -31,17 +64,17 @@ program test_shmem_collects
   integer         :: length, errcode, abort
 
 ! Function definitions
-  integer                   :: my_pe, num_pes
+  integer         :: my_pe, num_pes
   
   x = 1
 
   call start_pes(0)
+
   npes = num_pes()
+
   me   = my_pe()
 
-  do i = 1, SHMEM_BCAST_SYNC_SIZE, 1
-    pSync(i) = SHMEM_SYNC_VALUE
-  end do
+  pSync(:) = SHMEM_SYNC_VALUE
 
   if(npes .gt. 1) then
 
@@ -141,7 +174,7 @@ program test_shmem_collects
         k = k + 1
       end do
     end do
-		
+
     do i = 1, dst_len, 1
       dst3(i) = -1
     end do
@@ -153,11 +186,10 @@ program test_shmem_collects
     call shmem_barrier_all()
 
     call shmem_collect4(dst3, src3, mod(me, 4) + 1, &
-    	0, 0, npes, &
-    	pSync)
+      0, 0, npes, &
+      pSync)
 
     if(me .eq. 0) then
-      
       do i = 1, dst_len, 1
         if(dst3(i) .ne. compare_dst3(i)) then
           success = 1
