@@ -17,7 +17,7 @@ int success3_p2 ;
 int success4_p2 ;
 int success5_p2 ;
 
-int
+  int
 main()
 {
   int me, npes;

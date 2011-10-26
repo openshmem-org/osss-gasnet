@@ -11,7 +11,7 @@
 
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
-int
+  int
 main(void)
 {
   int i,success32, success64;
