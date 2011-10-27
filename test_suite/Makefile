@@ -33,6 +33,8 @@
  # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #
+
+
 SHELL = /bin/sh
 
 help: 
@@ -55,34 +57,34 @@ compile: C_feature_tests F_feature_tests micro_bench examples
 run: examples-run C_feature_tests-run F_feature_tests-run micro_bench-run
 
 C_feature_tests: 
-	cd feature_tests/C; make all
+	cd feature_tests/C; $(MAKE) all
 
 examples:
-	cd examples; make all
+	cd examples; $(MAKE) all
 
 examples-run:
-	cd examples; make run  
+	cd examples; $(MAKE) run  
 
 
 C_feature_tests-run:
-	cd feature_tests/C; make run
+	cd feature_tests/C; $(MAKE) run
 
 F_feature_tests: 
-	cd feature_tests/Fortran; make all
+	cd feature_tests/Fortran; $(MAKE) all
 
 F_feature_tests-run:
-	cd feature_tests/Fortran; make run
+	cd feature_tests/Fortran; $(MAKE) run
 
 micro_bench:
-	cd performance_tests/micro_benchmarks; make 
+	cd performance_tests/micro_benchmarks; $(MAKE) 
 
 micro_bench-run:
-	cd performance_tests/micro_benchmarks; make run 
+	cd performance_tests/micro_benchmarks; $(MAKE) run 
 
 clean:
-	cd examples; make clean
-	cd feature_tests/C; make clean
-	cd feature_tests/Fortran; make clean
-	cd performance_tests/micro_benchmarks; make clean
+	cd examples; $(MAKE) $@
+	cd feature_tests/C; $(MAKE) $@
+	cd feature_tests/Fortran; $(MAKE) $@
+	cd performance_tests/micro_benchmarks; $(MAKE) $@
 	rm -f *~ */*~ *.x *.o
 
