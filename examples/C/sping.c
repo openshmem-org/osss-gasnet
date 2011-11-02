@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -49,10 +49,11 @@
 #include <unistd.h>
 #include <mpp/shmem.h>
 
-int getSize (char *str)
+int
+getSize (char *str)
 {
-  int             size;
-  char            mod[32];
+  int size;
+  char mod[32];
 
   switch (sscanf (str, "%d%1[mMkK]", &size, mod))
     {
@@ -79,26 +80,30 @@ int getSize (char *str)
     }
 }
 
-double gettime()
+double
+gettime ()
 {
   struct timeval tv;
-  gettimeofday(&tv, 0);
+  gettimeofday (&tv, 0);
   return (tv.tv_sec * 1000000 + tv.tv_usec);
 }
 
-double dt (double *tv1, double *tv2)
+double
+dt (double *tv1, double *tv2)
 {
   return (*tv1 - *tv2);
 }
 
-void usage (char *name)
+void
+usage (char *name)
 {
   fprintf (stderr, "Usage: %s [flags] nwords [maxWords] [incWords]\n", name);
   fprintf (stderr, "       %s -h\n", name);
   exit (1);
 }
 
-void help (char *name)
+void
+help (char *name)
 {
   printf ("Usage: %s [flags] nwords [maxWords] [incWords]\n", name);
   printf ("\n");
@@ -112,43 +117,44 @@ void help (char *name)
   exit (0);
 }
 
-void printStats (int proc, int peer, int doprint, int now, double t)
+void
+printStats (int proc, int peer, int doprint, int now, double t)
 {
   if (doprint || (proc & 1))
-    printf("%3d pinged %3d: %8d words %9.2f uSec %8.2f MB/s\n",
-	   proc, peer, now, t, sizeof(long)*now/(t));
+    printf ("%3d pinged %3d: %8d words %9.2f uSec %8.2f MB/s\n",
+	    proc, peer, now, t, sizeof (long) * now / (t));
 }
 
 volatile int tony = 1;
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-  double         t,tv[2];
-    
-  int            reps = 10000;
-  int            doprint = 0;
-  char          *progName;
-  int            minWords = 1;
-  int            maxWords = 1;
-  int            incWords;
-  int            nwords;
-  int            nproc;
-  int            proc;
-  int            peer;
-  int            c;
-  int            r;
-  int            i;
-  long          *rbuf;
-  long          *tbuf;
-   
-  start_pes(0);
+  double t, tv[2];
 
-  proc = _my_pe();
-  nproc = _num_pes();
+  int reps = 10000;
+  int doprint = 0;
+  char *progName;
+  int minWords = 1;
+  int maxWords = 1;
+  int incWords;
+  int nwords;
+  int nproc;
+  int proc;
+  int peer;
+  int c;
+  int r;
+  int i;
+  long *rbuf;
+  long *tbuf;
 
-  for (progName = argv[0] + strlen(argv[0]);
-       progName > argv[0] && *(progName - 1) != '/';
-       progName--)
+  start_pes (0);
+
+  proc = _my_pe ();
+  nproc = _num_pes ();
+
+  for (progName = argv[0] + strlen (argv[0]);
+       progName > argv[0] && *(progName - 1) != '/'; progName--)
     ;
 
   while ((c = getopt (argc, argv, "n:eh")) != -1)
@@ -185,15 +191,15 @@ int main (int argc, char *argv[])
   else if ((incWords = getSize (argv[optind++])) < 0)
     usage (progName);
 
-  if (!(rbuf = (long *)shmalloc(maxWords * sizeof(long))))
+  if (!(rbuf = (long *) shmalloc (maxWords * sizeof (long))))
     {
       perror ("Failed memory allocation");
       exit (1);
     }
-  memset (rbuf, 0, maxWords * sizeof (long)); 
-  shmem_barrier_all();
+  memset (rbuf, 0, maxWords * sizeof (long));
+  shmem_barrier_all ();
 
-  if (!(tbuf = (long *)malloc(maxWords * sizeof(long))))
+  if (!(tbuf = (long *) malloc (maxWords * sizeof (long))))
     {
       perror ("Failed memory allocation");
       exit (1);
@@ -206,11 +212,12 @@ int main (int argc, char *argv[])
     tbuf[i] = 1000 + (i & 255);
 
   if (doprint)
-    printf ("%d(%d): Shmem PING reps %d minWords %d maxWords %d incWords %d\n",
-	    proc, nproc, reps, minWords, maxWords, incWords);
+    printf
+      ("%d(%d): Shmem PING reps %d minWords %d maxWords %d incWords %d\n",
+       proc, nproc, reps, minWords, maxWords, incWords);
 
-  shmem_barrier_all();
-   
+  shmem_barrier_all ();
+
   peer = proc ^ 1;
   if (peer >= nproc)
     doprint = 0;
@@ -221,44 +228,44 @@ int main (int argc, char *argv[])
     {
       r = reps;
 
-      shmem_barrier_all();
+      shmem_barrier_all ();
 
-      tv[0] = gettime();
-           
+      tv[0] = gettime ();
+
       if (peer < nproc)
-        {
+	{
 	  if (proc & 1)
-            {
-              r--;
-              shmem_wait(&rbuf[nwords-1], 0);
-              rbuf[nwords-1] = 0;
-            }
-           
+	    {
+	      r--;
+	      shmem_wait (&rbuf[nwords - 1], 0);
+	      rbuf[nwords - 1] = 0;
+	    }
+
 	  while (r-- > 0)
 	    {
-              shmem_long_put(rbuf, tbuf, nwords, peer);
-              shmem_wait(&rbuf[nwords-1], 0); 
-              rbuf[nwords-1] = 0;
-            }
-           
+	      shmem_long_put (rbuf, tbuf, nwords, peer);
+	      shmem_wait (&rbuf[nwords - 1], 0);
+	      rbuf[nwords - 1] = 0;
+	    }
+
 	  if (proc & 1)
-	    shmem_long_put(rbuf, tbuf, nwords, peer);
-        }
-         
-      tv[1] = gettime();
+	    shmem_long_put (rbuf, tbuf, nwords, peer);
+	}
+
+      tv[1] = gettime ();
 
 
       t = dt (&tv[1], &tv[0]) / (2 * reps);
-        
-      shmem_barrier_all();
-         
+
+      shmem_barrier_all ();
+
       printStats (proc, peer, doprint, nwords, t);
     }
 
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  free(tbuf);
-  shfree(rbuf);
+  free (tbuf);
+  shfree (rbuf);
 
   return 0;
 }

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -44,7 +44,7 @@
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
 int
-main(void)
+main (void)
 {
   int i;
   long *target;
@@ -52,25 +52,27 @@ main(void)
   int nlong = 8;
   int me;
 
-  start_pes(0);
-  me = _my_pe();
+  start_pes (0);
+  me = _my_pe ();
 
-  target = (long *) shmalloc( 8 * sizeof(*target) );
+  target = (long *) shmalloc (8 * sizeof (*target));
 
-  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1) {
-    pSync[i] = _SHMEM_SYNC_VALUE;
-  }
-  shmem_barrier_all();
+  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1)
+    {
+      pSync[i] = _SHMEM_SYNC_VALUE;
+    }
+  shmem_barrier_all ();
 
-  shmem_broadcast64(target, source, nlong, 1, 0, 0, 4, pSync);
+  shmem_broadcast64 (target, source, nlong, 1, 0, 0, 4, pSync);
 
-  for (i = 0; i < 8; i++) {
-    printf("%d: target[%d] = %ld\n", me, i, target[i]);
-  }
-  
-  shmem_barrier_all();
+  for (i = 0; i < 8; i++)
+    {
+      printf ("%d: target[%d] = %ld\n", me, i, target[i]);
+    }
 
-  shfree(target);
+  shmem_barrier_all ();
+
+  shfree (target);
 
   return 0;
 }

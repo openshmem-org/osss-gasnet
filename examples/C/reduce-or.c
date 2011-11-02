@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -54,26 +54,27 @@ int src;
 int dst;
 
 int
-main()
+main ()
 {
   int i;
   int me;
   int npes;
 
-  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1) {
-    pSync[i]  =_SHMEM_SYNC_VALUE;
-  }
+  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1)
+    {
+      pSync[i] = _SHMEM_SYNC_VALUE;
+    }
 
-  start_pes(0);
-  me = _my_pe();
-  npes = _num_pes();
+  start_pes (0);
+  me = _my_pe ();
+  npes = _num_pes ();
 
   src = me + 1;
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  shmem_int_or_to_all(&dst, &src, 1, 0, 0, npes, pWrk, pSync);
+  shmem_int_or_to_all (&dst, &src, 1, 0, 0, npes, pWrk, pSync);
 
-  printf("%d/%d   dst = %d\n", me, npes, dst);
+  printf ("%d/%d   dst = %d\n", me, npes, dst);
 
   return 0;
 }

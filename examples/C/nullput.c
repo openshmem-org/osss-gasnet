@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -42,15 +42,16 @@
 #include <mpp/shmem.h>
 
 int
-main()
+main ()
 {
-  start_pes(0);
+  start_pes (0);
 
-  if (_my_pe() == 0) {
-    shmem_int_put(NULL, NULL, 1, 1);
-  }
+  if (_my_pe () == 0)
+    {
+      shmem_int_put (NULL, NULL, 1, 1);
+    }
 
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
   return 0;
 }

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -46,26 +46,27 @@
 #include <mpp/shmem.h>
 
 int
-main(void)
+main (void)
 {
   long *f;
   int me;
 
-  start_pes(0);
-  me = _my_pe();
+  start_pes (0);
+  me = _my_pe ();
 
-  f = (long *) shmalloc( sizeof(*f) );
+  f = (long *) shmalloc (sizeof (*f));
 
   *f = 3;
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  printf("%d: before put, f = %d\n", me, *f);
+  printf ("%d: before put, f = %d\n", me, *f);
 
-  if (me == 0) {
-    shmem_long_p(f, 42, 1);
-  }
+  if (me == 0)
+    {
+      shmem_long_p (f, 42, 1);
+    }
 
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  printf("%d:  after put, f = %d\n", me, *f);
+  printf ("%d:  after put, f = %d\n", me, *f);
 }

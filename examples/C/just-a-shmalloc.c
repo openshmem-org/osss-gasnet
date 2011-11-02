@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -44,15 +44,15 @@
 #include <mpp/shmem.h>
 
 int
-main()
+main ()
 {
   long *x;
 
-  start_pes(0);
+  start_pes (0);
 
-  x = (long *) shmalloc(sizeof(*x));
+  x = (long *) shmalloc (sizeof (*x));
 
-  shfree(x);
+  shfree (x);
 
   return 0;
 }

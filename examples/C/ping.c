@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -47,27 +47,30 @@
 #include <mpp/shmem.h>
 
 int
-main()
+main ()
 {
   int me, npes;
 
-  setbuf(stdout, NULL);
+  setbuf (stdout, NULL);
 
-  start_pes(0);
-  me = _my_pe();
-  npes = _num_pes();
+  start_pes (0);
+  me = _my_pe ();
+  npes = _num_pes ();
 
-  if (me == 0) {
-    int i;
-    for (i = 1; i < npes; i += 1) {
-      printf("From %d: PE %d is ", me, i);
-      printf("%s", shmem_pe_accessible(i) ? "" : "NOT ");
-      printf("accessible\n");
+  if (me == 0)
+    {
+      int i;
+      for (i = 1; i < npes; i += 1)
+	{
+	  printf ("From %d: PE %d is ", me, i);
+	  printf ("%s", shmem_pe_accessible (i) ? "" : "NOT ");
+	  printf ("accessible\n");
+	}
     }
-  }
-  else {
-    ;
-  }
+  else
+    {
+      ;
+    }
 
   return 0;
 }

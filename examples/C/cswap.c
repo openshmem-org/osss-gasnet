@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -42,20 +42,21 @@
 #include <mpp/shmem.h>
 
 int
-main()
+main ()
 {
   static int race_winner = -1;
   int oldval;
   int me;
 
-  start_pes(2);
-  me = _my_pe();
+  start_pes (2);
+  me = _my_pe ();
 
-  oldval = shmem_int_cswap(&race_winner, -1, me, 0);
+  oldval = shmem_int_cswap (&race_winner, -1, me, 0);
 
-  if (oldval == -1) {
-    printf("pe %d was first\n", me);
-  }
+  if (oldval == -1)
+    {
+      printf ("pe %d was first\n", me);
+    }
 
   return 0;
 }

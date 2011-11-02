@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -42,13 +42,13 @@
 #include <mpp/shmem.h>
 
 int
-main(int argc, char **argv)
+main (int argc, char **argv)
 {
   int me, npes;
 
-  me  = _my_pe();
+  me = _my_pe ();
 
-  printf("Hello from node %d\n", me); 
+  printf ("Hello from node %d\n", me);
 
   return 0;
 }

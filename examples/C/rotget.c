@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 /*
  *
  * Copyright (c) 2011, University of Houston System and Oak Ridge National
@@ -69,7 +69,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -83,30 +83,30 @@
 #include <mpp/shmem.h>
 
 int
-main(int argc, char **argv)
+main (int argc, char **argv)
 {
   long *src;
   long dest;
   int nextpe;
   int me, npes;
 
-  start_pes(0);
-  me = _my_pe();
-  npes = _num_pes();
+  start_pes (0);
+  me = _my_pe ();
+  npes = _num_pes ();
 
-  src = (long *)shmalloc(sizeof(*src));
+  src = (long *) shmalloc (sizeof (*src));
 
   *src = me;
 
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
   nextpe = (me + 1) % npes;
 
-  shmem_long_get(&dest, src, 1, nextpe);
+  shmem_long_get (&dest, src, 1, nextpe);
 
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  printf("%d @ %s: %ld\n", me, shmem_nodename(), dest);
+  printf ("%d @ %s: %ld\n", me, shmem_nodename (), dest);
 
   return 0;
 }

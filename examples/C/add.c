@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -52,22 +52,23 @@
 int dst;
 
 int
-main()
+main ()
 {
   int me;
 
-  start_pes(2 /* unused, just a reminder */ );
-  me = _my_pe();
+  start_pes (2 /* unused, just a reminder */ );
+  me = _my_pe ();
 
   dst = 22;
-  shmem_barrier_all();
+  shmem_barrier_all ();
 
-  if (me == 0) {
-    shmem_int_add(&dst, 44, 1);
-  }
-  shmem_barrier_all();
+  if (me == 0)
+    {
+      shmem_int_add (&dst, 44, 1);
+    }
+  shmem_barrier_all ();
 
-  printf("%d: dst = %d\n", me, dst);
+  printf ("%d: dst = %d\n", me, dst);
 
   return 0;
 }

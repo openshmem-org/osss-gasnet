@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -49,19 +49,19 @@
 static int value;
 
 int
-main()
+main ()
 {
   int old;
   int me;
 
-  start_pes(0);
-  me = _my_pe();
+  start_pes (0);
+  me = _my_pe ();
 
   value = me + 1;
 
-  old = shmem_int_cswap(&value, value, -value, me);
+  old = shmem_int_cswap (&value, value, -value, me);
 
-  printf("%d: value = %d, old = %d\n", me, value, old);
+  printf ("%d: value = %d, old = %d\n", me, value, old);
 
   return 0;
 }

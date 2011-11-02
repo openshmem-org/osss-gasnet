@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -49,21 +49,21 @@
 long var;
 
 int
-main(void)
+main (void)
 {
-  start_pes(0);
+  start_pes (0);
 
-  shmem_clear_cache_inv();
+  shmem_clear_cache_inv ();
 
-  shmem_set_cache_inv();
+  shmem_set_cache_inv ();
 
-  shmem_clear_cache_line_inv(&var);
+  shmem_clear_cache_line_inv (&var);
 
-  shmem_set_cache_line_inv(&var);
+  shmem_set_cache_line_inv (&var);
 
-  shmem_udcflush();
+  shmem_udcflush ();
 
-  shmem_udcflush_line(&var);
+  shmem_udcflush_line (&var);
 
   return 0;
 }

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -47,25 +47,24 @@
 #include <mpp/shmem.h>
 
 int
-main(int argc, char **argv)
+main (int argc, char **argv)
 {
   int npes;
   int me;
 
-  start_pes(0);
-  npes = _num_pes();
-  me = _my_pe();
+  start_pes (0);
+  npes = _num_pes ();
+  me = _my_pe ();
 
-  if (me == 0) {
-    int ma, mi;
+  if (me == 0)
+    {
+      int ma, mi;
 
-    shmem_version(&ma, &mi);
+      shmem_version (&ma, &mi);
 
-    printf("PE %d (of %d) says hello from\n", me, npes);
-    printf("  OpenSHMEM library version %d.%d\n",
-           ma, mi
-          );
-  }
+      printf ("PE %d (of %d) says hello from\n", me, npes);
+      printf ("  OpenSHMEM library version %d.%d\n", ma, mi);
+    }
 
   return 0;
 }
