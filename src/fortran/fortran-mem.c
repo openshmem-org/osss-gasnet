@@ -121,7 +121,8 @@ FORTRANIFY (pshpalloc) (void **addr, int *length, long *errcode, int *abort)
  *   program hangs.
  */
 
-void FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
+void
+FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
 {
   INIT_CHECK ();
 

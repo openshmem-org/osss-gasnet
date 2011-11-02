@@ -66,6 +66,7 @@ CACHE_NO_OP (shmem_clear_cache_line_inv, void *target)
 CACHE_NO_OP (shmem_set_cache_line_inv, void *target)
 CACHE_NO_OP (shmem_udcflush, void)
 CACHE_NO_OP (shmem_udcflush_line, void *target)
+
 #pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
 #pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
 #pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
