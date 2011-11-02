@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -45,6 +45,6 @@
  *
  */
 
-extern void __shmem_exit(int status);
+extern void __shmem_exit (int status);
 
 #endif /* _UPDOWN_H */

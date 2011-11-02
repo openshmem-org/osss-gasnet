@@ -33,11 +33,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
-#include <stdio.h>               /* NULL                           */
+#include <stdio.h>		/* NULL                           */
 
 #include "trace.h"
 #include "globalvar.h"
@@ -50,19 +50,17 @@
  */
 
 void
-__shmem_symmetric_test_with_abort(void *remote_addr,
-				  void *local_addr,
-				  const char *name,
-				  const char *routine)
+__shmem_symmetric_test_with_abort (void *remote_addr,
+				   void *local_addr,
+				   const char *name, const char *routine)
 {
-  if (remote_addr == NULL) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "shmem_%s_%s: address %p is not symmetric",
-		  name, routine,
-		  local_addr
-		  );
-    /* NOT REACHED */
-  }
+  if (remote_addr == NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "shmem_%s_%s: address %p is not symmetric",
+		     name, routine, local_addr);
+      /* NOT REACHED */
+    }
 }
 
 /*
@@ -70,16 +68,15 @@ __shmem_symmetric_test_with_abort(void *remote_addr,
  *
  */
 int
-__shmem_symmetric_addr_accessible(void *addr, int pe)
+__shmem_symmetric_addr_accessible (void *addr, int pe)
 {
-  return (__shmem_symmetric_addr_lookup(addr, pe) != NULL);
+  return (__shmem_symmetric_addr_lookup (addr, pe) != NULL);
 }
 
 int
-__shmem_is_symmetric(void *addr)
+__shmem_is_symmetric (void *addr)
 {
   return
-    __shmem_symmetric_is_globalvar(addr)
-    ||
-    __shmem_symmetric_var_in_range(addr, GET_STATE(mype));
+    __shmem_symmetric_is_globalvar (addr)
+    || __shmem_symmetric_var_in_range (addr, GET_STATE (mype));
 }

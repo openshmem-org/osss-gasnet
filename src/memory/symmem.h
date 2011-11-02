@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -42,7 +42,7 @@
 
 #include <sys/types.h>
 
-extern void * __shmalloc_no_check(size_t size);
-extern int __shmalloc_symmetry_check(size_t size);
+extern void *__shmalloc_no_check (size_t size);
+extern int __shmalloc_symmetry_check (size_t size);
 
-#endif /* _SYMMEM_H*/
+#endif /* _SYMMEM_H */

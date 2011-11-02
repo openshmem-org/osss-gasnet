@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -48,11 +48,11 @@
 
 /* @api@ */
 int
-pshmem_pe_accessible(int pe)
+pshmem_pe_accessible (int pe)
 {
-  INIT_CHECK();
-  PE_RANGE_CHECK(pe);
-  return __shmem_comms_ping_request(pe);
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  return __shmem_comms_ping_request (pe);
 }
 
 /*
@@ -62,11 +62,11 @@ pshmem_pe_accessible(int pe)
 
 /* @api@ */
 int
-pshmem_addr_accessible(void *addr, int pe)
+pshmem_addr_accessible (void *addr, int pe)
 {
-  INIT_CHECK();
-  PE_RANGE_CHECK(pe);
-  return __shmem_symmetric_addr_accessible(addr, pe);
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  return __shmem_symmetric_addr_accessible (addr, pe);
 }
 
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible

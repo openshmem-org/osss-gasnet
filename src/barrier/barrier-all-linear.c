@@ -33,21 +33,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
 #include "comms.h"
 
 void
-__shmem_barrier_all_linear(void)
+__shmem_barrier_all_linear (void)
 {
-  __shmem_comms_barrier_all();
+  __shmem_comms_barrier_all ();
 }
 
 #include "module_info.h"
-module_info_t module_info =
-  {
-    __shmem_barrier_all_linear,
-    __shmem_barrier_all_linear,
-  };
+module_info_t module_info = {
+  __shmem_barrier_all_linear,
+  __shmem_barrier_all_linear,
+};

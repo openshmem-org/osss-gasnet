@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -79,12 +79,10 @@
 		  );							\
   }
 
-SHMEM_FCOLLECT(32, 4)
-SHMEM_FCOLLECT(64, 8)
-
+SHMEM_FCOLLECT (32, 4) SHMEM_FCOLLECT (64, 8)
 #include "module_info.h"
-module_info_t module_info =
-  {
-    __shmem_fcollect32_linear,
-    __shmem_fcollect64_linear,
-  };
+     module_info_t
+       module_info = {
+       __shmem_fcollect32_linear,
+       __shmem_fcollect64_linear,
+     };

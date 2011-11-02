@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -55,25 +55,25 @@ static mspace myspace;
  * initialize the memory pool
  */
 void
-__shmem_mem_init(void *base, size_t capacity)
+__shmem_mem_init (void *base, size_t capacity)
 {
-  myspace = create_mspace_with_base(base, capacity, 1);
+  myspace = create_mspace_with_base (base, capacity, 1);
 }
 
 /*
  * clean up memory pool
  */
 void
-__shmem_mem_finalize(void)
+__shmem_mem_finalize (void)
 {
-  destroy_mspace(myspace);
+  destroy_mspace (myspace);
 }
 
 /*
  * return start of pool
  */
 void *
-__shmem_mem_base(void)
+__shmem_mem_base (void)
 {
   return myspace;
 }
@@ -85,34 +85,34 @@ __shmem_mem_base(void)
 #define MIN_MALLOC_SIZE 64
 
 void *
-__shmem_mem_alloc(size_t size)
+__shmem_mem_alloc (size_t size)
 {
-  return mspace_malloc(myspace, size);
+  return mspace_malloc (myspace, size);
 }
 
 /*
  * release memory previously allocated at ADDR
  */
 void
-__shmem_mem_free(void *addr)
+__shmem_mem_free (void *addr)
 {
-  mspace_free(myspace, addr);
+  mspace_free (myspace, addr);
 }
 
 /*
  * resize ADDR to SIZE bytes
  */
 void *
-__shmem_mem_realloc(void *addr, size_t size)
+__shmem_mem_realloc (void *addr, size_t size)
 {
-  return mspace_realloc(myspace, addr, size);
+  return mspace_realloc (myspace, addr, size);
 }
 
 /*
  * allocate memory of SIZE bytes, aligning to ALIGNMENT
  */
 void *
-__shmem_mem_align(size_t alignment, size_t size)
+__shmem_mem_align (size_t alignment, size_t size)
 {
-  return mspace_memalign(myspace, alignment, size);
+  return mspace_memalign (myspace, alignment, size);
 }

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -73,14 +73,17 @@
  * manage the distributed linked list state.
  */
 
-typedef struct {
-  union {
-    struct {
-      volatile uint16_t locked;    /* boolean to indicate current state of lock */
-      volatile int16_t  next;      /* vp of next requestor */
+typedef struct
+{
+  union
+  {
+    struct
+    {
+      volatile uint16_t locked;	/* boolean to indicate current state of lock */
+      volatile int16_t next;	/* vp of next requestor */
     } s;
     volatile uint32_t word;
-  } u; 
+  } u;
 #define l_locked        u.s.locked
 #define l_next          u.s.next
 #define l_word          u.word
@@ -93,9 +96,8 @@ typedef struct {
 /* Macro to map lock virtual address to owning process vp */
 #define LOCK_OWNER(LOCK)	(((uintptr_t)(LOCK) >> 3) % (_num_pes()))
 
-static
-void
-mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
+static void
+mcs_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 {
   SHMEM_LOCK tmp;
   long locked, prev_pe;
@@ -106,87 +108,92 @@ mcs_lock_acquire(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
   tmp.l_locked = 1;
   tmp.l_next = this_pe;
 
-  LOAD_STORE_FENCE();
+  LOAD_STORE_FENCE ();
 
   /*
    * Swap this_pe into the global lock owner, returning previous
    * value, atomically
    */
-  tmp.l_word = shmem_int_swap((int *)&lock->l_word, tmp.l_word, LOCK_OWNER(lock));
+  tmp.l_word =
+    shmem_int_swap ((int *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
 
   /* Translate old (broken) default lock state */
-  if (tmp.l_word == _SHMEM_LOCK_FREE) {
-    tmp.l_word = _SHMEM_LOCK_RESET;
-  }
+  if (tmp.l_word == _SHMEM_LOCK_FREE)
+    {
+      tmp.l_word = _SHMEM_LOCK_RESET;
+    }
 
   /* Extract the global lock (tail) state */
   prev_pe = tmp.l_next;
   locked = tmp.l_locked;
 
   /* Is the lock held by someone else ? */
-  if (locked) 
+  if (locked)
     {
       /*
        * This flag gets cleared (remotely) once the lock is dropped
        */
       node->l_locked = 1;
-	
-      LOAD_STORE_FENCE();
+
+      LOAD_STORE_FENCE ();
 
       /*
        * I'm now next in global linked list, update l_next in the
        * prev_pe process with our vp
        */
-      shmem_short_p((short *)&node->l_next, this_pe, prev_pe);
+      shmem_short_p ((short *) &node->l_next, this_pe, prev_pe);
 
       /* Wait for flag to be released */
-      do {
-	__shmem_comms_pause();
-      } while (node->l_locked);
+      do
+	{
+	  __shmem_comms_pause ();
+	}
+      while (node->l_locked);
 
     }
 }
 
-static
-void
-mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
+static void
+mcs_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 {
   /* Is there someone on the linked list ? */
-  if (node->l_next == _SHMEM_LOCK_FREE) {
-    SHMEM_LOCK tmp;
+  if (node->l_next == _SHMEM_LOCK_FREE)
+    {
+      SHMEM_LOCK tmp;
 
-    /* Form the remote atomic compare value (int) */
-    tmp.l_locked = 1;
-    tmp.l_next = this_pe;
+      /* Form the remote atomic compare value (int) */
+      tmp.l_locked = 1;
+      tmp.l_next = this_pe;
 
-    /*
-     * If global lock owner value still equals this_pe, load RESET
-     * into it & return prev value
-     */
-    tmp.l_word = shmem_int_cswap((int *)&lock->l_word,
-				 tmp.l_word,
-				 _SHMEM_LOCK_RESET,
-				 LOCK_OWNER(lock)
-				 );
+      /*
+       * If global lock owner value still equals this_pe, load RESET
+       * into it & return prev value
+       */
+      tmp.l_word = shmem_int_cswap ((int *) &lock->l_word,
+				    tmp.l_word,
+				    _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
 
-    if (tmp.l_next == this_pe) {
-      /* We were still the only requestor, all done */
-      return;
+      if (tmp.l_next == this_pe)
+	{
+	  /* We were still the only requestor, all done */
+	  return;
+	}
+
+      /*
+       * Somebody is about to chain themself off us, wait for them to do it.
+       *
+       * Quadrics: we have seen l_next being written as two individual
+       * bytes here when when the usercopy device is active, poll for
+       * it being valid as well as it being set to ensure both bytes
+       * are written before we try to use its value below.
+       *       
+       */
+      do
+	{
+	  __shmem_comms_pause ();
+	}
+      while ((node->l_next == _SHMEM_LOCK_FREE) || (node->l_next < 0));
     }
-      
-    /*
-     * Somebody is about to chain themself off us, wait for them to do it.
-     *
-     * Quadrics: we have seen l_next being written as two individual
-     * bytes here when when the usercopy device is active, poll for
-     * it being valid as well as it being set to ensure both bytes
-     * are written before we try to use its value below.
-     *       
-     */
-    do {
-      __shmem_comms_pause();
-    } while ( (node->l_next == _SHMEM_LOCK_FREE) || (node->l_next < 0) );
-  }
 
   /* Be more strict about the test above,
    * this memory consistency problem is a tricky one
@@ -195,15 +202,16 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
    * could easily be true already)
    */
 
-  while ( node->l_next < 0 ) {
-    __shmem_comms_pause();
-  }
-    
+  while (node->l_next < 0)
+    {
+      __shmem_comms_pause ();
+    }
+
   /*
    * Release any waiters on the linked list
    */
 
-  shmem_short_p((short *)&node->l_locked, 0, node->l_next);
+  shmem_short_p ((short *) &node->l_locked, 0, node->l_next);
 }
 
 
@@ -215,29 +223,30 @@ mcs_lock_release(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
  *
  * (addy 12.10.05)
  */
-static
-int
-mcs_lock_test(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
-{  
+static int
+mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
+{
   SHMEM_LOCK tmp;
   int retval;
 
   /* Read the remote global lock value */
-  tmp.l_word = shmem_int_g((int *)&lock->l_word, LOCK_OWNER(lock));
+  tmp.l_word = shmem_int_g ((int *) &lock->l_word, LOCK_OWNER (lock));
 
   /* Translate old (broken) default lock state */
   if (tmp.l_word == _SHMEM_LOCK_FREE)
     tmp.l_word = _SHMEM_LOCK_RESET;
 
   /* If lock already set then return 1, otherwise grab the lock & return 0 */
-  if (tmp.l_word == _SHMEM_LOCK_RESET) {
-    mcs_lock_acquire(node, lock, this_pe);
-    retval = 0;
-  }
-  else {
-    retval = 1;
-  }
-  
+  if (tmp.l_word == _SHMEM_LOCK_RESET)
+    {
+      mcs_lock_acquire (node, lock, this_pe);
+      retval = 0;
+    }
+  else
+    {
+      retval = 1;
+    }
+
   return retval;
 }
 
@@ -247,35 +256,29 @@ mcs_lock_test(SHMEM_LOCK *node, SHMEM_LOCK *lock, long this_pe)
 
 /* @api@ */
 void
-pshmem_set_lock(long *lock)
+pshmem_set_lock (long *lock)
 {
-  mcs_lock_acquire(&((SHMEM_LOCK *)lock)[1],
-		   &((SHMEM_LOCK *)lock)[0],
-		   _my_pe()
-		   );
+  mcs_lock_acquire (&((SHMEM_LOCK *) lock)[1],
+		    &((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
 
 /* @api@ */
 void
-pshmem_clear_lock(long *lock)
+pshmem_clear_lock (long *lock)
 {
   /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
-  shmem_quiet();
+  shmem_quiet ();
 
-  mcs_lock_release(&((SHMEM_LOCK *)lock)[1],
-		   &((SHMEM_LOCK *)lock)[0],
-		   _my_pe()
-		   );
+  mcs_lock_release (&((SHMEM_LOCK *) lock)[1],
+		    &((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
 
 /* @api@ */
 int
-pshmem_test_lock(long *lock)
+pshmem_test_lock (long *lock)
 {
-  return mcs_lock_test(&((SHMEM_LOCK *)lock)[1],
-		       &((SHMEM_LOCK *)lock)[0],
-		       _my_pe()
-		       );
+  return mcs_lock_test (&((SHMEM_LOCK *) lock)[1],
+			&((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
 
 #pragma weak shmem_set_lock = pshmem_set_lock

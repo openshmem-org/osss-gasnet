@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -42,18 +42,18 @@
 
 /* @api@ */
 void
-pshmem_fence(void)
+pshmem_fence (void)
 {
-  INIT_CHECK();
-  __shmem_comms_fence_request();
+  INIT_CHECK ();
+  __shmem_comms_fence_request ();
 }
 
 /* @api@ */
 void
-pshmem_quiet(void)
+pshmem_quiet (void)
 {
-  INIT_CHECK();
-  __shmem_comms_quiet_request();
+  INIT_CHECK ();
+  __shmem_comms_quiet_request ();
 }
 
 #pragma weak shmem_fence = pshmem_fence

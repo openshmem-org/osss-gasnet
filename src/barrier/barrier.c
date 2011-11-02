@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -60,7 +60,7 @@ static module_info_t mi_all, mi_bar;
  */
 
 void
-__shmem_barriers_dispatch_init(void)
+__shmem_barriers_dispatch_init (void)
 {
   char *bar_name;
   char *all_name;
@@ -71,45 +71,45 @@ __shmem_barriers_dispatch_init(void)
    *
    */
 
-  all_name = __shmem_comms_getenv("SHMEM_BARRIER_ALL_ALGORITHM");
-  if (all_name == (char *) NULL) {
-    all_name = __shmem_modules_get_implementation("barrier-all");
-  }
-  sa = __shmem_modules_load("barrier-all", all_name, &mi_all);
-  if (sa != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-                  "internal error: couldn't load barrier-all module \"%s\"",
-                  all_name
-                  );
-    /* NOT REACHED */
-  }
+  all_name = __shmem_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
+  if (all_name == (char *) NULL)
+    {
+      all_name = __shmem_modules_get_implementation ("barrier-all");
+    }
+  sa = __shmem_modules_load ("barrier-all", all_name, &mi_all);
+  if (sa != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: couldn't load barrier-all module \"%s\"",
+		     all_name);
+      /* NOT REACHED */
+    }
 
   /*
    * choose the barrier (could be different from _all)
    *
    */
 
-  bar_name = __shmem_comms_getenv("SHMEM_BARRIER_ALGORITHM");
-  if (bar_name == (char *) NULL) {
-    bar_name = __shmem_modules_get_implementation("barrier");
-  }
-  sb = __shmem_modules_load("barrier", bar_name, &mi_bar);
-  if (sb != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-                  "internal error: couldn't load barrier module \"%s\"",
-                  bar_name
-                  );
-    /* NOT REACHED */
-  }
+  bar_name = __shmem_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
+  if (bar_name == (char *) NULL)
+    {
+      bar_name = __shmem_modules_get_implementation ("barrier");
+    }
+  sb = __shmem_modules_load ("barrier", bar_name, &mi_bar);
+  if (sb != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: couldn't load barrier module \"%s\"",
+		     bar_name);
+      /* NOT REACHED */
+    }
 
   /*
    * report which implementation we set up
    */
-  __shmem_trace(SHMEM_LOG_BROADCAST,
-                "using barrier_all \"%s\" & barrier \"%s\"",
-                all_name,
-		bar_name
-                );
+  __shmem_trace (SHMEM_LOG_BROADCAST,
+		 "using barrier_all \"%s\" & barrier \"%s\"",
+		 all_name, bar_name);
 
 }
 
@@ -124,24 +124,24 @@ __shmem_barriers_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_barrier_all(void)
+pshmem_barrier_all (void)
 {
-  INIT_CHECK();
+  INIT_CHECK ();
 
-  pshmem_quiet();
+  pshmem_quiet ();
 
-  mi_all.func_32();
+  mi_all.func_32 ();
 }
 
 /* @api@ */
 void
-pshmem_barrier(int PE_start, int logPE_stride, int PE_size, long *pSync)
+pshmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  INIT_CHECK();
+  INIT_CHECK ();
 
   /* barrier doesn't imply pshmem_quiet(); */
 
-  mi_bar.func_32(PE_start, logPE_stride, PE_size, pSync);
+  mi_bar.func_32 (PE_start, logPE_stride, PE_size, pSync);
 }
 
 #pragma weak shmem_barrier_all = pshmem_barrier_all

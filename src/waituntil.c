@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -98,13 +98,11 @@
     }									\
   }
 
-SHMEM_TYPE_WAIT_UNTIL(short, short)
-SHMEM_TYPE_WAIT_UNTIL(int, int)
-SHMEM_TYPE_WAIT_UNTIL(long, long)
-SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
-
+SHMEM_TYPE_WAIT_UNTIL (short, short)
+SHMEM_TYPE_WAIT_UNTIL (int, int)
+SHMEM_TYPE_WAIT_UNTIL (long, long)
+SHMEM_TYPE_WAIT_UNTIL (longlong, long long)
 #pragma weak pshmem_wait_until = pshmem_long_wait_until
-
 /*
  * wait is just wait_until with equality test
  */
@@ -115,14 +113,11 @@ SHMEM_TYPE_WAIT_UNTIL(longlong, long long)
   {									\
     pshmem_##Name##_wait_until(ivar, SHMEM_CMP_NE, cmp_value);		\
   }
-
-SHMEM_TYPE_WAIT(short, short)
-SHMEM_TYPE_WAIT(int, int)
-SHMEM_TYPE_WAIT(long, long)
-SHMEM_TYPE_WAIT(longlong, long long)
-
+SHMEM_TYPE_WAIT (short, short)
+SHMEM_TYPE_WAIT (int, int)
+SHMEM_TYPE_WAIT (long, long)
+SHMEM_TYPE_WAIT (longlong, long long)
 #pragma weak pshmem_wait = pshmem_long_wait
-
 #pragma weak shmem_short_wait_until = pshmem_short_wait_until
 #pragma weak shmem_int_wait_until = pshmem_int_wait_until
 #pragma weak shmem_long_wait_until = pshmem_long_wait_until

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -52,7 +52,8 @@ state_t __state = {
  * PE status and its human description
  */
 
-struct state_desc {
+struct state_desc
+{
   pe_status_t s;
   const char *desc;
 };
@@ -61,33 +62,34 @@ struct state_desc {
  * table of known PE status
  */
 
-static struct state_desc d[] =
-  {
-    { PE_UNINITIALIZED, "PE has not been initialized yet" },
-    { PE_UNKNOWN,       "I have no information about PE" },
-    { PE_RUNNING,       "PE is running" },
-    { PE_SHUTDOWN,      "PE has been cleanly shut down" },
-    { PE_FAILED,        "PE has failed" },
-  };
-static const int nd = TABLE_SIZE(d);
+static struct state_desc d[] = {
+  {PE_UNINITIALIZED, "PE has not been initialized yet"},
+  {PE_UNKNOWN, "I have no information about PE"},
+  {PE_RUNNING, "PE is running"},
+  {PE_SHUTDOWN, "PE has been cleanly shut down"},
+  {PE_FAILED, "PE has failed"},
+};
+static const int nd = TABLE_SIZE (d);
 
 /*
  * translate PE status to human description
  */
 
 const char *
-__shmem_state_as_string(pe_status_t s)
+__shmem_state_as_string (pe_status_t s)
 {
   struct state_desc *dp = d;
   int i;
 
-  for (i = 0; i < nd; i += 1) {
-    if (s == dp->s) {
-      return dp->desc;
-      /* NOT REACHED */
+  for (i = 0; i < nd; i += 1)
+    {
+      if (s == dp->s)
+	{
+	  return dp->desc;
+	  /* NOT REACHED */
+	}
+      dp += 1;
     }
-    dp += 1;
-  }
 
   return "unknown state";
 }

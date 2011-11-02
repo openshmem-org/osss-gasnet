@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -49,8 +49,9 @@
  * known PE states
  */
 
-typedef enum {
-  PE_UNINITIALIZED=0,		/* start like this */
+typedef enum
+{
+  PE_UNINITIALIZED = 0,		/* start like this */
   PE_UNKNOWN,			/* for when we have no information yet */
   PE_RUNNING,			/* after start_pes() */
   PE_SHUTDOWN,			/* clean exit */
@@ -61,23 +62,24 @@ typedef enum {
  * translate PE state to human description
  */
 
-extern const char * __shmem_state_as_string(pe_status_t s);
+extern const char *__shmem_state_as_string (pe_status_t s);
 
 /*
  * per-PE state structure
  */
 
-typedef struct {
+typedef struct
+{
   pe_status_t pe_status;	/* up and running yet? */
 
-  int numpes;                   /* # of processing elements */
-  int mype;                     /* rank of this processing element */
+  int numpes;			/* # of processing elements */
+  int mype;			/* rank of this processing element */
 
   size_t heapsize;		/* size of symmetric heap (bytes) */
 
-  struct itimerval ping_timeout; /* wait for remote PE to ack ping */
+  struct itimerval ping_timeout;	/* wait for remote PE to ack ping */
 
-  struct utsname loc;  /* location information (currently not used) */
+  struct utsname loc;		/* location information (currently not used) */
 
   char exe_name[MAXPATHLEN];	/* real name of executable */
   int exe_fd;			/* file descriptor of executable */

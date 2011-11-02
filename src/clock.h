@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -44,13 +44,13 @@
  * start/stop the clock subsystem
  *
  */
-extern void __shmem_elapsed_clock_init(void);
-extern void __shmem_elapsed_clock_finalize(void);
+extern void __shmem_elapsed_clock_init (void);
+extern void __shmem_elapsed_clock_finalize (void);
 
 /*
  * read the clock to see how much time has elapsed
  *
  */
-extern double __shmem_elapsed_clock_get(void);
+extern double __shmem_elapsed_clock_get (void);
 
 #endif /* _CLOCK_H */

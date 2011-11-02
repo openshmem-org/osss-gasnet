@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -45,24 +45,23 @@
  */
 
 void
-shmem_pcontrol(int level)
+shmem_pcontrol (int level)
 {
   char *msg;
 
-  if (level == 0) {
-    msg = "disabled";
-  }
-  else if (level == 1) {
-    msg = "enabled (default detail)";
-  }
-  else {
-    msg = "tool-specific";
-  }
+  if (level == 0)
+    {
+      msg = "disabled";
+    }
+  else if (level == 1)
+    {
+      msg = "enabled (default detail)";
+    }
+  else
+    {
+      msg = "tool-specific";
+    }
 
-  __shmem_trace(SHMEM_LOG_INFO,
-		"shmem_pcontrol(%d) is %s",
-		level,
-		msg
-		);
+  __shmem_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
   return;
 }

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -61,12 +61,10 @@
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }									\
 
-SHMEM_BROADCAST_TYPE(32, 4)
-SHMEM_BROADCAST_TYPE(64, 8)
-
+SHMEM_BROADCAST_TYPE (32, 4) SHMEM_BROADCAST_TYPE (64, 8)
 #include "module_info.h"
-module_info_t module_info =
-  {
-    __shmem_broadcast32_linear,
-    __shmem_broadcast64_linear,
-  };
+     module_info_t
+       module_info = {
+       __shmem_broadcast32_linear,
+       __shmem_broadcast64_linear,
+     };

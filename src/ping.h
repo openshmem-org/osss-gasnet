@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -43,17 +43,17 @@
 /*
  * initialize the ping subsystem
  */
-extern void __shmem_ping_init(void);
+extern void __shmem_ping_init (void);
 
 /*
  * set the amount of time to wait
  */
-extern void __shmem_set_ping_timeout(double secs);
+extern void __shmem_set_ping_timeout (double secs);
 
 /*
  * set & clear alarms
  */
-extern void __shmem_ping_set_alarm(void);
-extern void __shmem_ping_clear_alarm(void);
+extern void __shmem_ping_set_alarm (void);
+extern void __shmem_ping_clear_alarm (void);
 
 #endif /* _PING_H */

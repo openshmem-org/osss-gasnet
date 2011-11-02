@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -62,7 +62,7 @@ static module_info_t mi;
  */
 
 void
-__shmem_broadcast_dispatch_init(void)
+__shmem_broadcast_dispatch_init (void)
 {
   char *name;
   int s;
@@ -71,26 +71,24 @@ __shmem_broadcast_dispatch_init(void)
    * choose the broadcast: env >> config file
    *
    */
-  name = __shmem_comms_getenv("SHMEM_BROADCAST_ALGORITHM");
-  if (name == (char *) NULL) {
-    name = __shmem_modules_get_implementation("broadcast");
-  }
-  s = __shmem_modules_load("broadcast", name, &mi);
-  if (s != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: couldn't load broadcast module \"%s\"",
-		  name
-		  );
-    /* NOT REACHED */
-  }
+  name = __shmem_comms_getenv ("SHMEM_BROADCAST_ALGORITHM");
+  if (name == (char *) NULL)
+    {
+      name = __shmem_modules_get_implementation ("broadcast");
+    }
+  s = __shmem_modules_load ("broadcast", name, &mi);
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: couldn't load broadcast module \"%s\"",
+		     name);
+      /* NOT REACHED */
+    }
 
   /*
    * report which broadcast implementation we set up
    */
-  __shmem_trace(SHMEM_LOG_BROADCAST,
-		"using broadcast \"%s\"",
-		name
-		);
+  __shmem_trace (SHMEM_LOG_BROADCAST, "using broadcast \"%s\"", name);
 }
 
 /*
@@ -101,31 +99,29 @@ __shmem_broadcast_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_broadcast32(void *target, const void *source, size_t nelems,
-		   int PE_root, int PE_start, int logPE_stride, int PE_size,
-		   long *pSync)
+pshmem_broadcast32 (void *target, const void *source, size_t nelems,
+		    int PE_root, int PE_start, int logPE_stride, int PE_size,
+		    long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_broadcast32");
-  SYMMETRY_CHECK(source, 2, "shmem_broadcast32");
+  SYMMETRY_CHECK (target, 1, "shmem_broadcast32");
+  SYMMETRY_CHECK (source, 2, "shmem_broadcast32");
 
-  mi.func_32(target, source, nelems,
-	     PE_root, PE_start, logPE_stride, PE_size,
-	     pSync);
+  mi.func_32 (target, source, nelems,
+	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
 
 /* @api@ */
 void
-pshmem_broadcast64(void *target, const void *source, size_t nelems,
-		   int PE_root, int PE_start, int logPE_stride, int PE_size,
-		   long *pSync)
+pshmem_broadcast64 (void *target, const void *source, size_t nelems,
+		    int PE_root, int PE_start, int logPE_stride, int PE_size,
+		    long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_broadcast64");
-  SYMMETRY_CHECK(source, 2, "shmem_broadcast64");
+  SYMMETRY_CHECK (target, 1, "shmem_broadcast64");
+  SYMMETRY_CHECK (source, 2, "shmem_broadcast64");
 
-  mi.func_64(target, source, nelems,
-	     PE_root, PE_start, logPE_stride, PE_size,
-	     pSync);
+  mi.func_64 (target, source, nelems,
+	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
 #pragma weak shmem_broadcast32 = pshmem_broadcast32
@@ -133,17 +129,18 @@ pshmem_broadcast64(void *target, const void *source, size_t nelems,
 
 /* @api@ */
 void
-pshmem_sync_init(long *pSync)
+pshmem_sync_init (long *pSync)
 {
   const int nb = _SHMEM_BCAST_SYNC_SIZE;
   int i;
 
-  SYMMETRY_CHECK(pSync, 1, "shmem_sync_init");
+  SYMMETRY_CHECK (pSync, 1, "shmem_sync_init");
 
-  for (i = 0; i < nb; i += 1) {
-    pSync[i] = _SHMEM_SYNC_VALUE;
-  }
-  shmem_barrier_all();
+  for (i = 0; i < nb; i += 1)
+    {
+      pSync[i] = _SHMEM_SYNC_VALUE;
+    }
+  shmem_barrier_all ();
 }
 
 #pragma weak shmem_sync_init = pshmem_sync_init

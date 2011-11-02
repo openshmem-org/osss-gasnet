@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -63,7 +63,7 @@ static module_info_t mi;
  */
 
 void
-__shmem_fcollect_dispatch_init(void)
+__shmem_fcollect_dispatch_init (void)
 {
   char *name;
   int s;
@@ -73,26 +73,24 @@ __shmem_fcollect_dispatch_init(void)
    *
    */
 
-  name = __shmem_comms_getenv("SHMEM_FCOLLECT_ALGORITHM");
-  if (name == (char *) NULL) {
-    name = __shmem_modules_get_implementation("fcollect");
-  }
-  s = __shmem_modules_load("fcollect", name, &mi);
-  if (s != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: couldn't load fcollect module \"%s\"",
-		  name
-		  );
-    /* NOT REACHED */
-  }
+  name = __shmem_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
+  if (name == (char *) NULL)
+    {
+      name = __shmem_modules_get_implementation ("fcollect");
+    }
+  s = __shmem_modules_load ("fcollect", name, &mi);
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: couldn't load fcollect module \"%s\"",
+		     name);
+      /* NOT REACHED */
+    }
 
   /*
    * report which implementation we set up
    */
-  __shmem_trace(SHMEM_LOG_BROADCAST,
-		"using fcollect \"%s\"",
-		name
-		);
+  __shmem_trace (SHMEM_LOG_BROADCAST, "using fcollect \"%s\"", name);
 }
 
 /*
@@ -103,30 +101,24 @@ __shmem_fcollect_dispatch_init(void)
 
 /* @api@ */
 void
-pshmem_fcollect32(void *target, const void *source, size_t nelems,
-		  int PE_start, int logPE_stride, int PE_size,
-		  long *pSync)
+pshmem_fcollect32 (void *target, const void *source, size_t nelems,
+		   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_fcollect32");
-  SYMMETRY_CHECK(source, 2, "shmem_fcollect32");
+  SYMMETRY_CHECK (target, 1, "shmem_fcollect32");
+  SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
 
-  mi.func_32(target, source, nelems,
-	     PE_start, logPE_stride, PE_size,
-	     pSync);
+  mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
 
 /* @api@ */
 void
-pshmem_fcollect64(void *target, const void *source, size_t nelems,
-		  int PE_start, int logPE_stride, int PE_size,
-		  long *pSync)
+pshmem_fcollect64 (void *target, const void *source, size_t nelems,
+		   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  SYMMETRY_CHECK(target, 1, "shmem_fcollect64");
-  SYMMETRY_CHECK(source, 2, "shmem_fcollect64");
+  SYMMETRY_CHECK (target, 1, "shmem_fcollect64");
+  SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
 
-  mi.func_64(target, source, nelems,
-	     PE_start, logPE_stride, PE_size,
-	     pSync);
+  mi.func_64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
 
 #pragma weak shmem_fcollect32 = pshmem_fcollect32

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -44,9 +44,10 @@
  * tell us which functions implement the 32 vs 64 bit routines
  */
 
-typedef struct {
-  void (*func_32)();
-  void (*func_64)();
+typedef struct
+{
+  void (*func_32) ();
+  void (*func_64) ();
 } module_info_t;
 
 #endif /* _MODULE_INFO_H */

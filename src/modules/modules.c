@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -53,11 +53,12 @@
 
 #include "uthash.h"
 
-typedef struct {
-  char *name;                   /* module = key */
+typedef struct
+{
+  char *name;			/* module = key */
 
-  int lineno;                   /* line in the config file */
-  char *impl;                   /* name of implementation */
+  int lineno;			/* line in the config file */
+  char *impl;			/* name of implementation */
 
   UT_hash_handle hh;
 
@@ -78,7 +79,7 @@ static char *fallback_algorithm = "linear";
  */
 
 static void
-create_module_table_from_config(char *cfg_file)
+create_module_table_from_config (char *cfg_file)
 {
   FILE *fp;
   char *modname;
@@ -88,70 +89,65 @@ create_module_table_from_config(char *cfg_file)
   const char *delims = "=\t ";	/* equal, tab, space */
   char line[PATH_MAX];
 
-  fp = fopen(cfg_file, "r");
-  if (fp == (FILE *) NULL) {
-    return;
-  }
-
-  __shmem_trace(SHMEM_LOG_MODULES,
-		"about to read modules from \"%s\"",
-		cfg_file
-		);
-
-  while (fgets(line, sizeof(line), fp) != NULL) {
-    lineno += 1;
-
-    /*
-     * trim blank lines and comments
-     */
-    CHOMP(line);
-    hash = strchr(line, '#');
-    if (hash != (char *) NULL) {
-      *hash = '\0';
+  fp = fopen (cfg_file, "r");
+  if (fp == (FILE *) NULL)
+    {
+      return;
     }
 
-    modname = strtok(line, delims);
-    if (modname == (char *) NULL) {
-      continue;
-    }
+  __shmem_trace (SHMEM_LOG_MODULES,
+		 "about to read modules from \"%s\"", cfg_file);
 
-    modimpl = strtok((char *) NULL, delims);
-    if (modimpl == (char *) NULL) {
-      __shmem_trace(SHMEM_LOG_MODULES,
-		    "no implementation for module \"%s\" in \"%s\" at line %d, "
-		    "will use default",
-		    modname,
-		    cfg_file,
-		    lineno
-		    );
-      continue;
-    }
+  while (fgets (line, sizeof (line), fp) != NULL)
+    {
+      lineno += 1;
 
-    {    
-      module_table_t *mp = (module_table_t *) malloc(sizeof(*mp));
-      if (mp == (module_table_t *) NULL) {
-	__shmem_trace(SHMEM_LOG_FATAL,
-		      "internal error: unable to allocate memory for module table"
-		      );
-	/* NOT REACHED */
+      /*
+       * trim blank lines and comments
+       */
+      CHOMP (line);
+      hash = strchr (line, '#');
+      if (hash != (char *) NULL)
+	{
+	  *hash = '\0';
+	}
+
+      modname = strtok (line, delims);
+      if (modname == (char *) NULL)
+	{
+	  continue;
+	}
+
+      modimpl = strtok ((char *) NULL, delims);
+      if (modimpl == (char *) NULL)
+	{
+	  __shmem_trace (SHMEM_LOG_MODULES,
+			 "no implementation for module \"%s\" in \"%s\" at line %d, "
+			 "will use default", modname, cfg_file, lineno);
+	  continue;
+	}
+
+      {
+	module_table_t *mp = (module_table_t *) malloc (sizeof (*mp));
+	if (mp == (module_table_t *) NULL)
+	  {
+	    __shmem_trace (SHMEM_LOG_FATAL,
+			   "internal error: unable to allocate memory for module table");
+	    /* NOT REACHED */
+	  }
+	mp->lineno = lineno;
+	mp->name = strdup (modname);
+	mp->impl = strdup (modimpl);
+
+	HASH_ADD_KEYPTR (hh, mtp, mp->name, strlen (mp->name), mp);
       }
-      mp->lineno = lineno;
-      mp->name = strdup(modname);
-      mp->impl = strdup(modimpl);
 
-      HASH_ADD_KEYPTR(hh, mtp, mp->name, strlen(mp->name), mp);
-    }
+      __shmem_trace (SHMEM_LOG_MODULES,
+		     "module \"%s\", implementation \"%s\" in \"%s\" at line %d",
+		     modname, modimpl, cfg_file, lineno);
+    }				/* end line parser */
 
-    __shmem_trace(SHMEM_LOG_MODULES,
-		  "module \"%s\", implementation \"%s\" in \"%s\" at line %d",
-		  modname,
-		  modimpl,
-		  cfg_file,
-		  lineno
-		  );
-  } /* end line parser */
-
-  (void) fclose(fp);
+  (void) fclose (fp);
 }
 
 /*
@@ -160,14 +156,15 @@ create_module_table_from_config(char *cfg_file)
  */
 
 static void
-free_module_table(void)
+free_module_table (void)
 {
   module_table_t *current;
   module_table_t *tmp;
 
-  HASH_ITER(hh, mtp, current, tmp) {
-    HASH_DEL(mtp, current);
-    free(current);
+  HASH_ITER (hh, mtp, current, tmp)
+  {
+    HASH_DEL (mtp, current);
+    free (current);
   }
 }
 
@@ -177,19 +174,21 @@ free_module_table(void)
  *
  */
 char *
-__shmem_modules_get_implementation(char *mod)
+__shmem_modules_get_implementation (char *mod)
 {
   module_table_t *match;
 
-  HASH_FIND_STR(mtp, mod, match);
-  if (match != (module_table_t *) NULL) {
-    return match->impl;
-  }
+  HASH_FIND_STR (mtp, mod, match);
+  if (match != (module_table_t *) NULL)
+    {
+      return match->impl;
+    }
 
-  HASH_FIND_STR(mtp, "default", match);
-  if (match != (module_table_t *) NULL) {
-    return match->impl;
-  }
+  HASH_FIND_STR (mtp, "default", match);
+  if (match != (module_table_t *) NULL)
+    {
+      return match->impl;
+    }
 
   return fallback_algorithm;
 }
@@ -200,16 +199,13 @@ __shmem_modules_get_implementation(char *mod)
  */
 
 void
-__shmem_modules_init(void)
+__shmem_modules_init (void)
 {
   char path_to_cfg[PATH_MAX];
 
-  snprintf(path_to_cfg, PATH_MAX,
-	   "%s/config",
-	   INSTALLED_MODULES_DIR
-	   );
+  snprintf (path_to_cfg, PATH_MAX, "%s/config", INSTALLED_MODULES_DIR);
 
-  create_module_table_from_config(path_to_cfg);
+  create_module_table_from_config (path_to_cfg);
 }
 
 /*
@@ -218,9 +214,9 @@ __shmem_modules_init(void)
  */
 
 void
-__shmem_modules_finalize(void)
+__shmem_modules_finalize (void)
 {
-  free_module_table();
+  free_module_table ();
 }
 
 /*
@@ -231,7 +227,7 @@ __shmem_modules_finalize(void)
  */
 
 int
-__shmem_modules_load(const char *group, char *name, module_info_t *mip)
+__shmem_modules_load (const char *group, char *name, module_info_t * mip)
 {
   void *mh;
   module_info_t *rh;
@@ -240,50 +236,47 @@ __shmem_modules_load(const char *group, char *name, module_info_t *mip)
   /*
    * sanity-check the request
    */
-  if (group == (char *) NULL) {
-    return -1;
-  }
-  if (name == (char *) NULL) {
-    return -1;
-  }
-  if (mip == (module_info_t *) NULL) {
-    return -1;
-  }
+  if (group == (char *) NULL)
+    {
+      return -1;
+    }
+  if (name == (char *) NULL)
+    {
+      return -1;
+    }
+  if (mip == (module_info_t *) NULL)
+    {
+      return -1;
+    }
 
   /*
    * locate the .so file
    */
-  snprintf(path_to_so, PATH_MAX,
-	   "%s/%s-%s.so",
-           INSTALLED_MODULES_DIR,
-	   group,
-	   name
-	   );
+  snprintf (path_to_so, PATH_MAX,
+	    "%s/%s-%s.so", INSTALLED_MODULES_DIR, group, name);
 
-  mh = dlopen(path_to_so, RTLD_LAZY);
-  if (mh == NULL) {
-    __shmem_trace(SHMEM_LOG_AUTH,
-		  "internal error: couldn't open shared library \"%s\" (%s)",
-		  path_to_so,
-		  dlerror()
-		  );
-    return -1;
-  }
+  mh = dlopen (path_to_so, RTLD_LAZY);
+  if (mh == NULL)
+    {
+      __shmem_trace (SHMEM_LOG_AUTH,
+		     "internal error: couldn't open shared library \"%s\" (%s)",
+		     path_to_so, dlerror ());
+      return -1;
+    }
 
   /*
    * pull out & save the routine lookup structure
    */
-  rh = (module_info_t *) dlsym(mh, "module_info");
-  if (rh == NULL) {
-    __shmem_trace(SHMEM_LOG_AUTH,
-		  "internal error: couldn't find module_info symbol in \"%s\" (%s)",
-		  path_to_so,
-		  dlerror()
-		  );
-    return -1;
-  }
+  rh = (module_info_t *) dlsym (mh, "module_info");
+  if (rh == NULL)
+    {
+      __shmem_trace (SHMEM_LOG_AUTH,
+		     "internal error: couldn't find module_info symbol in \"%s\" (%s)",
+		     path_to_so, dlerror ());
+      return -1;
+    }
 
-  (void) memcpy(mip, rh, sizeof(*mip));
+  (void) memcpy (mip, rh, sizeof (*mip));
 
   /* (void) dlclose(mh); */
 

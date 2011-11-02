@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -49,7 +49,7 @@
 
 /* @api@ */
 int
-pshmem_version(int *major, int *minor)
+pshmem_version (int *major, int *minor)
 {
 #if ! defined(SHMEM_MAJOR_VERSION) && ! defined(SHMEM_MINOR_VERSION)
   return -1;

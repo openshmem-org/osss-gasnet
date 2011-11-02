@@ -33,14 +33,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
-#include <stdio.h>               /* NULL                           */
-#include <stdlib.h>              /* atexit()                       */
-#include <sys/utsname.h>         /* uname()                        */
-#include <sys/types.h>           /* size_t                         */
+#include <stdio.h>		/* NULL                           */
+#include <stdlib.h>		/* atexit()                       */
+#include <sys/utsname.h>	/* uname()                        */
+#include <sys/types.h>		/* size_t                         */
 
 #include "comms.h"
 #include "globalvar.h"
@@ -70,36 +70,35 @@
  *
  */
 void
-__shmem_exit(int status)
+__shmem_exit (int status)
 {
-  __shmem_comms_barrier_all();
+  __shmem_comms_barrier_all ();
   /* ok, no more pending I/O ... */
 
   /* clean up atomics and memory */
-  __shmem_atomic_finalize();
-  __shmem_symmetric_memory_finalize();
+  __shmem_atomic_finalize ();
+  __shmem_symmetric_memory_finalize ();
 
   /* clean up plugin modules */
-  __shmem_modules_finalize();
+  __shmem_modules_finalize ();
 
   /* tidy up binary inspector */
-  __shmem_executable_finalize();
+  __shmem_executable_finalize ();
 
   /* stop run time clock */
-  __shmem_elapsed_clock_finalize();
+  __shmem_elapsed_clock_finalize ();
 
   /* update our state */
-  SET_STATE(pe_status, PE_SHUTDOWN);
+  SET_STATE (pe_status, PE_SHUTDOWN);
 
-  __shmem_trace(SHMEM_LOG_INIT,
-		"finalizing shutdown, handing off to communications layer"
-		);
+  __shmem_trace (SHMEM_LOG_INIT,
+		 "finalizing shutdown, handing off to communications layer");
 
   /*
    * strictly speaking should free remaining alloc'ed things,
    * but exit is immediately next, so everything gets reaped anyway...
    */
-  __shmem_comms_finalize(status);
+  __shmem_comms_finalize (status);
 }
 
 /*
@@ -107,9 +106,9 @@ __shmem_exit(int status)
  *
  */
 static void
-__shmem_exit_handler(void)
+__shmem_exit_handler (void)
 {
-  __shmem_exit(0);
+  __shmem_exit (0);
 }
 
 /*
@@ -117,16 +116,15 @@ __shmem_exit_handler(void)
  *
  */
 static void
-__shmem_place_init(void)
+__shmem_place_init (void)
 {
   int s;
 
-  s = uname(& GET_STATE(loc));
-  if (s != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "can't find any node information"
-		  );
-  }
+  s = uname (&GET_STATE (loc));
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL, "can't find any node information");
+    }
 }
 
 /*
@@ -136,94 +134,93 @@ __shmem_place_init(void)
 
 /* @api@ */
 void
-pstart_pes(int npes)
+pstart_pes (int npes)
 {
   /* these have to happen first to enable messages */
-  __shmem_elapsed_clock_init();	/* start the tracking clock */
-  __shmem_tracers_init();	/* messages set up */
+  __shmem_elapsed_clock_init ();	/* start the tracking clock */
+  __shmem_tracers_init ();	/* messages set up */
 
   /* I shouldn't really call this more than once */
-  if (GET_STATE(pe_status) != PE_UNINITIALIZED) {
-    __shmem_trace(SHMEM_LOG_INFO,
-		  "shmem has already been initialized (%s)",
-		  __shmem_state_as_string(GET_STATE(pe_status))
-		  );
-    return;
-    /* NOT REACHED */
-  }
+  if (GET_STATE (pe_status) != PE_UNINITIALIZED)
+    {
+      __shmem_trace (SHMEM_LOG_INFO,
+		     "shmem has already been initialized (%s)",
+		     __shmem_state_as_string (GET_STATE (pe_status)));
+      return;
+      /* NOT REACHED */
+    }
 
   /* find out what this executable image is */
-  __shmem_executable_init();
+  __shmem_executable_init ();
 
   /* set up communications layer */
-  __shmem_comms_init();
+  __shmem_comms_init ();
   /* __shmem_comms_barrier_all(); */
 
   /*
    * find the global symbols (i.e. those addressable outside the
    * symmetric heap)
    */
-  __shmem_symmetric_globalvar_table_init();
+  __shmem_symmetric_globalvar_table_init ();
 
   /* handle the heap */
-  __shmem_symmetric_memory_init();
+  __shmem_symmetric_memory_init ();
 
   /* see if we want to say which message/trace levels are active */
-  __shmem_maybe_tracers_show_info();
-  __shmem_tracers_show();
+  __shmem_maybe_tracers_show_info ();
+  __shmem_tracers_show ();
 
   /* set up the atomic ops handling */
-  __shmem_atomic_init();
+  __shmem_atomic_init ();
 
   /* set up timeouts */
-  __shmem_ping_init();
+  __shmem_ping_init ();
 
   /* set up module selection */
-  __shmem_modules_init();
+  __shmem_modules_init ();
 
-  __shmem_barriers_dispatch_init();
-  __shmem_broadcast_dispatch_init();
-  __shmem_collect_dispatch_init();
-  __shmem_fcollect_dispatch_init();
+  __shmem_barriers_dispatch_init ();
+  __shmem_broadcast_dispatch_init ();
+  __shmem_collect_dispatch_init ();
+  __shmem_fcollect_dispatch_init ();
 
   /* set up any locality information */
-  __shmem_place_init();
+  __shmem_place_init ();
 
   /* register shutdown handler */
-  if (atexit(__shmem_exit_handler) != 0) {
-    __shmem_trace(SHMEM_LOG_FATAL,
-		  "internal error: cannot register shutdown handler"
-		  );
-    /* NOT REACHED */
-  }
+  if (atexit (__shmem_exit_handler) != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: cannot register shutdown handler");
+      /* NOT REACHED */
+    }
 
   /* just note start_pes() not passed 0, it's not a big deal */
-  if (npes != 0) {
-    __shmem_trace(SHMEM_LOG_INFO,
-		  "start_pes() was passed %d, should be 0",
-		  npes
-		  );
-  }
+  if (npes != 0)
+    {
+      __shmem_trace (SHMEM_LOG_INFO,
+		     "start_pes() was passed %d, should be 0", npes);
+    }
 
   /*
    * and we're up and running
    */
 
-  SET_STATE(pe_status, PE_RUNNING);
+  SET_STATE (pe_status, PE_RUNNING);
 
   {
     int maj, min;
-    if (shmem_version(&maj, &min) == 0) {
-      __shmem_trace(SHMEM_LOG_VERSION,
-		    "version %d.%d running on %d PE%s",
-		    maj, min,
-		    GET_STATE(numpes),
-		    GET_STATE(numpes) == 1 ? "" : "s"
-		    );
-    }
+    if (shmem_version (&maj, &min) == 0)
+      {
+	__shmem_trace (SHMEM_LOG_VERSION,
+		       "version %d.%d running on %d PE%s",
+		       maj, min,
+		       GET_STATE (numpes),
+		       GET_STATE (numpes) == 1 ? "" : "s");
+      }
   }
 
-  __shmem_comms_barrier_all();
+  __shmem_comms_barrier_all ();
 }
 
 #pragma weak start_pes = pstart_pes
@@ -238,9 +235,9 @@ pstart_pes(int npes)
 
 /* @api@ */
 void
-pshmem_init(void)
+pshmem_init (void)
 {
-  pstart_pes(0);
+  pstart_pes (0);
 }
 
 /*
@@ -249,9 +246,9 @@ pshmem_init(void)
 
 /* @api@ */
 void
-pshmem_finalize(void)
+pshmem_finalize (void)
 {
-  INIT_CHECK();
+  INIT_CHECK ();
 }
 
 #pragma weak shmem_init = pshmem_init

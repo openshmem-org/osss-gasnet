@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -59,8 +59,7 @@
   }
 
 /* SHMEM_MY_PE(my_pe) */
-SHMEM_MY_PE(_my_pe)
-
+SHMEM_MY_PE (_my_pe)
 #define SHMEM_NUM_PES(Variant)			\
   int						\
   p##Variant (void)				\
@@ -68,15 +67,12 @@ SHMEM_MY_PE(_my_pe)
     INIT_CHECK();				\
     return GET_STATE(numpes);			\
   }
-
 /* SHMEM_NUM_PES(num_pes) */
-SHMEM_NUM_PES(_num_pes)
-
-char *
-pshmem_nodename(void)
+  SHMEM_NUM_PES (_num_pes)
+     char *pshmem_nodename (void)
 {
-  INIT_CHECK();
-  return GET_STATE(loc.nodename);
+  INIT_CHECK ();
+  return GET_STATE (loc.nodename);
 }
 
 
@@ -89,10 +85,8 @@ pshmem_nodename(void)
 #pragma weak shmem_nodename = pshmem_nodename
 
 #ifdef CRAY_COMPAT
-SHMEM_NUM_PES(shmem_num_pes)
-SHMEM_NUM_PES(shmem_n_pes)
-SHMEM_MY_PE(shmem_my_pe)
-
+SHMEM_NUM_PES (shmem_num_pes)
+SHMEM_NUM_PES (shmem_n_pes) SHMEM_MY_PE (shmem_my_pe)
 #pragma weak shmem_my_pe = pshmem_my_pe
 #pragma weak shmem_num_pes = pshmem_num_pes
 #pragma weak shmem_n_pes = pshmem_n_pes

@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -52,23 +52,21 @@
 
 /* @api@ */
 void *
-pshmem_ptr(void *target, int pe)
+pshmem_ptr (void *target, int pe)
 {
-  INIT_CHECK();
-  PE_RANGE_CHECK(pe);
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
 
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
-  __shmem_trace(SHMEM_LOG_NOTICE,
-		"shmem_ptr() not implemented yet"
-		);
+  __shmem_trace (SHMEM_LOG_NOTICE, "shmem_ptr() not implemented yet");
   return (void *) NULL;
 
-#else  /* ! SHMEM_PUTGET_SHARED_MEMORY */
+#else /* ! SHMEM_PUTGET_SHARED_MEMORY */
 
   return (void *) NULL;
 
-#endif /* SHMEM_PUTGET_SHARED_MEMORY*/
+#endif /* SHMEM_PUTGET_SHARED_MEMORY */
 }
 
 #pragma weak shmem_ptr = pshmem_ptr

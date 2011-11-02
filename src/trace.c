@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -53,14 +53,15 @@
 #include "utils.h"
 
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
-static const char *shmem_logfile_envvar   = "SHMEM_LOG_FILE";
+static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
 
 /*
  * tracing states
  */
 
-typedef enum {
-  OFF=0,
+typedef enum
+{
+  OFF = 0,
   ON,
 } shmem_trace_state_t;
 
@@ -68,7 +69,8 @@ typedef enum {
  * trace levels and states
  */
 
-typedef struct {
+typedef struct
+{
   const shmem_trace_t level;	/* SHMEM_LOG_XXX symbol for logging */
   const char *text;		/* human readable name */
   shmem_trace_state_t state;	/* off or on */
@@ -78,33 +80,31 @@ typedef struct {
 
 #define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
 
-static
-trace_table_t tracers[] =
-  {
-    INIT_LEVEL(FATAL,      ON ),
+static trace_table_t tracers[] = {
+  INIT_LEVEL (FATAL, ON),
 
-    INIT_LEVEL(ATOMIC,     OFF),
-    INIT_LEVEL(AUTH,   	   OFF),
-    INIT_LEVEL(BARRIER,    OFF),
-    INIT_LEVEL(BROADCAST,  OFF),
-    INIT_LEVEL(CACHE,  	   OFF),
-    INIT_LEVEL(COLLECT,    OFF),
-    INIT_LEVEL(DEBUG,  	   OFF),
-    INIT_LEVEL(FENCE,      OFF),
-    INIT_LEVEL(INFO,   	   OFF),
-    INIT_LEVEL(INIT,   	   OFF),
-    INIT_LEVEL(LOCK,       OFF),
-    INIT_LEVEL(MEMORY, 	   OFF),
-    INIT_LEVEL(NOTICE, 	   OFF),
-    INIT_LEVEL(QUIET,      OFF),
-    INIT_LEVEL(REDUCE,     OFF),
-    INIT_LEVEL(SERVICE,    OFF),
-    INIT_LEVEL(SYMBOLS,    OFF),
-    INIT_LEVEL(VERSION,    OFF),
-    INIT_LEVEL(PROFILING,  OFF),
-    INIT_LEVEL(MODULES,    OFF),
-  };
-static const int n_tracers = TABLE_SIZE(tracers);
+  INIT_LEVEL (ATOMIC, OFF),
+  INIT_LEVEL (AUTH, OFF),
+  INIT_LEVEL (BARRIER, OFF),
+  INIT_LEVEL (BROADCAST, OFF),
+  INIT_LEVEL (CACHE, OFF),
+  INIT_LEVEL (COLLECT, OFF),
+  INIT_LEVEL (DEBUG, OFF),
+  INIT_LEVEL (FENCE, OFF),
+  INIT_LEVEL (INFO, OFF),
+  INIT_LEVEL (INIT, OFF),
+  INIT_LEVEL (LOCK, OFF),
+  INIT_LEVEL (MEMORY, OFF),
+  INIT_LEVEL (NOTICE, OFF),
+  INIT_LEVEL (QUIET, OFF),
+  INIT_LEVEL (REDUCE, OFF),
+  INIT_LEVEL (SERVICE, OFF),
+  INIT_LEVEL (SYMBOLS, OFF),
+  INIT_LEVEL (VERSION, OFF),
+  INIT_LEVEL (PROFILING, OFF),
+  INIT_LEVEL (MODULES, OFF),
+};
+static const int n_tracers = TABLE_SIZE (tracers);
 
 /*
  * big enough?  I reckon so, we're not writing a novel...
@@ -123,19 +123,21 @@ static const int n_tracers = TABLE_SIZE(tracers);
  */
 
 static int
-__shmem_trace_enable_text(char *trace)
+__shmem_trace_enable_text (char *trace)
 {
   int i;
   trace_table_t *t = tracers;
 
-  for (i = 0; i < n_tracers; i += 1) {
-    if (strcasecmp(trace, t->text) == 0) {
-      t->state = ON;
-      return 1;
-      /* NOT REACHED */
+  for (i = 0; i < n_tracers; i += 1)
+    {
+      if (strcasecmp (trace, t->text) == 0)
+	{
+	  t->state = ON;
+	  return 1;
+	  /* NOT REACHED */
+	}
+      t += 1;
     }
-    t += 1;
-  }
   return 0;
 }
 
@@ -144,15 +146,16 @@ __shmem_trace_enable_text(char *trace)
  */
 
 static void
-__shmem_trace_enable_all(void)
+__shmem_trace_enable_all (void)
 {
   int i;
   trace_table_t *t = tracers;
 
-  for (i = 0; i < n_tracers; i += 1) {
-    t->state = ON;
-    t += 1;
-  }
+  for (i = 0; i < n_tracers; i += 1)
+    {
+      t->state = ON;
+      t += 1;
+    }
 }
 
 /*
@@ -161,18 +164,20 @@ __shmem_trace_enable_all(void)
  */
 
 static const char *
-__level_to_string(shmem_trace_t level)
+__level_to_string (shmem_trace_t level)
 {
   int i;
   trace_table_t *t = tracers;
 
-  for (i = 0; i < n_tracers; i += 1) {
-    if (level == t->level) {
-      return t->text;
-      /* NOT REACHED */
+  for (i = 0; i < n_tracers; i += 1)
+    {
+      if (level == t->level)
+	{
+	  return t->text;
+	  /* NOT REACHED */
+	}
+      t += 1;
     }
-    t += 1;
-  }
   return "?";
 }
 
@@ -183,18 +188,20 @@ __level_to_string(shmem_trace_t level)
  */
 
 int
-__shmem_trace_is_enabled(shmem_trace_t level)
+__shmem_trace_is_enabled (shmem_trace_t level)
 {
   int i;
   trace_table_t *t = tracers;
 
-  for (i = 0; i < n_tracers; i += 1) {
-    if (level == t->level) {
-      return (t->state == ON);
-      /* NOT REACHED */
+  for (i = 0; i < n_tracers; i += 1)
+    {
+      if (level == t->level)
+	{
+	  return (t->state == ON);
+	  /* NOT REACHED */
+	}
+      t += 1;
     }
-    t += 1;
-  }
   return 0;
 }
 
@@ -211,22 +218,24 @@ static FILE *trace_log_stream;
  */
 
 static void
-logging_filestream_init(void)
+logging_filestream_init (void)
 {
   char *shlf;
   FILE *fp;
 
   trace_log_stream = stderr;
 
-  shlf = __shmem_comms_getenv(shmem_logfile_envvar);
-  if (shlf == (char *) NULL) {
-    return;
-  }
+  shlf = __shmem_comms_getenv (shmem_logfile_envvar);
+  if (shlf == (char *) NULL)
+    {
+      return;
+    }
 
-  fp = fopen(shlf, "a");
-  if (fp != (FILE *) NULL) {
-    trace_log_stream = fp;
-  }
+  fp = fopen (shlf, "a");
+  if (fp != (FILE *) NULL)
+    {
+      trace_log_stream = fp;
+    }
 }
 
 /*
@@ -235,51 +244,41 @@ logging_filestream_init(void)
  */
 
 static void
-sgi_compat_environment_init(void)
+sgi_compat_environment_init (void)
 {
   int overwrite = 1;
   char *sma;
 
   /* this one "prints out copious data" so turn on all debugging */
-  sma = __shmem_comms_getenv("SMA_DEBUG");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_LOG_LEVELS",
-		  "all",
-		  overwrite
-		  );
-  }
+  sma = __shmem_comms_getenv ("SMA_DEBUG");
+  if (sma != (char *) NULL)
+    {
+      (void) setenv ("SHMEM_LOG_LEVELS", "all", overwrite);
+    }
   /* this one shows information about env vars, pass through */
-  sma = __shmem_comms_getenv("SMA_INFO");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_LOG_LEVELS",
-		  "info",
-		  overwrite
-		  );
-  }
+  sma = __shmem_comms_getenv ("SMA_INFO");
+  if (sma != (char *) NULL)
+    {
+      (void) setenv ("SHMEM_LOG_LEVELS", "info", overwrite);
+    }
   /* turn on symmetric memory debugging */
-  sma = __shmem_comms_getenv("SMA_MALLOC_DEBUG");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_LOG_LEVELS",
-		  "memory",
-		  overwrite
-		  );
-  }
+  sma = __shmem_comms_getenv ("SMA_MALLOC_DEBUG");
+  if (sma != (char *) NULL)
+    {
+      (void) setenv ("SHMEM_LOG_LEVELS", "memory", overwrite);
+    }
   /* version information.  "version" trace facility can cover this */
-  sma = __shmem_comms_getenv("SMA_VERSION");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_LOG_LEVELS",
-		  "version",
-		  overwrite
-		  );
-  }
+  sma = __shmem_comms_getenv ("SMA_VERSION");
+  if (sma != (char *) NULL)
+    {
+      (void) setenv ("SHMEM_LOG_LEVELS", "version", overwrite);
+    }
   /* if heap size given, translate into our env var */
-  sma = __shmem_comms_getenv("SMA_SYMMETRIC_SIZE");
-  if (sma != (char *) NULL) {
-    (void) setenv("SHMEM_SYMMETRIC_HEAP_SIZE",
-		  sma,
-		  overwrite
-		  );
-  }
+  sma = __shmem_comms_getenv ("SMA_SYMMETRIC_SIZE");
+  if (sma != (char *) NULL)
+    {
+      (void) setenv ("SHMEM_SYMMETRIC_HEAP_SIZE", sma, overwrite);
+    }
 }
 
 /*
@@ -287,23 +286,26 @@ sgi_compat_environment_init(void)
  */
 
 static void
-parse_log_levels(void)
+parse_log_levels (void)
 {
-  char *shll = __shmem_comms_getenv(shmem_loglevels_envvar);
+  char *shll = __shmem_comms_getenv (shmem_loglevels_envvar);
   const char *delims = ",:;";
-  char *opt = strtok(shll, delims);
+  char *opt = strtok (shll, delims);
 
-  if (shll != (char *) NULL) {
-    while (opt != (char *) NULL) {
-      if (strcasecmp(opt, "all") == 0) {
-	__shmem_trace_enable_all();
-	break;
-	/* NOT REACHED */
-      }
-      (void) __shmem_trace_enable_text(opt);
-      opt = strtok((char *) NULL, delims);
+  if (shll != (char *) NULL)
+    {
+      while (opt != (char *) NULL)
+	{
+	  if (strcasecmp (opt, "all") == 0)
+	    {
+	      __shmem_trace_enable_all ();
+	      break;
+	      /* NOT REACHED */
+	    }
+	  (void) __shmem_trace_enable_text (opt);
+	  opt = strtok ((char *) NULL, delims);
+	}
     }
-  }
 }
 
 /*
@@ -319,56 +321,41 @@ parse_log_levels(void)
 		);
 
 void
-__shmem_maybe_tracers_show_info(void)
+__shmem_maybe_tracers_show_info (void)
 {
   /* only "master" dumps this out */
-  if (GET_STATE(mype) != 0) {
-    return;
-  }
+  if (GET_STATE (mype) != 0)
+    {
+      return;
+    }
 
-  if (! __shmem_trace_is_enabled(SHMEM_LOG_INFO)) {
-    return;
-  }
+  if (!__shmem_trace_is_enabled (SHMEM_LOG_INFO))
+    {
+      return;
+    }
 
-  __shmem_trace(SHMEM_LOG_INFO,
-		"We understand these SGI compatibility environment variables:"
-		);
-  INFO_MSG("SMA_VERSION",
-	   "Print OpenSHMEM version."
-	   );
-  INFO_MSG("SMA_INFO",
-	   "Print this message."
-	   );
-  INFO_MSG("SMA_SYMMETRIC_SIZE",
-	   "Specify the size in bytes of symmetric memory."
-	   );
-  INFO_MSG("SMA_DEBUG",
-	   "Print internal debug information."
-	   );
-  __shmem_trace(SHMEM_LOG_INFO,
-		""
-		);
-  __shmem_trace(SHMEM_LOG_INFO,
-		"We also understand these new environment variables:"
-		);
-  INFO_MSG("SHMEM_LOG_LEVELS",
-	   "Select which kinds of trace messages are enabled"
-	   );
-  INFO_MSG("SHMEM_LOG_FILE",
-	   "Filename to append trace output to, instead of standard error"
-	   );
-  INFO_MSG("SHMEM_SYMMETRIC_HEAP_SIZE",
-	   "Specify the size of symmetric memory."
-	   );
-  INFO_MSG("SHMEM_BARRIER_ALL_ALGORITHM",
-	   "Choose shmem_barrier_all implementation."
-	   );
-  INFO_MSG("SHMEM_BARRIER_ALGORITHM",
-	   "Choose shmem_barrier implementation."
-	   );
-  INFO_MSG("SHMEM_PE_ACCESSIBLE_TIMEOUT",
-	   "How long to wait for PE accessibility check."
-	   );
+  __shmem_trace (SHMEM_LOG_INFO,
+		 "We understand these SGI compatibility environment variables:");
+  INFO_MSG ("SMA_VERSION", "Print OpenSHMEM version.");
+  INFO_MSG ("SMA_INFO", "Print this message.");
+  INFO_MSG ("SMA_SYMMETRIC_SIZE",
+	    "Specify the size in bytes of symmetric memory.");
+  INFO_MSG ("SMA_DEBUG", "Print internal debug information.");
+  __shmem_trace (SHMEM_LOG_INFO, "");
+  __shmem_trace (SHMEM_LOG_INFO,
+		 "We also understand these new environment variables:");
+  INFO_MSG ("SHMEM_LOG_LEVELS",
+	    "Select which kinds of trace messages are enabled");
+  INFO_MSG ("SHMEM_LOG_FILE",
+	    "Filename to append trace output to, instead of standard error");
+  INFO_MSG ("SHMEM_SYMMETRIC_HEAP_SIZE",
+	    "Specify the size of symmetric memory.");
+  INFO_MSG ("SHMEM_BARRIER_ALL_ALGORITHM",
+	    "Choose shmem_barrier_all implementation.");
+  INFO_MSG ("SHMEM_BARRIER_ALGORITHM",
+	    "Choose shmem_barrier implementation.");
+  INFO_MSG ("SHMEM_PE_ACCESSIBLE_TIMEOUT",
+	    "How long to wait for PE accessibility check.");
 }
 
 /*
@@ -376,13 +363,13 @@ __shmem_maybe_tracers_show_info(void)
  */
 
 void
-__shmem_tracers_init(void)
+__shmem_tracers_init (void)
 {
-  logging_filestream_init();
+  logging_filestream_init ();
 
-  sgi_compat_environment_init();
+  sgi_compat_environment_init ();
 
-  parse_log_levels();
+  parse_log_levels ();
 }
 
 /*
@@ -393,27 +380,28 @@ __shmem_tracers_init(void)
  */
 
 void
-__shmem_tracers_show(void)
+__shmem_tracers_show (void)
 {
-  if (__shmem_trace_is_enabled(SHMEM_LOG_INIT)) {
-    char buf[TRACE_MSG_BUF_SIZE];
-    char *p = buf;
-    int i;
-    trace_table_t *t = tracers;
+  if (__shmem_trace_is_enabled (SHMEM_LOG_INIT))
+    {
+      char buf[TRACE_MSG_BUF_SIZE];
+      char *p = buf;
+      int i;
+      trace_table_t *t = tracers;
 
-    strcpy(p, "Enabled Messages: ");
+      strcpy (p, "Enabled Messages: ");
 
-    for (i = 0; i < n_tracers; i += 1) {
-      if (t->state == ON) {
-	strncat(p, t->text, strlen(t->text));
-	strncat(p, " ", 1);
-      }
-      t += 1;
+      for (i = 0; i < n_tracers; i += 1)
+	{
+	  if (t->state == ON)
+	    {
+	      strncat (p, t->text, strlen (t->text));
+	      strncat (p, " ", 1);
+	    }
+	  t += 1;
+	}
+      __shmem_trace (SHMEM_LOG_INIT, p);
     }
-    __shmem_trace(SHMEM_LOG_INIT,
-		  p
-		  );
-  }
 }
 
 /*
@@ -421,43 +409,59 @@ __shmem_tracers_show(void)
  */
 
 void
-__shmem_trace(shmem_trace_t msg_type, char *fmt, ...)
+__shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 {
-  if (__shmem_trace_is_enabled(msg_type)) {
-    char tmp1[TRACE_MSG_BUF_SIZE];
-    char tmp2[TRACE_MSG_BUF_SIZE];
-    va_list ap;
-  
-    snprintf(tmp1, TRACE_MSG_BUF_SIZE,
-	     "%-8.8f PE %d: %s: ",
-	     __shmem_elapsed_clock_get(),
-	     GET_STATE(mype),
-	     __level_to_string(msg_type)
-	     );
-  
-    va_start(ap, fmt);
-    vsnprintf(tmp2, TRACE_MSG_BUF_SIZE, fmt, ap);
-    va_end(ap);
-  
-    strncat(tmp1, tmp2, TRACE_MSG_BUF_SIZE);
-    strncat(tmp1, "\n", TRACE_MSG_BUF_SIZE);
-  
-    fputs(tmp1, trace_log_stream);
-    fflush(trace_log_stream); /* make sure this all goes out in 1 burst */
+  if (__shmem_trace_is_enabled (msg_type))
+    {
+      char tmp1[TRACE_MSG_BUF_SIZE];
+      char tmp2[TRACE_MSG_BUF_SIZE];
+      va_list ap;
 
-    if (msg_type == SHMEM_LOG_FATAL) {
-      __shmem_exit(1);
-      /* NOT REACHED */
+      snprintf (tmp1, TRACE_MSG_BUF_SIZE,
+		"%-8.8f PE %d: %s: ",
+		__shmem_elapsed_clock_get (),
+		GET_STATE (mype), __level_to_string (msg_type));
+
+      va_start (ap, fmt);
+      vsnprintf (tmp2, TRACE_MSG_BUF_SIZE, fmt, ap);
+      va_end (ap);
+
+      strncat (tmp1, tmp2, TRACE_MSG_BUF_SIZE);
+      strncat (tmp1, "\n", TRACE_MSG_BUF_SIZE);
+
+      fputs (tmp1, trace_log_stream);
+      fflush (trace_log_stream);	/* make sure this all goes out in 1 burst */
+
+      if (msg_type == SHMEM_LOG_FATAL)
+	{
+	  __shmem_exit (1);
+	  /* NOT REACHED */
+	}
     }
-  }
 }
 
 #else /* HAVE_TRACE */
 
-inline void __shmem_tracers_init(void) {}
-inline void __shmem_tracers_show(void) {}
-inline void __shmem_maybe_tracers_show_info(void) {}
-inline void __shmem_trace(shmem_trace_t msg_type, char *fmt, ...) {}
-inline int  __shmem_trace_is_enabled(shmem_trace_t level) { return 0; }
+inline void
+__shmem_tracers_init (void)
+{
+}
+inline void
+__shmem_tracers_show (void)
+{
+}
+inline void
+__shmem_maybe_tracers_show_info (void)
+{
+}
+inline void
+__shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
+{
+}
+inline int
+__shmem_trace_is_enabled (shmem_trace_t level)
+{
+  return 0;
+}
 
 #endif /* HAVE_TRACE */

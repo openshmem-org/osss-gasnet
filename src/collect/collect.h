@@ -33,13 +33,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
 #ifndef _COLLECT_H
 #define _COLLECT_H 1
 
-extern void __shmem_collect_dispatch_init(void);
+extern void __shmem_collect_dispatch_init (void);
 
 #endif /* _COLLECT_H */

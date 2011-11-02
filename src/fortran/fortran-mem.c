@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
@@ -73,35 +73,34 @@
 extern long malloc_error;
 
 void
-FORTRANIFY(pshpalloc)(void **addr, int *length, long *errcode, int *abort)
+FORTRANIFY (pshpalloc) (void **addr, int *length, long *errcode, int *abort)
 {
   void *symm_addr;
 
-  INIT_CHECK();
+  INIT_CHECK ();
 
   /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
-  symm_addr = pshmalloc(*length);
+  symm_addr = pshmalloc (*length);
 
   /* pass back status code */
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK) {
-    *addr = symm_addr;
+  if (malloc_error == SHMEM_MALLOC_OK)
+    {
+      *addr = symm_addr;
 
-    __shmem_trace(SHMEM_LOG_MEMORY,
-		  "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
-		  addr, *length, *errcode, *abort
-		  );
+      __shmem_trace (SHMEM_LOG_MEMORY,
+		     "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
+		     addr, *length, *errcode, *abort);
 
-    return;
-    /* NOT REACHED */
-  }
+      return;
+      /* NOT REACHED */
+    }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		"shpalloc() got non-symmetric memory sizes"
-		);
+  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		 "shpalloc() got non-symmetric memory sizes");
   /* MAYBE NOT REACHED */
 
   addr = (void *) NULL;
@@ -122,32 +121,29 @@ FORTRANIFY(pshpalloc)(void **addr, int *length, long *errcode, int *abort)
  *   program hangs.
  */
 
-void
-FORTRANIFY(pshpdeallc)(void **addr, long *errcode, int *abort)
+void FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
 {
-  INIT_CHECK();
+  INIT_CHECK ();
 
-  __shmem_trace(SHMEM_LOG_MEMORY,
-		"shpdeallc(addr = %p, errcode = %d, abort = %d)",
-		addr, *errcode, *abort
-		);
+  __shmem_trace (SHMEM_LOG_MEMORY,
+		 "shpdeallc(addr = %p, errcode = %d, abort = %d)",
+		 addr, *errcode, *abort);
 
-  pshfree(*addr);
+  pshfree (*addr);
 
   /* pass back status code */
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK) {
-    return;
-    /* NOT REACHED */
-  }
+  if (malloc_error == SHMEM_MALLOC_OK)
+    {
+      return;
+      /* NOT REACHED */
+    }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		"shpdeallc() failed: %s",
-		sherror()
-		);
+  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		 "shpdeallc() failed: %s", sherror ());
   /* MAYBE NOT REACHED */
 }
 
@@ -167,29 +163,28 @@ FORTRANIFY(pshpdeallc)(void **addr, long *errcode, int *abort)
  *   processing  elements  (PEs)  in  a program must call SHPCLMOVE with the
  *   same value of addr to maintain symmetric heap consistency; if  any  PEs
  *   are missing, the program hangs.
- */ 
+ */
 
 void
-FORTRANIFY(pshpclmove)(int *addr, int *length, long *errcode, int *abort)
+FORTRANIFY (pshpclmove) (int *addr, int *length, long *errcode, int *abort)
 {
-  INIT_CHECK();
+  INIT_CHECK ();
 
-  addr = pshrealloc(addr, *length);
+  addr = pshrealloc (addr, *length);
 
   /* pass back status code */
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK) {
-    return;
-    /* NOT REACHED */
-  }
+  if (malloc_error == SHMEM_MALLOC_OK)
+    {
+      return;
+      /* NOT REACHED */
+    }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace(*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		"shpdeallc() failed: %s",
-		sherror()
-		);
+  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+		 "shpdeallc() failed: %s", sherror ());
   /* MAYBE NOT REACHED */
 }
 

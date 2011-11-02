@@ -33,15 +33,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
+ */
 
 
 
 #ifndef _ATOMIC_H
 #define _ATOMIC_H 1
 
-extern void __shmem_atomic_init(void);
-extern void __shmem_atomic_finalize(void);
+extern void __shmem_atomic_init (void);
+extern void __shmem_atomic_finalize (void);
 
 #if defined(__GNUC__)
 
