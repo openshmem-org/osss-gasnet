@@ -258,6 +258,7 @@ extern "C"
 
   extern int shmem_pe_accessible (int pe) _WUR;
   extern int shmem_addr_accessible (void *addr, int pe) _WUR;
+  extern void *shmem_ptr (void *target, int pe) _WUR;
 
   /*
    * symmetric memory management

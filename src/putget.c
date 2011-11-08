@@ -86,8 +86,8 @@ SHMEM_TYPE_PUT (longlong, long long)
 SHMEM_TYPE_PUT (longdouble, long double)
 SHMEM_TYPE_PUT (double, double)
 SHMEM_TYPE_PUT (float, float)
-SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float))
-SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double))
+/* SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float)) */
+/* SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double)) */
 
 #pragma weak pshmem_putmem = pshmem_char_put
 #pragma weak pshmem_put32 = pshmem_int_put
@@ -100,8 +100,8 @@ SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double))
 #pragma weak shmem_longlong_put = pshmem_longlong_put
 #pragma weak shmem_double_put = pshmem_double_put
 #pragma weak shmem_float_put = pshmem_float_put
-#pragma weak shmem_complexf_put = pshmem_complexf_put
-#pragma weak shmem_complexd_put = pshmem_complexd_put
+/* #pragma weak shmem_complexf_put = pshmem_complexf_put */
+/* #pragma weak shmem_complexd_put = pshmem_complexd_put */
 #pragma weak shmem_putmem = pshmem_putmem
 #pragma weak shmem_put32 = pshmem_put32
 #pragma weak shmem_put64 = pshmem_put64
@@ -136,8 +136,8 @@ SHMEM_TYPE_GET (longdouble, long double)
 SHMEM_TYPE_GET (longlong, long long)
 SHMEM_TYPE_GET (double, double)
 SHMEM_TYPE_GET (float, float)
-SHMEM_TYPE_GET (complexf, COMPLEXIFY (float))
-SHMEM_TYPE_GET (complexd, COMPLEXIFY (double))
+/* SHMEM_TYPE_GET (complexf, COMPLEXIFY (float)) */
+/* SHMEM_TYPE_GET (complexd, COMPLEXIFY (double)) */
 
 #pragma weak pshmem_getmem = pshmem_char_get
 #pragma weak pshmem_get32 = pshmem_int_get
@@ -150,8 +150,8 @@ SHMEM_TYPE_GET (complexd, COMPLEXIFY (double))
 #pragma weak shmem_longlong_get = pshmem_longlong_get
 #pragma weak shmem_double_get = pshmem_double_get
 #pragma weak shmem_float_get = pshmem_float_get
-#pragma weak shmem_complexf_get = pshmem_complexf_get
-#pragma weak shmem_complexd_get = pshmem_complexd_get
+/* #pragma weak shmem_complexf_get = pshmem_complexf_get */
+/* #pragma weak shmem_complexd_get = pshmem_complexd_get */
 #pragma weak shmem_getmem = pshmem_getmem
 #pragma weak shmem_get32 = pshmem_get32
 #pragma weak shmem_get64 = pshmem_get64

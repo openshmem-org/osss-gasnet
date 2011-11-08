@@ -54,7 +54,8 @@ command-line tools will slot right in, and if not, the fix is pretty
 trivial.
 
 The main GASNet version has been 1.16.x during development, although
-1.42.2 was used as well as a comparison.
+1.42.2 was used as well as a comparison and we have recently moved
+to 1.18.0.
 
 Currently the Makefile is set up to use the GNU C Compiler (4.x
 series), but there's a relatively small number of changes that need to
@@ -105,3 +106,11 @@ Testing Environment
 
 3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
    conduit, OpenMPI 1.4.3 with pbs (called "tm") integration
+
+
+Support Software
+----------------
+
+1. GASNet   :: http://gasnet.cs.berkeley.edu/
+
+2. Open-MPI :: http://www.open-mpi.org/
