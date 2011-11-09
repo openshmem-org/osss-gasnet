@@ -3,9 +3,6 @@
 # generated from OpenSHMEM src directory, don't edit installed version
 #
 
-# temp solution to gasnet/ibv memory issues on shark/crill
-ulimit -S -v unlimited
-
 progname="`basename $0`"
 
 show_usage_and_exit()
