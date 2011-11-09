@@ -159,30 +159,23 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
 		< $^ > $@
 
-$(SHMEM_CXX):	$(COMP_WRAPPER)
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
-		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpiCC%' \
+# Tony: this is a mess :(  Need to discover the corresponding
+# C++ and Fortran compilers for a given vendor cc.  Yuck.
+
+$(SHMEM_CXX):	$(SHMEM_CC)
+	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1g++%" \
+		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpic++%" \
 		< $^ > $@
 
-# TODO:
-# difficult to handle rewrites for all the cases,
-# so we need to fix up the MPI conduit by hand for now :-(
-#
 $(SHMEM_FC):	$(SHMEM_CC)
-	sed -e 's%^\(SHMEM_LD=..*\)mpicc%\1mpif90%' \
+	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1gfortran%" \
+		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpif90%" \
 		< $^ > $@
 
 $(SHMEM_RUN):
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
-		-e 's%bin/mpicc%bin/mpirun%' \
+		-e "s%bin/mpicc%bin/mpirun%" \
 		< $(RUN_WRAPPER) > $@
 
 # ---------------------------------------------------------
