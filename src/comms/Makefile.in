@@ -157,7 +157,7 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
-		< $(COMP_WRAPPER) > $(SHMEM_CC)
+		< $^ > $@
 
 $(SHMEM_CXX):	$(COMP_WRAPPER)
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
@@ -168,30 +168,22 @@ $(SHMEM_CXX):	$(COMP_WRAPPER)
 		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
-		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpic++%' \
-		-e 's%^\(SHMEM_LD=..*\)cc%\1++%' \
-		< $(COMP_WRAPPER) > $(SHMEM_CXX)
+		-e 's%^\(SHMEM_LD=..*\)mpicc%\1mpiCC%' \
+		< $^ > $@
 
 # TODO:
 # difficult to handle rewrites for all the cases,
 # so we need to fix up the MPI conduit by hand for now :-(
 #
-$(SHMEM_FC):	$(COMP_WRAPPER)
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(FC)%" \
-		< $(COMP_WRAPPER) > $(SHMEM_FC)
+$(SHMEM_FC):	$(SHMEM_CC)
+	sed -e 's%^\(SHMEM_LD=..*\)mpicc%\1mpif90%' \
+		< $^ > $@
 
 $(SHMEM_RUN):
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
 		-e 's%bin/mpicc%bin/mpirun%' \
-		< $(RUN_WRAPPER) > $(SHMEM_RUN)
+		< $(RUN_WRAPPER) > $@
 
 # ---------------------------------------------------------
 
