@@ -41,6 +41,7 @@
 #define _SHMEM_H 1
 
 #include <sys/types.h>
+#include <stddef.h>               /* ptrdiff_t */
 
 /*
  * C and C++ do complex numbers differently
@@ -49,7 +50,7 @@
 
 #ifdef __cplusplus
 # include <complex>
-# define COMPLEXIFY(T) complex<T>
+# define COMPLEXIFY(T) std::complex<T>
 #else /* _cplusplus */
 # include <complex.h>
 # define COMPLEXIFY(T) T complex
@@ -164,9 +165,6 @@ extern "C"
   /*
    * strided I/O
    */
-
-#undef ptrdiff_t
-  typedef long ptrdiff_t;
 
   extern void shmem_double_iput (double *target, const double *source,
 				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
