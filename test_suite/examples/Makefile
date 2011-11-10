@@ -68,21 +68,16 @@ all default:    $(EXES)
 .SUFFIXES: .x
 
 %.x:    %.c
-	        $(CC) $(SHMEM_CFLAGS) -o $@ $^ -lm
+	$(CC) $(SHMEM_CFLAGS) -o $@ $^ -lm
 
-
-
-run:
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./hello.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./cpi.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./sping.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_daxpy.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_2dheat.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_matrix.x
-	 $(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_heat_image.x 10 10
-
+run:	$(EXES)
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./hello.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./cpi.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./sping.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_daxpy.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_2dheat.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_matrix.x
+	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_heat_image.x 10 10
 
 clean:
-	        rm -f $(EXES)
-
-
+	rm -f $(EXES)
