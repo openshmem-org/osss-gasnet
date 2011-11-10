@@ -114,3 +114,11 @@ Support Software
 1. GASNet   :: http://gasnet.cs.berkeley.edu/
 
 2. Open-MPI :: http://www.open-mpi.org/
+
+GASNet Note
+-----------
+
+On some cluster setups we have seen issues with larger segment sizes.
+Restricting the segment allocation to 512MB has solved these problems.
+Note that you can do this via an environment variable supported by
+this library: see the man page for oshconfig(5).
