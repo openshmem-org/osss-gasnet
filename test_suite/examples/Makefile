@@ -80,4 +80,4 @@ run:	$(EXES)
 	$(RUNCMD) $(RUNOPT) $(NPROCOPT) $(NPROC) ./shmem_heat_image.x 10 10
 
 clean:
-	rm -f $(EXES)
+	rm -f $(EXES) tmp.image
