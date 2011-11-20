@@ -10,7 +10,7 @@ progname="`basename $0`"
 # -- defaults --
 prefix=/usr/local
 gasnet_root=$prefix
-gasnet_conduit=mpi
+gasnet_conduit=
 cray_compat=FALSE
 putget_nb=FALSE
 debug=FALSE
@@ -20,12 +20,18 @@ trace=FALSE
 libdir=
 modulesdir=
 
+tell()
+{
+  echo "$progname: $*"
+}
+
 show_usage()
 {
-    if [ $# -gt 0 ]; then
-	echo ""
-	echo "$progname: unknown option \"$@\""
-	echo ""
+    if [ $# -gt 0 ]
+    then
+	tell ""
+	tell "unknown option \"$@\""
+	tell ""
     fi
     cat <<__EOT__
 Usage: $progname [options]
@@ -57,7 +63,13 @@ Usage: $progname [options]
 __EOT__
 }
 
-for o in $@; do
+# ------------------------------------------------------------------------------
+#
+# parse command line
+#
+
+for o in $@
+do
     case $o in
 	--prefix=*)
 	    prefix="`echo $o | sed 's/--prefix=//'`"
@@ -109,9 +121,30 @@ for o in $@; do
     esac
 done
 
-if [ ! -r "$gasnet_root/include/gasnet.h" ]; then
-    echo "$progname: can't find GASNet installation in \"$gasnet_root\""
-    echo "$progname: (no gasnet.h header file)"
+if [ -z "$gasnet_root" ]
+then
+    tell "I don't know where GASNet is installed"
+    exit 1
+fi
+if [ ! -r "$gasnet_root/include/gasnet.h" ]
+then
+    tell "I can't find a GASNet installation in \"$gasnet_root\""
+    tell "  (no gasnet.h header file)"
+    exit 1
+fi
+
+KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+                   sed -e 's/-conduit//g' )`"
+
+if [ -z "$gasnet_conduit" ]
+then
+    tell "I don't know which GASNet conduit to use."
+    if [ -z "$KNOWN_CONDUITS" ]
+    then
+        tell "I couldn't find any GASNet conduits under $gasnet_root"
+    else
+        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+    fi
     exit 1
 fi
 
@@ -130,30 +163,30 @@ cxx_flags=${CXXFLAGS-"-g"}
 fc_cmd=${FC-f90}
 fc_flags=${FCFLAGS-"-g"}
 
-echo "$progname: C compiler is \"$cc_cmd\""
-echo "$progname: C pre-processor flags are \"$cpp_flags\""
-echo "$progname: C flags are \"$c_flags\""
-echo "$progname: C++ compiler is \"$cxx_cmd\""
-echo "$progname: C++ flags are \"$cxx_flags\""
-echo "$progname: Fortran compiler is \"$fc_cmd\""
-echo "$progname: Fortran flags are \"$fc_flags\""
-echo "$progname: linker is \"$ld_cmd\""
-echo "$progname: linker flags are \"$ld_flags\""
-echo "$progname:"
-
-echo "$progname: installing to directory \"$prefix\""
-echo "$progname: installing libraries to directory \"$libdir\""
-echo "$progname: installing modules to directory \"$modulesdir\""
-echo "$progname:"
-echo "$progname: using GASNet in \"$gasnet_root\""
-echo "$progname: using conduit \"$gasnet_conduit\""
-echo "$progname:"
-echo "$progname: Debug is $debug"
-echo "$progname: Trace is $trace"
-echo "$progname: Cray compatibility is $cray_compat"
-echo "$progname: Non-blocking extensions are $putget_nb"
-echo "$progname:"
-echo "$progname: ---------------------------------------"
+tell "C compiler is \"$cc_cmd\""
+tell "C pre-processor flags are \"$cpp_flags\""
+tell "C flags are \"$c_flags\""
+tell "C++ compiler is \"$cxx_cmd\""
+tell "C++ flags are \"$cxx_flags\""
+tell "Fortran compiler is \"$fc_cmd\""
+tell "Fortran flags are \"$fc_flags\""
+tell "linker is \"$ld_cmd\""
+tell "linker flags are \"$ld_flags\""
+tell ""
+tell "installing to directory \"$prefix\""
+tell "installing libraries to directory \"$libdir\""
+tell "installing modules to directory \"$modulesdir\""
+tell ""
+tell "using GASNet in \"$gasnet_root\""
+tell "using conduit \"$gasnet_conduit\""
+tell ""
+tell "Debug is $debug"
+tell "Trace is $trace"
+tell "Cray compatibility is $cray_compat"
+tell "Non-blocking extensions are $putget_nb"
+tell ""
+tell "---------------------------------------"
+tell ""
 
 find . -name Makefile.in -print |
 while read mfin
@@ -179,7 +212,7 @@ do
     -e "s%@LIB_DIR@%$libdir%g" \
     -e "s%@MODULES_DIR@%$modulesdir%g" \
     $mfin > $mf
-  echo "$progname: created $mf from $mfin"
+  tell "created $mf from $mfin"
 done
 
 cs=config.status
@@ -210,11 +243,10 @@ export FCFLAGS
 export LD
 export LDFLAGS
 
-# Configured with: $@
-
 $0 $@
 _EOT_
 cp $tmpcs $cs
 rm -f $tmpcs
 chmod +x $cs
-echo "$progname: saved configuration in $cs"
+tell ""
+tell "saved configuration in $cs"
