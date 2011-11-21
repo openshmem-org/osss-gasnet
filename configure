@@ -56,6 +56,7 @@ modulesdir=
 
 bailout()
 {
+    tell ""
     tell "Bailing out..."
     exit 1
 }
@@ -176,16 +177,33 @@ fi
 KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
                    sed -e 's/-conduit//g' )`"
 
+#
+# see if we can autodetect which conduit to use.  if not, offer
+# all installed under the gasnet directory
+#
+
 if [ -z "$gasnet_conduit" ]
 then
-    tell "I don't know which GASNet conduit to use."
     if [ -z "$KNOWN_CONDUITS" ]
     then
         tell "I couldn't find any GASNet conduits under $gasnet_root"
+        bailout
     else
-        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+        nw=`echo $KNOWN_CONDUITS | wc -w`
+        if [ $nw -gt 1 ]
+        then
+            # multiple configured, let the user decide
+            tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+            tell "Indicate which to use via --with-gasnet-conduit"
+            bailout
+        else
+            # only one there, just use it
+            gasnet_conduit="$KNOWN_CONDUITS"
+            tell ""
+            tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
+            tell ""
+        fi
     fi
-    bailout
 fi
 
 [ -z "$libdir" ] && libdir=$prefix/lib
