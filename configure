@@ -1,5 +1,39 @@
 #!/bin/sh
-# (c) University of Houston System.  All rights reserved.
+#
+# Copyright (c) 2011, University of Houston System and Oak Ridge National
+# Loboratory.
+# 
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 
+# o Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# 
+# o Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# 
+# o Neither the name of the University of Houston System, Oak Ridge
+#   National Loboratory nor the names of its contributors may be used to
+#   endorse or promote products derived from this software without specific
+#   prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
 
 #
 # NB: this will turn into the GNU autotools setup at some point.
@@ -20,9 +54,15 @@ trace=FALSE
 libdir=
 modulesdir=
 
+bailout()
+{
+    tell "Bailing out..."
+    exit 1
+}
+
 tell()
 {
-  echo "$progname: $*"
+    echo "$progname: $*"
 }
 
 show_usage()
@@ -116,7 +156,7 @@ do
 	    ;;
 	*)
 	    show_usage $o
-	    exit 1
+	    bailout
 	    ;;
     esac
 done
@@ -124,13 +164,13 @@ done
 if [ -z "$gasnet_root" ]
 then
     tell "I don't know where GASNet is installed"
-    exit 1
+    bailout
 fi
 if [ ! -r "$gasnet_root/include/gasnet.h" ]
 then
     tell "I can't find a GASNet installation in \"$gasnet_root\""
     tell "  (no gasnet.h header file)"
-    exit 1
+    bailout
 fi
 
 KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
@@ -145,7 +185,7 @@ then
     else
         tell "I found the following conduits: \"$KNOWN_CONDUITS\""
     fi
-    exit 1
+    bailout
 fi
 
 [ -z "$libdir" ] && libdir=$prefix/lib
@@ -191,28 +231,28 @@ tell ""
 find . -name Makefile.in -print |
 while read mfin
 do
-  mf="`echo $mfin | sed -e 's/\.in$//'`"
-  sed \
-    -e "s%@CC@%$cc_cmd%g" \
-    -e "s%@CPPFLAGS@%$cpp_flags%g" \
-    -e "s%@CFLAGS@%$c_flags%g" \
-    -e "s%@CXX@%$cxx_cmd%g" \
-    -e "s%@CXXFLAGS@%$cxx_flags%g" \
-    -e "s%@FC@%$fc_cmd%g" \
-    -e "s%@FCFLAGS@%$fc_flags%g" \
-    -e "s%@LD@%$ld_cmd%g" \
-    -e "s%@LDFLAGS@%$ld_flags%g" \
-    -e "s%@GASNET_ROOT@%$gasnet_root%g" \
-    -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
-    -e "s%@CRAY_COMPAT@%$cray_compat%g" \
-    -e "s%@PUTGET_NB@%$putget_nb%g" \
-    -e "s%@DEBUG@%$debug%g" \
-    -e "s%@TRACE@%$trace%g" \
-    -e "s%@PREFIX@%$prefix%g" \
-    -e "s%@LIB_DIR@%$libdir%g" \
-    -e "s%@MODULES_DIR@%$modulesdir%g" \
-    $mfin > $mf
-  tell "created $mf from $mfin"
+    mf="`echo $mfin | sed -e 's/\.in$//'`"
+    sed \
+        -e "s%@CC@%$cc_cmd%g" \
+        -e "s%@CPPFLAGS@%$cpp_flags%g" \
+        -e "s%@CFLAGS@%$c_flags%g" \
+        -e "s%@CXX@%$cxx_cmd%g" \
+        -e "s%@CXXFLAGS@%$cxx_flags%g" \
+        -e "s%@FC@%$fc_cmd%g" \
+        -e "s%@FCFLAGS@%$fc_flags%g" \
+        -e "s%@LD@%$ld_cmd%g" \
+        -e "s%@LDFLAGS@%$ld_flags%g" \
+        -e "s%@GASNET_ROOT@%$gasnet_root%g" \
+        -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+        -e "s%@CRAY_COMPAT@%$cray_compat%g" \
+        -e "s%@PUTGET_NB@%$putget_nb%g" \
+        -e "s%@DEBUG@%$debug%g" \
+        -e "s%@TRACE@%$trace%g" \
+        -e "s%@PREFIX@%$prefix%g" \
+        -e "s%@LIB_DIR@%$libdir%g" \
+        -e "s%@MODULES_DIR@%$modulesdir%g" \
+        $mfin > $mf
+    tell "created $mf from $mfin"
 done
 
 cs=config.status
@@ -250,3 +290,4 @@ rm -f $tmpcs
 chmod +x $cs
 tell ""
 tell "saved configuration in $cs"
+tell ""
