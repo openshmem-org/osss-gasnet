@@ -138,10 +138,10 @@ table_init_helper (void)
       goto bail;
     }
   /* Try to handle deprecated interface from older libelf on CentOS */
-  getsi = dlsym(NULL, "elf_getshdrstrndx");
+  getsi = (int (*) ()) dlsym(NULL, "elf_getshdrstrndx");
   if (getsi == NULL)
     {
-      getsi = dlsym(NULL, "elf_getshstrndx");
+      getsi = (int (*) ()) dlsym(NULL, "elf_getshstrndx");
       if (getsi == NULL)
         {
           goto bail;
