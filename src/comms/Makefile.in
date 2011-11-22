@@ -163,12 +163,12 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 # C++ and Fortran compilers for a given vendor cc.  Yuck.
 
 $(SHMEM_CXX):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1g++%" \
+	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1g++'%" \
 		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpic++'%" \
 		< $^ > $@
 
 $(SHMEM_FC):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1gfortran%" \
+	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1gfortran'%" \
 		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpif90'%" \
 		< $^ > $@
 
