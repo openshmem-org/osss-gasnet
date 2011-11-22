@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <values.h>
+#include <dlfcn.h>
 
 #include "uthash.h"
 
@@ -108,6 +109,7 @@ table_init_helper (void)
   GElf_Shdr shdr;
   Elf_Data *data;
   int ret = -1;
+  int (*getsi)();
 
   /* unrecognized format */
   if (elf_version (EV_CURRENT) == EV_NONE)
@@ -135,8 +137,18 @@ table_init_helper (void)
     {
       goto bail;
     }
-  /* TODO: deprecated interface from older libelf on CentOS */
-  if (elf_getshstrndx (e, &shstrndx) != 0)
+  /* Try to handle deprecated interface from older libelf on CentOS */
+  getsi = dlsym(NULL, "elf_getshdrstrndx");
+  if (getsi == NULL)
+    {
+      getsi = dlsym(NULL, "elf_getshstrndx");
+      if (getsi == NULL)
+        {
+          goto bail;
+        }
+    }
+
+  if (getsi (e, &shstrndx) != 0)
     {
       goto bail;
     }

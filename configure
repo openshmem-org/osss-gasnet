@@ -184,25 +184,23 @@ KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
 
 if [ -z "$gasnet_conduit" ]
 then
-    if [ -z "$KNOWN_CONDUITS" ]
+    nw=`echo $KNOWN_CONDUITS | wc -w`
+    if [ $nw -eq 0 ]
     then
         tell "I couldn't find any GASNet conduits under $gasnet_root"
         bailout
+    elif [ $nw -eq 1 ]
+    then
+        # only one there, just use it
+        gasnet_conduit="$KNOWN_CONDUITS"
+        tell ""
+        tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
+        tell ""
     else
-        nw=`echo $KNOWN_CONDUITS | wc -w`
-        if [ $nw -gt 1 ]
-        then
-            # multiple configured, let the user decide
-            tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-            tell "Indicate which to use via --with-gasnet-conduit"
-            bailout
-        else
-            # only one there, just use it
-            gasnet_conduit="$KNOWN_CONDUITS"
-            tell ""
-            tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
-            tell ""
-        fi
+        # multiple configured, let the user decide
+        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+        tell "Indicate which to use via --with-gasnet-conduit"
+        bailout
     fi
 fi
 
@@ -210,6 +208,7 @@ fi
 [ -z "$modulesdir" ] && modulesdir=$libdir/modules
 
 # -- ok, gasnet there, check compilers (default to GNU for now) --
+
 
 cc_cmd=${CC-cc}
 cpp_flags=${CPPFLAGS-""}
@@ -220,6 +219,8 @@ cxx_cmd=${CXX-c++}
 cxx_flags=${CXXFLAGS-"-g"}
 fc_cmd=${FC-f90}
 fc_flags=${FCFLAGS-"-g"}
+
+# -- tell us all about what's configured --
 
 tell "C compiler is                 \"$cc_cmd\""
 tell "C pre-processor flags are     \"$cpp_flags\""
@@ -269,6 +270,7 @@ do
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
+        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         $mfin > $mf
     tell "created $mf from $mfin"
 done
