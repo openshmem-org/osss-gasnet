@@ -227,6 +227,11 @@ table_init_helper (void)
 		{
 		  continue;
 		}
+	      /*
+	       * this macro handles a symbol that is present
+	       * in one libelf implementation but isn't in another
+	       * (elfutils vs. libelf)
+	       */
 #ifndef GELF_ST_VISIBILITY
 # define GELF_ST_VISIBILITY (o) ELF64_ST_VISIBILITY (o)
 #endif
