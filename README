@@ -38,8 +38,8 @@
 Acknowledgement
 ---------------
 
-This work was supported by Oak Ridge National Laboratory's Extreme Scale
-System Center.
+This work is supported by Oak Ridge National Laboratory's Extreme
+Scale System Center.
 
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
@@ -115,10 +115,32 @@ Support Software
 
 2. Open-MPI :: http://www.open-mpi.org/
 
-GASNet Note
------------
+
+Installation Notes
+------------------
+
+1. GASNet
 
 On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
 Note that you can do this via an environment variable supported by
 this library: see the man page for oshconfig(5).
+
+2. ELF Library
+
+There are 2 common ELF libraries: elfutils and libelf.  While all
+local development (University of Houston) has used elfutils, we
+encountered some portability issues between elfutils and libelf on
+some remote systems.  Hopefully these have been addressed.
+
+
+Feedback
+--------
+
+The main project contact at the University of Houston is
+
+    Dr. Barbara Chapman <chapman@cs.uh.edu>
+
+The project development lead is
+
+    Tony Curtis <arcurtis@mail.uh.edu>
