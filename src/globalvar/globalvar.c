@@ -227,6 +227,9 @@ table_init_helper (void)
 		{
 		  continue;
 		}
+#ifndef GELF_ST_VISIBILITY
+# define GELF_ST_VISIBILITY (o) ELF64_ST_VISIBILITY (o)
+#endif
 	      if (GELF_ST_TYPE (es->st_info) != STT_OBJECT &&
 		  GELF_ST_VISIBILITY (es->st_info) != STV_DEFAULT)
 		{
