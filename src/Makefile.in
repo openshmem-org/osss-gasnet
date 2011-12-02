@@ -223,6 +223,7 @@ SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_HEADERS    = shmem.h shmem.fh
 SHMEM_INC_DIR    = $(PREFIX)/include
 
+LDFLAGS         += @ELF_LIBS@
 LIBS             = -lelf -ldl
 
 INSTALL          = install -c

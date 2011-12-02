@@ -45,6 +45,8 @@ progname="`basename $0`"
 prefix=/usr/local
 gasnet_root=$prefix
 gasnet_conduit=
+elf_headers=
+elf_libs=
 cray_compat=FALSE
 putget_nb=FALSE
 debug=FALSE
@@ -82,10 +84,18 @@ Usage: $progname [options]
     --prefix=PREFIX              Install to directory root PREFIX
     --with-libdir=DIR            Libraries installed to DIR
     --with-modulesdir=DIR        Pluggable modules installed to DIR
+
+  Communications:
+
     --with-gasnet-root=G         GASNet installed under directory "G"
     --with-gasnet-conduit=C      Use GASNet conduit "C"
 
   Optional features:
+
+    --with-libelf=E              Libelf header and library files under
+                                     directory "E" (.../include, .../lib)
+    --with-libelf-headers=H      Libelf header files in directory "H"
+    --with-libelf-libs=L         Libelf library files in directory "L"
 
     --enable-debug               Run-time debugging checks
     --disable-debug              No run-time debugging checks
@@ -95,9 +105,11 @@ Usage: $progname [options]
 
     --enable-cray-compat         Subroutine synonyms for the Cray SHMEM
     --disable-cray-compat        No subroutine synonyms for the Cray SHMEM
+                                 (experimental)
 
     --enable-putget-nb           Non-blocking extensions
     --disable-putget-nb          No non-blocking extensions
+                                 (experimental)
 
     --help                       Show this summary and exit
 
@@ -126,6 +138,21 @@ do
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
+	    ;;
+	--with-libelf=*)
+	    elf_top_dir="`echo $o | sed 's/--with-libelf=//'`"
+            elf_header_dir="$elf_top_dir/include"
+            elf_lib_dir="$elf_top_dir/lib"
+            elf_headers="-I$elf_header_dir"
+            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
+            ;;
+	--with-libelf-headers=*)
+	    elf_header_dir="`echo $o | sed 's/--with-libelf-headers=//'`"
+            elf_headers="-I$elf_header_dir"
+	    ;;
+	--with-libelf-libs=*)
+	    elf_lib_dir="`echo $o | sed 's/--with-libelf-libs=//'`"
+            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
 	    debug=TRUE
@@ -238,6 +265,15 @@ tell "installing modules to         \"$modulesdir\""
 tell ""
 tell "using GASNet in               \"$gasnet_root\""
 tell "using conduit                 \"$gasnet_conduit\""
+if [ ! -z "$elf_headers" ]
+then
+tell ""
+tell "ELF headers                   \"$elf_headers\""
+fi
+if [ ! -z "$elf_libs" ]
+then
+tell "ELF libraries                 \"$elf_libs\""
+fi
 tell ""
 tell "Debug is                      $debug"
 tell "Trace is                      $trace"
@@ -263,6 +299,8 @@ do
         -e "s%@LDFLAGS@%$ld_flags%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+        -e "s%@ELF_HEADERS@%$elf_headers%g" \
+        -e "s%@ELF_LIBS@%$elf_libs%g" \
         -e "s%@CRAY_COMPAT@%$cray_compat%g" \
         -e "s%@PUTGET_NB@%$putget_nb%g" \
         -e "s%@DEBUG@%$debug%g" \

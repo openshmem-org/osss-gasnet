@@ -87,6 +87,8 @@ ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
+CPPFLAGS        += @ELF_HEADERS@
+
 CPPFLAGS        += $(GASNET_CPPFLAGS)
 CPPFLAGS        += $(DLMALLOC_CFLAGS)
 CPPFLAGS        += $(HASH_CPPFLAGS)
