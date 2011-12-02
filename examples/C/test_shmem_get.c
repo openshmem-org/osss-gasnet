@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (c) 2011, University of Houston System and Oak Ridge National
- * Loboratory.
+ * Laboratory.
  * 
  * All rights reserved.
  * 
@@ -17,7 +17,7 @@
  *   documentation and/or other materials provided with the distribution.
  * 
  * o Neither the name of the University of Houston System, Oak Ridge
- *   National Loboratory nor the names of its contributors may be used to
+ *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
  * 
@@ -34,7 +34,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */  
-  
+  
 /*
  * Calls tested
  * shmem_short_get, shmem_int_get, shmem_long_get, shmem_longdouble_get,
@@ -145,7 +145,7 @@ main (int argc, char **argv)
       *src12 = (double) me;
       *src13 = (float) me;
       nextpe = (me + 1) % npes;
-      
+      
 	/*Testing shmem_short_get, shmem_short_get, shmem_int_get, shmem_long_get, shmem_longdouble_get, shmem_longlong_get, shmem_double_get, shmem_float_get, shmem_getmem */ 
 	shmem_barrier_all ();
       shmem_short_get (dest1, src1, N, nextpe);
@@ -236,7 +236,7 @@ main (int argc, char **argv)
 	    printf ("Test shmem_getmem: Failed\n");
 	}
       shmem_barrier_all ();
-      
+      
 	/*Testing shmem_get32, shmem_get64, shmem_get128 */ 
 	if (sizeof (int) == 4)
 	{
@@ -339,7 +339,7 @@ main (int argc, char **argv)
 		printf ("Test shmem_get128: Failed\n");
 	    }
 	}
-      
+      
 	/* Testing shmem_double_g, shmem_float_g, shmem_int_g, shmem_long_g, shmem_short_g */ 
 	shmem_barrier_all ();
       dest9 = shmem_short_g (src9, nextpe);

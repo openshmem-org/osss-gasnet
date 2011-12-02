@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (c) 2011, University of Houston System and Oak Ridge National
- * Loboratory.
+ * Laboratory.
  * 
  * All rights reserved.
  * 
@@ -17,7 +17,7 @@
  *   documentation and/or other materials provided with the distribution.
  * 
  * o Neither the name of the University of Houston System, Oak Ridge
- *   National Loboratory nor the names of its contributors may be used to
+ *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
  * 
@@ -79,6 +79,9 @@ extern void __shmem_comms_put (void *dst, void *src, size_t len, int pe);
 extern void __shmem_comms_get (void *dst, void *src, size_t len, int pe);
 extern void __shmem_comms_put_val (void *dst, long src, size_t len, int pe);
 extern long __shmem_comms_get_val (void *src, size_t len, int pe);
+
+extern void __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe);
+extern void __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe);
 
 /*
  * handlers for non-blocking puts and gets (FUTURE)

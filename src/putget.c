@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (c) 2011, University of Houston System and Oak Ridge National
- * Loboratory.
+ * Laboratory.
  * 
  * All rights reserved.
  * 
@@ -17,7 +17,7 @@
  *   documentation and/or other materials provided with the distribution.
  * 
  * o Neither the name of the University of Houston System, Oak Ridge
- *   National Loboratory nor the names of its contributors may be used to
+ *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
  * 
@@ -89,10 +89,29 @@ SHMEM_TYPE_PUT (float, float)
 SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float))
 SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double))
 
-#pragma weak pshmem_putmem = pshmem_char_put
+/* @api@ */
+void
+pshmem_putmem(void *dest, const void *src, size_t nelems, int pe)
+{
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  SYMMETRY_CHECK (dest, 1, "shmem_putmem");
+  if (GET_STATE (mype) == pe)
+    {
+      memmove (dest, src, nelems);
+      LOAD_STORE_FENCE();
+    }
+  else
+    {
+      void *rdest = __shmem_symmetric_addr_lookup (dest, pe);
+      __shmem_comms_put_bulk (rdest, (void *) src, nelems, pe);
+    }
+}
+
 #pragma weak pshmem_put32 = pshmem_int_put
 #pragma weak pshmem_put64 = pshmem_long_put
 #pragma weak pshmem_put128 = pshmem_longdouble_put
+
 #pragma weak shmem_short_put = pshmem_short_put
 #pragma weak shmem_int_put = pshmem_int_put
 #pragma weak shmem_long_put = pshmem_long_put
@@ -139,10 +158,29 @@ SHMEM_TYPE_GET (float, float)
 SHMEM_TYPE_GET (complexf, COMPLEXIFY (float))
 SHMEM_TYPE_GET (complexd, COMPLEXIFY (double))
 
-#pragma weak pshmem_getmem = pshmem_char_get
+/* @api@ */
+void
+pshmem_getmem(void *dest, const void *src, size_t nelems, int pe)
+{
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  SYMMETRY_CHECK (dest, 1, "shmem_putmem");
+  if (GET_STATE (mype) == pe)
+    {
+      memmove (dest, src, nelems);
+      LOAD_STORE_FENCE();
+    }
+  else
+    {
+      void *their_src = __shmem_symmetric_addr_lookup ((void*) src, pe);
+      __shmem_comms_get_bulk (dest, their_src, nelems, pe);
+    }
+}
+
 #pragma weak pshmem_get32 = pshmem_int_get
 #pragma weak pshmem_get64 = pshmem_long_get
 #pragma weak pshmem_get128 = pshmem_longdouble_get
+
 #pragma weak shmem_short_get = pshmem_short_get
 #pragma weak shmem_int_get = pshmem_int_get
 #pragma weak shmem_long_get = pshmem_long_get

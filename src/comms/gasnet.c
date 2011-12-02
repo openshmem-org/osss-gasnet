@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (c) 2011, University of Houston System and Oak Ridge National
- * Loboratory.
+ * Laboratory.
  * 
  * All rights reserved.
  * 
@@ -17,7 +17,7 @@
  *   documentation and/or other materials provided with the distribution.
  * 
  * o Neither the name of the University of Houston System, Oak Ridge
- *   National Loboratory nor the names of its contributors may be used to
+ *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
  * 
@@ -85,16 +85,21 @@
 #define USING_IMPLICIT_HANDLES 1
 
 #ifdef USING_IMPLICIT_HANDLES
-# define GASNET_PUT(pe, dst, src, len)     gasnet_put_nbi(pe, dst, src, len)
-# define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_nbi_val(pe, dst, src, len)
-# define GASNET_WAIT_PUTS()                gasnet_wait_syncnbi_puts()
-# define GASNET_WAIT_ALL()                 gasnet_wait_syncnbi_all()
+# define GASNET_PUT(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
+# define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
+# define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_nbi_val (pe, dst, src, len)
+# define GASNET_WAIT_PUTS()                 gasnet_wait_syncnbi_puts ()
+# define GASNET_WAIT_ALL()                  gasnet_wait_syncnbi_all ()
 #else
-# define GASNET_PUT(pe, dst, src, len)     gasnet_put(pe, dst, src, len)
-# define GASNET_PUT_VAL(pe, dst, src, len) gasnet_put_val(pe, dst, src, len)
+# define GASNET_PUT(pe, dst, src, len)      gasnet_put (pe, dst, src, len)
+# define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_bulk (pe, dst, src, len)
+# define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_val (pe, dst, src, len)
 # define GASNET_WAIT_PUTS()
 # define GASNET_WAIT_ALL()
 #endif /* USING_IMPLICIT_HANDLES */
+
+#define GASNET_GET(pe, dst, src, len)      gasnet_get (pe, dst, src, len)
+#define GASNET_GET_BULK(pe, dst, src, len) gasnet_get_bulk (pe, dst, src, len)
 
 /*
  * gasnet model choice
@@ -312,7 +317,6 @@ void __shmem_comms_globalvar_put_request ();	/* forward decl */
 void
 __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 {
-
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (dst))
     {
@@ -324,6 +328,23 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
     }
 #else
   GASNET_PUT (pe, dst, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
+}
+
+void
+__shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+  if (__shmem_symmetric_is_globalvar (dst))
+    {
+      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+    }
+  else
+    {
+      GASNET_PUT_BULK (pe, dst, src, len);
+    }
+#else
+  GASNET_PUT_BULK (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
@@ -339,10 +360,27 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
     }
   else
     {
-      gasnet_get (dst, pe, src, len);
+      GASNET_GET (dst, pe, src, len);
     }
 #else
-  gasnet_get (dst, pe, src, len);
+  GASNET_GET (dst, pe, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
+}
+
+void
+__shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+  if (__shmem_symmetric_is_globalvar (src))
+    {
+      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+    }
+  else
+    {
+      GASNET_GET_BULK (dst, pe, src, len);
+    }
+#else
+  GASNET_GET_BULK (dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
