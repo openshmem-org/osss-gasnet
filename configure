@@ -82,13 +82,19 @@ Usage: $progname [options]
   Installation choices:
 
     --prefix=PREFIX              Install to directory root PREFIX
+                                     (default: /usr/local)
+
     --with-libdir=DIR            Libraries installed to DIR
+                                     (default: PREFIX/lib)
+
     --with-modulesdir=DIR        Pluggable modules installed to DIR
+                                     (default: LIBDIR/modules)
 
   Communications:
 
-    --with-gasnet-root=G         GASNet installed under directory "G"
+    --with-gasnet-root=G         Use the GASNet installed under directory "G"
     --with-gasnet-conduit=C      Use GASNet conduit "C"
+                                     (if only 1 conduit configured, use it)
 
   Optional features:
 
