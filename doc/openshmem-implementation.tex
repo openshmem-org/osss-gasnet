@@ -89,7 +89,7 @@ frame=tlBR
 
 Work on the OpenSHMEM project is sponsored by the
 \href{http://www.ornl.gov/}{Oak Ridge National Laboratory} Extreme
-Scale System Center and the \href{http://www.dod.gov/}{U.S. Department
+Scale System Center and the \href{http://www.defense.gov/}{U.S. Department
 of Defense}.
 
 \section{Introduction}
@@ -315,7 +315,7 @@ end program hello
 The OpenSHMEM library has been written to sit on top of any
 communications library that can provide the required
 functionality. Initially we have targetted GASNet. The
-directory\texttt{ trunk/src/comms} provides implementations of the
+directory \texttt{src/comms} provides implementations of the
 internal API. All subsequent references to GASNet should be read with
 an eye on the abstraction process.
 
@@ -333,7 +333,11 @@ SHMEM implementation):
 \url{http://rtportal.upv.es/rtmalloc/}
 
 but this proved to have weird interactions with Open-MPI. Tracking
-program progress with valgrind suggested that system memory calls were
+program progress with valgrind
+
+\url{http://www.valgrind.org/}
+
+suggested that system memory calls were
 being intercepted.
 
 So, following the Chapel lead,
@@ -654,10 +658,16 @@ it's merely a convenience.
 
 \section{Configuration and Installation}
 
-There is a \texttt{trunk/configure} script that is a simplified
+There is a top-level \texttt{configure} script that is a simplified
 version of the GNU autotools. This script will eventually become the
 GNU setup and will do lots more feature tests. So the usual procedure
-applies: configure; make; make install.
+applies:
+
+\begin{lstlisting}
+$ ./configure [--options ...]
+$ make
+$ make install
+\end{lstlisting}
 
 \section{Future Plans}
 
