@@ -164,7 +164,7 @@ pshmem_getmem(void *dest, const void *src, size_t nelems, int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
-  SYMMETRY_CHECK (dest, 1, "shmem_putmem");
+  SYMMETRY_CHECK (src, 2, "shmem_getmem");
   if (GET_STATE (mype) == pe)
     {
       memmove (dest, src, nelems);

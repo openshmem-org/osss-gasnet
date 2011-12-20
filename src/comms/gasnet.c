@@ -443,13 +443,16 @@ COMMS_TYPE_PUT_NB (longdouble, long double)
 COMMS_TYPE_PUT_NB (longlong, long long)
 COMMS_TYPE_PUT_NB (double, double)
 COMMS_TYPE_PUT_NB (float, float)
+
 #pragma weak __shmem_comms_putmem_nb = __shmem_comms_long_put_nb
+
 #define COMMS_TYPE_GET_NB(Name, Type)					\
   void *								\
   __shmem_comms_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
     return gasnet_get_nb_bulk(target, pe, (Type *) source, sizeof(Type) * len);	\
   }
+
 COMMS_TYPE_GET_NB (short, short)
 COMMS_TYPE_GET_NB (int, int)
 COMMS_TYPE_GET_NB (long, long)
@@ -457,8 +460,11 @@ COMMS_TYPE_GET_NB (longdouble, long double)
 COMMS_TYPE_GET_NB (longlong, long long)
 COMMS_TYPE_GET_NB (double, double)
 COMMS_TYPE_GET_NB (float, float)
+
 #pragma weak __shmem_comms_getmem_nb = __shmem_comms_long_get_nb
-     void __shmem_comms_wait_nb (void *h)
+
+
+void __shmem_comms_wait_nb (void *h)
 {
   gasnet_wait_syncnb ((gasnet_handle_t) h);
   LOAD_STORE_FENCE ();
