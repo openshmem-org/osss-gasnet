@@ -84,19 +84,19 @@ SHMEM_FORTRAN_QUERY_PE (pshmem_n_pes)
 #define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
   void									\
   FORTRANIFY(pshmem_##FName##_put)(CType *target, const CType *src,	\
-				  size_t *size, int *pe)		\
+				   int *size, int *pe)			\
   {									\
     pshmem_##CName##_put(target, src, *size, *pe);			\
   }
-
-#define SHMEM_FORTRAN_PUT_SIZE(Size, CName, CType)		\
-  void								\
+  
+#define SHMEM_FORTRAN_PUT_SIZE(Size, CName, CType)			\
+  void									\
   FORTRANIFY(pshmem_put##Size) (CType *target, const CType *src,	\
-			       size_t *size, int *pe)		\
-  {								\
-    pshmem_##CName##_put(target, src, *size, *pe);		\
+				int *size, int *pe)			\
+  {									\
+    pshmem_##CName##_put(target, src, *size, *pe);			\
   }
-
+  
 SHMEM_FORTRAN_PUT (character, char, char)
 SHMEM_FORTRAN_PUT (double, double, double)
 SHMEM_FORTRAN_PUT (integer, int, int)
@@ -110,8 +110,8 @@ SHMEM_FORTRAN_PUT_SIZE (64, long, long)
 SHMEM_FORTRAN_PUT_SIZE (128, longlong, void)
 
 void
-FORTRANIFY (pshmem_putmem) (long *target, const long *src,
-			    size_t * size, int *pe)
+FORTRANIFY (pshmem_putmem) (void *target, const void *src,
+			    int *size, int *pe)
 {
   pshmem_putmem (target, src, *size, *pe);
 }
@@ -135,7 +135,7 @@ FORTRANIFY (pshmem_putmem) (long *target, const long *src,
 #define SHMEM_FORTRAN_GET(FName, CName, CType)				\
   void									\
   FORTRANIFY(pshmem_##FName##_get)(CType *target, const CType *src,	\
-				   size_t *size, int *pe)		\
+				   int *size, int *pe)			\
   {									\
     pshmem_##CName##_get(target, src, *size, *pe);			\
   }
@@ -143,7 +143,7 @@ FORTRANIFY (pshmem_putmem) (long *target, const long *src,
 #define SHMEM_FORTRAN_GET_SIZE(Size, Name, CType)			\
   void									\
   FORTRANIFY(pshmem_get##Size) (CType *target, const CType *src,	\
-				size_t *size, int *pe)			\
+				int *size, int *pe)			\
   {									\
     pshmem_##Name##_get(target, src, *size, *pe);			\
   }
@@ -161,8 +161,8 @@ SHMEM_FORTRAN_GET_SIZE (64, long, long)
 SHMEM_FORTRAN_GET_SIZE (128, longdouble, long double)
 
 void
-FORTRANIFY (pshmem_getmem) (long *target, const long *src,
-			    size_t * size, int *pe)
+FORTRANIFY (pshmem_getmem) (void *target, const void *src,
+			    int *size, int *pe)
 {
   pshmem_getmem (target, src, *size, *pe);
 }
@@ -194,7 +194,7 @@ FORTRANIFY (pshmem_getmem) (long *target, const long *src,
 				   int *tst, int *sst,			\
 				   int *size, int *pe)			\
   {									\
-    pshmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);	\
+    pshmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);		\
   }
 
 #include <stdio.h>
@@ -319,9 +319,9 @@ FORTRANIFY (pshmem_pe_accessible) (int *pe)
 
 void
 FORTRANIFY (pshmem_barrier) (int *PE_start, int *logPE_stride, int *PE_size,
-			     long *pSync)
+			     int *pSync)
 {
-  pshmem_barrier (*PE_start, *logPE_stride, *PE_size, pSync);
+  pshmem_barrier (*PE_start, *logPE_stride, *PE_size, (long *) pSync);
 }
 
 FORTRANIFY_VOID_VOID (pshmem_barrier_all)
@@ -514,41 +514,41 @@ FORTRANIFY (pshmem_int8_cswap) (long *target, long *cond, long *value,
 void
 FORTRANIFY (pshmem_broadcast4) (void *target, const void *source, int *nelems,
 				int *PE_root, int *PE_start,
-				int *logPE_stride, int *PE_size, long *pSync)
+				int *logPE_stride, int *PE_size, int *pSync)
 {
   pshmem_broadcast32 (target, source,
 		      *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
-		      pSync);
+		      (long *) pSync);
 }
 
 void
 FORTRANIFY (pshmem_broadcast8) (void *target, const void *source, int *nelems,
 				int *PE_root, int *PE_start,
-				int *logPE_stride, int *PE_size, long *pSync)
+				int *logPE_stride, int *PE_size, int *pSync)
 {
   pshmem_broadcast64 (target, source,
 		      *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
-		      pSync);
+		      (long *) pSync);
 }
 
 void
 FORTRANIFY (pshmem_broadcast32) (void *target, const void *source,
 				 int *nelems, int *PE_root, int *PE_start,
-				 int *logPE_stride, int *PE_size, long *pSync)
+				 int *logPE_stride, int *PE_size, int *pSync)
 {
   pshmem_broadcast32 (target, source,
 		      *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
-		      pSync);
+		      (long *) pSync);
 }
 
 void
 FORTRANIFY (pshmem_broadcast64) (void *target, const void *source,
 				 int *nelems, int *PE_root, int *PE_start,
-				 int *logPE_stride, int *PE_size, long *pSync)
+				 int *logPE_stride, int *PE_size, int *pSync)
 {
   pshmem_broadcast64 (target, source,
 		      *nelems, *PE_root, *PE_start, *logPE_stride, *PE_size,
-		      pSync);
+		      (long *) pSync);
 }
 
 #pragma weak shmem_broadcast4_ = pshmem_broadcast4_
@@ -635,12 +635,12 @@ FORTRANIFY (pshmem_collect8) (void *target, const void *source, int *nelems,
     (Ctype *target, Ctype *source, int *nreduce,			\
      int *PE_start, int *logPE_stride, int *PE_size,			\
      Ctype *pWrk,							\
-     long *pSync)							\
+     int *pSync)							\
   {									\
     pshmem_##Cname##_##Op##_to_all (target, source,			\
 				    *nreduce, *PE_start, *logPE_stride, *PE_size, \
 				    pWrk,				\
-				    pSync);				\
+				    (long *) pSync);			\
   }
 
 REDUCIFY (sum, int2, short, short)
