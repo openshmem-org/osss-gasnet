@@ -1,3 +1,4 @@
+! Emacs: -*- mode: fortran; -*-
 !
 !   Copyright (c) 2011, University of Houston System and Oak Ridge National
 !   Laboratory.
@@ -34,8 +35,6 @@
 !
 
 
-
-!     Emacs: -*- mode: fortran; -*-
 
       integer SHMEM_BCAST_SYNC_SIZE
       parameter ( SHMEM_BCAST_SYNC_SIZE=64 )
@@ -104,11 +103,11 @@
 !     are in the SGI header file, the rest are here but commented out for
 !     now)
 
-!     integer shmem_my_pe
 !     integer my_pe
+!     integer num_pes
+!     integer shmem_my_pe
 !     integer shmem_num_pes
 !     integer shmem_n_pes
-!     integer num_pes
 
       logical shmem_pe_accessible
       logical shmem_addr_accessible
