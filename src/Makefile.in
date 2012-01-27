@@ -266,7 +266,11 @@ install-bin:	all
 
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
-	for f in $(SHMEM_HEADERS); do $(INSTALL) -m 644 mpp/$$f $(PREFIX)/include/mpp; done
+	for f in $(SHMEM_HEADERS); \
+	do \
+		$(INSTALL) -m 644 mpp/$$f $(PREFIX)/include; \
+		(cd $(PREFIX)/include/mpp; ln -sf ../$$f); \
+	done
 
 # we may be sharing the install area with other packages, so don't
 # blindly zap directories when uninstalling, allow them to remain
