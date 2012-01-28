@@ -20,7 +20,7 @@
 
 using namespace std;
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 int main ( int argc, char *argv[] );
 int buffon_laplace_simulate ( double a, double b, double l, int trial_num );

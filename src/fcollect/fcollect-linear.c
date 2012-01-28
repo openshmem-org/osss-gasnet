@@ -45,7 +45,7 @@
 #include "utils.h"
 #include "symmtest.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * fcollect puts nelems (*same* value on all PEs) from source on each

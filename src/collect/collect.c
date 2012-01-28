@@ -44,7 +44,7 @@
 #include "trace.h"
 #include "utils.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 #include "modules.h"
 

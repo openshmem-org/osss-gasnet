@@ -46,7 +46,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 long pSync[_SHMEM_BCAST_SYNC_SIZE];
 

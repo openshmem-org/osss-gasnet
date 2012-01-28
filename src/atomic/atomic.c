@@ -44,7 +44,7 @@
 #include "utils.h"
 #include "atomic.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * placeholders: no init/final required (so far)

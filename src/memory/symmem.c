@@ -47,7 +47,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 /*
  * Not present in SGI any more.

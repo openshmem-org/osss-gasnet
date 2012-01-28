@@ -9,7 +9,7 @@
 
 program swap
 
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
   integer me, npes
   integer, save :: target
   integer swapped_val, new_val

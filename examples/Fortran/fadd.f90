@@ -10,7 +10,7 @@
 
 program fadd
 
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
 
   integer, save :: dst
   integer me, old

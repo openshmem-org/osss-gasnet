@@ -12,7 +12,7 @@ program inc
   integer me
   integer, save :: dst
 
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
 
   call start_pes(0)
   me = my_pe()

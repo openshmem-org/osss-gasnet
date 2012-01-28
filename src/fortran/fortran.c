@@ -45,7 +45,7 @@
  *
  */
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 #include "fortran-common.h"
 

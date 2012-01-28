@@ -51,7 +51,7 @@
 #include "utils.h"
 #include "symmtest.h"
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 /*
  * short-circuit local puts/gets, otherwise translate between

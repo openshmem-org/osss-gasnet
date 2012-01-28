@@ -43,7 +43,7 @@
 #include "state.h"
 #include "trace.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * Tree based barrier generates a binary tree with the PEs in the

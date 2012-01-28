@@ -43,7 +43,7 @@
 #include "utils.h"
 #include "trace.h"
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 #include "fortran-common.h"
 

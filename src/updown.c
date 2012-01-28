@@ -60,7 +60,7 @@
 
 #include "modules.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /* ----------------------------------------------------------------- */
 

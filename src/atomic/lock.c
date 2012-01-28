@@ -52,7 +52,7 @@
 #include "trace.h"
 #include "comms.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * Implement the CRAY SHMEM locking API using MCS locks

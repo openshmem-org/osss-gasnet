@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 #define N 7
 

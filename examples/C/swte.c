@@ -44,7 +44,7 @@
  */
 
 #include <stdio.h>
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 static int value;
 

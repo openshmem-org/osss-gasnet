@@ -7,7 +7,7 @@
 
 program multiinit
 
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
 
   call start_pes(0)
   call start_pes(0)

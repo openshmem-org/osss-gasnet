@@ -44,7 +44,7 @@
 #include "trace.h"
 #include "utils.h"
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 /*
  * non-blocking extensions

@@ -43,7 +43,7 @@
 #include "comms.h"
 #include "trace.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * this waits for the variable to change but also dispatches

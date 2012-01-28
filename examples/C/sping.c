@@ -47,7 +47,7 @@
 #include <sys/time.h>
 
 #include <unistd.h>
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 int
 getSize (char *str)

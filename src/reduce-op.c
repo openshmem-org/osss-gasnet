@@ -45,7 +45,7 @@
 #include "utils.h"
 #include "atomic.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 /*
  * pre-defined reductions in SHMEM 1.0

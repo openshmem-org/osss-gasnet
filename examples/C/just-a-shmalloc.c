@@ -41,7 +41,7 @@
  * just do a shmalloc and a free, no output to be expected
  */
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 int
 main ()

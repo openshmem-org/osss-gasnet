@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 static const float e = 2.71828182;
 

@@ -45,7 +45,7 @@
 #include "utils.h"
 #include "modules.h"
 
-#include "mpp/pshmem.h"
+#include "pshmem.h"
 
 /*
  * handlers for broadcast implementations

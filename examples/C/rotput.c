@@ -45,7 +45,7 @@
 #include <time.h>
 #include <assert.h>
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 int
 main (int argc, char **argv)

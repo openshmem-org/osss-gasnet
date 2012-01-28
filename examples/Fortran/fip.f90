@@ -12,7 +12,7 @@ program fip
   real, save :: f
   integer me
 
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
 
   call start_pes(0)
   me = my_pe()

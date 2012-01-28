@@ -54,6 +54,7 @@ endif
 CPPFLAGS        += @ELF_HEADERS@
 
 CPPFLAGS        += -I..
+
 CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC

@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 long dest = -999;
 

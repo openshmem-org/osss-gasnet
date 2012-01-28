@@ -43,7 +43,7 @@
 #include "state.h"
 #include "trace.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 #define SHMEM_BROADCAST_TYPE(Name, Size)				\
   void									\

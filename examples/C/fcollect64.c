@@ -42,7 +42,7 @@
 
 #include <assert.h>
 
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 

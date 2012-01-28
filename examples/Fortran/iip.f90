@@ -7,7 +7,7 @@
 !
 
 program iip
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
 
   integer, save :: n
   integer :: me

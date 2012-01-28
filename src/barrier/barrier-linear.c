@@ -41,7 +41,7 @@
 #include "trace.h"
 #include "atomic.h"
 
-#include "mpp/shmem.h"
+#include "shmem.h"
 
 void
 __shmem_barrier_linear (int PE_start, int logPE_stride, int PE_size,
