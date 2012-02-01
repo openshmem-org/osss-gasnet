@@ -267,11 +267,10 @@ install-bin:	all
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
 	( \
-		cd include; \
-		for f in $(SHMEM_HEADERS); \
+		for h in $(SHMEM_HEADERS); \
 		do \
-			$(INSTALL) -m 644 $$f $(PREFIX)/include; \
-			$(INSTALL) -m 644 mpp/$$f $(PREFIX)/include/mpp; \
+			$(INSTALL) -m 644 $$h $(PREFIX)/include; \
+			$(INSTALL) -m 644 mpp/$$h $(PREFIX)/include/mpp; \
 		done \
 	)
 
@@ -295,7 +294,11 @@ uninstall-bin:
 	$(MAKE) -C $(COMMS_DIR) $@
 
 uninstall-include:
-	for h in $(SHMEM_HEADERS); do $(REMOVE) $(PREFIX)/include/mpp/$$h; done
+	for h in $(SHMEM_HEADERS); \
+	do \
+		$(REMOVE) $(PREFIX)/include/mpp/$$h; \
+		$(REMOVE) $(PREFIX)/include/$$h; \
+	done
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
 
