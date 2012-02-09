@@ -52,14 +52,34 @@
 
 static struct itimerval t;
 
+static long delay = 1000L;	/* in microseconds */
+
+static void
+set_value (long v)
+{
+  t.it_value.tv_sec = 0L;
+  t.it_value.tv_usec = v;
+}
+
+static void
+set_interval (long iv)
+{
+  t.it_interval.tv_sec = 0L;
+  t.it_interval.tv_usec = iv;
+}
+
 static void
 init_timer (void)
 {
-  t.it_value.tv_sec = 0L;
-  t.it_value.tv_usec = 1000L; /* 1 ms */
+  set_value (delay);
+  set_interval (delay);
+}
 
-  t.it_interval.tv_sec = 0L;
-  t.it_interval.tv_usec = 1000L; /* 1 ms */
+static void
+zero_timer (void)
+{
+  set_value (0L);
+  set_interval (0L);
 }
 
 static void
@@ -86,11 +106,26 @@ __shmem_service_init (void)
 }
 
 /*
+ * stop the servicer
+ */
+
+void
+__shmem_service_finalize (void)
+{
+  zero_timer ();
+
+  setitimer (ITIMER_VIRTUAL,
+	     &t,
+	     NULL
+	     );
+}
+
+/*
  * called when an I/O op. has occurred.  The servicer can go back to
  * sleep for a while.
  */
 
-void
+void inline
 __shmem_service_reset (void)
 {
   __shmem_service_init ();

@@ -207,5 +207,5 @@ uninstall-bin:
 # -------------------------------------------------------
 
 clean:
-	$(REMOVE) $(COMMS_OBJ)
+	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)

@@ -38,6 +38,7 @@
 #ifndef _SERVICE_H
 
 extern void __shmem_service_init (void);
+extern void __shmem_service_finalize (void);
 extern void __shmem_service_reset (void);
 
 #endif /* _SERVICE_H */

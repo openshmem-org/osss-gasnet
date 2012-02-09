@@ -75,6 +75,7 @@
 #include "ping.h"
 #include "utils.h"
 #include "exe.h"
+
 #include "service.h"
 
 /*
@@ -366,6 +367,7 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_GET (dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 void
@@ -383,6 +385,7 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_GET_BULK (dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 /*
@@ -424,6 +427,7 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
 #else
   return gasnet_get_val (pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 /*
@@ -435,7 +439,8 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
   void *								\
   __shmem_comms_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
-    return gasnet_put_nb_bulk(pe, target, (Type *) source, sizeof(Type) * len);	\
+    void *h = gasnet_put_nb_bulk(pe, target, (Type *) source, sizeof(Type) * len); \
+    return h;								\
   }
 
 COMMS_TYPE_PUT_NB (short, short) COMMS_TYPE_PUT_NB (int, int)
@@ -451,7 +456,9 @@ COMMS_TYPE_PUT_NB (float, float)
   void *								\
   __shmem_comms_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
-    return gasnet_get_nb_bulk(target, pe, (Type *) source, sizeof(Type) * len);	\
+    void *h = gasnet_get_nb_bulk(target, pe, (Type *) source, sizeof(Type) * len); \
+    __shmem_service_reset ();						\
+    return h;								\
   }
 
 COMMS_TYPE_GET_NB (short, short)
@@ -496,6 +503,7 @@ __shmem_comms_barrier_all (void)
   /* use gasnet's global barrier */
   gasnet_barrier_notify (barcount, barflag);
   GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
+  __shmem_service_reset ();
 
   /* barcount = 1 - barcount; */
   barcount += 1;
@@ -699,6 +707,8 @@ __shmem_comms_exit (int status)
 void
 __shmem_comms_finalize (int status)
 {
+  __shmem_service_finalize ();
+
   if (argv != NULL)
     {
       free (argv);
