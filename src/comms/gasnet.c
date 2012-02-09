@@ -75,6 +75,7 @@
 #include "ping.h"
 #include "utils.h"
 #include "exe.h"
+#include "service.h"
 
 /*
  * gasnet put model: this is just for testing different put
@@ -670,6 +671,7 @@ __shmem_comms_init (void)
 
   __shmem_comms_set_waitmode (SHMEM_COMMS_SPINBLOCK);
 
+  __shmem_service_init ();
   /*
    * make sure all nodes are up to speed before "declaring"
    * initialization done
@@ -1800,7 +1802,7 @@ atomic_wait_get_zero (void)
 /*
  * called by mainline to fence off outstanding requests
  *
- * chanes here for fence/quiet differentiation and optimization
+ * chances here for fence/quiet differentiation and optimization
  */
 
 void

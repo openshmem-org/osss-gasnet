@@ -45,7 +45,7 @@ PREFIX           = @PREFIX@
 #
 COMMS_DIR            = ./comms
 COMMS_CPPFLAGS       = -I$(COMMS_DIR)
-COMMS_OBJ            = $(COMMS_DIR)/comms.o
+COMMS_OBJ            = $(COMMS_DIR)/*.o
 
 # ---------------------------------------------------------
 #

@@ -46,8 +46,13 @@ SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 # ---------------------------------------------------------
 
-COMMS_SRC = comms.c
-COMMS_OBJ = $(COMMS_SRC:.c=.o)
+COMMS_SRC        = comms.c
+COMMS_OBJ        = $(COMMS_SRC:.c=.o)
+
+# ---------------------------------------------------------
+
+SERVICE_SRC      = service.c
+SERVICE_OBJ      = $(SERVICE_SRC:.c=.o)
 
 # ---------------------------------------------------------
 
@@ -118,7 +123,7 @@ SHMEM_RUN        = oshrun
 
 # -- start GASNet ------------------------------------------
 
-all:	$(COMMS_OBJ) wrappers
+all:	$(COMMS_OBJ) $(SERVICE_OBJ) wrappers
 
 #
 # GASNet installation root, and setup
@@ -138,6 +143,12 @@ $(COMMS_OBJ):	$(COMMS_SRC)
 		-c -o $@ $<
 
 # -- end GASNet --------------------------------------------
+
+$(SERVICE_OBJ):	$(SERVICE_SRC)
+	$(CC) \
+		$(CPPFLAGS) \
+		$(COMMON_FLAGS) \
+		-c -o $@ $<
 
 # -- command wrappers depend on gasnet settings ------------
 
