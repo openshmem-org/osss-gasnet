@@ -57,7 +57,7 @@ main ()
   int me;
   int old;
 
-  start_pes (2 /* unused, just a reminder */ );
+  start_pes (0);
   me = _my_pe ();
 
   old = -1;
