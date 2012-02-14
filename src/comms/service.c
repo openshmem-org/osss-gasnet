@@ -47,8 +47,11 @@
 #include <stdio.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <string.h>
+#include <errno.h>
 
 #include "comms.h"
+#include "trace.h"
 
 static struct itimerval t;
 
@@ -95,14 +98,22 @@ alarm_handler (int signum)
 void
 __shmem_service_init (void)
 {
+  int s;
+
   init_timer ();
 
   signal (SIGVTALRM, alarm_handler);
 
-  setitimer (ITIMER_VIRTUAL,
-	     &t,
-	     NULL
-	     );
+  s = setitimer (ITIMER_VIRTUAL,
+		 &t,
+		 NULL
+		 );
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+                     "internal error: couldn't set service timer (%s)",
+                     strerror (errno));
+    }
 }
 
 /*
@@ -112,12 +123,40 @@ __shmem_service_init (void)
 void
 __shmem_service_finalize (void)
 {
+  int s;
+
   zero_timer ();
 
-  setitimer (ITIMER_VIRTUAL,
-	     &t,
-	     NULL
-	     );
+  s = setitimer (ITIMER_VIRTUAL,
+		 &t,
+		 NULL
+		 );
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+                     "internal error: couldn't clear service timer (%s)",
+                     strerror (errno));
+    }
+}
+
+/*
+ * pause the servicer
+ */
+
+void
+__shmem_service_pause (void)
+{
+  __shmem_service_finalize ();
+}
+
+/*
+ * resume the servicer
+ */
+
+void
+__shmem_service_resume (void)
+{
+  __shmem_service_finalize ();
 }
 
 /*

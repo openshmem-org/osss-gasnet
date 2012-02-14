@@ -331,6 +331,7 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_PUT (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 void
@@ -348,6 +349,7 @@ __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_PUT_BULK (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 void __shmem_comms_globalvar_get_request ();	/* forward decl */
@@ -408,6 +410,7 @@ __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 #else
   GASNET_PUT_VAL (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
 }
 
 long
@@ -440,6 +443,7 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
   __shmem_comms_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
   {									\
     void *h = gasnet_put_nb_bulk(pe, target, (Type *) source, sizeof(Type) * len); \
+    __shmem_service_reset ();						\
     return h;								\
   }
 
@@ -1022,7 +1026,7 @@ get_lock_for (void *addr)
 
       try->addr = addr;
       try->lock = L;
-
+ 
       HASH_ADD_PTR (lock_table, addr, try);
 
       __shmem_trace (SHMEM_LOG_LOCK, "created new lock for address %p", addr);
@@ -1526,9 +1530,6 @@ typedef struct
   size_t nbytes;		/* how big the value is */
 } inc_payload_t;
 
-static gasnet_hsl_t inc_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t inc_bak_lock = GASNET_HSL_INITIALIZER;
-
 /*
  * called by remote PE to do the remote increment
  */
@@ -1745,8 +1746,8 @@ __shmem_comms_ping_request (int pe)
 /*
  * atomic counters
  */
-static volatile unsigned int put_counter = 0;
-static volatile unsigned int get_counter = 0;
+static volatile unsigned long put_counter = 0L;
+static volatile unsigned long get_counter = 0L;
 
 static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
@@ -1755,7 +1756,7 @@ static void inline
 atomic_inc_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
-  put_counter += 1;
+  put_counter += 1L;
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
@@ -1763,21 +1764,21 @@ static void inline
 atomic_dec_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
-  put_counter -= 1;
+  put_counter -= 1L;
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
 static void inline
 atomic_wait_put_zero (void)
 {
-  WAIT_ON_COMPLETION (put_counter == 0);
+  WAIT_ON_COMPLETION (put_counter == 0L);
 }
 
 static void inline
 atomic_inc_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
-  get_counter += 1;
+  get_counter += 1L;
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
@@ -1785,14 +1786,14 @@ static void inline
 atomic_dec_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
-  get_counter -= 1;
+  get_counter -= 1L;
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
 static void inline
 atomic_wait_get_zero (void)
 {
-  WAIT_ON_COMPLETION (get_counter == 0);
+  WAIT_ON_COMPLETION (get_counter == 0L);
 }
 
 #else /* ! HAVE_MANAGED_SEGMENTS */
@@ -1818,8 +1819,9 @@ atomic_wait_get_zero (void)
 void
 __shmem_comms_quiet_request (void)
 {
-  atomic_wait_put_zero ();
   GASNET_WAIT_PUTS ();
+  atomic_wait_put_zero ();
+
   LOAD_STORE_FENCE ();
   return;
 }

@@ -142,7 +142,12 @@ extern void __shmem_comms_set_service_pause (double ms);
  * utility to wait on remote updates
  */
 /* #define WAIT_ON_COMPLETION(p) do { __shmem_comms_pause(); } while (! (p)) */
-#define WAIT_ON_COMPLETION(p) GASNET_BLOCKUNTIL(p)
+#define WAIT_ON_COMPLETION(p)						\
+  {									\
+    __shmem_service_pause ();						\
+    GASNET_BLOCKUNTIL(p);						\
+    __shmem_service_resume ();						\
+ }
 
 /*
  * for accessibility timeouts

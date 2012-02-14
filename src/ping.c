@@ -136,7 +136,7 @@ __shmem_ping_set_alarm (void)
   if (s != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't set timer (%s)",
+		     "internal error: couldn't set accessibility timer (%s)",
 		     strerror (errno));
     }
 }
@@ -152,7 +152,7 @@ __shmem_ping_clear_alarm (void)
   if (s != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't clear timer (%s)",
+		     "internal error: couldn't clear accessibility timer (%s)",
 		     strerror (errno));
     }
 }
