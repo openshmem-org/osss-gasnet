@@ -143,7 +143,7 @@ __shmem_service_finalize (void)
  * pause the servicer
  */
 
-void
+void inline
 __shmem_service_pause (void)
 {
   __shmem_service_finalize ();
@@ -153,10 +153,10 @@ __shmem_service_pause (void)
  * resume the servicer
  */
 
-void
+void inline
 __shmem_service_resume (void)
 {
-  __shmem_service_finalize ();
+  return;
 }
 
 /*
