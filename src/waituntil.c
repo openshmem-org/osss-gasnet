@@ -52,7 +52,7 @@
 
 #define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
   while ( ! ( (* ( volatile Type *)(Var)) Op CmpValue) ) {	\
-    __shmem_comms_pause();					\
+    __shmem_comms_service ();					\
   }
 
 /*

@@ -88,7 +88,7 @@ zero_timer (void)
 static void
 alarm_handler (int signum)
 {
-  __shmem_comms_pause ();
+  __shmem_comms_service ();
 }
 
 /*

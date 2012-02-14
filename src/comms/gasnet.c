@@ -276,7 +276,7 @@ __shmem_comms_set_waitmode (comms_spinmode_t mode)
  *
  */
 void
-__shmem_comms_pause (void)
+__shmem_comms_service (void)
 {
   GASNET_SAFE (gasnet_AMPoll ());
 }

@@ -129,19 +129,15 @@ extern void *__shmem_comms_float_get_nb (float *target, const float *source,
 extern void __shmem_comms_wait_nb (void *h);
 extern int __shmem_comms_test_nb (void *h);
 
-
 /*
- * exported to service thread to control polling and waiting
+ * exported to control polling and waiting
+ * TODO: needs better encapsulation
  */
-extern void __shmem_comms_fence_service (void);
-extern void __shmem_comms_poll_service (void);
-extern void __shmem_comms_pause (void);
-extern void __shmem_comms_set_service_pause (double ms);
+extern void __shmem_comms_service (void);
 
 /*
  * utility to wait on remote updates
  */
-/* #define WAIT_ON_COMPLETION(p) do { __shmem_comms_pause(); } while (! (p)) */
 #define WAIT_ON_COMPLETION(p)						\
   {									\
     __shmem_service_pause ();						\
