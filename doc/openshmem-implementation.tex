@@ -321,9 +321,11 @@ an eye on the abstraction process.
 
 \subsection{Servicing Communications}
 
-GASNet provides this functionality. The mainline code needs to spin on
-variable waits (e.g.\ shmem\_long\_waituntil) to poll GASNet,
-otherwise progress is automatic.
+GASNet provides this functionality in some cases. The mainline code
+needs to spin on variable waits (e.g.\ shmem\_long\_waituntil) to poll
+GASNet, otherwise progress is automatic via a servicer unit.  This is
+implemented with an interval timer (setitimer) that is switched on and
+off depending on whether we're checking GASNet explicitly.
 
 \subsection{Memory Management}
 
