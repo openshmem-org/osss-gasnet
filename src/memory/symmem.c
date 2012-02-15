@@ -110,6 +110,8 @@ __shmalloc_symmetry_check (size_t size)
 	  /* NOT REACHED */
 	}
     }
+  /* make sure everyone is here before freeing things */
+  shmem_barrier_all ();
   __shmem_mem_free (shmalloc_remote_size);
   return any_failed_pe;
 }
