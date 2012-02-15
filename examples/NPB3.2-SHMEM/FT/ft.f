@@ -84,6 +84,7 @@ c---------------------------------------------------------------------
       implicit none
 
       include 'mpif.h'
+      include 'mpp/shmem.fh'
       include 'global.h'
       integer i, ierr
       
@@ -116,7 +117,9 @@ c---------------------------------------------------------------------
       logical verified
       character class
 
-      call MPI_Init(ierr)
+c      call MPI_Init(ierr)
+      call start_pes(0)
+
 
 c---------------------------------------------------------------------
 c Run the entire problem once to make sure all data is touched. 
@@ -141,7 +144,8 @@ c---------------------------------------------------------------------
       do i = 1, t_max
          call timer_clear(i)
       end do
-      call MPI_Barrier(MPI_COMM_WORLD, ierr)
+c      call MPI_Barrier(MPI_COMM_WORLD, ierr)
+      call shmem_barrier_all();
 
       call timer_start(T_total)
       if (timers_enabled) call timer_start(T_setup)
@@ -190,7 +194,7 @@ c---------------------------------------------------------------------
      >     npbversion, compiletime, cs1, cs2, cs3, cs4, cs5, cs6, cs7)
       endif
       if (timers_enabled) call print_timers()
-      call MPI_Finalize(ierr)
+c      call MPI_Finalize(ierr)
       end
 
 c---------------------------------------------------------------------
@@ -347,13 +351,21 @@ c---------------------------------------------------------------------
 
       implicit none
       include 'mpinpb.h'
+      include 'mpp/shmem.fh'
       include 'global.h'
 
       integer ierr, i, j, fstatus
+      integer, save :: temp
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync
+
       debug = .FALSE.
       
-      call MPI_Comm_size(MPI_COMM_WORLD, np, ierr)
-      call MPI_Comm_rank(MPI_COMM_WORLD, me, ierr)
+c      call MPI_Comm_size(MPI_COMM_WORLD, np, ierr)
+c      call MPI_Comm_rank(MPI_COMM_WORLD, me, ierr)
+      np = num_pes()
+      me = my_pe()
+      psync = SHMEM_SYNC_VALUE
+      call shmem_barrier_all
 
       if (.not. convertdouble) then
          dc_type = MPI_DOUBLE_COMPLEX
@@ -480,8 +492,11 @@ c---------------------------------------------------------------------
 c Since np1, np2 and layout_type are in a common block, 
 c this sends all three. 
 c---------------------------------------------------------------------
-      call MPI_BCAST(np1, 3, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
-      call MPI_BCAST(niter, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+c      call MPI_BCAST(np1, 3, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+c      call MPI_BCAST(niter, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+      call shmem_broadcast4(np1, np1, 3, 0, 0, 0, np, psync)
+      call shmem_broadcast4(niter, niter, 1, 0, 0, 0, np, psync)
+
 
       if (np1 .eq. 1 .and. np2 .eq. 1) then
         layout_type = layout_0D
@@ -535,6 +550,7 @@ c Processor grid is np1xnp2.
 c Arrays are always (n1, n2/np1, n3/np2)
 c Processor coords are zero-based. 
 c---------------------------------------------------------------------
+
       me2 = mod(me, np2)  ! goes from 0...np2-1
       me1 = me/np2        ! goes from 0...np1-1
 c---------------------------------------------------------------------
@@ -543,11 +559,12 @@ c commslice1 is communicator of all procs with same me1, ranked as me2
 c commslice2 is communicator of all procs with same me2, ranked as me1
 c mpi_comm_split(comm, color, key, ...)
 c---------------------------------------------------------------------
-      call MPI_Comm_split(MPI_COMM_WORLD, me1, me2, commslice1, ierr)
-      call MPI_Comm_split(MPI_COMM_WORLD, me2, me1, commslice2, ierr)
+c      call MPI_Comm_split(MPI_COMM_WORLD, me1, me2, commslice1, ierr)
+c      call MPI_Comm_split(MPI_COMM_WORLD, me2, me1, commslice2, ierr)
       if (timers_enabled) call synchup()
 
-      if (debug) print *, 'proc coords: ', me, me1, me2
+c      if (debug) print *, 'proc coords: ', me, me1, me2
+c       print *, 'proc coords: ', me, me1, me2
 
 c---------------------------------------------------------------------
 c Determine which section of the grid is owned by this
@@ -1319,14 +1336,23 @@ c---------------------------------------------------------------------
       include 'mpinpb.h'
       double complex xin(ntdivnp)
       double complex xout(ntdivnp) 
-      integer ierr
-
+      integer ierr,j1,nb,i
+ 
+      j1 = 0
       if (timers_enabled) call synchup()
 
       if (timers_enabled) call timer_start(T_transxzglo)
-      call mpi_alltoall(xin, ntdivnp/np, dc_type,
-     >                  xout, ntdivnp/np, dc_type,
-     >                  commslice1, ierr)
+c      call mpi_alltoall(xin, ntdivnp/np, dc_type,
+c     >                  xout, ntdivnp/np, dc_type,
+c     >                  commslice1, ierr)
+      nb = ntdivnp/np
+      call shmem_barrier_all()
+       do 10, j1=0,np2-1
+                call shmem_complex_put(xout(nb*me+1),xin(nb*j1+1),
+     >                            nb,j1)
+10    continue
+      call shmem_barrier_all()
+
       if (timers_enabled) call timer_stop(T_transxzglo)
 
       return
@@ -1476,7 +1502,7 @@ c---------------------------------------------------------------------
       integer d1, d2, d3
       double complex xin(d3,d2,d1)
       double complex xout(d3,d2,d1) ! not real layout, but right size
-      integer ierr
+      integer ierr,j1,nb
 
       if (timers_enabled) call synchup()
 
@@ -1484,9 +1510,17 @@ c---------------------------------------------------------------------
 c do transpose among all  processes with same 1-coord (me1)
 c---------------------------------------------------------------------
       if (timers_enabled)call timer_start(T_transxzglo)
-      call mpi_alltoall(xin, d1*d2*d3/np2, dc_type,
-     >                  xout, d1*d2*d3/np2, dc_type,
-     >                  commslice1, ierr)
+c      call mpi_alltoall(xin, d1*d2*d3/np2, dc_type,
+c     >                  xout, d1*d2*d3/np2, dc_type,
+c     >                  commslice1, ierr)
+      nb = d1*d2*d3/np2
+      call shmem_barrier_all()
+       do 20, j1=0,np2-1
+            call shmem_complex_put(xout(me,me,me),xin(j1,j1,j1),
+     >                            nb,j1)
+20    continue
+      call shmem_barrier_all()
+
       if (timers_enabled) call timer_stop(T_transxzglo)
       return
       end
@@ -1616,17 +1650,31 @@ c array is in form (ny/np1, nz/np2, nx)
 c---------------------------------------------------------------------
       double complex xin(d2,d3,d1)
       double complex xout(d2,d3,d1) ! not real layout but right size
-      integer ierr
+c      double complex, dimension(d2,d3,d1), save::xin
+c      double complex, dimension(d2,d3,d1), save::xout ! not real layout but right size
+      integer ierr,j1
+
+       print *,"Stage1" 
 
       if (timers_enabled) call synchup()
 
+      j1=0
 c---------------------------------------------------------------------
 c do transpose among all processes with same 1-coord (me1)
 c---------------------------------------------------------------------
       if (timers_enabled) call timer_start(T_transxyglo)
-      call mpi_alltoall(xin, d1*d2*d3/np1, dc_type,
-     >                  xout, d1*d2*d3/np1, dc_type,
-     >                  commslice2, ierr)
+c      call mpi_alltoall(xin, d1*d2*d3/np1, dc_type,
+c     >                  xout, d1*d2*d3/np1, dc_type,
+c     >                  commslice2, ierr)
+c     commslice2 goes from 0...np2-1
+      call shmem_barrier_all()
+      do j1=0, np2-1
+            call shmem_complex_put(xout(me,me,me),xin(j1,j1,j1),
+     >                            d1*d2*d3/np1,j1)
+           continue 
+       end do
+      call shmem_barrier_all()
+
       if (timers_enabled) call timer_stop(T_transxyglo)
 
       return
@@ -1690,10 +1738,19 @@ c---------------------------------------------------------------------
       implicit none
       include 'global.h'
       include 'mpinpb.h'
+      include 'mpp/shmem.fh'
       integer i, d1, d2, d3
       double complex u1(d1, d2, d3)
       integer j, q,r,s, ierr
-      double complex chk,allchk
+      double complex, save::chk
+      double complex, save::allchk
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync
+      double precision, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE),
+     > save :: pwrk
+
+      psync = SHMEM_SYNC_VALUE
+      call shmem_barrier_all()
+
       chk = (0.0,0.0)
 
       do j=1,1024
@@ -1710,8 +1767,10 @@ c---------------------------------------------------------------------
       end do
       chk = chk/ntotal_f
       
-      call MPI_Reduce(chk, allchk, 1, dc_type, MPI_SUM, 
-     >                0, MPI_COMM_WORLD, ierr)      
+c      call MPI_Reduce(chk, allchk, 1, dc_type, MPI_SUM, 
+c     >                0, MPI_COMM_WORLD, ierr)      
+       call shmem_comp8_sum_to_all(allchk,chk,1,0,0,np,pwrk,psync)
+
       if (me .eq. 0) then
             write (*, 30) i, allchk
  30         format (' T =',I5,5X,'Checksum =',1P2D22.12)
@@ -1738,7 +1797,8 @@ c---------------------------------------------------------------------
       include 'mpinpb.h'
       integer ierr
       call timer_start(T_synch)
-      call mpi_barrier(MPI_COMM_WORLD, ierr)
+c      call mpi_barrier(MPI_COMM_WORLD, ierr)
+      call shmem_barrier_all();
       call timer_stop(T_synch)
       return
       end
