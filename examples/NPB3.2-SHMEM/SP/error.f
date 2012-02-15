@@ -13,11 +13,24 @@ c computed solution and the exact solution
 c---------------------------------------------------------------------
 
        include 'header.h'
-       include 'mpinpb.h'
+c      X-1
+       include 'mpp/shmem.fh'
 
        integer c, i, j, k, m, ii, jj, kk, d, error
-       double precision xi, eta, zeta, u_exact(5), rms(5), rms_work(5),
-     >                  add
+c       double precision xi, eta, zeta, u_exact(5), rms(5), rms_work(5),
+c     >                  add
+      double precision xi, eta, zeta, u_exact(5), rms(5),
+     >     add
+c     X-1
+      double precision, save:: rms_work(5)
+
+c     X-1
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync1
+      double precision, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE),
+     > save :: pwrk1
+
+      psync1 = SHMEM_SYNC_VALUE
+      call shmem_barrier_all();
 
        do   m = 1, 5 
           rms_work(m) = 0.0d0
@@ -47,8 +60,10 @@ c---------------------------------------------------------------------
           end do
        end do
 
-       call mpi_allreduce(rms_work, rms, 5, dp_type, 
-     >                 MPI_SUM, comm_setup, error)
+c       call mpi_allreduce(rms_work, rms, 5, 
+c     >                    dp_type, MPI_SUM, comm_solve, error)
+      call shmem_real8_sum_to_all(rms,rms_work,5,0,0,
+     >                            no_nodes,pwrk1,psync1)
 
        do    m = 1, 5
           do    d = 1, 3
@@ -65,10 +80,22 @@ c---------------------------------------------------------------------
        subroutine rhs_norm(rms)
 
        include 'header.h'
-       include 'mpinpb.h'
+c      X-1
+       include 'mpp/shmem.fh'
 
        integer c, i, j, k, d, m, error
-       double precision rms(5), rms_work(5), add
+c      X-1
+c      double precision rms(5), rms_work(5), add
+      double precision add
+      double precision rms(5)
+      double precision, save:: rms_work(5)
+c     X-1
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync1
+      double precision, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE),
+     > save :: pwrk1
+
+      psync1 = SHMEM_SYNC_VALUE
+      call shmem_barrier_all();
 
        do    m = 1, 5
           rms_work(m) = 0.0d0
@@ -89,8 +116,10 @@ c---------------------------------------------------------------------
 
 
 
-       call mpi_allreduce(rms_work, rms, 5, dp_type, 
-     >                 MPI_SUM, comm_setup, error)
+c       call mpi_allreduce(rms_work, rms, 5, 
+c     >                    dp_type, MPI_SUM, comm_solve, error)
+      call shmem_real8_sum_to_all(rms,rms_work,5,0,0,
+     >                            no_nodes,pwrk1,psync1)
 
        do   m = 1, 5
           do   d = 1, 3

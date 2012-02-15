@@ -18,11 +18,10 @@ c adds so much overhead that it's not clearly useful.
 c---------------------------------------------------------------------
 
        include 'header.h'
-       include 'mpinpb.h'
 
-       integer i, j, k, c, m, requests(0:11), p0, p1, 
+       integer i, j, k, c, m, p0, p1, error,
      >         p2, p3, p4, p5, b_size(0:5), ss(0:5), 
-     >         sr(0:5), error, statuses(MPI_STATUS_SIZE, 0:11)
+     >         sr(0:5), sr_n(0:5)
 
 c---------------------------------------------------------------------
 c      exit immediately if there are no faces to be copied           
@@ -47,12 +46,19 @@ c---------------------------------------------------------------------
        sr(4) = start_recv_top
        sr(5) = start_recv_bottom
 
-       b_size(0) = east_size   
-       b_size(1) = west_size   
-       b_size(2) = north_size  
-       b_size(3) = south_size  
-       b_size(4) = top_size    
-       b_size(5) = bottom_size 
+       sr_n(0) =   successor(1)
+       sr_n(1) = predecessor(1)
+       sr_n(2) =   successor(2)
+       sr_n(3) = predecessor(2)
+       sr_n(4) =   successor(3)
+       sr_n(5) = predecessor(3)
+
+       b_size(0) = east_size
+       b_size(1) = west_size
+       b_size(2) = north_size
+       b_size(3) = south_size
+       b_size(4) = top_size
+       b_size(5) = bottom_size
 
 c---------------------------------------------------------------------
 c because the difference stencil for the diagonalized scheme is 
@@ -60,6 +66,7 @@ c orthogonal, we do not have to perform the staged copying of faces,
 c but can send all face information simultaneously to the neighboring 
 c cells in all directions          
 c---------------------------------------------------------------------
+       if (timeron) call timer_start(t_bpack)
        p0 = 0
        p1 = 0
        p2 = 0
@@ -165,51 +172,29 @@ c---------------------------------------------------------------------
 c       cell loop
 c---------------------------------------------------------------------
         end do
+       if (timeron) call timer_stop(t_bpack)
 
-       call mpi_irecv(in_buffer(sr(0)), b_size(0), 
-     >                dp_type, successor(1), WEST,  
-     >                comm_rhs, requests(0), error)
-       call mpi_irecv(in_buffer(sr(1)), b_size(1), 
-     >                dp_type, predecessor(1), EAST,  
-     >                comm_rhs, requests(1), error)
-       call mpi_irecv(in_buffer(sr(2)), b_size(2), 
-     >                dp_type, successor(2), SOUTH, 
-     >                comm_rhs, requests(2), error)
-       call mpi_irecv(in_buffer(sr(3)), b_size(3), 
-     >                dp_type, predecessor(2), NORTH, 
-     >                comm_rhs, requests(3), error)
-       call mpi_irecv(in_buffer(sr(4)), b_size(4), 
-     >                dp_type, successor(3), BOTTOM,
-     >                comm_rhs, requests(4), error)
-       call mpi_irecv(in_buffer(sr(5)), b_size(5), 
-     >                dp_type, predecessor(3), TOP,   
-     >                comm_rhs, requests(5), error)
+c .... synchronize all updates and get remote data
+       if (timeron) call timer_start(t_exch)
+c       call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, win, error)
+       call shmem_barrier_all()
 
-       call mpi_isend(out_buffer(ss(0)), b_size(0), 
-     >                dp_type, successor(1),   EAST, 
-     >                comm_rhs, requests(6), error)
-       call mpi_isend(out_buffer(ss(1)), b_size(1), 
-     >                dp_type, predecessor(1), WEST, 
-     >                comm_rhs, requests(7), error)
-       call mpi_isend(out_buffer(ss(2)), b_size(2), 
-     >                dp_type,successor(2),   NORTH, 
-     >                comm_rhs, requests(8), error)
-       call mpi_isend(out_buffer(ss(3)), b_size(3), 
-     >                dp_type,predecessor(2), SOUTH, 
-     >                comm_rhs, requests(9), error)
-       call mpi_isend(out_buffer(ss(4)), b_size(4), 
-     >                dp_type,successor(3),   TOP, 
-     >                comm_rhs,   requests(10), error)
-       call mpi_isend(out_buffer(ss(5)), b_size(5), 
-     >                dp_type,predecessor(3), BOTTOM, 
-     >                comm_rhs,requests(11), error)
+       do c = 0, 5
+          disp = sr(c)
+c          call mpi_get(in_buffer(sr(c)), b_size(c), dp_type,
+c     >       sr_n(c), disp, b_size(c), dp_type, win, error)
+         call shmem_double_get(in_buffer(sr(c)),
+     >   out_buffer(disp), b_size(c), sr_n(c))
+       end do
+c       call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+      call shmem_barrier_all()
 
-
-       call mpi_waitall(12, requests, statuses, error)
+       if (timeron) call timer_stop(t_exch)
 
 c---------------------------------------------------------------------
 c unpack the data that has just been received;             
 c---------------------------------------------------------------------
+       if (timeron) call timer_start(t_bpack)
        p0 = 0
        p1 = 0
        p2 = 0
@@ -296,6 +281,7 @@ c---------------------------------------------------------------------
 c      cells loop
 c---------------------------------------------------------------------
        end do
+       if (timeron) call timer_stop(t_bpack)
 
 c---------------------------------------------------------------------
 c now that we have all the data, compute the rhs

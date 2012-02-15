@@ -1,25 +1,25 @@
 !-------------------------------------------------------------------------!
 !                                                                         !
-!        N  A  S     P A R A L L E L     B E N C H M A R K S  3.2         !
+!        N  A  S     P A R A L L E L     B E N C H M A R K S  3.3         !
 !                                                                         !
 !                                   S P                                   !
 !                                                                         !
 !-------------------------------------------------------------------------!
 !                                                                         !
-!    This benchmark is part of the NAS Parallel Benchmark 3.2 suite.      !
+!    This benchmark is part of the NAS Parallel Benchmark 3.3 suite.      !
 !    It is described in NAS Technical Reports 95-020 and 02-007           !
 !                                                                         !
 !    Permission to use, copy, distribute and modify this software         !
 !    for any purpose with or without fee is hereby granted.  We           !
 !    request, however, that all derived work reference the NAS            !
-!    Parallel Benchmarks 3.2. This software is provided "as is"           !
+!    Parallel Benchmarks 3.3. This software is provided "as is"           !
 !    without express or implied warranty.                                 !
 !                                                                         !
-!    Information on NPB 3.2, including the technical report, the          !
+!    Information on NPB 3.3, including the technical report, the          !
 !    original specifications, source code, results and information        !
 !    on how to submit new results, is available at:                       !
 !                                                                         !
-!           http://www.nas.nasa.gov/Software/NPB/                     !
+!           http://www.nas.nasa.gov/Software/NPB/                         !
 !                                                                         !
 !    Send comments or suggestions to  npb@nas.nasa.gov                    !
 !                                                                         !
@@ -45,15 +45,48 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
        include  'header.h'
-       include  'mpinpb.h'
-      
-       integer          i, niter, step, c, error, fstatus
+c      X-1
+       include 'mpp/shmem.fh'
+
+       integer          i, step, c, fstatus, error
+c       X-1
+       integer, save::niter
+
        external timer_read
-       double precision mflops, t, tmax, timer_read
+c       double precision mflops, t, tmax, timer_read
+       double precision mflops, timer_read
+       double precision, save::t
+       double precision, save::tmax
+
        logical          verified
        character        class
+c       double precision tsum(t_last+2), t1(t_last+2),
+c     >                  tming(t_last+2), tmaxg(t_last+2)
+       double precision, save:: t1(t_last+2)
+       double precision, save:: tsum(t_last+2)
+       double precision, save:: tming(t_last+2)
+       double precision, save:: tmaxg(t_last+2)
+       character        t_recs(t_last+2)*8
 
-       call setup_mpi
+       data t_recs/'total', 'rhs', 'xsolve', 'ysolve', 'zsolve', 
+     >             'bpack', 'exch', 'xcomm', 'ycomm', 'zcomm',
+     >             ' totcomp', ' totcomm'/
+
+c     X-1
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync1
+      integer, dimension(SHMEM_BCAST_SYNC_SIZE), save :: psync2
+      double precision, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE),
+     > save :: pwrk
+
+       call setup_rma
+
+c      X-1
+       psync = SHMEM_SYNC_VALUE
+       psync1 = SHMEM_SYNC_VALUE
+       psync2 = SHMEM_SYNC_VALUE
+       call shmem_barrier_all()
+
        if (.not. active) goto 999
 
 c---------------------------------------------------------------------
@@ -63,6 +96,14 @@ c---------------------------------------------------------------------
        if (node .eq. root) then
           
           write(*, 1000)
+
+          open (unit=2,file='timer.flag',status='old',iostat=fstatus)
+          timeron = .false.
+          if (fstatus .eq. 0) then
+             timeron = .true.
+             close(2)
+          endif
+
           open (unit=2,file='inputsp.data',status='old', iostat=fstatus)
 c
           if (fstatus .eq. 0) then
@@ -89,24 +130,32 @@ c
      >        write(*, 1005) maxcells*maxcells
           write(*, 1003) no_nodes
 
- 1000 format(//,' NAS Parallel Benchmarks 3.2 -- SP Benchmark',/)
- 1001     format(' Size: ', i3, 'x', i3, 'x', i3)
- 1002     format(' Iterations: ', i3, '    dt: ', F10.6)
+ 1000 format(//,' NAS Parallel Benchmarks 3.3 -- SP Benchmark',/)
+ 1001     format(' Size: ', i4, 'x', i4, 'x', i4)
+ 1002     format(' Iterations: ', i4, '    dt: ', F11.7)
  1004     format(' Total number of processes: ', i5)
  1005     format(' WARNING: compiled for ', i5, ' processes ')
  1003     format(' Number of active processes: ', i5, /)
 
        endif
 
-       call mpi_bcast(niter, 1, MPI_INTEGER, 
-     >                root, comm_setup, error)
+c ...  broadcast input parameters
+c       call mpi_bcast(niter, 1, MPI_INTEGER,
+c     >                root, comm_setup, error)
+      call shmem_broadcast4(niter, niter, 1, 0, 0, 0, no_nodes, psync1)
 
-       call mpi_bcast(dt, 1, dp_type, 
-     >                root, comm_setup, error)
+c       call mpi_bcast(dt, 1, dp_type, 
+c     >                root, comm_setup, error)
+      call shmem_broadcast8(dt, dt, 1, 0, 0, 0, no_nodes, psync2)
 
-       call mpi_bcast(grid_points(1), 3, MPI_INTEGER, 
-     >                root, comm_setup, error)
+c       call mpi_bcast(grid_points, 3, MPI_INTEGER, 
+c     >                root, comm_setup, error)
+      call shmem_broadcast4(grid_points, grid_points, 3, 0, 0, 0,
+     >                      no_nodes, psync1)
 
+c       call mpi_bcast(timeron, 1, MPI_LOGICAL,
+c     >                root, comm_setup, error)
+      call shmem_broadcast4(timeron,timeron,1,0,0,0,no_nodes,psync2)
 
        call make_set
 
@@ -120,12 +169,13 @@ c
           endif
        end do
 
+       do  i = 1, t_last
+          call timer_clear(i)
+       end do
+
        call set_constants
 
        call initialize
-
-c       call mpi_finalize(error)
-c       stop
 
        call lhsinit
 
@@ -142,7 +192,11 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c      Synchronize before placing time stamp
 c---------------------------------------------------------------------
-       call mpi_barrier(comm_setup, error)
+       do  i = 1, t_last
+          call timer_clear(i)
+       end do
+c       call mpi_barrier(comm_setup, error)
+      call shmem_barrier_all()
 
        call timer_clear(1)
        call timer_start(1)
@@ -166,9 +220,10 @@ c---------------------------------------------------------------------
        
        call verify(niter, class, verified)
 
-       call mpi_reduce(t, tmax, 1, 
-     >                 dp_type, MPI_MAX, 
-     >                 root, comm_setup, error)
+c       call mpi_reduce(t, tmax, 1, 
+c     >                 dp_type, MPI_MAX, 
+c     >                 root, comm_setup, error)
+       call shmem_real8_max_to_all(tmax,t,1,0,0,no_nodes,pwrk,psync)
 
        if( node .eq. root ) then
           if( tmax .ne. 0. ) then
@@ -187,8 +242,46 @@ c---------------------------------------------------------------------
      >     cs6, '(none)')
        endif
 
+       if (.not.timeron) goto 999
+
+       do i = 1, t_last
+          t1(i) = timer_read(i)
+       end do
+       t1(t_xsolve) = t1(t_xsolve) - t1(t_xcomm)
+       t1(t_ysolve) = t1(t_ysolve) - t1(t_ycomm)
+       t1(t_zsolve) = t1(t_zsolve) - t1(t_zcomm)
+       t1(t_last+2) = t1(t_xcomm)+t1(t_ycomm)+t1(t_zcomm)+t1(t_exch)
+       t1(t_last+1) = t1(t_total)  - t1(t_last+2)
+
+c       call mpi_reduce(t1, tsum, t_last+2, 
+c     >                 dp_type, MPI_SUM, root, comm_setup, error)
+      call shmem_real8_sum_to_all(tsum,t1,t_last+2,0,0,
+     >                            no_nodes,pwrk,psync)
+c       call mpi_reduce(t1, tming, t_last+2, 
+c     >                 dp_type, MPI_MIN, root, comm_setup, error)
+      call shmem_real8_min_to_all(tming,t1,t_last+2,0,0,
+     >                            no_nodes,pwrk,psync)
+
+c       call mpi_reduce(t1, tmaxg, t_last+2, 
+c     >                 dp_type, MPI_MAX, root, comm_setup, error)
+      call shmem_real8_max_to_all(tmaxg,t1,t_last+2,0,0,
+     >                            no_nodes,pwrk,psync)
+
+       if (node .eq. root) then
+          write(*, 800) total_nodes
+          do i = 1, t_last+2
+             tsum(i) = tsum(i) / total_nodes
+             write(*, 810) i, t_recs(i), tming(i), tmaxg(i), tsum(i)
+          end do
+       endif
+ 800   format(' nprocs =', i6, 11x, 'minimum', 5x, 'maximum', 
+     >        5x, 'average')
+ 810   format(' timer ', i2, '(', A8, ') :', 3(2x,f10.4))
+
  999   continue
-       call mpi_barrier(MPI_COMM_WORLD, error)
-       call mpi_finalize(error)
+c       call mpi_barrier(MPI_COMM_WORLD, error)
+       call shmem_barrier_all()
+c       if (active) call mpi_win_free(win, error)
+c       call mpi_finalize(error)
 
        end

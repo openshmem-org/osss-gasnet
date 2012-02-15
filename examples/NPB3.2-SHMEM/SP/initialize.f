@@ -184,19 +184,19 @@ c---------------------------------------------------------------------
        c = slice(3,1)
        kk = 0
        zeta = 0.0d0
-       ii = 0
-       do   i =cell_low(1,c), cell_high(1,c)
-          xi = dble(i) *dnxm1
-          jj = 0
-          do   j = cell_low(2,c), cell_high(2,c)
-             eta = dble(j) * dnym1
+       jj = 0
+       do   j = cell_low(2,c), cell_high(2,c)
+          eta = dble(j) * dnym1
+          ii = 0
+          do   i =cell_low(1,c), cell_high(1,c)
+             xi = dble(i) *dnxm1
              call exact_solution(xi, eta, zeta, temp)
              do   m = 1, 5
                 u(ii,jj,kk,m,c) = temp(m)
              end do
-             jj = jj + 1
+             ii = ii + 1
           end do
-          ii = ii + 1
+          jj = jj + 1
        end do
 
 c---------------------------------------------------------------------
@@ -205,19 +205,19 @@ c---------------------------------------------------------------------
        c = slice(3,ncells)
        kk = cell_size(3,c)-1
        zeta = 1.0d0
-       ii = 0
-       do   i =cell_low(1,c), cell_high(1,c)
-          xi = dble(i) * dnxm1
-          jj = 0
-          do   j = cell_low(2,c), cell_high(2,c)
-             eta = dble(j) * dnym1
+       jj = 0
+       do   j = cell_low(2,c), cell_high(2,c)
+          eta = dble(j) * dnym1
+          ii = 0
+          do   i =cell_low(1,c), cell_high(1,c)
+             xi = dble(i) * dnxm1
              call exact_solution(xi, eta, zeta, temp)
              do   m = 1, 5
                 u(ii,jj,kk,m,c) = temp(m)
              end do
-             jj = jj + 1
+             ii = ii + 1
           end do
-          ii = ii + 1
+          jj = jj + 1
        end do
 
        return

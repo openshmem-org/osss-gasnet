@@ -1,20 +1,8 @@
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
-
+      use npbrma
       implicit none
-
-c---------------------------------------------------------------------
-c The following include file is generated automatically by the
-c "setparams" utility. It defines 
-c      maxcells:      the square root of the maximum number of processors
-c      problem_size:  12, 64, 102, 162 (for class T, A, B, C)
-c      dt_default:    default time step for this problem size if no
-c                     config file
-c      niter_default: default number of iterations for this problem size
-c---------------------------------------------------------------------
-
-      include 'npbparams.h'
 
       integer           ncells, grid_points(3)
       common /global/   ncells, grid_points
@@ -49,51 +37,41 @@ c---------------------------------------------------------------------
      >                  c2dtty1, c2dttz1, comz1, comz4, comz5, comz6, 
      >                  c3c4tx3, c3c4ty3, c3c4tz3, c2iv, con43, con16
 
-      integer           EAST, WEST, NORTH, SOUTH, 
-     >                  BOTTOM, TOP
-
-      parameter (EAST=2000, WEST=3000,      NORTH=4000, SOUTH=5000,
-     >           BOTTOM=6000, TOP=7000)
-
       integer cell_coord (3,maxcells), cell_low (3,maxcells), 
      >        cell_high  (3,maxcells), cell_size(3,maxcells),
-     >        predecessor(3),        slice    (3,maxcells),
-     >        grid_size  (3),        successor(3),
+     >        predecessor(3),          slice    (3,maxcells),
+     >        grid_size  (3),          successor(3),
      >        start      (3,maxcells), end      (3,maxcells)
       common /partition/ cell_coord, cell_low, cell_high, cell_size,
      >                   grid_size, successor, predecessor, slice,
      >                   start, end
 
-      integer IMAX, JMAX, KMAX, MAX_CELL_DIM, BUF_SIZE
+      integer IMAX, JMAX, KMAX, MAX_CELL_DIM, IMAXP, JMAXP
 
       parameter (MAX_CELL_DIM = (problem_size/maxcells)+1)
-c      parameter (MAX_CELL_DIM = (problem_size+maxcells-1)/maxcells)
 
       parameter (IMAX=MAX_CELL_DIM,JMAX=MAX_CELL_DIM,KMAX=MAX_CELL_DIM)
+      parameter (IMAXP=IMAX/2*2+1,JMAXP=JMAX/2*2+1)
 
 c---------------------------------------------------------------------
 c +1 at end to avoid zero length arrays for 1 node
 c---------------------------------------------------------------------
-      parameter (BUF_SIZE=MAX_CELL_DIM*MAX_CELL_DIM*(maxcells-1)*60*2+1)
 
       double precision 
-     >   u       (-2:IMAX+1,-2:JMAX+1,-2:KMAX+1,  5, maxcells),
-     >   us      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   vs      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   ws      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   qs      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   ainv    (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   rho_i   (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   speed   (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   square  (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-c     >   rhs     ( 0:IMAX-1, 0:JMAX-1, 0:KMAX-1,  5, maxcells),
-     >   rhs     ( -2:IMAX+1, -2:JMAX+1, -2:KMAX+1,  5, maxcells),
-     >   forcing ( 0:IMAX-1, 0:JMAX-1, 0:KMAX-1,  5, maxcells),
-c     >   lhs     ( 0:IMAX-1, 0:JMAX-1, 0:KMAX-1, 15, maxcells),
-     >   lhs     ( -2:IMAX+1, -2:JMAX+1, -2:KMAX+1, 15, maxcells),
-     >   in_buffer(BUF_SIZE), out_buffer(BUF_SIZE)
+     >   u       (-2:IMAXP+1,-2:JMAXP+1,-2:KMAX+1, 5,maxcells),
+     >   us      (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   vs      (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   ws      (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   qs      (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   ainv    (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   rho_i   (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   speed   (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   square  (-1:IMAX,   -1:JMAX,   -1:KMAX,     maxcells),
+     >   rhs     ( 0:IMAXP-1, 0:JMAXP-1, 0:KMAX-1, 5,maxcells),
+     >   forcing ( 0:IMAXP-1, 0:JMAXP-1, 0:KMAX-1, 5,maxcells),
+     >   lhs     ( 0:IMAXP-1, 0:JMAXP-1, 0:KMAX-1,15,maxcells)
       common /fields/  u, us, vs, ws, qs, ainv, rho_i, speed, square, 
-     >                 rhs, forcing, lhs, in_buffer, out_buffer
+     >                 rhs, forcing, lhs
 
       double precision cv(-2:MAX_CELL_DIM+1),   rhon(-2:MAX_CELL_DIM+1),
      >                 rhos(-2:MAX_CELL_DIM+1), rhoq(-2:MAX_CELL_DIM+1),
@@ -113,3 +91,11 @@ c     >   lhs     ( 0:IMAX-1, 0:JMAX-1, 0:KMAX-1, 15, maxcells),
      >             start_send_north, start_send_bottom, start_send_top,
      >             start_recv_west, start_recv_east, start_recv_south,
      >             start_recv_north, start_recv_bottom, start_recv_top
+
+      integer t_total, t_rhs, t_xsolve, t_ysolve, t_zsolve, t_bpack, 
+     >        t_exch, t_xcomm, t_ycomm, t_zcomm, t_last
+      parameter (t_total=1, t_rhs=2, t_xsolve=3, t_ysolve=4, 
+     >        t_zsolve=5, t_bpack=6, t_exch=7, t_xcomm=8, 
+     >        t_ycomm=9, t_zcomm=10, t_last=10)
+      logical timeron
+      common /tflags/ timeron

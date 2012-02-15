@@ -12,10 +12,12 @@ c  verification routine
 c---------------------------------------------------------------------
 
         include 'header.h'
-        include 'mpinpb.h'
 
         double precision xcrref(5),xceref(5),xcrdif(5),xcedif(5), 
-     >                   epsilon, xce(5), xcr(5), dtref
+     >                   epsilon, xcr(5), dtref
+c       X-1
+        double precision, save :: xce(5)
+
         integer m, no_time_steps
         character class
         logical verified
@@ -38,7 +40,7 @@ c---------------------------------------------------------------------
            xcr(m) = xcr(m) / dt
         enddo
 
-        if (node .ne. 0) return
+        if (node .ne. root) return
 
         class = 'U'
         verified = .true.
@@ -166,7 +168,6 @@ c---------------------------------------------------------------------
            xceref(4) = 0.1694479428231d-02
            xceref(5) = 0.1847456263981d-01
 
-
 c---------------------------------------------------------------------
 c    reference data for 162X162X162 grids after 400 time steps,
 c    with DT = 0.67d-03
@@ -196,8 +197,9 @@ c---------------------------------------------------------------------
            xceref(3) = 0.5132886416320d-01
            xceref(4) = 0.4806073419454d-01
            xceref(5) = 0.5483377491301d+00
+
 c---------------------------------------------------------------------
-c    reference data for 408X408X408 grids after 400 time steps,
+c    reference data for 408X408X408 grids after 500 time steps,
 c    with DT = 0.3d-03
 c---------------------------------------------------------------------
         elseif ( (grid_points(1) .eq. 408) .and. 
@@ -226,13 +228,43 @@ c---------------------------------------------------------------------
            xceref(4) = 0.1083734951938d+01
            xceref(5) = 0.1164108338568d+02
 
+c---------------------------------------------------------------------
+c    reference data for 1020X1020X1020 grids after 500 time steps,
+c    with DT = 0.1d-03
+c---------------------------------------------------------------------
+        elseif ( (grid_points(1) .eq. 1020) .and. 
+     >           (grid_points(2) .eq. 1020) .and.
+     >           (grid_points(3) .eq. 1020) .and.
+     >           (no_time_steps . eq. 500) ) then
+
+           class = 'E'
+           dtref = 0.10d-3
+
+c---------------------------------------------------------------------
+c    Reference values of RMS-norms of residual.
+c---------------------------------------------------------------------
+           xcrref(1) = 0.6255387422609d+05
+           xcrref(2) = 0.1495317020012d+05
+           xcrref(3) = 0.2347595750586d+05
+           xcrref(4) = 0.2091099783534d+05
+           xcrref(5) = 0.4770412841218d+05
+
+c---------------------------------------------------------------------
+c    Reference values of RMS-norms of solution error.
+c---------------------------------------------------------------------
+           xceref(1) = 0.6742735164909d+02
+           xceref(2) = 0.5390656036938d+01
+           xceref(3) = 0.1680647196477d+02
+           xceref(4) = 0.1536963126457d+02
+           xceref(5) = 0.1575330146156d+03
+
         else
            verified = .false.
         endif
 
 c---------------------------------------------------------------------
-c    verification test for residuals if gridsize is either 12X12X12 or 
-c    64X64X64 or 102X102X102 or 162X162X162 or 408X408X408
+c    verification test for residuals if gridsize is one of 
+c    the defined grid sizes above (class .ne. 'U')
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
@@ -254,8 +286,8 @@ c---------------------------------------------------------------------
  1990      format(' Verification being performed for class ', a)
            write (*,2000) epsilon
  2000      format(' accuracy setting for epsilon = ', E20.13)
-           if (dabs(dt-dtref) .gt. epsilon) then  
-              verified = .false.
+           verified = (dabs(dt-dtref) .le. epsilon)
+           if (.not.verified) then  
               class = 'U'
               write (*,1000) dtref
  1000         format(' DT does not match the reference value of ', 

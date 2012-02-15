@@ -15,12 +15,10 @@ c systems for the x-lines. Boundary conditions are non-periodic
 c---------------------------------------------------------------------
 
        include 'header.h'
-       include 'mpinpb.h'
 
 
        integer i, j, k, jp, kp, n, iend, jsize, ksize, i1, i2,
-     >         buffer_size, c, m, p, istart, stage, error,
-     >         requests(2), statuses(MPI_STATUS_SIZE, 2)
+     >         buffer_size, c, m, p, istart, stage, p0, nid, error
        double precision  r1, r2, d, e, s(5), sm1, sm2,
      >                   fac1, fac2
 
@@ -35,7 +33,9 @@ c now do a sweep on a layer-by-layer basis, i.e. sweeping through cells
 c on this node in the direction of increasing i for the forward sweep,
 c and after that reversing the direction for the backsubstitution.
 c---------------------------------------------------------------------
+       p0 = buffoff(1)
 
+       if (timeron) call timer_start(t_xsolve)
 c---------------------------------------------------------------------
 c                          FORWARD ELIMINATION  
 c---------------------------------------------------------------------
@@ -60,10 +60,9 @@ c            if this is not the first processor in this row of cells,
 c            receive data from predecessor containing the right hand
 c            sides and the upper diagonal elements of the previous two rows
 c---------------------------------------------------------------------
-             call mpi_irecv(in_buffer, 22*buffer_size, 
-     >                      dp_type, predecessor(1), 
-     >                      DEFAULT_TAG,  comm_solve, 
-     >                      requests(1), error)
+c             if (timeron) call timer_start(t_xcomm)
+c             notify_team(predecessor(1))
+c             if (timeron) call timer_stop(t_xcomm)
 
 
 c---------------------------------------------------------------------
@@ -78,7 +77,29 @@ c            This waits on the current receive and on the send
 c            from the previous stage. They always come in pairs. 
 c---------------------------------------------------------------------
 
-             call mpi_waitall(2, requests, statuses, error)
+             if (timeron) call timer_start(t_xcomm)
+             nid = predecessor(1)
+#ifdef USE_BARRIER
+      	     p0   = buffoff(buff_id)
+      	     buff_id = 3 - buff_id
+#else
+             call mpi_win_start(pred_group(1), 0, win, error)
+#endif
+             disp = p0
+c             call mpi_get(in_buffer, 22*buffer_size, dp_type, 
+c     >          nid, disp, 22*buffer_size, dp_type, win, error)
+             call shmem_barrier_all()
+             call shmem_double_get(in_buffer,
+     >            out_buffer(disp+1), 22*buffer_size, nid)
+
+#ifdef USE_BARRIER
+c             call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c             call shmem_barrier_all()
+#else
+             call mpi_win_complete(win, error)
+             call mpi_win_wait(win, error)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
 
 c---------------------------------------------------------------------
 c            unpack the buffer                                 
@@ -299,7 +320,13 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c            create a running pointer for the send buffer  
 c---------------------------------------------------------------------
-             p = 0
+             if (timeron) call timer_start(t_xcomm)
+             nid = successor(1)
+#ifdef USE_BARRIER
+      	     p0   = buffoff(buff_id)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
+             p = p0
              n = 0
              do    k = start(3,c), ksize-end(3,c)-1
                 do    j = start(2,c), jsize-end(2,c)-1
@@ -332,10 +359,15 @@ c---------------------------------------------------------------------
 c send data to next phase
 c can't receive data yet because buffer size will be wrong 
 c---------------------------------------------------------------------
-             call mpi_isend(out_buffer, 22*buffer_size, 
-     >                     dp_type, successor(1), 
-     >                     DEFAULT_TAG, comm_solve, 
-     >                     requests(2), error)
+             if (timeron) call timer_start(t_xcomm)
+#ifdef USE_BARRIER
+c             call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, 
+c     &          win, error)
+#else
+             call mpi_win_post(succ_group(1), MPI_MODE_NOPUT, 
+     &          win, error)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
 
           endif
        end do
@@ -368,10 +400,9 @@ c            if this is not the starting cell in this row of cells,
 c            wait for a message to be received, containing the 
 c            solution of the previous two stations     
 c---------------------------------------------------------------------
-             call mpi_irecv(in_buffer, 10*buffer_size, 
-     >                      dp_type, successor(1), 
-     >                      DEFAULT_TAG, comm_solve, 
-     >                      requests(1), error)
+c             if (timeron) call timer_start(t_xcomm)
+c             notify_team(successor(1))
+c             if (timeron) call timer_stop(t_xcomm)
 
 
 c---------------------------------------------------------------------
@@ -385,7 +416,28 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c            wait for pending communication to complete
 c---------------------------------------------------------------------
-             call mpi_waitall(2, requests, statuses, error)
+             if (timeron) call timer_start(t_xcomm)
+             nid = successor(1)
+#ifdef USE_BARRIER
+             p0   = buffoff(buff_id)
+             buff_id = 3 - buff_id
+#else
+             call mpi_win_start(succ_group(1), 0, win, error)
+#endif
+             disp = p0
+             call shmem_barrier_all()
+c             call mpi_get(in_buffer, 10*buffer_size, dp_type, 
+c     >          nid, disp, 10*buffer_size, dp_type, win, error)
+             call shmem_double_get(in_buffer,
+     >            out_buffer(disp+1), 10*buffer_size, nid)
+#ifdef USE_BARRIER
+c             call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c             call shmem_barrier_all()
+#else
+             call mpi_win_complete(win, error)
+             call mpi_win_wait(win, error)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
 
 c---------------------------------------------------------------------
 c            unpack the buffer for the first three factors         
@@ -506,12 +558,18 @@ c---------------------------------------------------------------------
           if (stage .ne.  1) then
              i  = istart
              i1 = istart+1
-             p = 0
+             if (timeron) call timer_start(t_xcomm)
+             nid = predecessor(1)
+#ifdef USE_BARRIER
+             p0   = buffoff(buff_id)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
+             p = p0
              do    m = 1, 5
                 do    k = start(3,c), ksize-end(3,c)-1
                    do    j = start(2,c), jsize-end(2,c)-1
                       out_buffer(p+1) = rhs(i,j,k,m,c)
-                       out_buffer(p+2) = rhs(i1,j,k,m,c)
+                      out_buffer(p+2) = rhs(i1,j,k,m,c)
                       p = p + 2
                    end do
                 end do
@@ -520,10 +578,15 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c            pack and send the buffer
 c---------------------------------------------------------------------
-             call mpi_isend(out_buffer, 10*buffer_size, 
-     >                     dp_type, predecessor(1), 
-     >                     DEFAULT_TAG, comm_solve, 
-     >                     requests(2), error)
+             if (timeron) call timer_start(t_xcomm)
+#ifdef USE_BARRIER
+c             call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE,
+c     &          win, error)
+#else
+             call mpi_win_post(pred_group(1), MPI_MODE_NOPUT,
+     &          win, error)
+#endif
+             if (timeron) call timer_stop(t_xcomm)
 
           endif
 
@@ -533,6 +596,8 @@ c---------------------------------------------------------------------
           if (stage .eq. 1) call ninvr(c)
 
        end do
+
+       if (timeron) call timer_stop(t_xsolve)
 
        return
        end
