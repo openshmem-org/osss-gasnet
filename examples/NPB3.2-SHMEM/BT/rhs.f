@@ -13,6 +13,7 @@ c---------------------------------------------------------------------
      >     wijk, wp1, wm1
 
 
+      if (timeron) call timer_start(t_rhs)
 c---------------------------------------------------------------------
 c     loop over all cells owned by this node                           
 c---------------------------------------------------------------------
@@ -119,20 +120,16 @@ c---------------------------------------------------------------------
 c     add fourth order xi-direction dissipation               
 c---------------------------------------------------------------------
          if (start(1,c) .gt. 0) then
-            i = 1
             do k = start(3,c), cell_size(3,c)-end(3,c)-1
                do j = start(2,c), cell_size(2,c)-end(2,c)-1
+                  i = 1
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c)- dssp * 
      >                    ( 5.0d0*u(m,i,j,k,c) - 4.0d0*u(m,i+1,j,k,c) +
      >                    u(m,i+2,j,k,c))
                   enddo
-               enddo
-            enddo
 
-            i = 2
-            do k = start(3,c), cell_size(3,c)-end(3,c)-1
-               do j = start(2,c), cell_size(2,c)-end(2,c)-1
+                  i = 2
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp * 
      >                    (-4.0d0*u(m,i-1,j,k,c) + 6.0d0*u(m,i,j,k,c) -
@@ -157,20 +154,16 @@ c---------------------------------------------------------------------
          
 
          if (end(1,c) .gt. 0) then
-            i = cell_size(1,c)-3
             do k = start(3,c), cell_size(3,c)-end(3,c)-1
                do j = start(2,c), cell_size(2,c)-end(2,c)-1
+                  i = cell_size(1,c)-3
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp *
      >                    ( u(m,i-2,j,k,c) - 4.0d0*u(m,i-1,j,k,c) + 
      >                    6.0d0*u(m,i,j,k,c) - 4.0d0*u(m,i+1,j,k,c) )
                   enddo
-               enddo
-            enddo
 
-            i = cell_size(1,c)-2
-            do k = start(3,c), cell_size(3,c)-end(3,c)-1
-               do j = start(2,c), cell_size(2,c)-end(2,c)-1
+                  i = cell_size(1,c)-2
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp *
      >                    ( u(m,i-2,j,k,c) - 4.d0*u(m,i-1,j,k,c) +
@@ -238,8 +231,8 @@ c---------------------------------------------------------------------
 c     add fourth order eta-direction dissipation         
 c---------------------------------------------------------------------
          if (start(2,c) .gt. 0) then
-            j = 1
             do k = start(3,c), cell_size(3,c)-end(3,c)-1
+               j = 1
                do i = start(1,c), cell_size(1,c)-end(1,c)-1
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c)- dssp * 
@@ -247,10 +240,8 @@ c---------------------------------------------------------------------
      >                    u(m,i,j+2,k,c))
                   enddo
                enddo
-            enddo
 
-            j = 2
-            do k = start(3,c), cell_size(3,c)-end(3,c)-1
+               j = 2
                do i = start(1,c), cell_size(1,c)-end(1,c)-1
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp * 
@@ -275,8 +266,8 @@ c---------------------------------------------------------------------
          enddo
          
          if (end(2,c) .gt. 0) then
-            j = cell_size(2,c)-3
             do k = start(3,c), cell_size(3,c)-end(3,c)-1
+               j = cell_size(2,c)-3
                do i = start(1,c), cell_size(1,c)-end(1,c)-1
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp *
@@ -284,10 +275,8 @@ c---------------------------------------------------------------------
      >                    6.0d0*u(m,i,j,k,c) - 4.0d0*u(m,i,j+1,k,c) )
                   enddo
                enddo
-            enddo
 
-            j = cell_size(2,c)-2
-            do k = start(3,c), cell_size(3,c)-end(3,c)-1
+               j = cell_size(2,c)-2
                do i = start(1,c), cell_size(1,c)-end(1,c)-1
                   do m = 1, 5
                      rhs(m,i,j,k,c) = rhs(m,i,j,k,c) - dssp *
@@ -428,7 +417,9 @@ c---------------------------------------------------------------------
          enddo
 
       enddo
-      
+     
+      if (timeron) call timer_stop(t_rhs)
+     
       return
       end
 

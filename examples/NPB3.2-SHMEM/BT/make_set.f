@@ -13,15 +13,12 @@ c     nearest neighbor
 c---------------------------------------------------------------------
 
       include 'header.h'
-      include 'mpinpb.h'
 
 
-      integer p, i, j, c, dir, size, excess, ierr,ierrcode
+      integer p, i, j, c, dir, size, excess, ierr
 
 c---------------------------------------------------------------------
 c     compute square root; add small number to allow for roundoff
-c     (note: this is computed in setup_mpi.f also, but prefer to do
-c     it twice because of some include file problems).
 c---------------------------------------------------------------------
       ncells = dint(dsqrt(dble(no_nodes) + 0.00001d0))
 
@@ -86,6 +83,14 @@ c---------------------------------------------------------------------
       successor(2)   = i + p*mod(j+1,p)
       successor(3)   = mod(i-1+p,p) + p*mod(j+1,p)
 
+c     X-1
+c      do dir = 1, 3
+c         call mpi_group_incl(group, 1, predecessor(dir), 
+c     >                       pred_group(dir), ierr)
+c         call mpi_group_incl(group, 1, successor(dir), 
+c     >                       succ_group(dir), ierr)
+c      end do
+
 c---------------------------------------------------------------------
 c     now compute the sizes of the cells                                    
 c---------------------------------------------------------------------
@@ -109,7 +114,6 @@ c---------------------------------------------------------------------
             if (cell_size(dir, c) .le. 2) then
                write(*,50)
  50            format(' Error: Cell size too small. Min size is 3')
-               call MPI_Abort(mpi_comm_world,ierrcode,ierr)
                stop
             endif
          end do

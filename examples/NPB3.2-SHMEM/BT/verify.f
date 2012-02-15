@@ -12,10 +12,12 @@ c  verification routine
 c---------------------------------------------------------------------
 
         include 'header.h'
-        include 'mpinpb.h'
 
-        double precision xcrref(5),xceref(5),xcrdif(5),xcedif(5), 
-     >                   epsilon, xce(5), xcr(5), dtref
+        double precision xcrref(5),xceref(5),xcrdif(5),xcedif(5),
+     >                   epsilon, xcr(5), dtref
+      
+c       X-1
+        double precision, save :: xce(5)
         integer m, no_time_steps
         character class
         logical verified
@@ -30,7 +32,7 @@ c---------------------------------------------------------------------
 c   compute the error norm and the residual norm, and exit if not printing
 c---------------------------------------------------------------------
 
-        if (iotype .ne. 0 .and. iotype .ne. 3) then
+        if (iotype .ne. 0) then
            call accumulate_norms(xce)
         else
            call error_norm(xce)
@@ -44,7 +46,7 @@ c---------------------------------------------------------------------
            xcr(m) = xcr(m) / dt
         enddo
 
-        if (node .ne. 0) return
+        if (node .ne. root) return
 
         class = 'U'
 
@@ -54,7 +56,7 @@ c---------------------------------------------------------------------
         end do
 
 c---------------------------------------------------------------------
-c    reference data for 12X12X12 grids after 100 time steps, with DT = 1.0d-02
+c    reference data for 12X12X12 grids after 60 time steps, with DT = 1.0d-02
 c---------------------------------------------------------------------
         if ( (grid_points(1)  .eq. 12     ) .and. 
      >       (grid_points(2)  .eq. 12     ) .and.
@@ -77,7 +79,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 4.9976913345811579d-04
            xceref(2) = 4.5195666782961927d-05
            xceref(3) = 7.3973765172921357d-05
@@ -114,7 +116,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 0.4419655736008d+01
            xceref(2) = 0.4638531260002d+00
            xceref(3) = 0.1011551749967d+01
@@ -152,7 +154,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 4.2348416040525025d+00
            xceref(2) = 4.4390282496995698d-01
            xceref(3) = 9.6692480136345650d-01
@@ -191,7 +193,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 5.2969847140936856d+01
            xceref(2) = 4.4632896115670668d+00
            xceref(3) = 1.3122573342210174d+01
@@ -230,7 +232,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 0.16462008369091265d+03
            xceref(2) = 0.11497107903824313d+02
            xceref(3) = 0.41207446207461508d+02
@@ -246,8 +248,8 @@ c---------------------------------------------------------------------
 
 
 c---------------------------------------------------------------------
-c    reference data for 408x408x408 grids after 200 time steps,
-c    with DT = 0.5d-04
+c    reference data for 408x408x408 grids after 250 time steps,
+c    with DT = 0.2d-04
 c---------------------------------------------------------------------
         elseif ( (grid_points(1) .eq. 408) .and. 
      >           (grid_points(2) .eq. 408) .and.
@@ -270,7 +272,7 @@ c---------------------------------------------------------------------
 c  Reference values of RMS-norms of solution error.
 c---------------------------------------------------------------------
 
-         if (iotype .eq. 0 .or. iotype .eq. 3) then
+         if (iotype .eq. 0) then
            xceref(1) = 0.3100009377557d+03
            xceref(2) = 0.2424086324913d+02
            xceref(3) = 0.7782212022645d+02
@@ -284,13 +286,60 @@ c---------------------------------------------------------------------
            xceref(5) = 0.7063466087423d+03
          endif
 
+
+c---------------------------------------------------------------------
+c    reference data for 1020x1020x1020 grids after 250 time steps,
+c    with DT = 0.4d-05
+c---------------------------------------------------------------------
+        elseif ( (grid_points(1) .eq. 1020) .and. 
+     >           (grid_points(2) .eq. 1020) .and.
+     >           (grid_points(3) .eq. 1020) .and.
+     >           (no_time_steps . eq. 250) ) then
+
+           class = 'E'
+           dtref = 0.4d-5
+
+c---------------------------------------------------------------------
+c  Reference values of RMS-norms of residual.
+c---------------------------------------------------------------------
+         xcrref(1) = 0.9795372484517d+05
+         xcrref(2) = 0.9739814511521d+04
+         xcrref(3) = 0.2467606342965d+05
+         xcrref(4) = 0.2092419572860d+05
+         xcrref(5) = 0.1392138856939d+06
+
+c---------------------------------------------------------------------
+c  Reference values of RMS-norms of solution error.
+c---------------------------------------------------------------------
+
+         if (iotype .eq. 0) then
+           xceref(1) = 0.4327562208414d+03
+           xceref(2) = 0.3699051964887d+02
+           xceref(3) = 0.1089845040954d+03
+           xceref(4) = 0.9462517622043d+02
+           xceref(5) = 0.7765512765309d+03
+         else
+c  wr_interval = 5
+           xceref(1) = 0.4729898413058d+03
+           xceref(2) = 0.4145899331704d+02
+           xceref(3) = 0.1192850917138d+03
+           xceref(4) = 0.1032746026932d+03
+           xceref(5) = 0.8270322177634d+03
+c  wr_interval = 10
+c          xceref(1) = 0.4718135916251d+03
+c          xceref(2) = 0.4132620259096d+02
+c          xceref(3) = 0.1189831133503d+03
+c          xceref(4) = 0.1030212798803d+03
+c          xceref(5) = 0.8255924078458d+03
+        endif
+
         else
            verified = .false.
         endif
 
 c---------------------------------------------------------------------
-c    verification test for residuals if gridsize is either 12X12X12 or 
-c    64X64X64 or 102X102X102 or 162X162X162 or 408x408x408
+c    verification test for residuals if gridsize is one of 
+c    the defined grid sizes above (class .ne. 'U')
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
@@ -313,8 +362,8 @@ c---------------------------------------------------------------------
  1990      format(' Verification being performed for class ', a)
            write (*,2000) epsilon
  2000      format(' accuracy setting for epsilon = ', E20.13)
-           if (dabs(dt-dtref) .gt. epsilon) then  
-              verified = .false.
+           verified = (dabs(dt-dtref) .le. epsilon)
+           if (.not.verified) then  
               class = 'U'
               write (*,1000) dtref
  1000         format(' DT does not match the reference value of ', 

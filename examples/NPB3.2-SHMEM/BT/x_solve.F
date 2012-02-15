@@ -20,13 +20,13 @@ c
 c---------------------------------------------------------------------
 
       include 'header.h'
-      include 'mpinpb.h'
       integer  c, istart, stage,
-     >     first, last, recv_id, error, r_status(MPI_STATUS_SIZE),
-     >     isize,jsize,ksize,send_id
+     >     first, last, 
+     >     isize,jsize,ksize
 
       istart = 0
 
+      if (timeron) call timer_start(t_xsolve)
 c---------------------------------------------------------------------
 c     in our terminology stage is the number of the cell in the x-direction
 c     i.e. stage = 1 means the start of the line stage=ncells means end
@@ -59,7 +59,8 @@ c     Not the first cell of this line, so receive info from
 c     processor working on preceeding cell
 c---------------------------------------------------------------------
             first = 0
-            call x_receive_solve_info(recv_id,c)
+            if (timeron) call timer_start(t_xcomm)
+            call x_receive_solve_info(c)
 c---------------------------------------------------------------------
 c     overlap computations and communications
 c---------------------------------------------------------------------
@@ -67,8 +68,7 @@ c            call lhsx(c)
 c---------------------------------------------------------------------
 c     wait for completion
 c---------------------------------------------------------------------
-            call mpi_wait(send_id,r_status,error)
-            call mpi_wait(recv_id,r_status,error)
+            if (timeron) call timer_stop(t_xcomm)
 c---------------------------------------------------------------------
 c     install C'(istart) and rhs'(istart) to be used in this cell
 c---------------------------------------------------------------------
@@ -76,7 +76,7 @@ c---------------------------------------------------------------------
             call x_solve_cell(first,last,c)
          endif
 
-         if (last .eq. 0) call x_send_solve_info(send_id,c)
+         if (last .eq. 0) call x_send_solve_info(c)
       enddo
 
 c---------------------------------------------------------------------
@@ -94,15 +94,16 @@ c     last cell, so perform back substitute without waiting
 c---------------------------------------------------------------------
             call x_backsubstitute(first, last,c)
          else
-            call x_receive_backsub_info(recv_id,c)
-            call mpi_wait(send_id,r_status,error)
-            call mpi_wait(recv_id,r_status,error)
+            if (timeron) call timer_start(t_xcomm)
+            call x_receive_backsub_info(c)
+            if (timeron) call timer_stop(t_xcomm)
             call x_unpack_backsub_info(c)
             call x_backsubstitute(first,last,c)
          endif
-         if (first .eq. 0) call x_send_backsub_info(send_id,c)
+         if (first .eq. 0) call x_send_backsub_info(c)
       enddo
-10000 format (6(2x,e8.2))
+
+      if (timeron) call timer_stop(t_xsolve)
 
       return
       end
@@ -127,15 +128,15 @@ c---------------------------------------------------------------------
       istart = 0
       ptr = 0
       do k=0,KMAX-1
-      	 do j=0,JMAX-1
+         do j=0,JMAX-1
             do m=1,BLOCK_SIZE
                do n=1,BLOCK_SIZE
-                  lhsc(m,n,istart-1,j,k,c) = out_buffer(ptr+n)
+                  lhsc(m,n,istart-1,j,k,c) = in_buffer(ptr+n)
                enddo
                ptr = ptr+BLOCK_SIZE
             enddo
             do n=1,BLOCK_SIZE
-               rhs(n,istart-1,j,k,c) = out_buffer(ptr+n)
+               rhs(n,istart-1,j,k,c) = in_buffer(ptr+n)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -147,7 +148,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
       
-      subroutine x_send_solve_info(send_id,c)
+      subroutine x_send_solve_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
@@ -156,33 +157,33 @@ c---------------------------------------------------------------------
 c     pack up and send C'(iend) and rhs'(iend) for
 c     all j and k
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer j,k,m,n,isize,ptr,c,jp,kp
-      integer error,send_id,buffer_size 
+      integer j,k,m,n,isize,ptr,c,error
 
       isize = cell_size(1,c)-1
-      jp = cell_coord(2,c) - 1
-      kp = cell_coord(3,c) - 1
-      buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*
-     >     (BLOCK_SIZE*BLOCK_SIZE + BLOCK_SIZE)
 
+      if (timeron) call timer_start(t_xcomm)
 c---------------------------------------------------------------------
 c     pack up buffer
 c---------------------------------------------------------------------
-      ptr = 0
+#ifdef USE_BARRIER
+      ptr = buffoff(buff_id)
+#else
+      ptr = buffoff(1)
+#endif
       do k=0,KMAX-1
-      	 do j=0,JMAX-1
+         do j=0,JMAX-1
             do m=1,BLOCK_SIZE
                do n=1,BLOCK_SIZE
-                  in_buffer(ptr+n) = lhsc(m,n,isize,j,k,c)
+                  out_buffer(ptr+n) = lhsc(m,n,isize,j,k,c)
+                  out_buffer1(ptr+n) = lhsc(m,n,isize,j,k,c)
                enddo
                ptr = ptr+BLOCK_SIZE
             enddo
             do n=1,BLOCK_SIZE
-               in_buffer(ptr+n) = rhs(n,isize,j,k,c)
+               out_buffer(ptr+n) = rhs(n,isize,j,k,c)
+               out_buffer1(ptr+n) = rhs(n,isize,j,k,c)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -191,10 +192,14 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     send buffer 
 c---------------------------------------------------------------------
-      call mpi_isend(in_buffer, buffer_size,
-     >     dp_type, successor(1),
-     >     WEST+jp+kp*NCELLS, comm_solve,
-     >     send_id,error)
+#ifdef USE_BARRIER
+c      call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, win, error)
+c      X-1
+c      call shmem_barrier_all()
+#else
+      call mpi_win_post(succ_group(1), MPI_MODE_NOPUT, win, error)
+#endif
+      if (timeron) call timer_stop(t_xcomm)
 
       return
       end
@@ -202,7 +207,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine x_send_backsub_info(send_id,c)
+      subroutine x_send_backsub_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
@@ -210,33 +215,37 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     pack up and send U(istart) for all j and k
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer j,k,n,ptr,c,istart,jp,kp
-      integer error,send_id,buffer_size
+      integer j,k,n,ptr,c,istart,error
 
+      if (timeron) call timer_start(t_xcomm)
 c---------------------------------------------------------------------
 c     Send element 0 to previous processor
 c---------------------------------------------------------------------
       istart = 0
-      jp = cell_coord(2,c)-1
-      kp = cell_coord(3,c)-1
-      buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*BLOCK_SIZE
-      ptr = 0
+#ifdef USE_BARRIER
+      ptr = buffoff(buff_id)
+#else
+      ptr = buffoff(1)
+#endif
       do k=0,KMAX-1
-      	 do j=0,JMAX-1
+         do j=0,JMAX-1
             do n=1,BLOCK_SIZE
-               in_buffer(ptr+n) = rhs(n,istart,j,k,c)
+               out_buffer(ptr+n) = rhs(n,istart,j,k,c)
+               out_buffer1(ptr+n) = rhs(n,istart,j,k,c)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
       enddo
-      call mpi_isend(in_buffer, buffer_size,
-     >     dp_type, predecessor(1), 
-     >     EAST+jp+kp*NCELLS, comm_solve, 
-     >     send_id,error)
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_post(pred_group(1), MPI_MODE_NOPUT, win, error)
+#endif
+      if (timeron) call timer_stop(t_xcomm)
 
       return
       end
@@ -258,9 +267,9 @@ c---------------------------------------------------------------------
 
       ptr = 0
       do k=0,KMAX-1
-      	 do j=0,JMAX-1
+         do j=0,JMAX-1
             do n=1,BLOCK_SIZE
-               backsub_info(n,j,k,c) = out_buffer(ptr+n)
+               backsub_info(n,j,k,c) = in_buffer(ptr+n)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -272,26 +281,43 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine x_receive_backsub_info(recv_id,c)
+      subroutine x_receive_backsub_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
-c     post mpi receives
+c     post receives
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer error,recv_id,jp,kp,c,buffer_size
-      jp = cell_coord(2,c) - 1
-      kp = cell_coord(3,c) - 1
+      integer c,buffer_size,p0,error,i
       buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*BLOCK_SIZE
-      call mpi_irecv(out_buffer, buffer_size,
-     >     dp_type, successor(1), 
-     >     EAST+jp+kp*NCELLS, comm_solve, 
-     >     recv_id, error)
+#ifdef USE_BARRIER
+      p0 = buffoff(buff_id)
+      buff_id = 3 - buff_id
+#else
+      p0 = buffoff(1)
+      call mpi_win_start(succ_group(1), 0, win, error)
+#endif
+      disp = p0
+c      X-1
+c      call mpi_get(in_buffer, buffer_size, dp_type, 
+c     >   successor(1), disp, buffer_size, dp_type, win, error)
+      call shmem_barrier_all()
+      call shmem_double_get(in_buffer,
+     >   out_buffer(disp+1), buffer_size, successor(1))
+
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_complete(win, error)
+      call mpi_win_wait(win, error)
+#endif
+c      print *,"Process",node,(in_buffer(i),i=1,5)
+c      call exit(0)
 
       return
       end
@@ -299,27 +325,41 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine x_receive_solve_info(recv_id,c)
+      subroutine x_receive_solve_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
-c     post mpi receives 
+c     post receives 
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer jp,kp,recv_id,error,c,buffer_size
-      jp = cell_coord(2,c) - 1
-      kp = cell_coord(3,c) - 1
+      integer c,buffer_size,p0,error
       buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*
      >     (BLOCK_SIZE*BLOCK_SIZE + BLOCK_SIZE)
-      call mpi_irecv(out_buffer, buffer_size,
-     >     dp_type, predecessor(1), 
-     >     WEST+jp+kp*NCELLS,  comm_solve, 
-     >     recv_id, error)
+#ifdef USE_BARRIER
+      p0 = buffoff(buff_id)
+      buff_id = 3 - buff_id
+#else
+      p0 = buffoff(1)
+      call mpi_win_start(pred_group(1), 0, win, error)
+#endif
+      disp = p0
+c      X-1
+c      call mpi_get(in_buffer, buffer_size, dp_type, 
+c     >   predecessor(1), disp, buffer_size, dp_type, win, error)
+      call shmem_barrier_all()
+      call shmem_double_get(in_buffer,
+     >   out_buffer(disp+1), buffer_size, predecessor(1))
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_complete(win, error)
+      call mpi_win_wait(win, error)
+#endif
 
       return
       end
@@ -404,6 +444,7 @@ c     c'(IMAX) and rhs'(IMAX) will be sent to next cell
 c---------------------------------------------------------------------
 
       include 'header.h'
+      include 'work_lhs.h'
 
       integer first,last,c
       integer i,j,k,isize,ksize,jsize,istart
@@ -684,7 +725,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     outer most do loops - sweeping in i direction
 c---------------------------------------------------------------------
-      	    if (first .eq. 1) then 
+            if (first .eq. 1) then 
 
 c---------------------------------------------------------------------
 c     multiply c(istart,j,k) by b_inverse and copy back to c
@@ -694,7 +735,7 @@ c---------------------------------------------------------------------
      >                        lhsc(1,1,istart,j,k,c),
      >                        rhs(1,istart,j,k,c) )
 
-      	    endif
+            endif
 
 c---------------------------------------------------------------------
 c     begin inner most do loop
@@ -729,7 +770,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     Now finish up special cases for last cell
 c---------------------------------------------------------------------
-      	    if (last .eq. 1) then
+            if (last .eq. 1) then
 
 c---------------------------------------------------------------------
 c     rhs(isize) = rhs(isize) - A*rhs(isize-1)
@@ -750,540 +791,11 @@ c---------------------------------------------------------------------
                call binvrhs( lhsb(1,1,isize),
      >                       rhs(1,isize,j,k,c) )
 
-      	    endif
+            endif
          enddo
       enddo
- 1000 format (6(2x,e8.2))
+
 
       return
       end
       
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-      subroutine matvec_sub(ablock,avec,bvec)
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-c---------------------------------------------------------------------
-c     subtracts bvec=bvec - ablock*avec
-c---------------------------------------------------------------------
-
-      implicit none
-
-      double precision ablock,avec,bvec
-      dimension ablock(5,5),avec(5),bvec(5)
-      integer i
-
-      do i=1,5
-c---------------------------------------------------------------------
-c            rhs(i,ic,jc,kc,ccell) = rhs(i,ic,jc,kc,ccell) 
-c     $           - lhs(i,1,ablock,ia,ja,ka,acell)*
-c---------------------------------------------------------------------
-         bvec(i) = bvec(i) - ablock(i,1)*avec(1)
-     >                     - ablock(i,2)*avec(2)
-     >                     - ablock(i,3)*avec(3)
-     >                     - ablock(i,4)*avec(4)
-     >                     - ablock(i,5)*avec(5)
-      enddo
-
-
-      return
-      end
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-      subroutine matmul_sub(ablock, bblock, cblock)
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-c---------------------------------------------------------------------
-c     subtracts a(i,j,k) X b(i,j,k) from c(i,j,k)
-c---------------------------------------------------------------------
-
-      implicit none
-
-      double precision ablock, bblock, cblock
-      dimension ablock(5,5), bblock(5,5), cblock(5,5)
-      integer j
-
-
-      do j=1,5
-         cblock(1,j) = cblock(1,j) - ablock(1,1)*bblock(1,j)
-     >                             - ablock(1,2)*bblock(2,j)
-     >                             - ablock(1,3)*bblock(3,j)
-     >                             - ablock(1,4)*bblock(4,j)
-     >                             - ablock(1,5)*bblock(5,j)
-         cblock(2,j) = cblock(2,j) - ablock(2,1)*bblock(1,j)
-     >                             - ablock(2,2)*bblock(2,j)
-     >                             - ablock(2,3)*bblock(3,j)
-     >                             - ablock(2,4)*bblock(4,j)
-     >                             - ablock(2,5)*bblock(5,j)
-         cblock(3,j) = cblock(3,j) - ablock(3,1)*bblock(1,j)
-     >                             - ablock(3,2)*bblock(2,j)
-     >                             - ablock(3,3)*bblock(3,j)
-     >                             - ablock(3,4)*bblock(4,j)
-     >                             - ablock(3,5)*bblock(5,j)
-         cblock(4,j) = cblock(4,j) - ablock(4,1)*bblock(1,j)
-     >                             - ablock(4,2)*bblock(2,j)
-     >                             - ablock(4,3)*bblock(3,j)
-     >                             - ablock(4,4)*bblock(4,j)
-     >                             - ablock(4,5)*bblock(5,j)
-         cblock(5,j) = cblock(5,j) - ablock(5,1)*bblock(1,j)
-     >                             - ablock(5,2)*bblock(2,j)
-     >                             - ablock(5,3)*bblock(3,j)
-     >                             - ablock(5,4)*bblock(4,j)
-     >                             - ablock(5,5)*bblock(5,j)
-      enddo
-
-              
-      return
-      end
-
-
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-      subroutine binvcrhs( lhs,c,r )
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-c---------------------------------------------------------------------
-c     
-c---------------------------------------------------------------------
-
-      implicit none
-
-      double precision pivot, coeff, lhs
-      dimension lhs(5,5)
-      double precision c(5,5), r(5)
-
-c---------------------------------------------------------------------
-c     
-c---------------------------------------------------------------------
-
-      pivot = 1.00d0/lhs(1,1)
-      lhs(1,2) = lhs(1,2)*pivot
-      lhs(1,3) = lhs(1,3)*pivot
-      lhs(1,4) = lhs(1,4)*pivot
-      lhs(1,5) = lhs(1,5)*pivot
-      c(1,1) = c(1,1)*pivot
-      c(1,2) = c(1,2)*pivot
-      c(1,3) = c(1,3)*pivot
-      c(1,4) = c(1,4)*pivot
-      c(1,5) = c(1,5)*pivot
-      r(1)   = r(1)  *pivot
-
-      coeff = lhs(2,1)
-      lhs(2,2)= lhs(2,2) - coeff*lhs(1,2)
-      lhs(2,3)= lhs(2,3) - coeff*lhs(1,3)
-      lhs(2,4)= lhs(2,4) - coeff*lhs(1,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(1,5)
-      c(2,1) = c(2,1) - coeff*c(1,1)
-      c(2,2) = c(2,2) - coeff*c(1,2)
-      c(2,3) = c(2,3) - coeff*c(1,3)
-      c(2,4) = c(2,4) - coeff*c(1,4)
-      c(2,5) = c(2,5) - coeff*c(1,5)
-      r(2)   = r(2)   - coeff*r(1)
-
-      coeff = lhs(3,1)
-      lhs(3,2)= lhs(3,2) - coeff*lhs(1,2)
-      lhs(3,3)= lhs(3,3) - coeff*lhs(1,3)
-      lhs(3,4)= lhs(3,4) - coeff*lhs(1,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(1,5)
-      c(3,1) = c(3,1) - coeff*c(1,1)
-      c(3,2) = c(3,2) - coeff*c(1,2)
-      c(3,3) = c(3,3) - coeff*c(1,3)
-      c(3,4) = c(3,4) - coeff*c(1,4)
-      c(3,5) = c(3,5) - coeff*c(1,5)
-      r(3)   = r(3)   - coeff*r(1)
-
-      coeff = lhs(4,1)
-      lhs(4,2)= lhs(4,2) - coeff*lhs(1,2)
-      lhs(4,3)= lhs(4,3) - coeff*lhs(1,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(1,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(1,5)
-      c(4,1) = c(4,1) - coeff*c(1,1)
-      c(4,2) = c(4,2) - coeff*c(1,2)
-      c(4,3) = c(4,3) - coeff*c(1,3)
-      c(4,4) = c(4,4) - coeff*c(1,4)
-      c(4,5) = c(4,5) - coeff*c(1,5)
-      r(4)   = r(4)   - coeff*r(1)
-
-      coeff = lhs(5,1)
-      lhs(5,2)= lhs(5,2) - coeff*lhs(1,2)
-      lhs(5,3)= lhs(5,3) - coeff*lhs(1,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(1,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(1,5)
-      c(5,1) = c(5,1) - coeff*c(1,1)
-      c(5,2) = c(5,2) - coeff*c(1,2)
-      c(5,3) = c(5,3) - coeff*c(1,3)
-      c(5,4) = c(5,4) - coeff*c(1,4)
-      c(5,5) = c(5,5) - coeff*c(1,5)
-      r(5)   = r(5)   - coeff*r(1)
-
-
-      pivot = 1.00d0/lhs(2,2)
-      lhs(2,3) = lhs(2,3)*pivot
-      lhs(2,4) = lhs(2,4)*pivot
-      lhs(2,5) = lhs(2,5)*pivot
-      c(2,1) = c(2,1)*pivot
-      c(2,2) = c(2,2)*pivot
-      c(2,3) = c(2,3)*pivot
-      c(2,4) = c(2,4)*pivot
-      c(2,5) = c(2,5)*pivot
-      r(2)   = r(2)  *pivot
-
-      coeff = lhs(1,2)
-      lhs(1,3)= lhs(1,3) - coeff*lhs(2,3)
-      lhs(1,4)= lhs(1,4) - coeff*lhs(2,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(2,5)
-      c(1,1) = c(1,1) - coeff*c(2,1)
-      c(1,2) = c(1,2) - coeff*c(2,2)
-      c(1,3) = c(1,3) - coeff*c(2,3)
-      c(1,4) = c(1,4) - coeff*c(2,4)
-      c(1,5) = c(1,5) - coeff*c(2,5)
-      r(1)   = r(1)   - coeff*r(2)
-
-      coeff = lhs(3,2)
-      lhs(3,3)= lhs(3,3) - coeff*lhs(2,3)
-      lhs(3,4)= lhs(3,4) - coeff*lhs(2,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(2,5)
-      c(3,1) = c(3,1) - coeff*c(2,1)
-      c(3,2) = c(3,2) - coeff*c(2,2)
-      c(3,3) = c(3,3) - coeff*c(2,3)
-      c(3,4) = c(3,4) - coeff*c(2,4)
-      c(3,5) = c(3,5) - coeff*c(2,5)
-      r(3)   = r(3)   - coeff*r(2)
-
-      coeff = lhs(4,2)
-      lhs(4,3)= lhs(4,3) - coeff*lhs(2,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(2,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(2,5)
-      c(4,1) = c(4,1) - coeff*c(2,1)
-      c(4,2) = c(4,2) - coeff*c(2,2)
-      c(4,3) = c(4,3) - coeff*c(2,3)
-      c(4,4) = c(4,4) - coeff*c(2,4)
-      c(4,5) = c(4,5) - coeff*c(2,5)
-      r(4)   = r(4)   - coeff*r(2)
-
-      coeff = lhs(5,2)
-      lhs(5,3)= lhs(5,3) - coeff*lhs(2,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(2,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(2,5)
-      c(5,1) = c(5,1) - coeff*c(2,1)
-      c(5,2) = c(5,2) - coeff*c(2,2)
-      c(5,3) = c(5,3) - coeff*c(2,3)
-      c(5,4) = c(5,4) - coeff*c(2,4)
-      c(5,5) = c(5,5) - coeff*c(2,5)
-      r(5)   = r(5)   - coeff*r(2)
-
-
-      pivot = 1.00d0/lhs(3,3)
-      lhs(3,4) = lhs(3,4)*pivot
-      lhs(3,5) = lhs(3,5)*pivot
-      c(3,1) = c(3,1)*pivot
-      c(3,2) = c(3,2)*pivot
-      c(3,3) = c(3,3)*pivot
-      c(3,4) = c(3,4)*pivot
-      c(3,5) = c(3,5)*pivot
-      r(3)   = r(3)  *pivot
-
-      coeff = lhs(1,3)
-      lhs(1,4)= lhs(1,4) - coeff*lhs(3,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(3,5)
-      c(1,1) = c(1,1) - coeff*c(3,1)
-      c(1,2) = c(1,2) - coeff*c(3,2)
-      c(1,3) = c(1,3) - coeff*c(3,3)
-      c(1,4) = c(1,4) - coeff*c(3,4)
-      c(1,5) = c(1,5) - coeff*c(3,5)
-      r(1)   = r(1)   - coeff*r(3)
-
-      coeff = lhs(2,3)
-      lhs(2,4)= lhs(2,4) - coeff*lhs(3,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(3,5)
-      c(2,1) = c(2,1) - coeff*c(3,1)
-      c(2,2) = c(2,2) - coeff*c(3,2)
-      c(2,3) = c(2,3) - coeff*c(3,3)
-      c(2,4) = c(2,4) - coeff*c(3,4)
-      c(2,5) = c(2,5) - coeff*c(3,5)
-      r(2)   = r(2)   - coeff*r(3)
-
-      coeff = lhs(4,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(3,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(3,5)
-      c(4,1) = c(4,1) - coeff*c(3,1)
-      c(4,2) = c(4,2) - coeff*c(3,2)
-      c(4,3) = c(4,3) - coeff*c(3,3)
-      c(4,4) = c(4,4) - coeff*c(3,4)
-      c(4,5) = c(4,5) - coeff*c(3,5)
-      r(4)   = r(4)   - coeff*r(3)
-
-      coeff = lhs(5,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(3,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(3,5)
-      c(5,1) = c(5,1) - coeff*c(3,1)
-      c(5,2) = c(5,2) - coeff*c(3,2)
-      c(5,3) = c(5,3) - coeff*c(3,3)
-      c(5,4) = c(5,4) - coeff*c(3,4)
-      c(5,5) = c(5,5) - coeff*c(3,5)
-      r(5)   = r(5)   - coeff*r(3)
-
-
-      pivot = 1.00d0/lhs(4,4)
-      lhs(4,5) = lhs(4,5)*pivot
-      c(4,1) = c(4,1)*pivot
-      c(4,2) = c(4,2)*pivot
-      c(4,3) = c(4,3)*pivot
-      c(4,4) = c(4,4)*pivot
-      c(4,5) = c(4,5)*pivot
-      r(4)   = r(4)  *pivot
-
-      coeff = lhs(1,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(4,5)
-      c(1,1) = c(1,1) - coeff*c(4,1)
-      c(1,2) = c(1,2) - coeff*c(4,2)
-      c(1,3) = c(1,3) - coeff*c(4,3)
-      c(1,4) = c(1,4) - coeff*c(4,4)
-      c(1,5) = c(1,5) - coeff*c(4,5)
-      r(1)   = r(1)   - coeff*r(4)
-
-      coeff = lhs(2,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(4,5)
-      c(2,1) = c(2,1) - coeff*c(4,1)
-      c(2,2) = c(2,2) - coeff*c(4,2)
-      c(2,3) = c(2,3) - coeff*c(4,3)
-      c(2,4) = c(2,4) - coeff*c(4,4)
-      c(2,5) = c(2,5) - coeff*c(4,5)
-      r(2)   = r(2)   - coeff*r(4)
-
-      coeff = lhs(3,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(4,5)
-      c(3,1) = c(3,1) - coeff*c(4,1)
-      c(3,2) = c(3,2) - coeff*c(4,2)
-      c(3,3) = c(3,3) - coeff*c(4,3)
-      c(3,4) = c(3,4) - coeff*c(4,4)
-      c(3,5) = c(3,5) - coeff*c(4,5)
-      r(3)   = r(3)   - coeff*r(4)
-
-      coeff = lhs(5,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(4,5)
-      c(5,1) = c(5,1) - coeff*c(4,1)
-      c(5,2) = c(5,2) - coeff*c(4,2)
-      c(5,3) = c(5,3) - coeff*c(4,3)
-      c(5,4) = c(5,4) - coeff*c(4,4)
-      c(5,5) = c(5,5) - coeff*c(4,5)
-      r(5)   = r(5)   - coeff*r(4)
-
-
-      pivot = 1.00d0/lhs(5,5)
-      c(5,1) = c(5,1)*pivot
-      c(5,2) = c(5,2)*pivot
-      c(5,3) = c(5,3)*pivot
-      c(5,4) = c(5,4)*pivot
-      c(5,5) = c(5,5)*pivot
-      r(5)   = r(5)  *pivot
-
-      coeff = lhs(1,5)
-      c(1,1) = c(1,1) - coeff*c(5,1)
-      c(1,2) = c(1,2) - coeff*c(5,2)
-      c(1,3) = c(1,3) - coeff*c(5,3)
-      c(1,4) = c(1,4) - coeff*c(5,4)
-      c(1,5) = c(1,5) - coeff*c(5,5)
-      r(1)   = r(1)   - coeff*r(5)
-
-      coeff = lhs(2,5)
-      c(2,1) = c(2,1) - coeff*c(5,1)
-      c(2,2) = c(2,2) - coeff*c(5,2)
-      c(2,3) = c(2,3) - coeff*c(5,3)
-      c(2,4) = c(2,4) - coeff*c(5,4)
-      c(2,5) = c(2,5) - coeff*c(5,5)
-      r(2)   = r(2)   - coeff*r(5)
-
-      coeff = lhs(3,5)
-      c(3,1) = c(3,1) - coeff*c(5,1)
-      c(3,2) = c(3,2) - coeff*c(5,2)
-      c(3,3) = c(3,3) - coeff*c(5,3)
-      c(3,4) = c(3,4) - coeff*c(5,4)
-      c(3,5) = c(3,5) - coeff*c(5,5)
-      r(3)   = r(3)   - coeff*r(5)
-
-      coeff = lhs(4,5)
-      c(4,1) = c(4,1) - coeff*c(5,1)
-      c(4,2) = c(4,2) - coeff*c(5,2)
-      c(4,3) = c(4,3) - coeff*c(5,3)
-      c(4,4) = c(4,4) - coeff*c(5,4)
-      c(4,5) = c(4,5) - coeff*c(5,5)
-      r(4)   = r(4)   - coeff*r(5)
-
-
-      return
-      end
-
-
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-      subroutine binvrhs( lhs,r )
-
-c---------------------------------------------------------------------
-c---------------------------------------------------------------------
-
-c---------------------------------------------------------------------
-c     
-c---------------------------------------------------------------------
-
-      implicit none
-
-      double precision pivot, coeff, lhs
-      dimension lhs(5,5)
-      double precision r(5)
-
-c---------------------------------------------------------------------
-c     
-c---------------------------------------------------------------------
-
-
-      pivot = 1.00d0/lhs(1,1)
-      lhs(1,2) = lhs(1,2)*pivot
-      lhs(1,3) = lhs(1,3)*pivot
-      lhs(1,4) = lhs(1,4)*pivot
-      lhs(1,5) = lhs(1,5)*pivot
-      r(1)   = r(1)  *pivot
-
-      coeff = lhs(2,1)
-      lhs(2,2)= lhs(2,2) - coeff*lhs(1,2)
-      lhs(2,3)= lhs(2,3) - coeff*lhs(1,3)
-      lhs(2,4)= lhs(2,4) - coeff*lhs(1,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(1,5)
-      r(2)   = r(2)   - coeff*r(1)
-
-      coeff = lhs(3,1)
-      lhs(3,2)= lhs(3,2) - coeff*lhs(1,2)
-      lhs(3,3)= lhs(3,3) - coeff*lhs(1,3)
-      lhs(3,4)= lhs(3,4) - coeff*lhs(1,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(1,5)
-      r(3)   = r(3)   - coeff*r(1)
-
-      coeff = lhs(4,1)
-      lhs(4,2)= lhs(4,2) - coeff*lhs(1,2)
-      lhs(4,3)= lhs(4,3) - coeff*lhs(1,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(1,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(1,5)
-      r(4)   = r(4)   - coeff*r(1)
-
-      coeff = lhs(5,1)
-      lhs(5,2)= lhs(5,2) - coeff*lhs(1,2)
-      lhs(5,3)= lhs(5,3) - coeff*lhs(1,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(1,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(1,5)
-      r(5)   = r(5)   - coeff*r(1)
-
-
-      pivot = 1.00d0/lhs(2,2)
-      lhs(2,3) = lhs(2,3)*pivot
-      lhs(2,4) = lhs(2,4)*pivot
-      lhs(2,5) = lhs(2,5)*pivot
-      r(2)   = r(2)  *pivot
-
-      coeff = lhs(1,2)
-      lhs(1,3)= lhs(1,3) - coeff*lhs(2,3)
-      lhs(1,4)= lhs(1,4) - coeff*lhs(2,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(2,5)
-      r(1)   = r(1)   - coeff*r(2)
-
-      coeff = lhs(3,2)
-      lhs(3,3)= lhs(3,3) - coeff*lhs(2,3)
-      lhs(3,4)= lhs(3,4) - coeff*lhs(2,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(2,5)
-      r(3)   = r(3)   - coeff*r(2)
-
-      coeff = lhs(4,2)
-      lhs(4,3)= lhs(4,3) - coeff*lhs(2,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(2,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(2,5)
-      r(4)   = r(4)   - coeff*r(2)
-
-      coeff = lhs(5,2)
-      lhs(5,3)= lhs(5,3) - coeff*lhs(2,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(2,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(2,5)
-      r(5)   = r(5)   - coeff*r(2)
-
-
-      pivot = 1.00d0/lhs(3,3)
-      lhs(3,4) = lhs(3,4)*pivot
-      lhs(3,5) = lhs(3,5)*pivot
-      r(3)   = r(3)  *pivot
-
-      coeff = lhs(1,3)
-      lhs(1,4)= lhs(1,4) - coeff*lhs(3,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(3,5)
-      r(1)   = r(1)   - coeff*r(3)
-
-      coeff = lhs(2,3)
-      lhs(2,4)= lhs(2,4) - coeff*lhs(3,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(3,5)
-      r(2)   = r(2)   - coeff*r(3)
-
-      coeff = lhs(4,3)
-      lhs(4,4)= lhs(4,4) - coeff*lhs(3,4)
-      lhs(4,5)= lhs(4,5) - coeff*lhs(3,5)
-      r(4)   = r(4)   - coeff*r(3)
-
-      coeff = lhs(5,3)
-      lhs(5,4)= lhs(5,4) - coeff*lhs(3,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(3,5)
-      r(5)   = r(5)   - coeff*r(3)
-
-
-      pivot = 1.00d0/lhs(4,4)
-      lhs(4,5) = lhs(4,5)*pivot
-      r(4)   = r(4)  *pivot
-
-      coeff = lhs(1,4)
-      lhs(1,5)= lhs(1,5) - coeff*lhs(4,5)
-      r(1)   = r(1)   - coeff*r(4)
-
-      coeff = lhs(2,4)
-      lhs(2,5)= lhs(2,5) - coeff*lhs(4,5)
-      r(2)   = r(2)   - coeff*r(4)
-
-      coeff = lhs(3,4)
-      lhs(3,5)= lhs(3,5) - coeff*lhs(4,5)
-      r(3)   = r(3)   - coeff*r(4)
-
-      coeff = lhs(5,4)
-      lhs(5,5)= lhs(5,5) - coeff*lhs(4,5)
-      r(5)   = r(5)   - coeff*r(4)
-
-
-      pivot = 1.00d0/lhs(5,5)
-      r(5)   = r(5)  *pivot
-
-      coeff = lhs(1,5)
-      r(1)   = r(1)   - coeff*r(5)
-
-      coeff = lhs(2,5)
-      r(2)   = r(2)   - coeff*r(5)
-
-      coeff = lhs(3,5)
-      r(3)   = r(3)   - coeff*r(5)
-
-      coeff = lhs(4,5)
-      r(4)   = r(4)   - coeff*r(5)
-
-
-      return
-      end
-
-
-
-

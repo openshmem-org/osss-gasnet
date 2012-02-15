@@ -17,14 +17,14 @@ c     of the sweep.
 c---------------------------------------------------------------------
 
       include 'header.h'
-      include 'mpinpb.h'
 
       integer c, kstart, stage,
-     >     first, last, recv_id, error, r_status(MPI_STATUS_SIZE),
-     >     isize,jsize,ksize,send_id
+     >     first, last, 
+     >     isize,jsize,ksize
 
       kstart = 0
 
+      if (timeron) call timer_start(t_zsolve)
 c---------------------------------------------------------------------
 c     in our terminology stage is the number of the cell in the y-direction
 c     i.e. stage = 1 means the start of the line stage=ncells means end
@@ -56,7 +56,8 @@ c     Not the first cell of this line, so receive info from
 c     processor working on preceeding cell
 c---------------------------------------------------------------------
             first = 0
-            call z_receive_solve_info(recv_id,c)
+            if (timeron) call timer_start(t_zcomm)
+            call z_receive_solve_info(c)
 c---------------------------------------------------------------------
 c     overlap computations and communications
 c---------------------------------------------------------------------
@@ -64,8 +65,7 @@ c            call lhsz(c)
 c---------------------------------------------------------------------
 c     wait for completion
 c---------------------------------------------------------------------
-            call mpi_wait(send_id,r_status,error)
-            call mpi_wait(recv_id,r_status,error)
+            if (timeron) call timer_stop(t_zcomm)
 c---------------------------------------------------------------------
 c     install C'(kstart+1) and rhs'(kstart+1) to be used in this cell
 c---------------------------------------------------------------------
@@ -73,7 +73,7 @@ c---------------------------------------------------------------------
             call z_solve_cell(first,last,c)
          endif
 
-         if (last .eq. 0) call z_send_solve_info(send_id,c)
+         if (last .eq. 0) call z_send_solve_info(c)
       enddo
 
 c---------------------------------------------------------------------
@@ -91,15 +91,16 @@ c     last cell, so perform back substitute without waiting
 c---------------------------------------------------------------------
             call z_backsubstitute(first, last,c)
          else
-            call z_receive_backsub_info(recv_id,c)
-            call mpi_wait(send_id,r_status,error)
-            call mpi_wait(recv_id,r_status,error)
+            if (timeron) call timer_start(t_zcomm)
+            call z_receive_backsub_info(c)
+            if (timeron) call timer_stop(t_zcomm)
             call z_unpack_backsub_info(c)
             call z_backsubstitute(first,last,c)
          endif
-         if (first .eq. 0) call z_send_backsub_info(send_id,c)
+         if (first .eq. 0) call z_send_backsub_info(c)
       enddo
-10000 format (6(2x,e8.2))
+
+      if (timeron) call timer_stop(t_zsolve)
 
       return
       end
@@ -123,15 +124,15 @@ c---------------------------------------------------------------------
       kstart = 0
       ptr = 0
       do j=0,JMAX-1
-      	 do i=0,IMAX-1
+         do i=0,IMAX-1
             do m=1,BLOCK_SIZE
                do n=1,BLOCK_SIZE
-                  lhsc(m,n,i,j,kstart-1,c) = out_buffer(ptr+n)
+                  lhsc(m,n,i,j,kstart-1,c) = in_buffer(ptr+n)
                enddo
                ptr = ptr+BLOCK_SIZE
             enddo
             do n=1,BLOCK_SIZE
-               rhs(n,i,j,kstart-1,c) = out_buffer(ptr+n)
+               rhs(n,i,j,kstart-1,c) = in_buffer(ptr+n)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -143,7 +144,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
       
-      subroutine z_send_solve_info(send_id,c)
+      subroutine z_send_solve_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
@@ -152,33 +153,33 @@ c---------------------------------------------------------------------
 c     pack up and send C'(kend) and rhs'(kend) for
 c     all i and j
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer i,j,m,n,ksize,ptr,c,ip,jp
-      integer error,send_id,buffer_size
+      integer i,j,m,n,ksize,ptr,c,error
 
       ksize = cell_size(3,c)-1
-      ip = cell_coord(1,c) - 1
-      jp = cell_coord(2,c) - 1
-      buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*
-     >     (BLOCK_SIZE*BLOCK_SIZE + BLOCK_SIZE)
 
+      if (timeron) call timer_start(t_zcomm)
 c---------------------------------------------------------------------
 c     pack up buffer
 c---------------------------------------------------------------------
-      ptr = 0
+#ifdef USE_BARRIER
+      ptr = buffoff(buff_id)
+#else
+      ptr = buffoff(3)
+#endif
       do j=0,JMAX-1
-      	 do i=0,IMAX-1
+         do i=0,IMAX-1
             do m=1,BLOCK_SIZE
                do n=1,BLOCK_SIZE
-                  in_buffer(ptr+n) = lhsc(m,n,i,j,ksize,c)
+                  out_buffer(ptr+n) = lhsc(m,n,i,j,ksize,c)
+                  out_buffer1(ptr+n) = lhsc(m,n,i,j,ksize,c)
                enddo
                ptr = ptr+BLOCK_SIZE
             enddo
             do n=1,BLOCK_SIZE
-               in_buffer(ptr+n) = rhs(n,i,j,ksize,c)
+               out_buffer(ptr+n) = rhs(n,i,j,ksize,c)
+               out_buffer1(ptr+n) = rhs(n,i,j,ksize,c)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -187,10 +188,14 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     send buffer 
 c---------------------------------------------------------------------
-      call mpi_isend(in_buffer, buffer_size,
-     >     dp_type, successor(3),
-     >     BOTTOM+ip+jp*NCELLS, comm_solve,
-     >     send_id,error)
+#ifdef USE_BARRIER
+c      X-2
+c      call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_post(succ_group(3), MPI_MODE_NOPUT, win, error)
+#endif
+      if (timeron) call timer_stop(t_zcomm)
 
       return
       end
@@ -198,7 +203,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine z_send_backsub_info(send_id,c)
+      subroutine z_send_backsub_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
@@ -206,34 +211,38 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     pack up and send U(jstart) for all i and j
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer i,j,n,ptr,c,kstart,ip,jp
-      integer error,send_id,buffer_size
+      integer i,j,n,ptr,c,kstart,error
 
+      if (timeron) call timer_start(t_zcomm)
 c---------------------------------------------------------------------
 c     Send element 0 to previous processor
 c---------------------------------------------------------------------
       kstart = 0
-      ip = cell_coord(1,c)-1
-      jp = cell_coord(2,c)-1
-      buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*BLOCK_SIZE
-      ptr = 0
+#ifdef USE_BARRIER
+      ptr = buffoff(buff_id)
+#else
+      ptr = buffoff(3)
+#endif
       do j=0,JMAX-1
-      	 do i=0,IMAX-1
+         do i=0,IMAX-1
             do n=1,BLOCK_SIZE
-               in_buffer(ptr+n) = rhs(n,i,j,kstart,c)
+               out_buffer(ptr+n) = rhs(n,i,j,kstart,c)
+               out_buffer1(ptr+n) = rhs(n,i,j,kstart,c)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
       enddo
 
-      call mpi_isend(in_buffer, buffer_size,
-     >     dp_type, predecessor(3), 
-     >     TOP+ip+jp*NCELLS, comm_solve, 
-     >     send_id,error)
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOPUT+MPI_MODE_NOPRECEDE, win, error)
+c      call shmem_barrier_all() 
+#else
+      call mpi_win_post(pred_group(3), MPI_MODE_NOPUT, win, error)
+#endif
+      if (timeron) call timer_stop(t_zcomm)
 
       return
       end
@@ -256,9 +265,9 @@ c---------------------------------------------------------------------
 
       ptr = 0
       do j=0,JMAX-1
-      	 do i=0,IMAX-1
+         do i=0,IMAX-1
             do n=1,BLOCK_SIZE
-               backsub_info(n,i,j,c) = out_buffer(ptr+n)
+               backsub_info(n,i,j,c) = in_buffer(ptr+n)
             enddo
             ptr = ptr+BLOCK_SIZE
          enddo
@@ -271,26 +280,40 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine z_receive_backsub_info(recv_id,c)
+      subroutine z_receive_backsub_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
-c     post mpi receives
+c     post receives
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer error,recv_id,ip,jp,c,buffer_size
-      ip = cell_coord(1,c) - 1
-      jp = cell_coord(2,c) - 1
+      integer c,buffer_size,p0,error
       buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*BLOCK_SIZE
-      call mpi_irecv(out_buffer, buffer_size,
-     >     dp_type, successor(3), 
-     >     TOP+ip+jp*NCELLS, comm_solve, 
-     >     recv_id, error)
+#ifdef USE_BARRIER
+      p0 = buffoff(buff_id)
+      buff_id = 3 - buff_id
+#else
+      p0 = buffoff(3)
+      call mpi_win_start(succ_group(3), 0, win, error)
+#endif
+      disp = p0
+c      X-1
+c      call mpi_get(in_buffer, buffer_size, dp_type, 
+c     >   successor(3), disp, buffer_size, dp_type, win, error)
+      call shmem_barrier_all()
+      call shmem_double_get(in_buffer,
+     >   out_buffer(disp+1), buffer_size, successor(3))
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_complete(win, error)
+      call mpi_win_wait(win, error)
+#endif
 
       return
       end
@@ -298,27 +321,41 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
-      subroutine z_receive_solve_info(recv_id,c)
+      subroutine z_receive_solve_info(c)
 
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
-c     post mpi receives 
+c     post receives 
 c---------------------------------------------------------------------
-
       include 'header.h'
-      include 'mpinpb.h'
 
-      integer ip,jp,recv_id,error,c,buffer_size
-      ip = cell_coord(1,c) - 1
-      jp = cell_coord(2,c) - 1
+      integer c,buffer_size,p0,error
       buffer_size=MAX_CELL_DIM*MAX_CELL_DIM*
      >     (BLOCK_SIZE*BLOCK_SIZE + BLOCK_SIZE)
-      call mpi_irecv(out_buffer, buffer_size,
-     >     dp_type, predecessor(3), 
-     >     BOTTOM+ip+jp*NCELLS, comm_solve,
-     >     recv_id, error)
+#ifdef USE_BARRIER
+      p0 = buffoff(buff_id)
+      buff_id = 3 - buff_id
+#else
+      p0 = buffoff(3)
+      call mpi_win_start(pred_group(3), 0, win, error)
+#endif
+      disp = p0
+c     X-1
+      call shmem_barrier_all()
+c      call mpi_get(in_buffer, buffer_size, dp_type, 
+c     >   predecessor(3), disp, buffer_size, dp_type, win, error)
+      call shmem_double_get(in_buffer,
+     >   out_buffer(disp+1), buffer_size, predecessor(3))
+#ifdef USE_BARRIER
+c      X-1
+c      call mpi_win_fence(MPI_MODE_NOSUCCEED, win, error)
+c      call shmem_barrier_all()
+#else
+      call mpi_win_complete(win, error)
+      call mpi_win_wait(win, error)
+#endif
 
       return
       end
@@ -398,6 +435,7 @@ c     c'(KMAX) and rhs'(KMAX) will be sent to next cell.
 c---------------------------------------------------------------------
 
       include 'header.h'
+      include 'work_lhs.h'
 
       integer first,last,c
       integer i,j,k,isize,ksize,jsize,kstart
@@ -422,15 +460,15 @@ c     Compute the indices for storing the block-diagonal matrix;
 c     determine c (labeled f) and s jacobians for cell c
 c---------------------------------------------------------------------
             do k = start(3,c)-1, cell_size(3,c)-end(3,c)
-	       utmp(1,k) = 1.0d0 / u(1,i,j,k,c)
-	       utmp(2,k) = u(2,i,j,k,c)
-	       utmp(3,k) = u(3,i,j,k,c)
-	       utmp(4,k) = u(4,i,j,k,c)
-	       utmp(5,k) = u(5,i,j,k,c)
-	       utmp(6,k) = qs(i,j,k,c)
-	    end do
+               utmp(1,k) = 1.0d0 / u(1,i,j,k,c)
+               utmp(2,k) = u(2,i,j,k,c)
+               utmp(3,k) = u(3,i,j,k,c)
+               utmp(4,k) = u(4,i,j,k,c)
+               utmp(5,k) = u(5,i,j,k,c)
+               utmp(6,k) = qs(i,j,k,c)
+            end do
 
-      	    do k = start(3,c)-1, cell_size(3,c)-end(3,c)
+            do k = start(3,c)-1, cell_size(3,c)-end(3,c)
 
                tmp1 = utmp(1,k)
                tmp2 = tmp1 * tmp1
@@ -519,7 +557,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     now joacobians set, so form left hand side in z direction
 c---------------------------------------------------------------------
-      	    do k = start(3,c), ksize-end(3,c)
+            do k = start(3,c), ksize-end(3,c)
 
                tmp1 = dt * tz1
                tmp2 = dt * tz2
@@ -690,7 +728,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     outer most do loops - sweeping in i direction
 c---------------------------------------------------------------------
-      	    if (first .eq. 1) then 
+            if (first .eq. 1) then 
 
 c---------------------------------------------------------------------
 c     multiply c(i,j,kstart) by b_inverse and copy back to c
@@ -700,13 +738,13 @@ c---------------------------------------------------------------------
      >                        lhsc(1,1,i,j,kstart,c),
      >                        rhs(1,i,j,kstart,c) )
 
-      	    endif
+            endif
 
 c---------------------------------------------------------------------
 c     begin inner most do loop
 c     do all the elements of the cell unless last 
 c---------------------------------------------------------------------
-      	    do k=kstart+first,ksize-last
+            do k=kstart+first,ksize-last
 
 c---------------------------------------------------------------------
 c     subtract A*lhs_vector(k-1) from lhs_vector(k)
@@ -737,7 +775,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c     Now finish up special cases for last cell
 c---------------------------------------------------------------------
-      	    if (last .eq. 1) then
+            if (last .eq. 1) then
 
 c---------------------------------------------------------------------
 c     rhs(ksize) = rhs(ksize) - A*rhs(ksize-1)
@@ -760,10 +798,10 @@ c---------------------------------------------------------------------
                call binvrhs( lhsb(1,1,ksize),
      >                       rhs(1,i,j,ksize,c) )
 
-      	    endif
+            endif
          enddo
       enddo
- 1000 format (6(2x,e8.2))
+
 
       return
       end

@@ -5,20 +5,9 @@ c  header.h
 c
 c---------------------------------------------------------------------
 c---------------------------------------------------------------------
- 
+
+      use npbrma
       implicit none
-
-c---------------------------------------------------------------------
-c The following include file is generated automatically by the
-c "setparams" utility. It defines 
-c      maxcells:      the square root of the maximum number of processors
-c      problem_size:  12, 64, 102, 162 (for class T, A, B, C)
-c      dt_default:    default time step for this problem size if no
-c                     config file
-c      niter_default: default number of iterations for this problem size
-c---------------------------------------------------------------------
-
-      include 'npbparams.h'
 
       integer           aa, bb, cc, BLOCK_SIZE
       parameter (aa=1, bb=2, cc=3, BLOCK_SIZE=5)
@@ -57,45 +46,35 @@ c---------------------------------------------------------------------
      >                  c2dtty1, c2dttz1, comz1, comz4, comz5, comz6, 
      >                  c3c4tx3, c3c4ty3, c3c4tz3, c2iv, con43, con16
 
-      integer           EAST, WEST, NORTH, SOUTH, 
-     >                  BOTTOM, TOP
-
-      parameter (EAST=2000, WEST=3000,      NORTH=4000, SOUTH=5000,
-     >           BOTTOM=6000, TOP=7000)
-
       integer cell_coord (3,maxcells), cell_low (3,maxcells), 
      >        cell_high  (3,maxcells), cell_size(3,maxcells),
-     >        predecessor(3),           slice    (3,maxcells),
-     >        grid_size  (3),           successor(3)          ,
+     >        predecessor(3),          slice    (3,maxcells),
+     >        grid_size  (3),          successor(3)         ,
      >        start      (3,maxcells), end      (3,maxcells)
       common /partition/ cell_coord, cell_low, cell_high, cell_size,
      >                   grid_size, successor, predecessor, slice,
      >                   start, end
 
-      integer IMAX, JMAX, KMAX, MAX_CELL_DIM, BUF_SIZE
+      integer IMAX, JMAX, KMAX, MAX_CELL_DIM
 
       parameter (MAX_CELL_DIM = (problem_size/maxcells)+1)
 
       parameter (IMAX=MAX_CELL_DIM,JMAX=MAX_CELL_DIM,KMAX=MAX_CELL_DIM)
 
-      parameter (BUF_SIZE=MAX_CELL_DIM*MAX_CELL_DIM*(maxcells-1)*60+1)
-
       double precision 
-     >   us      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   vs      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   ws      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   qs      (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   rho_i   (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   square  (-1:IMAX,  -1:JMAX,  -1:KMAX,       maxcells),
-     >   forcing (5,     0:IMAX-1,   0:JMAX-1,   0:KMAX-1, maxcells),
-     >   u       (5,    -2:IMAX+1,  -2:JMAX+1,  -2:KMAX+1, maxcells),
-     >   rhs     (5,    -1:IMAX-1,  -1:JMAX-1,  -1:KMAX-1, maxcells),
-     >   lhsc    (5,5,  -1:IMAX-1,  -1:JMAX-1,  -1:KMAX-1, maxcells),
-     >   backsub_info (5, 0:MAX_CELL_DIM, 0:MAX_CELL_DIM,  maxcells),
-     >   in_buffer(BUF_SIZE), out_buffer(BUF_SIZE)
+     >   us      (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   vs      (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   ws      (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   qs      (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   rho_i   (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   square  (    -1:IMAX,  -1:JMAX,  -1:KMAX,   maxcells),
+     >   forcing (5,   0:IMAX-1, 0:JMAX-1, 0:KMAX-1, maxcells),
+     >   u       (5,  -2:IMAX+1,-2:JMAX+1,-2:KMAX+1, maxcells),
+     >   rhs     (5,  -1:IMAX-1,-1:JMAX-1,-1:KMAX-1, maxcells),
+     >   lhsc    (5,5,-1:IMAX-1,-1:JMAX-1,-1:KMAX-1, maxcells),
+     >   backsub_info (5, 0:MAX_CELL_DIM, 0:MAX_CELL_DIM, maxcells)
       common /fields/  u, us, vs, ws, qs, rho_i, square, 
-     >                 rhs, forcing, lhsc, in_buffer, out_buffer,
-     >                 backsub_info
+     >                 rhs, forcing, lhsc, backsub_info
 
       double precision cv(-2:MAX_CELL_DIM+1),   rhon(-2:MAX_CELL_DIM+1),
      >                 rhos(-2:MAX_CELL_DIM+1), rhoq(-2:MAX_CELL_DIM+1),
@@ -116,13 +95,6 @@ c---------------------------------------------------------------------
      >             start_recv_west, start_recv_east, start_recv_south,
      >             start_recv_north, start_recv_bottom, start_recv_top
 
-      double precision fjac(5, 5, -2:MAX_CELL_DIM+1),
-     >                 njac(5, 5, -2:MAX_CELL_DIM+1),
-     >                 lhsa(5, 5, -1:MAX_CELL_DIM),
-     >                 lhsb(5, 5, -1:MAX_CELL_DIM),
-     >                 tmp1, tmp2, tmp3
-      common /work_lhs/ fjac, njac, lhsa, lhsb, tmp1, tmp2, tmp3
-
       double precision  tmp_block(5,5), b_inverse(5,5), tmp_vec(5)
       common /work_solve/ tmp_block, b_inverse, tmp_vec
 
@@ -131,13 +103,23 @@ c     These are used by btio
 c
       integer collbuf_nodes, collbuf_size, iosize, eltext,
      $        combined_btype, fp, idump, record_length, element,
-     $        combined_ftype
+     $        combined_ftype, idump_sub, rd_interval
       common /btio/ collbuf_nodes, collbuf_size, iosize, eltext,
-     $              combined_btype, fp, idump, record_length
-      double precision sum(niter_default)
-      common /btio/ sum
+     $              combined_btype, fp, idump, record_length,
+     $              idump_sub, rd_interval
+      double precision sum(niter_default), xce_sub(5)
+      common /btio/ sum, xce_sub
       integer*8 iseek
       common /btio/ iseek, element, combined_ftype
+
+
+      integer t_total, t_io, t_rhs, t_xsolve, t_ysolve, t_zsolve, 
+     >        t_bpack, t_exch, t_xcomm, t_ycomm, t_zcomm, t_last
+      parameter (t_total=1, t_io=2, t_rhs=3, t_xsolve=4, t_ysolve=5, 
+     >        t_zsolve=6, t_bpack=7, t_exch=8, t_xcomm=9, 
+     >        t_ycomm=10, t_zcomm=11, t_last=11)
+      logical timeron
+      common /tflags/ timeron
 
 
 

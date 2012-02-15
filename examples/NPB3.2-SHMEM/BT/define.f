@@ -46,18 +46,31 @@ c---------------------------------------------------------------------
      >        face_size     
       end do
 
+c      start_send_west   = 1
+c      start_send_east   = start_send_west   + west_size
+c      start_send_south  = start_send_east   + east_size
+c      start_send_north  = start_send_south  + south_size
+c      start_send_bottom = start_send_north  + north_size
+c      start_send_top    = start_send_bottom + bottom_size
+c      start_recv_west   = 1
+c      start_recv_east   = start_recv_west   + west_size
+c      start_recv_south  = start_recv_east   + east_size
+c      start_recv_north  = start_recv_south  + south_size
+c      start_recv_bottom = start_recv_north  + north_size
+c      start_recv_top    = start_recv_bottom + bottom_size
+      face_size = BUF_SIZE/6
       start_send_west   = 1
-      start_send_east   = start_send_west   + west_size
-      start_send_south  = start_send_east   + east_size
-      start_send_north  = start_send_south  + south_size
-      start_send_bottom = start_send_north  + north_size
-      start_send_top    = start_send_bottom + bottom_size
-      start_recv_west   = 1
-      start_recv_east   = start_recv_west   + west_size
-      start_recv_south  = start_recv_east   + east_size
-      start_recv_north  = start_recv_south  + south_size
-      start_recv_bottom = start_recv_north  + north_size
-      start_recv_top    = start_recv_bottom + bottom_size
+      start_send_east   = start_send_west   + face_size
+      start_send_south  = start_send_east   + face_size
+      start_send_north  = start_send_south  + face_size
+      start_send_bottom = start_send_north  + face_size
+      start_send_top    = start_send_bottom + face_size
+      start_recv_west   = start_send_east
+      start_recv_east   = start_send_west
+      start_recv_south  = start_send_north
+      start_recv_north  = start_send_south
+      start_recv_bottom = start_send_top
+      start_recv_top    = start_send_bottom
 
       return
       end
