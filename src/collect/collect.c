@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (c) 2011, 2012, University of Houston System and Oak Ridge National
- * Laboratory.
+ * Copyright (c) 2011, 2012
+ *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
  * 
