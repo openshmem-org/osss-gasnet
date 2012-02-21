@@ -84,10 +84,7 @@ SHMEM_MY_PE (_my_pe)
 
 #pragma weak shmem_nodename = pshmem_nodename
 
-#ifdef CRAY_COMPAT
-SHMEM_NUM_PES (shmem_num_pes)
-SHMEM_NUM_PES (shmem_n_pes) SHMEM_MY_PE (shmem_my_pe)
-#pragma weak shmem_my_pe = pshmem_my_pe
-#pragma weak shmem_num_pes = pshmem_num_pes
+SHMEM_NUM_PES (shmem_n_pes)
+SHMEM_MY_PE (shmem_my_pe)
 #pragma weak shmem_n_pes = pshmem_n_pes
-#endif /* CRAY_COMPAT */
+#pragma weak shmem_my_pe = pshmem_my_pe

@@ -86,8 +86,12 @@ extern "C"
    */
 
   extern void start_pes (int npes);
+
   extern int _my_pe (void) _WUR;
+  extern int shmem_my_pe (void) _WUR;
+
   extern int _num_pes (void) _WUR;
+  extern int shmem_n_pes (void) _WUR;
 
   /*
    * I/O
@@ -649,9 +653,6 @@ extern "C"
    */
   extern void shmem_init (void);
   extern void shmem_finalize (void);
-  extern int shmem_my_pe (void) _WUR;
-  extern int shmem_num_pes (void) _WUR;
-  extern int shmem_n_pes (void) _WUR;
   extern char *shmem_nodename (void) _WUR;
   extern int shmem_version (int *major, int *minor) _WUR;
   extern void *shmem_malloc (size_t size) _WUR;
