@@ -647,10 +647,11 @@ void
 __shmem_comms_init (void)
 {
   /*
-   * fake the command-line args
+   * fake the command-line args (exe name + null)
    */
   argc = 1;
-  argv = (char **) malloc (argc * sizeof (*argv));
+
+  argv = (char **) malloc ((argc + 1) * sizeof (*argv));
   if (argv == (char **) NULL)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
@@ -658,6 +659,7 @@ __shmem_comms_init (void)
       /* NOT REACHED */
     }
   argv[0] = GET_STATE (exe_name);
+  argv[argc] = NULL;
 
   /*
    * let's get gasnet up and running
