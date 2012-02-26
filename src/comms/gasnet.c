@@ -646,7 +646,6 @@ static char **argv;
 static void
 parse_cmdline(void)
 {
-<<<<<<< HEAD
   FILE *fp;
   char buf[1024];
   char *p = buf;
@@ -657,22 +656,12 @@ parse_cmdline(void)
 
   fp = fopen("/proc/self/cmdline", "r");
   if (fp == NULL)
-=======
-  /*
-   * fake the command-line args (exe name + null)
-   */
-  argc = 1;
-
-  argv = (char **) malloc ((argc + 1) * sizeof (*argv));
-  if (argv == (char **) NULL)
->>>>>>> cc2c1df84a2c50bccf7600453a807da6615698f5
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "could not discover process command-line (%s)",
 		     strerror (errno));
       /* NOT REACHED */
     }
-<<<<<<< HEAD
 
   /* first count the number of nuls in cmdline to see how many args */
   while ((c = fgetc(fp)) != EOF)
@@ -712,10 +701,6 @@ void
 __shmem_comms_init (void)
 {
   parse_cmdline ();
-=======
-  argv[0] = GET_STATE (exe_name);
-  argv[argc] = NULL;
->>>>>>> cc2c1df84a2c50bccf7600453a807da6615698f5
 
   /*
    * let's get gasnet up and running
