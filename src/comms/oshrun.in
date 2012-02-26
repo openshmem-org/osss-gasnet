@@ -49,12 +49,15 @@ then
   esac
 fi
 
+OPENSHMEM_GASNET_CONDUIT="@GASNET_CONDUIT@"
+export OPENSHMEM_GASNET_CONDUIT
+
 case "@GASNET_CONDUIT@" in
     smp)
-	RUN_IT="env GASNET_PSHM_NODES=$npes $cmd $args"
-	;;
+	RUN_IT="env GASNET_PSHM_NODES=$npes $args"
+        ;;
     udp)
-        RUN_IT="$cmd $npes $args"
+	RUN_IT="$args"
         ;;
     mpi|ibv)
 	RUN_IT="@GASNET_LD@"
@@ -63,7 +66,7 @@ case "@GASNET_CONDUIT@" in
         then
           RUN_IT="$RUN_IT -np $npes"
         fi
-        RUN_IT="$RUN_IT $cmd $args"
+        RUN_IT="$RUN_IT $args"
 	;;
     *)
 	;;

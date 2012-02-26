@@ -643,21 +643,64 @@ static const int nhandlers = TABLE_SIZE (handlers);
 static int argc;
 static char **argv;
 
+static void
+parse_cmdline(void)
+{
+  FILE *fp;
+  char buf[1024];
+  char *p = buf;
+  int i = 0;
+  int c;
+
+  argc = 0;
+
+  fp = fopen("/proc/self/cmdline", "r");
+  if (fp == NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "could not discover process command-line (%s)",
+		     strerror (errno));
+      /* NOT REACHED */
+    }
+
+  /* first count the number of nuls in cmdline to see how many args */
+  while ((c = fgetc(fp)) != EOF)
+    {
+      if (c == '\0')
+        {
+          argc += 1;
+        }
+    }
+  rewind(fp);
+
+  argv = (char **) malloc ((argc + 1) * sizeof (*argv));
+
+  while (1)
+    {
+      int c = fgetc(fp);
+      switch(c) {
+      case EOF:
+	argv[i] = NULL;
+        goto end;
+        break;
+      case '\0':
+        *p = c;
+        argv[i++] = strdup(buf);
+        p = buf;
+        break;
+      default:
+        *p++ = c;
+        break;
+      }
+    }
+ end:
+  fclose(fp);
+}
+
 void
 __shmem_comms_init (void)
 {
-  /*
-   * fake the command-line args
-   */
-  argc = 1;
-  argv = (char **) malloc (argc * sizeof (*argv));
-  if (argv == (char **) NULL)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: could not allocate memory for GASNet initialization");
-      /* NOT REACHED */
-    }
-  argv[0] = GET_STATE (exe_name);
+  parse_cmdline ();
 
   /*
    * let's get gasnet up and running
@@ -715,7 +758,7 @@ __shmem_comms_finalize (int status)
 
   if (argv != NULL)
     {
-      free (argv);
+      //free (argv);
     }
 
   __shmem_comms_exit (status);
@@ -1026,7 +1069,7 @@ get_lock_for (void *addr)
 
       try->addr = addr;
       try->lock = L;
- 
+
       HASH_ADD_PTR (lock_table, addr, try);
 
       __shmem_trace (SHMEM_LOG_LOCK, "created new lock for address %p", addr);
