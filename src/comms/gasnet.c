@@ -438,16 +438,76 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
  *
  * non-blocking puts: not part of current API
  */
+
+typedef struct
+{
+  gasnet_handle_t handle;	/* the handle for the NB op. */
+  /*
+   * might want to put something else here to record more information
+   */
+  UT_hash_handle hh;		/* makes this structure hashable */
+} nb_table_t;
+
+static nb_table_t *nb_table = NULL;
+
+#define HASH_FIND_NB_TABLE(head, findnb, out)			\
+       HASH_FIND (hh, head, findnb, sizeof (gasnet_handle_t), out)
+
+#define HASH_ADD_NB_TABLE(head, nbfield, add)			\
+       HASH_ADD(hh, head, nbfield, sizeof (gasnet_handle_t), add)
+
+/*
+ * iterate over hash table, build array of handles,
+ * pass this to gasnet to wait
+ */
+static void
+nb_table_wait (void)
+{
+  gasnet_handle_t *g = NULL;
+  nb_table_t *current, *tmp;
+  unsigned int n = HASH_COUNT(nb_table);
+  unsigned int i = 0;
+
+  g = malloc (n * sizeof (*g));
+
+  HASH_ITER(hh, nb_table, current, tmp)
+    {
+      g[i] = current->handle;
+      i += 1;
+    }
+  gasnet_wait_syncnb_all (g, n);
+
+#if 0
+  /*
+   * serialized version
+   */
+  HASH_ITER(hh, nb_table, current, tmp)
+    {
+      gasnet_wait_syncnb (current->handle);
+    }
+#endif
+}
+
 #define COMMS_TYPE_PUT_NB(Name, Type)					\
   void *								\
-  __shmem_comms_##Name##_put_nb(Type *target, const Type *source, size_t len, int pe) \
+  __shmem_comms_##Name##_put_nb (Type *target, const Type *source,	\
+				 size_t len, int pe)			\
   {									\
-    void *h = gasnet_put_nb_bulk(pe, target, (Type *) source, sizeof(Type) * len); \
+    gasnet_handle_t g = gasnet_put_nb_bulk (pe,				\
+					    (void *) target,		\
+					    (void *) source,		\
+					    sizeof(Type) * len);	\
+    nb_table_t *n = malloc (sizeof (*n));				\
+    /* check malloc */							\
+    memset (n, 0, sizeof (*n));						\
+    n->handle = g;							\
+    HASH_ADD_NB_TABLE(nb_table, handle, n);				\
     __shmem_service_reset ();						\
-    return h;								\
+    return (void *) g;							\
   }
 
-COMMS_TYPE_PUT_NB (short, short) COMMS_TYPE_PUT_NB (int, int)
+COMMS_TYPE_PUT_NB (short, short)
+COMMS_TYPE_PUT_NB (int, int)
 COMMS_TYPE_PUT_NB (long, long)
 COMMS_TYPE_PUT_NB (longdouble, long double)
 COMMS_TYPE_PUT_NB (longlong, long long)
@@ -476,16 +536,24 @@ COMMS_TYPE_GET_NB (float, float)
 #pragma weak __shmem_comms_getmem_nb = __shmem_comms_long_get_nb
 
 
-void __shmem_comms_wait_nb (void *h)
+void
+__shmem_comms_wait_nb (void *h)
 {
-  gasnet_wait_syncnb ((gasnet_handle_t) h);
+  nb_table_t *n = (nb_table_t *) h;
+
+  gasnet_wait_syncnb (n->handle);
   LOAD_STORE_FENCE ();
+
+  /* remove from handle table */
+  HASH_DEL(nb_table, n);
+  free (n);
 }
 
 int
 __shmem_comms_test_nb (void *h)
 {
-  int s = gasnet_try_syncnb ((gasnet_handle_t) h);
+  nb_table_t *n = (nb_table_t *) h;
+  int s = gasnet_try_syncnb (n->handle);
   return (s == GASNET_OK) ? 1 : 0;
 }
 
@@ -1864,6 +1932,8 @@ __shmem_comms_quiet_request (void)
 {
   GASNET_WAIT_PUTS ();
   atomic_wait_put_zero ();
+
+  nb_table_wait ();
 
   LOAD_STORE_FENCE ();
   return;
