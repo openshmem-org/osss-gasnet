@@ -53,11 +53,18 @@
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_put_nb(Type *target, const Type *source, size_t nelems, int pe) \
+  pshmem_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
+			  int pe, void **hp)				\
   {									\
+    void *h;								\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    return __shmem_comms_##Name##_put_nb(target, source, nelems, pe);	\
+    h = __shmem_comms_##Name##_put_nb (target, source, nelems, pe);	\
+    if ((hp != NULL) && (*hp != NULL))					\
+      {									\
+	*hp = h;							\
+      }									\
+    return h;								\
   }
 
 SHMEM_TYPE_PUT_NB (short, short)
@@ -68,6 +75,10 @@ SHMEM_TYPE_PUT_NB (longlong, long long)
 SHMEM_TYPE_PUT_NB (double, double)
 SHMEM_TYPE_PUT_NB (float, float)
 
+#pragma weak pshmem_put32_nb = pshmem_int_put_nb
+#pragma weak pshmem_put64_nb = pshmem_long_put_nb
+#pragma weak pshmem_put128_nb = pshmem_longlong_put_nb
+
 #pragma weak shmem_short_put_nb = pshmem_short_put_nb
 #pragma weak shmem_int_put_nb = pshmem_int_put_nb
 #pragma weak shmem_long_put_nb = pshmem_long_put_nb
@@ -75,6 +86,28 @@ SHMEM_TYPE_PUT_NB (float, float)
 #pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
 #pragma weak shmem_double_put_nb = pshmem_double_put_nb
 #pragma weak shmem_float_put_nb = pshmem_float_put_nb
+#pragma weak shmem_put32_nb = pshmem_put32_nb
+#pragma weak shmem_put64_nb = pshmem_put64_nb
+#pragma weak shmem_put128_nb = pshmem_put128_nb
+
+/* @api@ */
+void *
+pshmem_putmem_nb (void *target, const void *source, size_t nelems,
+		  int pe, void **hp)
+{
+  void *h;
+  INIT_CHECK();
+  PE_RANGE_CHECK(pe);
+  h = __shmem_comms_putmem_nb (target, source, nelems, pe);
+  if ((hp != NULL) && (*hp != NULL))
+    {
+      *hp = h;
+    }
+  return h;
+}
+
+#pragma weak shmem_putmem_nb = pshmem_putmem_nb
+
 
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
   /* @api@ */								\
@@ -93,6 +126,10 @@ SHMEM_TYPE_GET_NB (longdouble, long double)
 SHMEM_TYPE_GET_NB (longlong, long long)
 SHMEM_TYPE_GET_NB (double, double)
 SHMEM_TYPE_GET_NB (float, float)
+
+#pragma weak pshmem_get32_nb = pshmem_int_get_nb
+#pragma weak pshmem_get64_nb = pshmem_long_get_nb
+#pragma weak pshmem_get128_nb = pshmem_longlong_get_nb
 
 #pragma weak shmem_short_get_nb = pshmem_short_get_nb
 #pragma weak shmem_int_get_nb = pshmem_int_get_nb

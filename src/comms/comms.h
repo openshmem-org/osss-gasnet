@@ -92,7 +92,7 @@ extern void *__shmem_comms_int_put_nb (int *target, const int *source,
 				       size_t len, int pe);
 extern void *__shmem_comms_long_put_nb (long *target, const long *source,
 					size_t len, int pe);
-extern void *__shmem_comms_putmem_nb (long *target, const long *source,
+extern void *__shmem_comms_putmem_nb (void *target, const void *source,
 				      size_t len, int pe);
 extern void *__shmem_comms_longdouble_put_nb (long double *target,
 					      const long double *source,
@@ -112,7 +112,7 @@ extern void *__shmem_comms_int_get_nb (int *target, const int *source,
 				       size_t len, int pe);
 extern void *__shmem_comms_long_get_nb (long *target, const long *source,
 					size_t len, int pe);
-extern void *__shmem_comms_getmem_nb (long *target, const long *source,
+extern void *__shmem_comms_getmem_nb (void *target, const void *source,
 				      size_t len, int pe);
 extern void *__shmem_comms_longdouble_get_nb (long double *target,
 					      const long double *source,

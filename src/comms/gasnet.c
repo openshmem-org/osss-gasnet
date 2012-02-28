@@ -450,11 +450,29 @@ typedef struct
 
 static nb_table_t *nb_table = NULL;
 
+/*
+ * couple of simple helper macros
+ */
+
 #define HASH_FIND_NB_TABLE(head, findnb, out)			\
-       HASH_FIND (hh, head, findnb, sizeof (gasnet_handle_t), out)
+  HASH_FIND(hh, head, findnb, sizeof (gasnet_handle_t), out)
 
 #define HASH_ADD_NB_TABLE(head, nbfield, add)			\
-       HASH_ADD(hh, head, nbfield, sizeof (gasnet_handle_t), add)
+  HASH_ADD(hh, head, nbfield, sizeof (gasnet_handle_t), add)
+
+/*
+ * add handle into hash table
+ */
+
+static void
+nb_table_add (gasnet_handle_t h)
+{
+  nb_table_t *n = malloc (sizeof (*n));
+  /* check malloc */
+  memset (n, 0, sizeof (*n));
+  n->handle = h;
+  HASH_ADD_NB_TABLE(nb_table, handle, n);
+}
 
 /*
  * iterate over hash table, build array of handles,
@@ -479,7 +497,8 @@ nb_table_wait (void)
 
 #if 0
   /*
-   * serialized version
+   * serialized version for testing, doesn't take advantage of GASNet
+   * _all internals
    */
   HASH_ITER(hh, nb_table, current, tmp)
     {
@@ -497,11 +516,7 @@ nb_table_wait (void)
 					    (void *) target,		\
 					    (void *) source,		\
 					    sizeof(Type) * len);	\
-    nb_table_t *n = malloc (sizeof (*n));				\
-    /* check malloc */							\
-    memset (n, 0, sizeof (*n));						\
-    n->handle = g;							\
-    HASH_ADD_NB_TABLE(nb_table, handle, n);				\
+    nb_table_add (g);							\
     __shmem_service_reset ();						\
     return (void *) g;							\
   }
@@ -514,7 +529,22 @@ COMMS_TYPE_PUT_NB (longlong, long long)
 COMMS_TYPE_PUT_NB (double, double)
 COMMS_TYPE_PUT_NB (float, float)
 
-#pragma weak __shmem_comms_putmem_nb = __shmem_comms_long_put_nb
+void *
+__shmem_comms_putmem_nb (void *target, const void *source,
+			 size_t len, int pe)
+{
+  gasnet_handle_t g = gasnet_put_nb_bulk (pe,
+					  target,
+					  (void *) source,
+					  len);
+  nb_table_add (g);
+  __shmem_service_reset ();
+  return (void *) g;
+}
+
+/*
+ * TODO: add hash table to gets
+ */
 
 #define COMMS_TYPE_GET_NB(Name, Type)					\
   void *								\
@@ -539,22 +569,37 @@ COMMS_TYPE_GET_NB (float, float)
 void
 __shmem_comms_wait_nb (void *h)
 {
-  nb_table_t *n = (nb_table_t *) h;
+  if (h != NULL)
+    {
+      nb_table_t *n = (nb_table_t *) h;
 
-  gasnet_wait_syncnb (n->handle);
-  LOAD_STORE_FENCE ();
+      gasnet_wait_syncnb (n->handle);
+      LOAD_STORE_FENCE ();
 
-  /* remove from handle table */
-  HASH_DEL(nb_table, n);
-  free (n);
+      /* remove from handle table */
+      HASH_DEL(nb_table, n);
+      free (n);
+    }
+  else
+    {
+      __shmem_comms_quiet_request ();
+    }
 }
 
 int
 __shmem_comms_test_nb (void *h)
 {
-  nb_table_t *n = (nb_table_t *) h;
-  int s = gasnet_try_syncnb (n->handle);
-  return (s == GASNET_OK) ? 1 : 0;
+  if (h != NULL)
+    {
+      nb_table_t *n = (nb_table_t *) h;
+
+      int s = gasnet_try_syncnb (n->handle);
+      return (s == GASNET_OK) ? 1 : 0;
+    }
+  else
+    {
+      return 1;
+    }
 }
 
 /*
