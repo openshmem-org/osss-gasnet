@@ -651,6 +651,36 @@ extern "C"
   /*
    * new ideas (not part of formal 1.0 API)
    */
+
+  extern void *shmem_short_put_nb (short *dest, const short *src, size_t nelems,
+				   int pe);
+  extern void *shmem_int_put_nb (int *dest, const int *src, size_t nelems,
+				 int pe);
+  extern void *shmem_long_put_nb (long *dest, const long *src, size_t nelems,
+				  int pe);
+  extern void *shmem_longlong_put_nb (long long *dest, const long long *src,
+				      size_t nelems, int pe);
+  extern void *shmem_longdouble_put_nb (long double *dest, const long double *src,
+					size_t nelems, int pe);
+  extern void *shmem_double_put_nb (double *dest, const double *src,
+				    size_t nelems, int pe);
+  extern void *shmem_complexd_put_nb (COMPLEXIFY (double) * dest,
+				      const COMPLEXIFY (double) * src,
+				      size_t nelems, int pe);
+  extern void *shmem_float_put_nb (float *dest, const float *src, size_t nelems,
+				   int pe);
+  extern void *shmem_putmem_nb (void *dest, const void *src, size_t nelems,
+				int pe);
+  extern void *shmem_put32_nb (void *dest, const void *src, size_t nelems,
+			       int pe);
+  extern void *shmem_put64_nb (void *dest, const void *src, size_t nelems,
+			       int pe);
+  extern void *shmem_put128_nb (void *dest, const void *src, size_t nelems,
+				int pe);
+  extern void shmem_wait_nb (void *h);
+  extern int  shmem_test_nb (void *h) _WUR;
+
+#if 0
   extern void shmem_init (void);
   extern void shmem_finalize (void);
   extern char *shmem_nodename (void) _WUR;
@@ -662,6 +692,7 @@ extern "C"
   extern char *sherror (void) _WUR;
   extern char *shmem_error (void) _WUR;
   extern void shmem_sync_init (long *pSync);
+#endif
 
   /*
    * --end--

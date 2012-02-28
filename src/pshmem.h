@@ -563,7 +563,7 @@ extern "C"
 
 
   /*
-   * non-blocking I/O (If enabled at configuration)
+   * new ideas (not part of formal 1.0 API)
    */
 
   extern void *pshmem_short_put_nb (short *target, const short *source,
@@ -590,10 +590,10 @@ extern "C"
 				size_t nelems, int pe) _WUR;
   extern void *pshmem_put128_nb (void *target, const void *source,
 				 size_t nelems, int pe) _WUR;
+  extern void pshmem_wait_nb (void *h);
+  extern int  pshmem_test_nb (void *h) _WUR;
 
-  /*
-   * new ideas (not part of formal 1.0 API)
-   */
+#if 0
   extern void pshmem_init (void);
   extern void pshmem_finalize (void);
   extern char *pshmem_nodename (void) _WUR;
@@ -605,6 +605,7 @@ extern "C"
   extern char *psherror (void) _WUR;
   extern char *pshmem_error (void) _WUR;
   extern void pshmem_sync_init (long *pSync);
+#endif
 
   /*
    * --end--
