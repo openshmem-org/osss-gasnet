@@ -481,30 +481,33 @@ nb_table_add (gasnet_handle_t h)
 static void
 nb_table_wait (void)
 {
-  gasnet_handle_t *g = NULL;
+  gasnet_handle_t *g;
   nb_table_t *current, *tmp;
   unsigned int n = HASH_COUNT(nb_table);
   unsigned int i = 0;
 
   g = malloc (n * sizeof (*g));
-
-  HASH_ITER(hh, nb_table, current, tmp)
+  if (g != NULL)
     {
-      g[i] = current->handle;
-      i += 1;
+      HASH_ITER(hh, nb_table, current, tmp)
+	{
+	  g[i] = current->handle;
+	  i += 1;
+	}
+      gasnet_wait_syncnb_all (g, n);
+      free (g);
     }
-  gasnet_wait_syncnb_all (g, n);
-
-#if 0
-  /*
-   * serialized version for testing, doesn't take advantage of GASNet
-   * _all internals
-   */
-  HASH_ITER(hh, nb_table, current, tmp)
+  else
     {
-      gasnet_wait_syncnb (current->handle);
+      __shmem_trace (SHMEM_LOG_INFO,
+		     "unable to malloc temporary handle storage for"
+		     " non-blocking wait, using linearized method"
+		     );
+      HASH_ITER(hh, nb_table, current, tmp)
+	{
+	  gasnet_wait_syncnb (current->handle);
+	}
     }
-#endif
 }
 
 #define COMMS_TYPE_PUT_NB(Name, Type)					\

@@ -266,6 +266,7 @@ SHMEM_FORTRAN_IGET_SIZE (128, longdouble, long double)
 #pragma weak shmem_iget64_ = pshmem_iget64_
 #pragma weak shmem_iget128_ = pshmem_iget128_
 
+#if 0
 char *
 FORTRANIFY (pshmem_nodename) (void)
 {
@@ -278,9 +279,11 @@ FORTRANIFY (pshmem_version) (int *major, int *minor)
   return pshmem_version (major, minor);
 }
 
-#pragma weak start_pes_ = pstart_pes_
 #pragma weak shmem_nodename_ = pshmem_nodename_
 #pragma weak shmem_version_ = pshmem_version_
+#endif
+
+#pragma weak start_pes_ = pstart_pes_
 
 #pragma weak my_pe_ = p_my_pe_
 #pragma weak num_pes_ = p_num_pes_
