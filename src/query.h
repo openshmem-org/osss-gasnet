@@ -40,6 +40,6 @@
 #ifndef _QUERY_H
 #define _QUERY_H 1
 
-/* currently empty */
+extern int shmem_version (int *major, int *minor);
 
 #endif /* _QUERY_H */

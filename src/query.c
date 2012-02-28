@@ -60,6 +60,7 @@
 
 /* SHMEM_MY_PE(my_pe) */
 SHMEM_MY_PE (_my_pe)
+
 #define SHMEM_NUM_PES(Variant)			\
   int						\
   p##Variant (void)				\
@@ -67,9 +68,12 @@ SHMEM_MY_PE (_my_pe)
     INIT_CHECK();				\
     return GET_STATE(numpes);			\
   }
+
 /* SHMEM_NUM_PES(num_pes) */
-  SHMEM_NUM_PES (_num_pes)
-     char *pshmem_nodename (void)
+
+SHMEM_NUM_PES (_num_pes)
+
+char *pshmem_nodename (void)
 {
   INIT_CHECK ();
   return GET_STATE (loc.nodename);
@@ -84,7 +88,29 @@ SHMEM_MY_PE (_my_pe)
 
 #pragma weak shmem_nodename = pshmem_nodename
 
-SHMEM_NUM_PES (shmem_n_pes)
 SHMEM_MY_PE (shmem_my_pe)
-#pragma weak shmem_n_pes = pshmem_n_pes
+SHMEM_NUM_PES (shmem_n_pes)
+
 #pragma weak shmem_my_pe = pshmem_my_pe
+#pragma weak shmem_n_pes = pshmem_n_pes
+
+
+/*
+ * OpenSHMEM has a major.minor release number.  Return 0 if
+ * successful, -1 otherwise
+ *
+ */
+
+/* @api@ */
+int
+pshmem_version (int *major, int *minor)
+{
+#if ! defined(SHMEM_MAJOR_VERSION) && ! defined(SHMEM_MINOR_VERSION)
+  return -1;
+#endif /* ! SHMEM_MAJOR_VERSION && ! SHMEM_MINOR_VERSION */
+  *major = SHMEM_MAJOR_VERSION;
+  *minor = SHMEM_MINOR_VERSION;
+  return 0;
+}
+
+#pragma weak shmem_version = pshmem_version
