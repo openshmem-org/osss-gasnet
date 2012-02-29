@@ -47,7 +47,6 @@ gasnet_root=$prefix
 gasnet_conduit=
 elf_headers=
 elf_libs=
-cray_compat=FALSE
 putget_nb=FALSE
 debug=FALSE
 trace=FALSE
@@ -109,13 +108,8 @@ Usage: $progname [options]
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
 
-    --enable-cray-compat         Subroutine synonyms for the Cray SHMEM
-    --disable-cray-compat        No subroutine synonyms for the Cray SHMEM
-                                 (experimental)
-
-    --enable-putget-nb           Non-blocking extensions
-    --disable-putget-nb          No non-blocking extensions
-                                 (experimental)
+    --enable-putget-nb           Non-blocking extensions (experimental)
+    --disable-putget-nb          No non-blocking extensions (default)
 
     --help                       Show this summary and exit
 
@@ -171,12 +165,6 @@ do
 	    ;;
 	--disable-trace)
 	    trace=FALSE
-	    ;;
-	--enable-cray-compat)
-	    cray_compat=TRUE
-	    ;;
-	--disable-cray-compat)
-	    cray_compat=FALSE
 	    ;;
 	--enable-putget-nb)
 	    putget_nb=TRUE
@@ -276,7 +264,6 @@ do
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
-        -e "s%@CRAY_COMPAT@%$cray_compat%g" \
         -e "s%@PUTGET_NB@%$putget_nb%g" \
         -e "s%@DEBUG@%$debug%g" \
         -e "s%@TRACE@%$trace%g" \
@@ -358,6 +345,5 @@ fi
 
 tell "Debug is                      $debug"
 tell "Trace is                      $trace"
-tell "Cray compatibility is         $cray_compat"
 tell "Non-blocking extensions are   $putget_nb"
 tell ""
