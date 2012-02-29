@@ -86,15 +86,15 @@ SHMEM_FORTRAN_QUERY_PE (pshmem_n_pes)
   FORTRANIFY(pshmem_##FName##_put)(CType *target, const CType *src,	\
 				   int *size, int *pe)			\
   {									\
-    pshmem_##CName##_put(target, src, *size, *pe);			\
+    pshmem_##CName##_put (target, src, *size, *pe);			\
   }
-  
+
 #define SHMEM_FORTRAN_PUT_SIZE(Size, CName, CType)			\
   void									\
   FORTRANIFY(pshmem_put##Size) (CType *target, const CType *src,	\
 				int *size, int *pe)			\
   {									\
-    pshmem_##CName##_put(target, src, *size, *pe);			\
+    pshmem_##CName##_put (target, src, *size, *pe);			\
   }
   
 SHMEM_FORTRAN_PUT (character, char, char)
@@ -107,7 +107,7 @@ SHMEM_FORTRAN_PUT_SIZE (4, int, int)
 SHMEM_FORTRAN_PUT_SIZE (8, long, long)
 SHMEM_FORTRAN_PUT_SIZE (32, int, int)
 SHMEM_FORTRAN_PUT_SIZE (64, long, long)
-SHMEM_FORTRAN_PUT_SIZE (128, longlong, void)
+SHMEM_FORTRAN_PUT_SIZE (128, longlong, long long)
 
 void
 FORTRANIFY (pshmem_putmem) (void *target, const void *src,
@@ -137,7 +137,7 @@ FORTRANIFY (pshmem_putmem) (void *target, const void *src,
   FORTRANIFY(pshmem_##FName##_get)(CType *target, const CType *src,	\
 				   int *size, int *pe)			\
   {									\
-    pshmem_##CName##_get(target, src, *size, *pe);			\
+    pshmem_##CName##_get (target, src, *size, *pe);			\
   }
 
 #define SHMEM_FORTRAN_GET_SIZE(Size, Name, CType)			\
@@ -145,7 +145,7 @@ FORTRANIFY (pshmem_putmem) (void *target, const void *src,
   FORTRANIFY(pshmem_get##Size) (CType *target, const CType *src,	\
 				int *size, int *pe)			\
   {									\
-    pshmem_##Name##_get(target, src, *size, *pe);			\
+    pshmem_##Name##_get (target, src, *size, *pe);			\
   }
 
 SHMEM_FORTRAN_GET (character, char, char)
@@ -194,7 +194,7 @@ FORTRANIFY (pshmem_getmem) (void *target, const void *src,
 				   int *tst, int *sst,			\
 				   int *size, int *pe)			\
   {									\
-    pshmem_##CType##_iput(target, src, *tst, *sst, *size, *pe);		\
+    pshmem_##CType##_iput (target, src, *tst, *sst, *size, *pe);	\
   }
 
 #include <stdio.h>
@@ -205,7 +205,7 @@ FORTRANIFY (pshmem_getmem) (void *target, const void *src,
 				 int *tst, int *sst,			\
 				 int *size, int *pe)			\
   {									\
-    pshmem_##Name##_iput(target, src, *tst, *sst, *size, *pe);		\
+    pshmem_##Name##_iput (target, src, *tst, *sst, *size, *pe);		\
   }
 
 SHMEM_FORTRAN_IPUT (double, double)
@@ -757,3 +757,56 @@ FORTRANIFY (shmem_pcontrol) (int *level)
 {
   shmem_pcontrol (*level);
 }
+
+
+/*
+ * WORK IN PROGRESS
+ *
+ *
+ *
+ * non-blocking puts and gets
+ */
+
+#define SHMEM_FORTRAN_PUT_NB(FName, CName, CType)			\
+  void *								\
+  FORTRANIFY(pshmem_##FName##_put_nb)(CType *target, const CType *src,	\
+				      int *size, int *pe, void **hp)	\
+  {									\
+    return pshmem_##CName##_put_nb (target, src, *size, *pe, hp);	\
+  }
+
+#define SHMEM_FORTRAN_PUT_SIZE_NB(Size, CName, CType)			\
+  void *								\
+  FORTRANIFY(pshmem_put##Size##_nb) (CType *target, const CType *src,	\
+				     int *size, int *pe, void **hp)	\
+  {									\
+    return pshmem_##CName##_put_nb (target, src, *size, *pe, hp);	\
+  }
+  
+/* SHMEM_FORTRAN_PUT_NB (character, char, char) */
+SHMEM_FORTRAN_PUT_NB (double, double, double)
+SHMEM_FORTRAN_PUT_NB (integer, int, int)
+SHMEM_FORTRAN_PUT_NB (logical, int, int)
+SHMEM_FORTRAN_PUT_NB (real, int, int)
+/* SHMEM_FORTRAN_PUT_NB (complex, complexf, COMPLEXIFY (float)) */
+SHMEM_FORTRAN_PUT_SIZE_NB (4, int, int)
+SHMEM_FORTRAN_PUT_SIZE_NB (8, long, long)
+SHMEM_FORTRAN_PUT_SIZE_NB (32, int, int)
+SHMEM_FORTRAN_PUT_SIZE_NB (64, long, long)
+SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long)
+
+/* #pragma weak shmem_character_put_nb_ = pshmem_character_put_nb_ */
+#pragma weak shmem_double_put_nb_ = pshmem_double_put_nb_
+#pragma weak shmem_integer_put_nb_ = pshmem_integer_put_nb_
+#pragma weak shmem_logical_put_nb_ = pshmem_logical_put_nb_
+#pragma weak shmem_real_put_nb_ = pshmem_real_put_nb_
+
+/* #pragma weak shmem_complex_put_nb_ = pshmem_complex_put_nb_*/
+
+#pragma weak shmem_put4_nb_ = pshmem_put4_nb_
+#pragma weak shmem_put8_nb_ = pshmem_put8_nb_
+#pragma weak shmem_put32_nb_ = pshmem_put32_nb_
+#pragma weak shmem_put64_nb_ = pshmem_put64_nb_
+#pragma weak shmem_put128_nb_ = pshmem_put128_nb_
+
+/* #pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
