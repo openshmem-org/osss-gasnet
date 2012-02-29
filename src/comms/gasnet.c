@@ -471,7 +471,7 @@ nb_table_add (gasnet_handle_t h)
   /* check malloc */
   memset (n, 0, sizeof (*n));
   n->handle = h;
-  HASH_ADD_NB_TABLE(nb_table, handle, n);
+  HASH_ADD_NB_TABLE (nb_table, handle, n);
 }
 
 /*
@@ -489,7 +489,7 @@ nb_table_wait (void)
   g = malloc (n * sizeof (*g));
   if (g != NULL)
     {
-      HASH_ITER(hh, nb_table, current, tmp)
+      HASH_ITER (hh, nb_table, current, tmp)
 	{
 	  g[i] = current->handle;
 	  i += 1;
@@ -503,71 +503,58 @@ nb_table_wait (void)
 		     "unable to malloc temporary handle storage for"
 		     " non-blocking wait, using linearized method"
 		     );
-      HASH_ITER(hh, nb_table, current, tmp)
+      HASH_ITER (hh, nb_table, current, tmp)
 	{
 	  gasnet_wait_syncnb (current->handle);
 	}
     }
 }
 
-#define COMMS_TYPE_PUT_NB(Name, Type)					\
+#define COMMS_TYPE_PUT_NB(Name, Type, Size)				\
   void *								\
-  __shmem_comms_##Name##_put_nb (Type *target, const Type *source,	\
-				 size_t len, int pe)			\
+  __shmem_comms_##Name##_nb (Type *target, const Type *source,		\
+			     size_t len, int pe)			\
   {									\
     gasnet_handle_t g = gasnet_put_nb_bulk (pe,				\
 					    (void *) target,		\
 					    (void *) source,		\
-					    sizeof(Type) * len);	\
+					    Size * len);		\
     nb_table_add (g);							\
     __shmem_service_reset ();						\
     return (void *) g;							\
   }
 
-COMMS_TYPE_PUT_NB (short, short)
-COMMS_TYPE_PUT_NB (int, int)
-COMMS_TYPE_PUT_NB (long, long)
-COMMS_TYPE_PUT_NB (longdouble, long double)
-COMMS_TYPE_PUT_NB (longlong, long long)
-COMMS_TYPE_PUT_NB (double, double)
-COMMS_TYPE_PUT_NB (float, float)
+COMMS_TYPE_PUT_NB (short_put, short, sizeof (short))
+COMMS_TYPE_PUT_NB (int_put, int, sizeof (int))
+COMMS_TYPE_PUT_NB (long_put, long, sizeof (long))
+COMMS_TYPE_PUT_NB (longdouble_put, long double, sizeof (long double))
+COMMS_TYPE_PUT_NB (longlong_put, long long, sizeof (long long))
+COMMS_TYPE_PUT_NB (double_put, double, sizeof (double))
+COMMS_TYPE_PUT_NB (float_put, float, sizeof (float))
+COMMS_TYPE_PUT_NB (putmem, void, 1)
 
-void *
-__shmem_comms_putmem_nb (void *target, const void *source,
-			 size_t len, int pe)
-{
-  gasnet_handle_t g = gasnet_put_nb_bulk (pe,
-					  target,
-					  (void *) source,
-					  len);
-  nb_table_add (g);
-  __shmem_service_reset ();
-  return (void *) g;
-}
-
-/*
- * TODO: add hash table to gets
- */
-
-#define COMMS_TYPE_GET_NB(Name, Type)					\
+#define COMMS_TYPE_GET_NB(Name, Type, Size)				\
   void *								\
-  __shmem_comms_##Name##_get_nb(Type *target, const Type *source, size_t len, int pe) \
+  __shmem_comms_##Name##_nb(Type *target, const Type *source,		\
+			    size_t len, int pe)				\
   {									\
-    void *h = gasnet_get_nb_bulk(target, pe, (Type *) source, sizeof(Type) * len); \
+    gasnet_handle_t g = gasnet_get_nb_bulk(target,			\
+					   pe,				\
+					   (Type *) source,		\
+					   Size * len);			\
+    nb_table_add (g);							\
     __shmem_service_reset ();						\
-    return h;								\
+    return (void *) g;							\
   }
 
-COMMS_TYPE_GET_NB (short, short)
-COMMS_TYPE_GET_NB (int, int)
-COMMS_TYPE_GET_NB (long, long)
-COMMS_TYPE_GET_NB (longdouble, long double)
-COMMS_TYPE_GET_NB (longlong, long long)
-COMMS_TYPE_GET_NB (double, double)
-COMMS_TYPE_GET_NB (float, float)
-
-#pragma weak __shmem_comms_getmem_nb = __shmem_comms_long_get_nb
-
+COMMS_TYPE_GET_NB (short_get, short, sizeof (short))
+COMMS_TYPE_GET_NB (int_get, int, sizeof (int))
+COMMS_TYPE_GET_NB (long_get, long, sizeof (long))
+COMMS_TYPE_GET_NB (longdouble_get, long double, sizeof (long double))
+COMMS_TYPE_GET_NB (longlong_get, long long, sizeof (long long))
+COMMS_TYPE_GET_NB (double_get, double, sizeof (double))
+COMMS_TYPE_GET_NB (float_get, float, sizeof (float))
+COMMS_TYPE_GET_NB (getmem, void, 1)
 
 void
 __shmem_comms_wait_nb (void *h)
@@ -580,12 +567,12 @@ __shmem_comms_wait_nb (void *h)
       LOAD_STORE_FENCE ();
 
       /* remove from handle table */
-      HASH_DEL(nb_table, n);
+      HASH_DEL (nb_table, n);
       free (n);
     }
   else
     {
-      __shmem_comms_quiet_request ();
+      __shmem_comms_quiet_request (); /* no specific handle, so quiet for all */
     }
 }
 
@@ -601,7 +588,7 @@ __shmem_comms_test_nb (void *h)
     }
   else
     {
-      return 1;
+      return 1;			/* no handle, ok to carry on */
     }
 }
 
