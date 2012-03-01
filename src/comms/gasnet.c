@@ -1825,10 +1825,16 @@ handler_ping_bak (gasnet_token_t token,
 
 /*
  * perform the ping
+ *
+ * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
+ *
  */
 int
 __shmem_comms_ping_request (int pe)
 {
+  return 1;
+
+#if 0
   sighandler_t sig;
   int sj_status;
   ping_payload_t *p = (ping_payload_t *) malloc (sizeof (*p));
@@ -1881,6 +1887,7 @@ __shmem_comms_ping_request (int pe)
   free (p);
 
   return pe_acked;
+#endif
 }
 
 /*

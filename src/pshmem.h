@@ -590,6 +590,33 @@ extern "C"
 				size_t nelems, int pe, void **hp) _WUR;
   extern void *pshmem_put128_nb (void *target, const void *source,
 				 size_t nelems, int pe, void **hp) _WUR;
+
+  extern void *pshmem_short_get_nb (short *dest, const short *src, size_t nelems,
+				    int pe, void **hp) _WUR;
+  extern void *pshmem_int_get_nb (int *dest, const int *src, size_t nelems,
+				  int pe, void **hp) _WUR;
+  extern void *pshmem_long_get_nb (long *dest, const long *src, size_t nelems,
+				   int pe, void **hp) _WUR;
+  extern void *pshmem_longlong_get_nb (long long *dest, const long long *src,
+				       size_t nelems, int pe, void **hp) _WUR;
+  extern void *pshmem_longdouble_get_nb (long double *dest, const long double *src,
+					 size_t nelems, int pe, void **hp) _WUR;
+  extern void *pshmem_double_get_nb (double *dest, const double *src,
+				     size_t nelems, int pe, void **hp) _WUR;
+  extern void *pshmem_complexd_get_nb (COMPLEXIFY (double) * dest,
+				       const COMPLEXIFY (double) * src,
+				       size_t nelems, int pe, void **hp) _WUR;
+  extern void *pshmem_float_get_nb (float *dest, const float *src, size_t nelems,
+				    int pe, void **hp) _WUR;
+  extern void *pshmem_getmem_nb (void *dest, const void *src, size_t nelems,
+				 int pe, void **hp) _WUR;
+  extern void *pshmem_get32_nb (void *dest, const void *src, size_t nelems,
+				int pe, void **hp) _WUR;
+  extern void *pshmem_get64_nb (void *dest, const void *src, size_t nelems,
+				int pe, void **hp) _WUR;
+  extern void *pshmem_get128_nb (void *dest, const void *src, size_t nelems,
+				 int pe, void **hp) _WUR;
+
   extern void pshmem_wait_nb (void *h);
   extern int  pshmem_test_nb (void *h) _WUR;
 

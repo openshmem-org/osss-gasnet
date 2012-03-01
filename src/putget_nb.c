@@ -118,11 +118,18 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_get_nb(Type *target, const Type *source, size_t nelems, int pe) \
+  pshmem_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
+			  int pe, void **hp)				\
   {									\
+    void *h;								\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    return __shmem_comms_##Name##_get_nb(target, source, nelems, pe);	\
+    h = __shmem_comms_##Name##_get_nb (target, source, nelems, pe);	\
+    if ((hp != NULL) && (*hp != NULL))					\
+      {									\
+	*hp = h;							\
+      }									\
+    return h;								\
   }
 
 SHMEM_TYPE_GET_NB (short, short)

@@ -41,11 +41,6 @@
 #include "globalvar.h"
 #include "utils.h"
 
-/*
- * assume yes, for now
- *
- */
-
 /* @api@ */
 int
 pshmem_pe_accessible (int pe)
