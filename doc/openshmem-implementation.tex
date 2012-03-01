@@ -453,6 +453,11 @@ whether addresses on remote PEs are addressable. GASNet is used to
 configurable timeout. Remains to be seen how useful this is, and
 whether it can be used for future fault tolerance issues.
 
+For now, the implementation simply says ``yes'' to this query, but in
+the future we will add some real tests, e.g.\ for fault tolerance.
+Some infrastructure is already there for this, but isn't quite doing
+what was intended.
+
 \subsection{Tracing Facility}
 
 This library contains \textquotedblleft{}trace
