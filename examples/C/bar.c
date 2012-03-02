@@ -43,7 +43,7 @@
 
 #define NPES 4
 
-long pSync[_SHMEM_BCAST_SYNC_SIZE];
+long pSync[_SHMEM_BARRIER_SYNC_SIZE];
 int x = 10101;
 
 int
@@ -52,7 +52,7 @@ main ()
   int me, npes;
   int i;
 
-  for (i = 0; i < _SHMEM_BCAST_SYNC_SIZE; i += 1)
+  for (i = 0; i < _SHMEM_BARRIER_SYNC_SIZE; i += 1)
     {
       pSync[i] = _SHMEM_SYNC_VALUE;
     }
