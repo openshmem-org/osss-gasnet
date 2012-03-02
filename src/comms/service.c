@@ -104,7 +104,7 @@ __shmem_service_init (void)
 
   signal (SIGVTALRM, alarm_handler);
 
-  s = setitimer (ITIMER_VIRTUAL,
+  s = setitimer (ITIMER_REAL,
 		 &t,
 		 NULL
 		 );
@@ -127,7 +127,7 @@ __shmem_service_finalize (void)
 
   zero_timer ();
 
-  s = setitimer (ITIMER_VIRTUAL,
+  s = setitimer (ITIMER_REAL,
 		 &t,
 		 NULL
 		 );
