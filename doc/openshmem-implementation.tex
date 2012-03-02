@@ -416,21 +416,22 @@ The directories \texttt{src/fcollect} and \texttt{src/collect}
 implement the collector routines (concatenating arrays on a set of PEs
 into a target array on all of those PEs).
 
-fcollect is pretty easy since all the PEs must contribute the same
-amount of data. This means we can just pre-compute where each PE
-writes to their targets.
-
-collect is harder because each PE can write different amounts. Thought
-of 2 ways of handling this:
-\begin{enumerate}
-\item initial exchange of sizes ``from the left'' so each PE can
-compute its write locations; then same as fcollect
-\item wavefront: PEs wait for notification from PEs before them in the
-set (lower numbered). This passes the offsets across the set.
-\end{enumerate}
-I used \#2. \#1 potentially generates a network storm as all PEs wait
-to work out where to write, then all write at once. \#2 staggers the
-offset notification with a wave of writes moving up the PE numbers.
+\begin{description}
+\item[fcollect] is pretty easy since all the PEs must contribute the
+  same amount of data. This means we can just pre-compute where each PE
+  writes to their targets.
+\item[collect] is harder because each PE can write different
+  amounts. Thought of 2 ways of handling this:
+  \begin{enumerate}
+  \item initial exchange of sizes ``from the left'' so each PE can
+    compute its write locations; then same as fcollect
+  \item wavefront: PEs wait for notification from PEs before them in the
+    set (lower numbered). This passes the offsets across the set.
+  \end{enumerate}
+  I used \#2. \#1 potentially generates a network storm as all PEs wait
+  to work out where to write, then all write at once. \#2 staggers the
+  offset notification with a wave of writes moving up the PE numbers.
+\end{description}
 
 \subsection{Reductions}
 

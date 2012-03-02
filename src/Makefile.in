@@ -169,19 +169,16 @@ ifeq "@TRACE@" "TRUE"
 CPPFLAGS        += -DHAVE_TRACE
 endif
 
-ifeq "@CRAY_COMPAT@" "TRUE"
-CPPFLAGS        += -DCRAY_COMPAT
-endif
-
 ifeq "@PUTGET_NB@" "TRUE"
 CPPFLAGS        += -DHAVE_PUTGET_NB
 endif
 
-CFLAGS          += -fPIC
 CFLAGS          += -std=c99
 CFLAGS          += -Wall
 CFLAGS          += -pthread
 
+# for "so" libraries
+CFLAGS          += -fPIC
 LDFLAGS         += -fPIC
 
 # -- compiler-independent options -------------------------
