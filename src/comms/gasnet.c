@@ -607,11 +607,11 @@ __shmem_comms_barrier_all (void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
-  __shmem_service_reset ();
-
   /* use gasnet's global barrier */
   gasnet_barrier_notify (barcount, barflag);
   GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
+
+  __shmem_service_reset ();
 
   /* barcount = 1 - barcount; */
   barcount += 1;
