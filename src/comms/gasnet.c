@@ -611,9 +611,8 @@ __shmem_comms_barrier_all (void)
   gasnet_barrier_notify (barcount, barflag);
   GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
 
-  __shmem_service_reset ();
+  /* __shmem_service_reset (); */
 
-  /* barcount = 1 - barcount; */
   barcount += 1;
 }
 

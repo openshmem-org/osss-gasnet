@@ -48,13 +48,14 @@ The library installs on top of GASNet and, when required, MPI.  MPI is
 used purely for process launch.  GASNet provides a portable
 communications layer for OpenSHMEM to work on top of.
 
-The development versions of MPI are Open-MPI 1.4.2 and 1.4.3 but I
+The development versions of MPI are Open-MPI 1.4.3 and 1.4.4 but I
 suspect any version that adheres to the "mpi" prefix for the
 command-line tools will slot right in, and if not, the fix is pretty
-trivial.
+trivial.  We've used MPICH and MVAPICH too.
 
 The main GASNet version has been 1.18.0 during development, although
-1.42.2 was used as well as a comparison for backward compatibility.
+1.42.2 and the 1.16.x series were used as well as a comparison for
+backward compatibility.
 
 Currently the Makefile is set up to use the GNU C Compiler (4.x
 series), but there's a relatively small number of changes that need to
@@ -123,7 +124,7 @@ Installation Notes
 On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
 Note that you can do this via an environment variable supported by
-this library: see the man page for oshconfig(5).
+this OpenSHMEM library: see the man page for oshconfig(5).
 
 2. ELF Library
 
@@ -132,9 +133,10 @@ There are 2 common ELF libraries:
   elfutils :: https://fedorahosted.org/elfutils/
   libelf   :: http://www.mr511.de/software/english.html
 
-While all local development (University of Houston) has used elfutils,
-we encountered some portability issues between elfutils and libelf on
-some remote systems.  Hopefully these have been addressed.
+While all local development (University of Houston) has used elfutils
+on a number of Linus distributions, we encountered some portability
+issues between elfutils and libelf on some remote systems.  Hopefully
+these have been addressed.
 
 
 Feedback
