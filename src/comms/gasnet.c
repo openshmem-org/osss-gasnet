@@ -43,11 +43,6 @@
  * non-static that starts with "__shmem_comms_"
  */
 
-#define _POSIX_C_SOURCE 199309
-#include <time.h>		/* for nanosleep */
-#undef _POSIX_C_SOURCE
-#include <math.h>
-
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
