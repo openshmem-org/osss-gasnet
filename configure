@@ -203,6 +203,8 @@ KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
 # all installed under the gasnet directory
 #
 
+cdt_auto=""
+
 if [ -z "$gasnet_conduit" ]
 then
     nw=`echo $KNOWN_CONDUITS | wc -w`
@@ -214,6 +216,7 @@ then
     then
         # only one there, just use it
         gasnet_conduit="$KNOWN_CONDUITS"
+	cdt_auto="(auto-detected)"
         tell ""
         tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
         tell ""
@@ -332,7 +335,7 @@ tell "installing libraries to       \"$libdir\""
 tell "installing modules to         \"$modulesdir\""
 tell ""
 tell "using GASNet in               \"$gasnet_root\""
-tell "using conduit                 \"$gasnet_conduit\""
+tell "using conduit                 \"$gasnet_conduit\" $cdt_auto"
 if [ ! -z "$elf_headers" ]
 then
 tell ""
