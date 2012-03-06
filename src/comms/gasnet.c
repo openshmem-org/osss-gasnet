@@ -800,10 +800,24 @@ parse_cmdline(void)
   fclose(fp);
 }
 
+/*
+ * GASNet does this timeout thing if its collective routines
+ * (e.g. barrier) go idle, so make this as long as possible
+ */
+static void
+maximize_gasnet_timeout (void)
+{
+  char buf[32];
+  snprintf (buf, 32, "%d", MAXINT - 1);
+  setenv ("GASNET_EXITTIMEOUT", buf, 1);
+}
+
 void
 __shmem_comms_init (void)
 {
   parse_cmdline ();
+
+  maximize_gasnet_timeout ();
 
   /*
    * let's get gasnet up and running

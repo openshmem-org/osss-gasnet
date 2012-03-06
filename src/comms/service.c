@@ -102,7 +102,7 @@ __shmem_service_init (void)
 
   init_timer ();
 
-  signal (SIGVTALRM, alarm_handler);
+  signal (SIGALRM, alarm_handler);
 
   s = setitimer (ITIMER_REAL,
 		 &t,
