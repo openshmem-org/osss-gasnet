@@ -463,7 +463,13 @@ static void
 nb_table_add (gasnet_handle_t h)
 {
   nb_table_t *n = malloc (sizeof (*n));
-  /* check malloc */
+  if (n == (nb_table_t *) NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: unable to alloate memory for non-blocking table"
+		     );
+      /* NOT REACHED */
+    }
   memset (n, 0, sizeof (*n));
   n->handle = h;
   HASH_ADD_NB_TABLE (nb_table, handle, n);
@@ -772,6 +778,13 @@ parse_cmdline(void)
   rewind(fp);
 
   argv = (char **) malloc ((argc + 1) * sizeof (*argv));
+  if (argv == (char **) NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: unable to allocate memory for faked command-line arguments"
+		     );
+      /* NOT REACHED */
+    }
 
   while (1)
     {
@@ -871,7 +884,7 @@ __shmem_comms_finalize (int status)
 
   if (argv != NULL)
     {
-      //free (argv);
+      free (argv);
     }
 
   __shmem_comms_exit (status);
@@ -1319,6 +1332,11 @@ handler_cswap_out (gasnet_token_t token,
   gasnet_hsl_lock (lk);
 
   old = malloc (pp->nbytes);
+  if (old == NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: unable to allocate cswap save space");
+    }
 
   /* save current target */
   memmove (old, pp->r_symm_addr, pp->nbytes);
