@@ -583,8 +583,8 @@ __shmem_comms_test_nb (void *h)
   if (h != NULL)
     {
       nb_table_t *n = (nb_table_t *) h;
-
       int s = gasnet_try_syncnb (n->handle);
+
       return (s == GASNET_OK) ? 1 : 0;
     }
   else
@@ -600,7 +600,7 @@ __shmem_comms_test_nb (void *h)
  *
  */
 
-static int barcount = 0;
+static long barcount = 0;
 static int barflag = 0;
 
 void

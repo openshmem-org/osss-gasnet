@@ -143,7 +143,9 @@ PE_start,								\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }
 
-SHMEM_COLLECT (32, 4) SHMEM_COLLECT (64, 8)
+SHMEM_COLLECT (32, 4)
+SHMEM_COLLECT (64, 8)
+
 #include "module_info.h"
      module_info_t
        module_info = {

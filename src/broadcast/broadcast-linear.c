@@ -61,7 +61,9 @@
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }									\
 
-SHMEM_BROADCAST_TYPE (32, 4) SHMEM_BROADCAST_TYPE (64, 8)
+SHMEM_BROADCAST_TYPE (32, 4)
+SHMEM_BROADCAST_TYPE (64, 8)
+
 #include "module_info.h"
      module_info_t
        module_info = {

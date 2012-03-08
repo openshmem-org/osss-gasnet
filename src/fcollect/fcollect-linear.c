@@ -79,7 +79,9 @@
 		  );							\
   }
 
-SHMEM_FCOLLECT (32, 4) SHMEM_FCOLLECT (64, 8)
+SHMEM_FCOLLECT (32, 4)
+SHMEM_FCOLLECT (64, 8)
+
 #include "module_info.h"
      module_info_t
        module_info = {
