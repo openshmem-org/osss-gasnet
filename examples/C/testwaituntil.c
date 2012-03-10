@@ -90,5 +90,11 @@ main (void)
 
   shmem_barrier_all ();
 
+  if (me == 1)
+    {
+      shmem_long_wait_until (dest, _SHMEM_CMP_NE, 9L);
+      fprintf (stderr, "PE %d finished wait, got %d\n", me, *dest);
+    }
+
   return 0;
 }
