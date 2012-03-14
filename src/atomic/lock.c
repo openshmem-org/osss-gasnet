@@ -145,11 +145,10 @@ mcs_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 
       /* Wait for flag to be released */
       do
-	{
-	  __shmem_comms_service ();
-	}
+        {
+          __shmem_comms_service ();
+        }
       while (node->l_locked);
-
     }
 }
 
@@ -201,7 +200,6 @@ mcs_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
    * ("while" instead of "do...while" because the condition
    * could easily be true already)
    */
-
   while (node->l_next < 0)
     {
       __shmem_comms_service ();

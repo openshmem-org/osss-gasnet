@@ -226,34 +226,3 @@ pstart_pes (int npes)
 }
 
 #pragma weak start_pes = pstart_pes
-
-
-
-#ifdef CRAY_COMPAT
-
-/*
- * same as start_pes()
- */
-
-/* @api@ */
-void
-pshmem_init (void)
-{
-  pstart_pes (0);
-}
-
-/*
- * does nothing here: just for compatibility
- */
-
-/* @api@ */
-void
-pshmem_finalize (void)
-{
-  INIT_CHECK ();
-}
-
-#pragma weak shmem_init = pshmem_init
-#pragma weak shmem_finalize = pshmem_finalize
-
-#endif /* CRAY_COMPAT */
