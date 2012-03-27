@@ -130,7 +130,7 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(source, 1, "shmem_" #Name "_get_nb");                \
+    SYMMETRY_CHECK(source, 2, "shmem_" #Name "_get_nb");                \
     rsrc = __shmem_symmetric_addr_lookup((void *)source, pe);     	\
     h = __shmem_comms_##Name##_get_nb (target, (const Type *)rsrc, typed_nelems, pe);   \
     if ((hp != NULL) && (*hp != NULL))					\

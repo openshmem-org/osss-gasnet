@@ -44,14 +44,15 @@ Scale System Center.
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
 
-The library installs on top of GASNet and, when required, MPI.  MPI is
-used purely for process launch.  GASNet provides a portable
-communications layer for OpenSHMEM to work on top of.
+The library installs on top of GASNet and, when required by GASNet,
+MPI, which is used purely for process launch.  GASNet provides a
+portable communications layer for this implementation ofOpenSHMEM to
+work on top of.
 
-The development versions of MPI are Open-MPI 1.4.3 and 1.4.4 but I
-suspect any version that adheres to the "mpi" prefix for the
-command-line tools will slot right in, and if not, the fix is pretty
-trivial.  We've used MPICH and MVAPICH too.
+The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
+any version that adheres to the "mpi" prefix for the command-line
+tools will slot right in, and if not, the fix is pretty trivial.
+We've used MPICH and MVAPICH successfully too.
 
 The main GASNet version has been 1.18.0 during development, although
 1.42.2 and the 1.16.x series were used as well as a comparison for
@@ -64,12 +65,12 @@ option, C99 compliance).
 
 There's a configure script.  This will eventually be the GNU autotools
 setup, but for now it's just a basic shell script to give the same
-kind of look-and-feel.  Accepts a --help option.  Doesn't (yet)
+kind of look-and-feel.  Accepts a --help option.  It doesn't (yet)
 support the GNU separate-build-directory thing.
 
-By default I'm using "smp" for development on a single machine, but
-for e.g. an Infiniband cluster, just change this to "ibv" by choosing
-a different conduit in the configure command.
+By default I'm using the "smp" conduit for development on a single
+machine, but for e.g. an Infiniband cluster, just change this to "ibv"
+by choosing a different conduit in the configure command.
 
 Configure Usage
 ---------------
@@ -78,7 +79,8 @@ Here is how configure might be called on a cluster using Infiniband:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=ibv     \
-                --with-gasnet-root=/usr
+                --with-gasnet-root=/usr	      \
+		--enable-debug --enable-trace
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
@@ -119,7 +121,7 @@ Support Software
 Installation Notes
 ------------------
 
-1. GASNet
+1. GASNet & Infiniband
 
 On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
