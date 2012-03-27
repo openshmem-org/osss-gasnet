@@ -57,9 +57,12 @@
 			  int pe, void **hp)				\
   {									\
     void *h;								\
+    int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    h = __shmem_comms_##Name##_put_nb (target, source, nelems, pe);	\
+    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_put");                   \
+    void *rdest = __shmem_symmetric_addr_lookup(target, pe);            \
+    h = __shmem_comms_##Name##_put_nb ((Type *)rdest, source, typed_nelems, pe);      \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
 	*hp = h;							\
@@ -122,9 +125,12 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
 			  int pe, void **hp)				\
   {									\
     void *h;								\
+    int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    h = __shmem_comms_##Name##_get_nb (target, source, nelems, pe);	\
+    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_get");                   \
+    void *rsrc = __shmem_symmetric_addr_lookup((void *)source, pe);     \
+    h = __shmem_comms_##Name##_get_nb (target, (const Type *)rsrc, typed_nelems, pe);   \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
 	*hp = h;							\

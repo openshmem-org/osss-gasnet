@@ -459,7 +459,7 @@ static nb_table_t *nb_table = NULL;
  * add handle into hash table
  */
 
-static void
+static void *
 nb_table_add (gasnet_handle_t h)
 {
   nb_table_t *n = malloc (sizeof (*n));
@@ -473,6 +473,7 @@ nb_table_add (gasnet_handle_t h)
   memset (n, 0, sizeof (*n));
   n->handle = h;
   HASH_ADD_NB_TABLE (nb_table, handle, n);
+  return n;
 }
 
 /*
@@ -516,13 +517,14 @@ nb_table_wait (void)
   __shmem_comms_##Name##_nb (Type *target, const Type *source,		\
 			     size_t len, int pe)			\
   {									\
+    void *n;                                                            \
     gasnet_handle_t g = gasnet_put_nb_bulk (pe,				\
 					    (void *) target,		\
 					    (void *) source,		\
-					    Size * len);		\
-    nb_table_add (g);							\
+					    len);			\
+    n = nb_table_add (g);						\
     __shmem_service_reset ();						\
-    return (void *) g;							\
+    return n;							        \
   }
 
 COMMS_TYPE_PUT_NB (short_put, short, sizeof (short))
@@ -539,13 +541,14 @@ COMMS_TYPE_PUT_NB (putmem, void, 1)
   __shmem_comms_##Name##_nb(Type *target, const Type *source,		\
 			    size_t len, int pe)				\
   {									\
-    gasnet_handle_t g = gasnet_get_nb_bulk(target,			\
+    void *n;                                                            \
+    gasnet_handle_t g = gasnet_get_nb_bulk((void *)target,		\
 					   pe,				\
-					   (Type *) source,		\
-					   Size * len);			\
-    nb_table_add (g);							\
+					   (void *) source,		\
+					   len);			\
+    n = nb_table_add (g);						\
     __shmem_service_reset ();						\
-    return (void *) g;							\
+    return n;								\
   }
 
 COMMS_TYPE_GET_NB (short_get, short, sizeof (short))
