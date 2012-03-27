@@ -57,11 +57,12 @@
 			  int pe, void **hp)				\
   {									\
     void *h;								\
+    void *rdest;							\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_put");                   \
-    void *rdest = __shmem_symmetric_addr_lookup(target, pe);            \
+    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_put_nb");                \
+    rdest = __shmem_symmetric_addr_lookup(target, pe);            	\
     h = __shmem_comms_##Name##_put_nb ((Type *)rdest, source, typed_nelems, pe);      \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
@@ -81,7 +82,7 @@ SHMEM_TYPE_PUT_NB (float, float)
 #pragma weak pshmem_put16_nb = pshmem_short_put_nb
 #pragma weak pshmem_put32_nb = pshmem_int_put_nb
 #pragma weak pshmem_put64_nb = pshmem_long_put_nb
-#pragma weak pshmem_put128_nb = pshmem_longlong_put_nb
+#pragma weak pshmem_put128_nb = pshmem_longdouble_put_nb
 
 #pragma weak shmem_short_put_nb = pshmem_short_put_nb
 #pragma weak shmem_int_put_nb = pshmem_int_put_nb
@@ -125,11 +126,12 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
 			  int pe, void **hp)				\
   {									\
     void *h;								\
+    void *rsrc;								\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_get");                   \
-    void *rsrc = __shmem_symmetric_addr_lookup((void *)source, pe);     \
+    SYMMETRY_CHECK(source, 1, "shmem_" #Name "_get_nb");                \
+    rsrc = __shmem_symmetric_addr_lookup((void *)source, pe);     	\
     h = __shmem_comms_##Name##_get_nb (target, (const Type *)rsrc, typed_nelems, pe);   \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
@@ -148,7 +150,7 @@ SHMEM_TYPE_GET_NB (float, float)
 
 #pragma weak pshmem_get32_nb = pshmem_int_get_nb
 #pragma weak pshmem_get64_nb = pshmem_long_get_nb
-#pragma weak pshmem_get128_nb = pshmem_longlong_get_nb
+#pragma weak pshmem_get128_nb = pshmem_longdouble_get_nb
 
 #pragma weak shmem_short_get_nb = pshmem_short_get_nb
 #pragma weak shmem_int_get_nb = pshmem_int_get_nb
