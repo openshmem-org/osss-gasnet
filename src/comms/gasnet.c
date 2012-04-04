@@ -411,21 +411,23 @@ __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 long
 __shmem_comms_get_val (void *src, size_t len, int pe)
 {
+  long retval;
+
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (src))
     {
-      long retval;
       __shmem_comms_globalvar_get_request (&retval, src, len, pe);
-      return retval;
     }
   else
     {
-      return gasnet_get_val (pe, src, len);
+      retval = gasnet_get_val (pe, src, len);
     }
 #else
-  return gasnet_get_val (pe, src, len);
+  retval = gasnet_get_val (pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
+
   __shmem_service_reset ();
+  return retval;
 }
 
 /*
