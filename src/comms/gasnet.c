@@ -514,53 +514,74 @@ nb_table_wait (void)
     }
 }
 
-#define COMMS_TYPE_PUT_NB(Name, Type, Size)				\
-  void *								\
-  __shmem_comms_##Name##_nb (Type *target, const Type *source,		\
-			     size_t len, int pe)			\
-  {									\
-    void *n;                                                            \
-    gasnet_handle_t g = gasnet_put_nb_bulk (pe,				\
-					    (void *) target,		\
-					    (void *) source,		\
-					    len);			\
-    n = nb_table_add (g);						\
-    __shmem_service_reset ();						\
-    return n;							        \
-  }
+static void *
+put_nb_helper (void *dst, void *src, size_t len, int pe)
+{
+  void *n;
+  gasnet_handle_t g = gasnet_put_nb_bulk (pe,
+					  (void *) dst,
+					  (void *) src,
+					  len);
+  n = nb_table_add (g);
+  return n;
+}
 
-COMMS_TYPE_PUT_NB (short_put, short, sizeof (short))
-COMMS_TYPE_PUT_NB (int_put, int, sizeof (int))
-COMMS_TYPE_PUT_NB (long_put, long, sizeof (long))
-COMMS_TYPE_PUT_NB (longdouble_put, long double, sizeof (long double))
-COMMS_TYPE_PUT_NB (longlong_put, long long, sizeof (long long))
-COMMS_TYPE_PUT_NB (double_put, double, sizeof (double))
-COMMS_TYPE_PUT_NB (float_put, float, sizeof (float))
-COMMS_TYPE_PUT_NB (putmem, void, 1)
+void *
+__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe)
+{
+  void *h;
 
-#define COMMS_TYPE_GET_NB(Name, Type, Size)				\
-  void *								\
-  __shmem_comms_##Name##_nb(Type *target, const Type *source,		\
-			    size_t len, int pe)				\
-  {									\
-    void *n;                                                            \
-    gasnet_handle_t g = gasnet_get_nb_bulk((void *)target,		\
-					   pe,				\
-					   (void *) source,		\
-					   len);			\
-    n = nb_table_add (g);						\
-    __shmem_service_reset ();						\
-    return n;								\
-  }
+#if defined(HAVE_MANAGED_SEGMENTS)
+  if (__shmem_symmetric_is_globalvar (dst))
+    {
+      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+      h = NULL;			/* masquerade as _nb for now */
+    }
+  else
+    {
+      h = put_nb_helper (dst, src, len, pe);
+    }
+#else
+      h = put_nb_helper (dst, src, len, pe);
+#endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
+  return h;
+}
 
-COMMS_TYPE_GET_NB (short_get, short, sizeof (short))
-COMMS_TYPE_GET_NB (int_get, int, sizeof (int))
-COMMS_TYPE_GET_NB (long_get, long, sizeof (long))
-COMMS_TYPE_GET_NB (longdouble_get, long double, sizeof (long double))
-COMMS_TYPE_GET_NB (longlong_get, long long, sizeof (long long))
-COMMS_TYPE_GET_NB (double_get, double, sizeof (double))
-COMMS_TYPE_GET_NB (float_get, float, sizeof (float))
-COMMS_TYPE_GET_NB (getmem, void, 1)
+static void *
+get_nb_helper (void *dst, void *src, size_t len, int pe)
+{
+  void *n;
+  gasnet_handle_t g = gasnet_get_nb_bulk ((void *) dst,
+					  pe,
+					  (void *) src,
+					  len);
+  n = nb_table_add (g);
+  return n;
+}
+
+void *
+__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
+{
+  void *h;
+
+#if defined(HAVE_MANAGED_SEGMENTS)
+  if (__shmem_symmetric_is_globalvar (src))
+    {
+      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+      h = NULL;			/* masquerade for now */
+    }
+  else
+    {
+      h = get_nb_helper (dst, src, len, pe);
+    }
+#else
+  h = get_nb_helper (dst, src, len, pe);
+#endif /* HAVE_MANAGED_SEGMENTS */
+  __shmem_service_reset ();
+  return h;
+}
+
 
 void
 __shmem_comms_wait_nb (void *h)

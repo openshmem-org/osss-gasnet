@@ -86,45 +86,8 @@ extern void __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe);
 /*
  * handlers for non-blocking puts and gets (FUTURE)
  */
-extern void *__shmem_comms_short_put_nb (short *target, const short *source,
-					 size_t len, int pe);
-extern void *__shmem_comms_int_put_nb (int *target, const int *source,
-				       size_t len, int pe);
-extern void *__shmem_comms_long_put_nb (long *target, const long *source,
-					size_t len, int pe);
-extern void *__shmem_comms_putmem_nb (void *target, const void *source,
-				      size_t len, int pe);
-extern void *__shmem_comms_longdouble_put_nb (long double *target,
-					      const long double *source,
-					      size_t len, int pe);
-extern void *__shmem_comms_longlong_put_nb (long long *target,
-					    const long long *source,
-					    size_t len, int pe);
-extern void *__shmem_comms_double_put_nb (double *target,
-					  const double *source, size_t len,
-					  int pe);
-extern void *__shmem_comms_float_put_nb (float *target, const float *source,
-					 size_t len, int pe);
-
-extern void *__shmem_comms_short_get_nb (short *target, const short *source,
-					 size_t len, int pe);
-extern void *__shmem_comms_int_get_nb (int *target, const int *source,
-				       size_t len, int pe);
-extern void *__shmem_comms_long_get_nb (long *target, const long *source,
-					size_t len, int pe);
-extern void *__shmem_comms_getmem_nb (void *target, const void *source,
-				      size_t len, int pe);
-extern void *__shmem_comms_longdouble_get_nb (long double *target,
-					      const long double *source,
-					      size_t len, int pe);
-extern void *__shmem_comms_longlong_get_nb (long long *target,
-					    const long long *source,
-					    size_t len, int pe);
-extern void *__shmem_comms_double_get_nb (double *target,
-					  const double *source, size_t len,
-					  int pe);
-extern void *__shmem_comms_float_get_nb (float *target, const float *source,
-					 size_t len, int pe);
+extern void *__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe);
+extern void *__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe);
 
 extern void __shmem_comms_wait_nb (void *h);
 extern int __shmem_comms_test_nb (void *h);

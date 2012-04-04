@@ -59,11 +59,11 @@
     void *h;								\
     void *rdest;							\
     int typed_nelems = sizeof(Type) * nelems;                           \
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_put_nb");                \
-    rdest = __shmem_symmetric_addr_lookup(target, pe);            	\
-    h = __shmem_comms_##Name##_put_nb ((Type *)rdest, source, typed_nelems, pe);      \
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    SYMMETRY_CHECK (target, 1, "shmem_" #Name "_put_nb");		\
+    rdest = __shmem_symmetric_addr_lookup (target, pe);            	\
+    h = __shmem_comms_put_nb ((Type *) rdest, (Type *) source, typed_nelems, pe); \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
 	*hp = h;							\
@@ -102,9 +102,12 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
 		  int pe, void **hp)
 {
   void *h;
-  INIT_CHECK();
-  PE_RANGE_CHECK(pe);
-  h = __shmem_comms_putmem_nb (target, source, nelems, pe);
+  void *rdest;
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  SYMMETRY_CHECK (target, 1, "shmem_putmem_nb");
+  rdest = __shmem_symmetric_addr_lookup (target, pe);
+  h = __shmem_comms_put_nb (rdest, (void *) source, nelems, pe);
   if ((hp != NULL) && (*hp != NULL))
     {
       *hp = h;
@@ -128,11 +131,11 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
     void *h;								\
     void *rsrc;								\
     int typed_nelems = sizeof(Type) * nelems;                           \
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(source, 2, "shmem_" #Name "_get_nb");                \
-    rsrc = __shmem_symmetric_addr_lookup((void *)source, pe);     	\
-    h = __shmem_comms_##Name##_get_nb (target, (const Type *)rsrc, typed_nelems, pe);   \
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    SYMMETRY_CHECK (source, 2, "shmem_" #Name "_get_nb");		\
+    rsrc = __shmem_symmetric_addr_lookup ((void *) source, pe);     	\
+    h = __shmem_comms_get_nb ((Type *) target, (Type *) rsrc, typed_nelems, pe); \
     if ((hp != NULL) && (*hp != NULL))					\
       {									\
 	*hp = h;							\
@@ -159,6 +162,33 @@ SHMEM_TYPE_GET_NB (float, float)
 #pragma weak shmem_longlong_get_nb = pshmem_longlong_get_nb
 #pragma weak shmem_double_get_nb = pshmem_double_get_nb
 #pragma weak shmem_float_get_nb = pshmem_float_get_nb
+
+/* @api@ */
+void *
+pshmem_getmem_nb (void *target, const void *source, size_t nelems,
+		  int pe, void **hp)
+{
+  void *h;
+  void *rsrc;
+  INIT_CHECK ();
+  PE_RANGE_CHECK (pe);
+  SYMMETRY_CHECK (source, 2, "shmem_getmem_nb");
+  rsrc = __shmem_symmetric_addr_lookup ((void *) source, pe);
+  h = __shmem_comms_get_nb (target, (void *) rsrc, nelems, pe);
+  if ((hp != NULL) && (*hp != NULL))
+    {
+      *hp = h;
+    }
+  return h;
+}
+
+#pragma weak shmem_getmem_nb = pshmem_getmem_nb
+
+#pragma weak pshmem_get_nb = pshmem_long_get_nb
+
+#pragma weak shmem_get_nb = pshmem_get_nb
+
+
 
 /* @api@ */
 void pshmem_wait_nb (void *h)
