@@ -47,8 +47,8 @@ IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
 REMOVE   = rm -f
 
 .PHONY: all default
-.PHONY: install install-man1 install-man3 install-man5
-.PHONY: uninstall uninstall-man1 uninstall-man3 uninstall-man5
+.PHONY: install install-man install-man1 install-man3 install-man5
+.PHONY: uninstall uninstall-man uninstall-man1 uninstall-man3 uninstall-man5
 .PHONY: clean distclean
 
 .SUFFIXES: .tex .pdf
@@ -65,7 +65,9 @@ all default:	$(IMPL_PDF)
 
 # -------------------------------------------------------------------
 
-install:	install-man1	install-man3	install-man5
+install:	install-man
+
+install-man:	install-man1	install-man3	install-man5
 
 install-man1:	all
 	mkdir -p $(PREFIX)/share/man/man1
@@ -87,8 +89,11 @@ install-man5:	all
 
 # -------------------------------------------------------------------
 
-uninstall:	uninstall-man1	uninstall-man3 uninstall-man5
+uninstall:	uninstall-man
 	-rmdir $(PREFIX)/share/man
+	-rmdir $(PREFIX)/share
+
+uninstall-man:	uninstall-man1	uninstall-man3 uninstall-man5
 
 uninstall-man1:
 	for p in $(SHMEM_MANPAGES_1); do \
