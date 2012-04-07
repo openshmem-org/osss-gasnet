@@ -156,7 +156,7 @@ __shmem_service_pause (void)
 void inline
 __shmem_service_resume (void)
 {
-  return;
+  __shmem_service_init ();
 }
 
 /*
