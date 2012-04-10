@@ -33,7 +33,7 @@ main (int argc, char **argv)
 
   nextpe = (me + 1) % npes;
 
-  handle = shmem_long_get_nb (dest, src, N, nextpe, &handle);
+  handle = shmem_long_get_nb (src, dest,  N, nextpe, &handle);
   shmem_wait_nb(handle);
 
   shmem_barrier_all ();
