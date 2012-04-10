@@ -582,7 +582,9 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
   return h;
 }
 
-
+/*
+ * wait for the handle to be completed
+ */
 void
 __shmem_comms_wait_nb (void *h)
 {
@@ -603,19 +605,33 @@ __shmem_comms_wait_nb (void *h)
     }
 }
 
+/*
+ * check to see if the handle has been completed.  Return 1 if so, 0
+ * if not
+ */
 int
 __shmem_comms_test_nb (void *h)
 {
   if (h != NULL)
     {
       nb_table_t *n = (nb_table_t *) h;
-      int s = gasnet_try_syncnb (n->handle);
+      nb_table_t *res;
+      int s;
 
+      /* have we already waited on this handle? */
+      HASH_FIND_NB_TABLE (nb_table, n, res);
+      if (res == NULL)
+	{
+	  return 1;		/* cleared => complete */
+	}
+
+      /* if gasnet says "ok", then complete */
+      s = gasnet_try_syncnb (n->handle);
       return (s == GASNET_OK) ? 1 : 0;
     }
   else
     {
-      return 1;			/* no handle, ok to carry on */
+      return 1;			/* no handle, carry on */
     }
 }
 
