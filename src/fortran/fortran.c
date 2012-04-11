@@ -759,6 +759,8 @@ FORTRANIFY (shmem_pcontrol) (int *level)
 }
 
 
+#if defined(HAVE_PUTGET_NB)
+
 /*
  * WORK IN PROGRESS
  *
@@ -810,3 +812,5 @@ SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long)
 #pragma weak shmem_put128_nb_ = pshmem_put128_nb_
 
 /* #pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
+
+#endif /* HAVE_PUTGET_NB */
