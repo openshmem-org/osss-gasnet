@@ -126,7 +126,11 @@ Installation Notes
 On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
 Note that you can do this via an environment variable supported by
-this OpenSHMEM library: see the man page for oshconfig(5).
+this OpenSHMEM library: see the man page for oshconfig(5).  The kernel
+parameters shmmax and shmall may affect this behavior.  Some notes on
+setting these can be found here:
+
+  http://www.puschitz.com/TuningLinuxForOracle.shtml#SettingSharedMemory
 
 2. ELF Library
 
