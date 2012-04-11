@@ -51,6 +51,14 @@ ifeq "@DEBUG@" "TRUE"
 CPPFLAGS        += -DDEBUG
 endif
 
+ifeq "@TRACE@" "TRUE"
+CPPFLAGS        += -DHAVE_TRACE
+endif
+
+ifeq "@PUTGET_NB@" "TRUE"
+CPPFLAGS        += -DHAVE_PUTGET_NB
+endif
+
 CPPFLAGS        += -I..
 
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
