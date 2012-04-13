@@ -1975,7 +1975,7 @@ static volatile unsigned long get_counter = 0L;
 static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
 
-static void inline
+static void
 atomic_inc_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
@@ -1983,7 +1983,7 @@ atomic_inc_put_counter (void)
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
-static void inline
+static void
 atomic_dec_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
@@ -1991,13 +1991,13 @@ atomic_dec_put_counter (void)
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
-static void inline
+static void
 atomic_wait_put_zero (void)
 {
   WAIT_ON_COMPLETION (put_counter == 0L);
 }
 
-static void inline
+static void
 atomic_inc_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
@@ -2005,7 +2005,7 @@ atomic_inc_get_counter (void)
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
-static void inline
+static void
 atomic_dec_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
@@ -2013,7 +2013,7 @@ atomic_dec_get_counter (void)
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
-static void inline
+static void
 atomic_wait_get_zero (void)
 {
   WAIT_ON_COMPLETION (get_counter == 0L);
@@ -2051,7 +2051,7 @@ __shmem_comms_quiet_request (void)
   return;
 }
 
-void inline
+void
 __shmem_comms_fence_request (void)
 {
   __shmem_comms_quiet_request ();
@@ -2155,7 +2155,7 @@ handler_globalvar_put_bak (gasnet_token_t token,
  * buffer.
  *
  */
-static void inline
+static void
 put_a_chunk (void *buf, size_t bufsize,
 	     void *target, void *source,
 	     size_t offset, size_t bytes_to_send, int pe)
@@ -2282,7 +2282,7 @@ handler_globalvar_get_bak (gasnet_token_t token,
  * Generate the active message to do a get from a global variable.
  *
  */
-static void inline
+static void
 get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 	     void *target, void *source,
 	     size_t offset, size_t bytes_to_send, int pe)

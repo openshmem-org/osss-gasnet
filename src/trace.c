@@ -442,23 +442,23 @@ __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 
 #else /* HAVE_TRACE */
 
-inline void
+void
 __shmem_tracers_init (void)
 {
 }
-inline void
+void
 __shmem_tracers_show (void)
 {
 }
-inline void
+void
 __shmem_maybe_tracers_show_info (void)
 {
 }
-inline void
+void
 __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 {
 }
-inline int
+int
 __shmem_trace_is_enabled (shmem_trace_t level)
 {
   return 0;

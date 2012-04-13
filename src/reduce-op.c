@@ -58,12 +58,12 @@
  */
 
 #define SHMEM_MATH_FUNC(Name, Type)		\
-  static inline Type				\
+  static Type					\
   sum_##Name##_func(Type a, Type b)		\
   {						\
     return (a) + (b);				\
   }						\
-  static inline Type				\
+  static Type					\
   prod_##Name##_func(Type a, Type b)		\
   {						\
     return (a) * (b);				\
@@ -84,17 +84,17 @@ SHMEM_MATH_FUNC (complexf, float complex)
  *
  */
 #define SHMEM_LOGIC_FUNC(Name, Type)		\
-  static inline Type				\
+  static Type					\
   and_##Name##_func(Type a, Type b)		\
   {						\
     return (a) & (b);				\
   }						\
-  static inline Type				\
+  static Type					\
   or_##Name##_func(Type a, Type b)		\
   {						\
     return (a) | (b);				\
   }						\
-  static inline Type				\
+  static Type					\
   xor_##Name##_func(Type a, Type b)		\
   {						\
     return (a) ^ (b);				\
@@ -110,12 +110,12 @@ SHMEM_LOGIC_FUNC (longlong, long long)
  *
  */
 #define SHMEM_MINIMAX_FUNC(Name, Type)		\
-  static inline Type				\
+  static Type					\
   min_##Name##_func(Type a, Type b)		\
   {						\
     return (a) < (b) ? (a) : (b);		\
   }						\
-  static inline Type				\
+  static Type					\
   max_##Name##_func(Type a, Type b)		\
   {						\
     return (a) > (b) ? (a) : (b);		\
