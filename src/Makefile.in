@@ -219,7 +219,7 @@ SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
-SHMEM_HEADERS    = shmem.h shmem.fh # and eventually "pshmem.h"
+SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h
 SHMEM_INC_DIR    = $(PREFIX)/include
 
 LDFLAGS         += @ELF_LIBS@
@@ -304,6 +304,9 @@ uninstall-include:
 # -- header files ------------------------------------------
 
 shmem.h:	shmem.h.in
+	$(M4) $(M4FLAGS) $^ > $@
+
+pshmem.h:	pshmem.h.in
 	$(M4) $(M4FLAGS) $^ > $@
 
 shmem.fh:	shmem.fh.in
