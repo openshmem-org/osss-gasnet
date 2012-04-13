@@ -147,6 +147,9 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
+M4               = m4
+M4FLAGS          =
+
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
@@ -171,6 +174,7 @@ endif
 
 ifeq "@PUTGET_NB@" "TRUE"
 CPPFLAGS        += -DHAVE_PUTGET_NB
+M4FLAGS          = -DHAVE_PUTGET_NB
 endif
 
 CFLAGS          += -std=c99
@@ -215,7 +219,7 @@ SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
-SHMEM_HEADERS    = shmem.h shmem.fh
+SHMEM_HEADERS    = shmem.h shmem.fh # and eventually "pshmem.h"
 SHMEM_INC_DIR    = $(PREFIX)/include
 
 LDFLAGS         += @ELF_LIBS@
@@ -243,7 +247,7 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 
 # ---------------------------------------------------------
 
-all default:	$(SHMEM_LIBRARY)
+all default:	$(SHMEM_HEADERS) $(SHMEM_LIBRARY)
 
 install:	install-lib install-bin install-include
 
@@ -296,6 +300,14 @@ uninstall-include:
 	done
 	- rmdir $(PREFIX)/include/mpp
 	- rmdir $(PREFIX)/include
+
+# -- header files ------------------------------------------
+
+shmem.h:	shmem.h.in
+	$(M4) $(M4FLAGS) $^ > $@
+
+shmem.fh:	shmem.fh.in
+	$(M4) $(M4FLAGS) $^ > $@
 
 # -- comms layer -------------------------------------------
 
@@ -392,6 +404,7 @@ clean:
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
+	$(REMOVE) $(SHMEM_HEADERS)
 
 distclean: clean
 	$(REMOVE) Makefile
