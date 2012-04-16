@@ -56,7 +56,7 @@ main ()
 {
   int me;
 
-  start_pes (2 /* unused, just a reminder */ );
+  start_pes (0);
   me = _my_pe ();
 
   dst = 74;
