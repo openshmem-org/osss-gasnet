@@ -48,8 +48,14 @@
 #include <pthread.h>
 #include <errno.h>
 
+#define _POSIX_C_SOURCE 199309
+#include <time.h>
+
 #include "comms.h"
 #include "trace.h"
+
+static long delay = 1000L; /* ns */
+static struct timespec delayspec;
 
 static pthread_t thr;
 
@@ -66,6 +72,7 @@ start_service (void *unused)
     {
       __shmem_comms_service ();
       pthread_yield ();
+      nanosleep (&delayspec, NULL); /* back off */
     }
 }
 
@@ -77,6 +84,9 @@ void
 __shmem_service_init (void)
 {
   int s;
+
+  delayspec.tv_sec = 0L;
+  delayspec.tv_nsec = delay;
 
   s = pthread_create (&thr, NULL, start_service, (void *) 0);
   if (s != 0)
