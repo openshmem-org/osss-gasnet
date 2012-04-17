@@ -48,16 +48,32 @@
 #include <pthread.h>
 #include <errno.h>
 
+/*
+ * for hi-res timer
+ */
+
 #define _POSIX_C_SOURCE 199309
 #include <time.h>
 
 #include "comms.h"
 #include "trace.h"
 
+/*
+ * for refractory back-off
+ */
+
 static long delay = 1000L; /* ns */
 static struct timespec delayspec;
 
+/*
+ * new thread for progress-o-matic
+ */
+
 static pthread_t thr;
+
+/*
+ * polling sentinel
+ */
 
 static volatile int done = 0;
 
@@ -68,12 +84,13 @@ static volatile int done = 0;
 static void *
 start_service (void *unused)
 {
-  while (! done)
+  do
     {
       __shmem_comms_service ();
       pthread_yield ();
       nanosleep (&delayspec, NULL); /* back off */
     }
+  while (! done);
 }
 
 /*
@@ -85,17 +102,21 @@ __shmem_service_init (void)
 {
   int s;
 
-  delayspec.tv_sec = 0L;
+  delayspec.tv_sec = (time_t) 0;
   delayspec.tv_nsec = delay;
 
   s = pthread_create (&thr, NULL, start_service, (void *) 0);
   if (s != 0)
     {
        __shmem_trace (SHMEM_LOG_FATAL,
-                      "internal error: service thread creation failed"
-                     );
+                      "internal error: service thread creation failed (%s)",
+		      strerror (s)
+		      );
        /* NOT REACHED */
     }
+  __shmem_trace (SHMEM_LOG_SERVICE,
+		 "started progress thread"
+		 );
 }
 
 /*
@@ -113,8 +134,12 @@ __shmem_service_finalize (void)
   if (s != 0)
     {
        __shmem_trace (SHMEM_LOG_FATAL,
-                      "internal error: service thread termination failed"
+                      "internal error: service thread termination failed (%s)",
+		      strerror (s)
                      );
        /* NOT REACHED */
     }
+  __shmem_trace (SHMEM_LOG_SERVICE,
+		 "stopped progress thread"
+		 );
 }
