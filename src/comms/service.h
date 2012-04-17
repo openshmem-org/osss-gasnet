@@ -39,8 +39,5 @@
 
 extern void __shmem_service_init (void);
 extern void __shmem_service_finalize (void);
-extern void __shmem_service_reset (void);
-extern void __shmem_service_pause (void);
-extern void __shmem_service_resume (void);
 
 #endif /* _SERVICE_H */

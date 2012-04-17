@@ -326,7 +326,6 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_PUT (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
 }
 
 void
@@ -344,7 +343,6 @@ __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_PUT_BULK (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
 }
 
 void __shmem_comms_globalvar_get_request ();	/* forward decl */
@@ -364,7 +362,6 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_GET (dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
 }
 
 void
@@ -382,7 +379,6 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 #else
   GASNET_GET_BULK (dst, pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
 }
 
 /*
@@ -405,7 +401,6 @@ __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 #else
   GASNET_PUT_VAL (pe, dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
 }
 
 long
@@ -426,7 +421,6 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
   retval = gasnet_get_val (pe, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 
-  __shmem_service_reset ();
   return retval;
 }
 
@@ -544,7 +538,6 @@ __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe)
 #else
       h = put_nb_helper (dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
   return h;
 }
 
@@ -578,7 +571,6 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
 #else
   h = get_nb_helper (dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  __shmem_service_reset ();
   return h;
 }
 
@@ -653,8 +645,6 @@ __shmem_comms_barrier_all (void)
   /* use gasnet's global barrier */
   gasnet_barrier_notify (barcount, barflag);
   GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
-
-  /* __shmem_service_reset (); */
 
   barcount += 1;
 }

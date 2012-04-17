@@ -45,50 +45,28 @@
 
 
 #include <stdio.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <string.h>
+#include <pthread.h>
 #include <errno.h>
 
 #include "comms.h"
 #include "trace.h"
 
-static struct itimerval t;
+static pthread_t thr;
 
-static long delay = 1000L;	/* in microseconds */
+static volatile int done = 0;
 
-static void
-set_value (long v)
+/*
+ * does comms. service until told not to
+ */
+
+static void *
+start_service (void *unused)
 {
-  t.it_value.tv_sec = 0L;
-  t.it_value.tv_usec = v;
-}
-
-static void
-set_interval (long iv)
-{
-  t.it_interval.tv_sec = 0L;
-  t.it_interval.tv_usec = iv;
-}
-
-static void
-init_timer (void)
-{
-  set_value (delay);
-  set_interval (delay);
-}
-
-static void
-zero_timer (void)
-{
-  set_value (0L);
-  set_interval (0L);
-}
-
-static void
-alarm_handler (int signum)
-{
-  __shmem_comms_service ();
+  while (! done)
+    {
+      __shmem_comms_service ();
+      pthread_yield ();
+    }
 }
 
 /*
@@ -100,19 +78,13 @@ __shmem_service_init (void)
 {
   int s;
 
-  init_timer ();
-
-  signal (SIGVTALRM, alarm_handler);
-
-  s = setitimer (ITIMER_VIRTUAL,
-		 &t,
-		 NULL
-		 );
+  s = pthread_create (&thr, NULL, start_service, (void *) 0);
   if (s != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-                     "internal error: couldn't set service timer (%s)",
-                     strerror (errno));
+       __shmem_trace (SHMEM_LOG_FATAL,
+                      "internal error: service thread creation failed"
+                     );
+       /* NOT REACHED */
     }
 }
 
@@ -125,47 +97,14 @@ __shmem_service_finalize (void)
 {
   int s;
 
-  zero_timer ();
+  done = 1;
 
-  s = setitimer (ITIMER_REAL,
-		 &t,
-		 NULL
-		 );
+  s = pthread_join (thr, NULL);
   if (s != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-                     "internal error: couldn't clear service timer (%s)",
-                     strerror (errno));
+       __shmem_trace (SHMEM_LOG_FATAL,
+                      "internal error: service thread termination failed"
+                     );
+       /* NOT REACHED */
     }
-}
-
-/*
- * pause the servicer
- */
-
-void
-__shmem_service_pause (void)
-{
-  __shmem_service_finalize ();
-}
-
-/*
- * resume the servicer
- */
-
-void
-__shmem_service_resume (void)
-{
-  __shmem_service_init ();
-}
-
-/*
- * called when an I/O op. has occurred.  The servicer can go back to
- * sleep for a while.
- */
-
-void
-__shmem_service_reset (void)
-{
-  __shmem_service_init ();
 }
