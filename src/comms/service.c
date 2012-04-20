@@ -52,7 +52,10 @@
  * for hi-res timer
  */
 
-#define _POSIX_C_SOURCE 199309
+#ifndef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 199309
+#endif /* _POSIX_C_SOURCE */
+
 #include <time.h>
 
 #include "comms.h"

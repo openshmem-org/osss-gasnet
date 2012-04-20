@@ -346,6 +346,7 @@ then
 tell "ELF libraries                 \"$elf_libs\""
 fi
 
+tell ""
 tell "Debug is                      $debug"
 tell "Trace is                      $trace"
 tell "Non-blocking extensions are   $putget_nb"
