@@ -117,13 +117,13 @@ SHMEM_RUN        = oshrun
 
 .PHONY: all default
 .PHONY: wrappers
-.PHONY: install install-bin
-.PHONY: uninstall uninstall-bin
+.PHONY: install install-bin install-lib
+.PHONY: uninstall uninstall-bin uninstall-lib
 .PHONY: clean
 
 # -- start GASNet ------------------------------------------
 
-all:	$(COMMS_OBJ) $(SERVICE_OBJ) wrappers
+all:	$(COMMS_OBJ) $(SERVICE_OBJ) wrappers openshmem.pc
 
 #
 # GASNet installation root, and setup
@@ -159,8 +159,6 @@ $(SHMEM_CC):	$(COMP_WRAPPER)
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
-		-e "s%@GASNET_CPPFLAGS@%$(GASNET_CPPFLAGS)%" \
-		-e "s%@GASNET_CFLAGS@%$(GASNET_CFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
 		< $^ > $@
@@ -184,18 +182,37 @@ $(SHMEM_RUN):
 		-e "s%bin/mpicc%bin/mpirun%" \
 		< $(RUN_WRAPPER) > $@
 
+# -- pkg-config --------------------------------------------
+
+openshmem.pc:   openshmem.pc.in
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		< $^ > $@
+
 # ---------------------------------------------------------
 
-install:	install-bin
+install:	install-bin install-lib
 
-install-bin:	all
+install-bin:
 	mkdir -p $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
-uninstall:	uninstall-bin
+install-lib:	openshmem.pc
+	mkdir -p $(PREFIX)/lib/pkgconfig
+	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
+
+uninstall:	uninstall-lib uninstall-bin
+
+uninstall-lib:
+	$(REMOVE) $(PREFIX)/lib/pkgconfig/openshmem.pc
+	- rmdir $(PREFIX)/lib/pkgconfig
 
 uninstall-bin:
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
@@ -209,3 +226,4 @@ uninstall-bin:
 clean:
 	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+	$(REMOVE) openshmem.pc
