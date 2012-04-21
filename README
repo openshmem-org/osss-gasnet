@@ -53,7 +53,7 @@ Installation Instructions (preliminary) for OpenSHMEM
 
 The library installs on top of GASNet and, when required by GASNet,
 MPI, which is used purely for process launch.  GASNet provides a
-portable communications layer for this implementation ofOpenSHMEM to
+portable communications layer for this implementation of OpenSHMEM to
 work on top of.
 
 The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
