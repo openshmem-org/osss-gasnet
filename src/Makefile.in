@@ -241,15 +241,15 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 
 .PHONY: all default
 .PHONY:	$(OBJ_GEN)
-.PHONY: install install-lib install-bin install-include
-.PHONY: uninstall uninstall-lib uninstall-bin uninstall-include
+.PHONY: install install-lib install-comms install-include
+.PHONY: uninstall uninstall-lib uninstall-comms uninstall-include
 .PHONY: clean distclean
 
 # ---------------------------------------------------------
 
 all default:	$(SHMEM_HEADERS) $(SHMEM_LIBRARY)
 
-install:	install-lib install-bin install-include
+install:	install-lib install-comms install-include
 
 install-lib:	all
 	mkdir -p $(PREFIX)/lib
@@ -260,8 +260,8 @@ install-lib:	all
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
 
-install-bin:	all
-	$(MAKE) -C $(COMMS_DIR) $@
+install-comms:	all
+	$(MAKE) -C $(COMMS_DIR) install
 
 install-include:	all
 	mkdir -p $(PREFIX)/include/mpp
@@ -277,7 +277,7 @@ install-include:	all
 # blindly zap directories when uninstalling, allow them to remain
 # there gracefully.
 
-uninstall:	uninstall-lib uninstall-bin uninstall-include
+uninstall:	uninstall-lib uninstall-comms uninstall-include
 	- rmdir $(PREFIX)
 
 uninstall-lib:
@@ -289,8 +289,8 @@ uninstall-lib:
 	$(REMOVE) $(PREFIX)/lib/$(SHMEM_LIBRARY)
 	- rmdir $(PREFIX)/lib
 
-uninstall-bin:
-	$(MAKE) -C $(COMMS_DIR) $@
+uninstall-comms:
+	$(MAKE) -C $(COMMS_DIR) uninstall
 
 uninstall-include:
 	for h in $(SHMEM_HEADERS); \

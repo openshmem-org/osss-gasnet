@@ -204,7 +204,7 @@ install-bin:
 	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
 
-install-lib:	openshmem.pc
+install-lib:
 	mkdir -p $(PREFIX)/lib/pkgconfig
 	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
 
