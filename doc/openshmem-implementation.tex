@@ -519,6 +519,19 @@ initialized. Implementations can handle this situation in different
 ways.
 \end{itemize}
 
+\section{Configuration and Installation}
+
+There is a top-level \texttt{configure} script that is a simplified
+version of the GNU autotools. This script will eventually become the
+GNU setup and will do lots more feature tests. So the usual procedure
+applies:
+
+\begin{lstlisting}
+$ ./configure [--options ...]
+$ make
+$ make install
+\end{lstlisting}
+
 \section{Environment Variables\label{sec:Environment-Variables}}
 
 The behavior of the OpenSHMEM library can be controlled via a number
@@ -670,18 +683,15 @@ code.
 There is no requirement in OpenSHMEM to provide anything like this,
 it's merely a convenience.
 
-\section{Configuration and Installation}
+\subsection{pkg-config}
 
-There is a top-level \texttt{configure} script that is a simplified
-version of the GNU autotools. This script will eventually become the
-GNU setup and will do lots more feature tests. So the usual procedure
-applies:
+An interface to pkg-config has also been added: the package name is ``openshmem''.  So you can compile and link separately e.g.\ with
 
 \begin{lstlisting}
-$ ./configure [--options ...]
-$ make
-$ make install
+$ gcc $(pkg-config --cflags openshmem) program.c $(pkg-config --libs openshmem)
 \end{lstlisting}
+
+The pkgconfig file can be found in \emph{installroot/lib/pkgconfig}.
 
 \section{Future Plans}
 
