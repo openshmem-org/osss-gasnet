@@ -139,6 +139,17 @@ setting these can be found here:
 
   http://www.puschitz.com/TuningLinuxForOracle.shtml#SettingSharedMemory
 
+Other GASNet environment variables that may help include
+
+  GASNET_PHYSMEM_NOPROBE
+
+in conjunction with this library's SHMEM_SYMMETRIC_HEAP_SIZE
+environment variable, and
+
+  GASNET_NUM_QPS
+
+to set the number of Infiniband queue-pairs.
+
 2. ELF Library
 
 There are 2 common ELF libraries:
