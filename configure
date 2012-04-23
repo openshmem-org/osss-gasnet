@@ -237,16 +237,16 @@ tell ""
 tell "Starting configuration"
 tell""
 
-# -- check compilers --
+# -- check compilers, defaults to GNU --
 
-cc_cmd=${CC-cc}
+cc_cmd=${CC-gcc}
 cpp_flags=${CPPFLAGS-""}
 c_flags=${CFLAGS-"-g"}
 ld_cmd=${LD-$cc_cmd}
 ld_flags=${LDFLAGS-""}
-cxx_cmd=${CXX-c++}
+cxx_cmd=${CXX-g++}
 cxx_flags=${CXXFLAGS-"-g"}
-fc_cmd=${FC-f90}
+fc_cmd=${FC-gfortran}
 fc_flags=${FCFLAGS-"-g"}
 
 # -- make sure we can find compilers --
