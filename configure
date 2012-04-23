@@ -113,6 +113,25 @@ Usage: $progname [options]
 
     --help                       Show this summary and exit
 
+  Environment Variables:
+
+    CC                           C compiler
+                                   (default: gcc)
+    CFLAGS                       User-supplied options for C compiler
+                                   (default: -g)
+    CXX                          C++ compiler
+                                   (default: g++, but not used)
+    CXXFLAGS                     User-supplied options for C++ compiler
+                                   (default: -g, but not used)
+    FC                           Fortran 90 compiler
+                                   (default: gfortran, but not used)
+    FFLAGS                       User-supplied options for Fortran compiler
+                                   (default: -g, but not used)
+    LD                           To link the library
+                                   (default: same as CC)
+    LDFLAGS                      User-supplied options for linker
+                                   (default: none)
+
 __EOT__
 }
 
