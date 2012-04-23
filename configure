@@ -223,7 +223,7 @@ then
     else
         # multiple configured, let the user decide
         tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-        tell "Indicate which to use via --with-gasnet-conduit"
+        tell "Indicate which one to use via --with-gasnet-conduit=NAME"
         bailout
     fi
 fi
@@ -248,6 +248,36 @@ cxx_cmd=${CXX-c++}
 cxx_flags=${CXXFLAGS-"-g"}
 fc_cmd=${FC-f90}
 fc_flags=${FCFLAGS-"-g"}
+
+# -- make sure we can find compilers --
+
+tell "Searching for compilers"
+
+which $cc_cmd >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    tell "I couldn't find the C compiler \"$cc_cmd\""
+    bailout
+fi
+
+which $cxx_cmd >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    tell "I couldn't find the C++ compiler \"$cxx_cmd\""
+    bailout
+fi
+
+which $fc_cmd >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    tell "I couldn't find the Fortran compiler \"$fc_cmd\""
+    bailout
+fi
+
+tell "Searching for compilers...done"
+tell ""
+
+# -- generate build files from .in templates --
 
 find . -name Makefile.in -print |
 while read mfin
@@ -278,7 +308,7 @@ do
     tell "created $mf from $mfin"
 done
 
-cs=config.status
+cs=./config.status
 tmpcs=`mktemp`
 cat > $tmpcs <<_EOT_
 #!/bin/sh
@@ -311,31 +341,34 @@ _EOT_
 cp $tmpcs $cs
 rm -f $tmpcs
 chmod +x $cs
-tell ""
-tell "saved configuration in $cs"
-tell ""
-
 
 # -- tell us all about what's configured --
 
+tell ""
 tell "-------------------------------------------------------------"
+tell ""
+tell "Saved configuration in file   \"$cs\""
 tell ""
 tell "C compiler is                 \"$cc_cmd\""
 tell "C pre-processor flags are     \"$cpp_flags\""
 tell "C flags are                   \"$c_flags\""
+tell ""
 tell "C++ compiler is               \"$cxx_cmd\""
 tell "C++ flags are                 \"$cxx_flags\""
+tell ""
 tell "Fortran compiler is           \"$fc_cmd\""
 tell "Fortran flags are             \"$fc_flags\""
-tell "linker is                     \"$ld_cmd\""
-tell "linker flags are              \"$ld_flags\""
 tell ""
-tell "installing OpenSHMEM to       \"$prefix\""
-tell "installing libraries to       \"$libdir\""
-tell "installing modules to         \"$modulesdir\""
+tell "Linker is                     \"$ld_cmd\""
+tell "Linker flags are              \"$ld_flags\""
 tell ""
-tell "using GASNet in               \"$gasnet_root\""
-tell "using conduit                 \"$gasnet_conduit\" $cdt_auto"
+tell ""
+tell "Installing OpenSHMEM to       \"$prefix\""
+tell "Installing libraries to       \"$libdir\""
+tell "Installing modules to         \"$modulesdir\""
+tell ""
+tell "Using GASNet installed in     \"$gasnet_root\""
+tell "Using GASNet conduit          \"$gasnet_conduit\" $cdt_auto"
 if [ ! -z "$elf_headers" ]
 then
 tell ""
