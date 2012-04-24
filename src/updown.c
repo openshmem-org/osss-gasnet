@@ -152,12 +152,11 @@ pstart_pes (int npes)
       /* NOT REACHED */
     }
 
+  /* set up communications layer as early as possible */
+  __shmem_comms_init ();
+
   /* find out what this executable image is */
   __shmem_executable_init ();
-
-  /* set up communications layer */
-  __shmem_comms_init ();
-  /* __shmem_comms_barrier_all(); */
 
   /*
    * find the global symbols (i.e. those addressable outside the
