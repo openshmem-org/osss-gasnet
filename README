@@ -51,10 +51,10 @@ Foundation.
 Installation Instructions (preliminary) for OpenSHMEM
 -----------------------------------------------------
 
-The library installs on top of GASNet and, when required by GASNet,
-MPI, which is used purely for process launch.  GASNet provides a
-portable communications layer for this implementation of OpenSHMEM to
-work on top of.
+The library installs on top of GASNet and anything required by
+whichever conduit you want to use with GASNet, e.g. an MPI.  GASNet
+provides a portable communications layer for this implementation of
+OpenSHMEM to work on top of.
 
 The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
 any version that adheres to the "mpi" prefix for the command-line
@@ -72,8 +72,8 @@ option, C99 compliance).
 
 There's a configure script.  This will eventually be the GNU autotools
 setup, but for now it's just a basic shell script to give the same
-kind of look-and-feel.  Accepts a --help option.  It doesn't (yet)
-support the GNU separate-build-directory thing.
+kind of look-and-feel.  The script accepts a --help option.  It
+doesn't (yet) support the GNU separate-build-directory thing.
 
 By default I'm using the "smp" conduit for development on a single
 machine, but for e.g. an Infiniband cluster, just change this to "ibv"
@@ -82,7 +82,9 @@ by choosing a different conduit in the configure command.
 Configure Usage
 ---------------
 
-Here is how configure might be called on a cluster using Infiniband:
+Here is how configure might be called on a cluster using Infiniband,
+with debugging support (e.g. argument and PE range checking) and
+operation tracing:
 
     ./configure --prefix=$HOME/SHMEM          \
                 --with-gasnet-conduit=ibv     \
@@ -173,3 +175,7 @@ The main project contact at the University of Houston is
 The project development lead is
 
     Tony Curtis <arcurtis@mail.uh.edu>
+
+The OpenSHMEM project is hosted at
+
+    http://www.openshmem.org/
