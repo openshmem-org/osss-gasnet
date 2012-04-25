@@ -1,0 +1,14 @@
+#%Module1.0#####################################################################
+##
+
+# fill out as required
+proc ModulesHelp { } {
+}
+
+module-whatis	"OpenSHMEM"
+
+set		shmem_root	~/opt/OpenSHMEM
+
+prepend-path	PATH		$shmem_root/bin
+prepend-path	MANPATH		$shmem_root/share/man
+prepend-path	PKG_CONFIG_PATH	$shmem_root/lib/pkgconfig

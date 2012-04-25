@@ -164,6 +164,35 @@ on a number of Linus distributions, we encountered some portability
 issues between elfutils and libelf on some remote systems.  Hopefully
 these have been addressed.
 
+Pkg-Config
+----------
+
+pkg-config(1)
+
+    http://www.freedesktop.org/wiki/Software/pkg-config
+
+helps packages provide configuration information for other packages to
+interact with them, so you can ask openshmem for its CFLAGS or
+libraries for linking.  Add
+
+    <install>/lib/pkgconfig
+
+to the PKG_CONFIG_PATH environment variable.
+
+Module
+------
+
+The module(1) command
+
+    http://modules.sourceforge.net/
+
+allows users or sysadmins to simplify setting up extra packages.  A
+file
+
+    openshmem.module
+
+is included as a template (although not installed anywhere by this
+library).
 
 Feedback
 --------
