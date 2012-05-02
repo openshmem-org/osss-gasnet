@@ -71,13 +71,13 @@
     return h;								\
   }
 
-SHMEM_TYPE_PUT_NB (short, short)
-SHMEM_TYPE_PUT_NB (int, int)
-SHMEM_TYPE_PUT_NB (long, long)
-SHMEM_TYPE_PUT_NB (longdouble, long double)
-SHMEM_TYPE_PUT_NB (longlong, long long)
-SHMEM_TYPE_PUT_NB (double, double)
-SHMEM_TYPE_PUT_NB (float, float)
+SHMEM_TYPE_PUT_NB (short, short);
+SHMEM_TYPE_PUT_NB (int, int);
+SHMEM_TYPE_PUT_NB (long, long);
+SHMEM_TYPE_PUT_NB (longdouble, long double);
+SHMEM_TYPE_PUT_NB (longlong, long long);
+SHMEM_TYPE_PUT_NB (double, double);
+SHMEM_TYPE_PUT_NB (float, float);
 
 #pragma weak pshmem_put16_nb = pshmem_short_put_nb
 #pragma weak pshmem_put32_nb = pshmem_int_put_nb
@@ -143,13 +143,13 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
     return h;								\
   }
 
-SHMEM_TYPE_GET_NB (short, short)
-SHMEM_TYPE_GET_NB (int, int)
-SHMEM_TYPE_GET_NB (long, long)
-SHMEM_TYPE_GET_NB (longdouble, long double)
-SHMEM_TYPE_GET_NB (longlong, long long)
-SHMEM_TYPE_GET_NB (double, double)
-SHMEM_TYPE_GET_NB (float, float)
+SHMEM_TYPE_GET_NB (short, short);
+SHMEM_TYPE_GET_NB (int, int);
+SHMEM_TYPE_GET_NB (long, long);
+SHMEM_TYPE_GET_NB (longdouble, long double);
+SHMEM_TYPE_GET_NB (longlong, long long);
+SHMEM_TYPE_GET_NB (double, double);
+SHMEM_TYPE_GET_NB (float, float);
 
 #pragma weak pshmem_get32_nb = pshmem_int_get_nb
 #pragma weak pshmem_get64_nb = pshmem_long_get_nb

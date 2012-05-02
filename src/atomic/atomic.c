@@ -79,11 +79,11 @@ __shmem_atomic_finalize (void)
   }
 
 /* SHMEM_TYPE_SWAP(short, short) */
-SHMEM_TYPE_SWAP (int, int)
-SHMEM_TYPE_SWAP (long, long)
-SHMEM_TYPE_SWAP (longlong, long long)
-SHMEM_TYPE_SWAP (double, double)
-SHMEM_TYPE_SWAP (float, float)
+SHMEM_TYPE_SWAP (int, int);
+SHMEM_TYPE_SWAP (long, long);
+SHMEM_TYPE_SWAP (longlong, long long);
+SHMEM_TYPE_SWAP (double, double);
+SHMEM_TYPE_SWAP (float, float);
 
 #pragma weak pshmem_swap = pshmem_long_swap
 #pragma weak shmem_int_swap = pshmem_int_swap
@@ -111,9 +111,9 @@ SHMEM_TYPE_SWAP (float, float)
     return retval;							\
   }
 
-SHMEM_TYPE_CSWAP (int, int)
-SHMEM_TYPE_CSWAP (long, long)
-SHMEM_TYPE_CSWAP (longlong, long long)
+SHMEM_TYPE_CSWAP (int, int);
+SHMEM_TYPE_CSWAP (long, long);
+SHMEM_TYPE_CSWAP (longlong, long long);
 
 #pragma weak pshmem_cswap = pshmem_long_cswap
 #pragma weak shmem_int_cswap = pshmem_int_cswap
@@ -133,9 +133,9 @@ SHMEM_TYPE_CSWAP (longlong, long long)
     return retval;							\
   }
 
-SHMEM_TYPE_FADD (int, int)
-SHMEM_TYPE_FADD (long, long)
-SHMEM_TYPE_FADD (longlong, long long)
+SHMEM_TYPE_FADD (int, int);
+SHMEM_TYPE_FADD (long, long);
+SHMEM_TYPE_FADD (longlong, long long);
 
 #pragma weak shmem_int_fadd = pshmem_int_fadd
 #pragma weak shmem_long_fadd = pshmem_long_fadd
@@ -153,9 +153,9 @@ SHMEM_TYPE_FADD (longlong, long long)
     return retval;							\
   }
 
-SHMEM_TYPE_FINC (int, int)
-SHMEM_TYPE_FINC (long, long)
-SHMEM_TYPE_FINC (longlong, long long)
+SHMEM_TYPE_FINC (int, int);
+SHMEM_TYPE_FINC (long, long);
+SHMEM_TYPE_FINC (longlong, long long);
 
 #pragma weak shmem_int_finc = pshmem_int_finc
 #pragma weak shmem_long_finc = pshmem_long_finc
@@ -175,9 +175,9 @@ SHMEM_TYPE_FINC (longlong, long long)
     __shmem_comms_add_request(target, &value, sizeof(Type), pe);	\
   }
 
-SHMEM_TYPE_ADD (int, int)
-SHMEM_TYPE_ADD (long, long)
-SHMEM_TYPE_ADD (longlong, long long)
+SHMEM_TYPE_ADD (int, int);
+SHMEM_TYPE_ADD (long, long);
+SHMEM_TYPE_ADD (longlong, long long);
 
 #pragma weak shmem_int_add = pshmem_int_add
 #pragma weak shmem_long_add = pshmem_long_add
@@ -193,9 +193,9 @@ SHMEM_TYPE_ADD (longlong, long long)
     __shmem_comms_inc_request(target, sizeof(Type), pe);		\
   }
 
-SHMEM_TYPE_INC (int, int)
-SHMEM_TYPE_INC (long, long)
-SHMEM_TYPE_INC (longlong, long long)
+SHMEM_TYPE_INC (int, int);
+SHMEM_TYPE_INC (long, long);
+SHMEM_TYPE_INC (longlong, long long);
 
 #pragma weak shmem_int_inc = pshmem_int_inc
 #pragma weak shmem_long_inc = pshmem_long_inc

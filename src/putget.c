@@ -78,16 +78,16 @@
     }									\
   }
 
-SHMEM_TYPE_PUT (char, char)
-SHMEM_TYPE_PUT (short, short)
-SHMEM_TYPE_PUT (int, int)
-SHMEM_TYPE_PUT (long, long)
-SHMEM_TYPE_PUT (longlong, long long)
-SHMEM_TYPE_PUT (longdouble, long double)
-SHMEM_TYPE_PUT (double, double)
-SHMEM_TYPE_PUT (float, float)
-SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float))
-SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double))
+SHMEM_TYPE_PUT (char, char);
+SHMEM_TYPE_PUT (short, short);
+SHMEM_TYPE_PUT (int, int);
+SHMEM_TYPE_PUT (long, long);
+SHMEM_TYPE_PUT (longlong, long long);
+SHMEM_TYPE_PUT (longdouble, long double);
+SHMEM_TYPE_PUT (double, double);
+SHMEM_TYPE_PUT (float, float);
+SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float));
+SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double));
 
 /* @api@ */
 void
@@ -147,16 +147,16 @@ pshmem_putmem(void *dest, const void *src, size_t nelems, int pe)
     }									\
   }
 
-SHMEM_TYPE_GET (char, char)
-SHMEM_TYPE_GET (short, short)
-SHMEM_TYPE_GET (int, int)
-SHMEM_TYPE_GET (long, long)
-SHMEM_TYPE_GET (longdouble, long double)
-SHMEM_TYPE_GET (longlong, long long)
-SHMEM_TYPE_GET (double, double)
-SHMEM_TYPE_GET (float, float)
-SHMEM_TYPE_GET (complexf, COMPLEXIFY (float))
-SHMEM_TYPE_GET (complexd, COMPLEXIFY (double))
+SHMEM_TYPE_GET (char, char);
+SHMEM_TYPE_GET (short, short);
+SHMEM_TYPE_GET (int, int);
+SHMEM_TYPE_GET (long, long);
+SHMEM_TYPE_GET (longdouble, long double);
+SHMEM_TYPE_GET (longlong, long long);
+SHMEM_TYPE_GET (double, double);
+SHMEM_TYPE_GET (float, float);
+SHMEM_TYPE_GET (complexf, COMPLEXIFY (float));
+SHMEM_TYPE_GET (complexd, COMPLEXIFY (double));;
 
 /* @api@ */
 void
@@ -208,13 +208,13 @@ pshmem_getmem(void *dest, const void *src, size_t nelems, int pe)
     pshmem_##Name##_put(dest, &value, 1, pe);				\
   }
 
-SHMEM_TYPE_P_WRAPPER (float, float)
-SHMEM_TYPE_P_WRAPPER (double, double)
-SHMEM_TYPE_P_WRAPPER (longdouble, long double)
-SHMEM_TYPE_P_WRAPPER (longlong, long long)
-SHMEM_TYPE_P_WRAPPER (short, short)
-SHMEM_TYPE_P_WRAPPER (int, int)
-SHMEM_TYPE_P_WRAPPER (long, long)
+SHMEM_TYPE_P_WRAPPER (float, float);
+SHMEM_TYPE_P_WRAPPER (double, double);
+SHMEM_TYPE_P_WRAPPER (longdouble, long double);
+SHMEM_TYPE_P_WRAPPER (longlong, long long);
+SHMEM_TYPE_P_WRAPPER (short, short);
+SHMEM_TYPE_P_WRAPPER (int, int);
+SHMEM_TYPE_P_WRAPPER (long, long);
 
 #pragma weak shmem_short_p = pshmem_short_p
 #pragma weak shmem_int_p = pshmem_int_p
@@ -234,13 +234,13 @@ SHMEM_TYPE_P_WRAPPER (long, long)
     return retval;							\
   }
 
-SHMEM_TYPE_G_WRAPPER (float, float)
-SHMEM_TYPE_G_WRAPPER (double, double)
-SHMEM_TYPE_G_WRAPPER (longlong, long long)
-SHMEM_TYPE_G_WRAPPER (longdouble, long double)
-SHMEM_TYPE_G_WRAPPER (short, short)
-SHMEM_TYPE_G_WRAPPER (int, int)
-SHMEM_TYPE_G_WRAPPER (long, long)
+SHMEM_TYPE_G_WRAPPER (float, float);
+SHMEM_TYPE_G_WRAPPER (double, double);
+SHMEM_TYPE_G_WRAPPER (longlong, long long);
+SHMEM_TYPE_G_WRAPPER (longdouble, long double);
+SHMEM_TYPE_G_WRAPPER (short, short);
+SHMEM_TYPE_G_WRAPPER (int, int);
+SHMEM_TYPE_G_WRAPPER (long, long);;
 
 #pragma weak shmem_short_g = pshmem_short_g
 #pragma weak shmem_int_g = pshmem_int_g
