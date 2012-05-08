@@ -41,11 +41,15 @@ MANDIR = $(PREFIX)/share/man
 LIB_DIR = @LIB_DIR@
 MODULES_DIR = @MODULES_DIR@
 
-SHMEM_MANPAGES_1 = oshcc.1 oshCC.1 oshfort.1 oshrun.1
-SHMEM_MANPAGES_3 =
-SHMEM_MANPAGES_5 = oshconfig.5
+MANPAGES_1_IN = $(wildcard *.1.in)
+MANPAGES_3_IN = $(wildcard *.3.in)
+MANPAGES_5_IN = $(wildcard *.5.in)
 
-MAN_PAGES = $(SHMEM_MANPAGES_1) $(SHMEM_MANPAGES_3) $(SHMEM_MANPAGES_5)
+MANPAGES_1 = $(MANPAGES_1_IN:.in=)
+MANPAGES_3 = $(MANPAGES_3_IN:.in=)
+MANPAGES_5 = $(MANPAGES_5_IN:.in=)
+
+MAN_PAGES = $(MANPAGES_1) $(MANPAGES_3) $(MANPAGES_5)
 
 IMPL_TEX = openshmem-implementation.tex
 IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
@@ -87,19 +91,19 @@ install-man:	install-man1	install-man3	install-man5
 
 install-man1:	all
 	mkdir -p $(MANDIR)/man1
-	for p in $(SHMEM_MANPAGES_1); do \
+	for p in $(MANPAGES_1); do \
 		install -c -m 644 $$p $(MANDIR)/man1; \
 	done
 
 install-man3:	all
 	mkdir -p $(MANDIR)/man3
-	for p in $(SHMEM_MANPAGES_3); do \
+	for p in $(MANPAGES_3); do \
 		install -c -m 644 $$p $(MANDIR)/man3; \
 	done
 
 install-man5:	all
 	mkdir -p $(MANDIR)/man5
-	for p in $(SHMEM_MANPAGES_5); do \
+	for p in $(MANPAGES_5); do \
 		install -c -m 644 $$p $(MANDIR)/man5; \
 	done
 
@@ -112,19 +116,19 @@ uninstall:	uninstall-man
 uninstall-man:	uninstall-man1	uninstall-man3 uninstall-man5
 
 uninstall-man1:
-	for p in $(SHMEM_MANPAGES_1); do \
+	for p in $(MANPAGES_1); do \
 		$(REMOVE) $(MANDIR)/man1/$$p; \
 	done
 	-rmdir $(MANDIR)/an1
 
 uninstall-man3:
-	for p in $(SHMEM_MANPAGES_3); do \
+	for p in $(MANPAGES_3); do \
 		$(REMOVE) $(MANDIR)/man3/$$p; \
 	done
 	-rmdir $(MANDIR)/man3
 
 uninstall-man5:
-	for p in $(SHMEM_MANPAGES_5); do \
+	for p in $(MANPAGES_5); do \
 		$(REMOVE) $(MANDIR)/man5/$$p; \
 	done
 	-rmdir $(MANDIR)/man5
