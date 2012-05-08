@@ -37,9 +37,15 @@
 
 PREFIX = @PREFIX@
 
-SHMEM_MANPAGES_1 = $(wildcard *.1)
-SHMEM_MANPAGES_3 = $(wildcard *.3)
-SHMEM_MANPAGES_5 = $(wildcard *.5)
+MANDIR = $(PREFIX)/share/man
+LIB_DIR = @LIB_DIR@
+MODULES_DIR = @MODULES_DIR@
+
+SHMEM_MANPAGES_1 = oshcc.1 oshCC.1 oshfort.1 oshrun.1
+SHMEM_MANPAGES_3 =
+SHMEM_MANPAGES_5 = oshconfig.5
+
+MAN_PAGES = $(SHMEM_MANPAGES_1) $(SHMEM_MANPAGES_3) $(SHMEM_MANPAGES_5)
 
 IMPL_TEX = openshmem-implementation.tex
 IMPL_PDF = $(IMPL_TEX:.tex=.pdf)
@@ -61,7 +67,17 @@ REMOVE   = rm -f
 	-pdflatex $<
 	-pdflatex $<
 
-all default:	$(IMPL_PDF)
+all default:	$(IMPL_PDF)	$(MAN_PAGES)
+
+# -------------------------------------------------------------------
+
+.SUFFIXES: .1 .5 .in
+
+%.1:	%.1.in
+	sed -e "s%\@MODULES_DIR\@%$(MODULES_DIR)%g" < $^ > $@
+
+%.5:	%.5.in
+	sed -e "s%\@MODULES_DIR\@%$(MODULES_DIR)%g" < $^ > $@
 
 # -------------------------------------------------------------------
 
@@ -70,53 +86,54 @@ install:	install-man
 install-man:	install-man1	install-man3	install-man5
 
 install-man1:	all
-	mkdir -p $(PREFIX)/share/man/man1
+	mkdir -p $(MANDIR)/man1
 	for p in $(SHMEM_MANPAGES_1); do \
-		install -c -m 644 $$p $(PREFIX)/share/man/man1; \
+		install -c -m 644 $$p $(MANDIR)/man1; \
 	done
 
 install-man3:	all
-	mkdir -p $(PREFIX)/share/man/man3
+	mkdir -p $(MANDIR)/man3
 	for p in $(SHMEM_MANPAGES_3); do \
-		install -c -m 644 $$p $(PREFIX)/share/man/man3; \
+		install -c -m 644 $$p $(MANDIR)/man3; \
 	done
 
 install-man5:	all
-	mkdir -p $(PREFIX)/share/man/man5
+	mkdir -p $(MANDIR)/man5
 	for p in $(SHMEM_MANPAGES_5); do \
-		install -c -m 644 $$p $(PREFIX)/share/man/man5; \
+		install -c -m 644 $$p $(MANDIR)/man5; \
 	done
 
 # -------------------------------------------------------------------
 
 uninstall:	uninstall-man
-	-rmdir $(PREFIX)/share/man
+	-rmdir $(MANDIR)
 	-rmdir $(PREFIX)/share
 
 uninstall-man:	uninstall-man1	uninstall-man3 uninstall-man5
 
 uninstall-man1:
 	for p in $(SHMEM_MANPAGES_1); do \
-		$(REMOVE) $(PREFIX)/share/man/man1/$$p; \
+		$(REMOVE) $(MANDIR)/man1/$$p; \
 	done
-	-rmdir $(PREFIX)/share/man/man1
+	-rmdir $(MANDIR)/an1
 
 uninstall-man3:
 	for p in $(SHMEM_MANPAGES_3); do \
-		$(REMOVE) $(PREFIX)/share/man/man3/$$p; \
+		$(REMOVE) $(MANDIR)/man3/$$p; \
 	done
-	-rmdir $(PREFIX)/share/man/man3
+	-rmdir $(MANDIR)/man3
 
 uninstall-man5:
 	for p in $(SHMEM_MANPAGES_5); do \
-		$(REMOVE) $(PREFIX)/share/man/man5/$$p; \
+		$(REMOVE) $(MANDIR)/man5/$$p; \
 	done
-	-rmdir $(PREFIX)/share/man/man5
+	-rmdir $(MANDIR)/man5
 
 # -------------------------------------------------------------------
 
 clean:
 	$(REMOVE) *.aux *.log *.out *.toc
+	$(REMOVE) $(MAN_PAGES)
 
 distclean: clean
 	$(REMOVE) $(IMPL_PDF)

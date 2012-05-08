@@ -34,79 +34,37 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
 
-.TH oshconfig 5 ""
+.TH oshfort 1 ""
 .SH NAME
-\fBoshconfig\fP - module configuration file for OpenSHMEM reference implementation
+\fBoshfort\fP - compile an OpenSHMEM Fortran program
 .SH SYNOPSIS
-\fB.../lib/modules/config\fP
+\fBoshfort\fP
+[ underlying compiler flags ]
+file.f90 [file.f90 ...]
 .SH DESCRIPTION
-A file called "config" can be placed in the directory containing the
-installed algorithms for collectives (prefix/lib/modules).  This file
-has a simple
+\fBoshfort\fP is a wrapper in the vein of mpif90 that compiles
+an OpenSHMEM program.  The wrapper hides implementation
+details from the user.
+.SH EXAMPLES
+The command
 .LP
 .RS
-collective = implementation
+$ oshfort -g -o foo.exe foo.f90
 .RE
 .LP
-syntax.
-.LP
-Comments begin with "#" and extend to end-of-line.
-.LP
-The "implementation" is one of the installed collectives, which are
-named with the form
-.LP
-.RS
-\fBcollective\fP-\fBimplementation\fP.so
-.RE
-.LP
-e.g.
-.LP
-.RS
-barrier-tree.so
-.RE
-.LP
-.SH ENVIRONMENT
-The following environment variables affect the behavior of OpenSHMEM
-programs:
-.RS
-.IP "SHMEM_BROADCAST_ALGORITHM" 4
-Name of implementation for broadcast (as above).
-.IP "SHMEM_COLLECT_ALGORITHM, SHMEM_FCOLLECT_ALGORITHM" 4
-Name of implementation for collects and fixed collects.
-.IP "SHMEM_BARRIER_ALGORITHM, SHMEM_BARRIER_ALL_ALGORITHM" 4
-Name of implementation for barrier and barrier_all.
-.IP "SHMEM_SYMMETRIC_HEAP_SIZE" 4
-Size of symmetric heap allocated on each PE.  Can use "K", "M", "G",
-"T" modifiers.
-.IP "SHMEM_LOG_LEVELS" 4
-Events to trace during the OpenSHMEM program run.
-.RE
-.LP
-The environment variables understood by the SGI implementation are
-also honored:
-.RS
-.IP "SMA_DEBUG" 4
-Set to any value, enables internal event tracing.
-.IP "SMA_INFO" 4
-Set to any value, traces informational events.
-.IP "SMA_MALLOC_DEBUG" 4
-Set to any value, traces symmetric-memory-related events.
-.IP "SMA_VERSION" 4
-Set to any value, displays the OpenSHMEM version.
-.IP "SMA_SYMMETRIC_SIZE" 4
-Size of symmetric heap, in bytes.
-.SH EXAMPLE
-.nf
-# barriers use the tree algorithm
-barrier-all = tree
-barrier = tree
-broadcast = bruck # try the Bruck shift algorithm
-.fi
-.SH FILES
-\&.../prefix/lib/modules/config
+compiles the Fortran source code foo.f90 into the OpenSHMEM executable foo.exe.
+.SH NOTES
+The OpenSHMEM specification does not say anything about
+how OpenSHMEM programs and compiled, linked and launched.
+These wrapper programs are supplied as part of the Reference
+Library for convenience.
 .SH SEE ALSO
-.RE
 intro_shmem(3),
-oshcc(1),
-oshfort(1),
-oshrun(1)
+.br
+oshCC(1),
+.br
+oshrun(1),
+.br
+oshfort(1).
+.SH OPENSHMEM
+http://www.openshmem.org/

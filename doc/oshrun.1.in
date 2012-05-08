@@ -57,12 +57,18 @@ $ oshrun -np 4 ./sping.x -e
 .LP
 runs the Quadrics ping-pong example code on 4 processing elements,
 and passes the "-e" option to the OpenSHMEM program.
+.SH NOTES
+The OpenSHMEM specification does not say anything about
+how OpenSHMEM programs and compiled, linked and launched.
+These wrapper programs are supplied as part of the Reference
+Library for convenience.
 .SH SEE ALSO
-.RE
 intro_shmem(3),
 .br
-oshcc(1),
+oshCC(1),
 .br
-oshfort(1),
+oshrun(1),
 .br
-oshconfig(5)
+oshfort(1).
+.SH OPENSHMEM
+http://www.openshmem.org/

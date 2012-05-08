@@ -53,11 +53,18 @@ $ oshCC -g -o foo.exe foo.cxx
 .RE
 .LP
 compiles C++ source code foo.cxx into the OpenSHMEM executable foo.exe.
+.SH NOTES
+The OpenSHMEM specification does not say anything about
+how OpenSHMEM programs and compiled, linked and launched.
+These wrapper programs are supplied as part of the Reference
+Library for convenience.
 .SH SEE ALSO
 intro_shmem(3),
 .br
-oshcc(1),
+oshCC(1),
 .br
 oshrun(1),
 .br
-oshfort(1)
+oshfort(1).
+.SH OPENSHMEM
+http://www.openshmem.org/
