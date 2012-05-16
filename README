@@ -126,6 +126,8 @@ Support Software
 
 2. Open-MPI :: http://www.open-mpi.org/
 
+3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
+
 
 Installation Notes
 ------------------
@@ -160,7 +162,7 @@ There are 2 common ELF libraries:
   libelf   :: http://www.mr511.de/software/english.html
 
 While all local development (University of Houston) has used elfutils
-on a number of Linus distributions, we encountered some portability
+on a number of Linux distributions, we encountered some portability
 issues between elfutils and libelf on some remote systems.  Hopefully
 these have been addressed.
 
