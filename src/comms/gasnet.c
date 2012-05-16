@@ -821,20 +821,21 @@ parse_cmdline(void)
   while (1)
     {
       int c = fgetc(fp);
-      switch(c) {
-      case EOF:
-	argv[i] = NULL;
-        goto end;
-        break;
-      case '\0':
-        *p = c;
-        argv[i++] = strdup(buf);
-        p = buf;
-        break;
-      default:
-        *p++ = c;
-        break;
-      }
+      switch (c)
+	{
+	case EOF:
+	  argv[i] = NULL;
+	  goto end;
+	  break;
+	case '\0':
+	  *p = c;
+	  argv[i++] = strdup(buf);
+	  p = buf;
+	  break;
+	default:
+	  *p++ = c;
+	  break;
+	}
     }
  end:
   fclose(fp);
@@ -916,6 +917,14 @@ __shmem_comms_finalize (int status)
 
   if (argv != NULL)
     {
+      int i;
+      for (i = 0; i < argc; i += 1)
+	{
+	  if (argv[i] != NULL)
+	    {
+	      free (argv[i]);
+	    }
+	}
       free (argv);
     }
 
