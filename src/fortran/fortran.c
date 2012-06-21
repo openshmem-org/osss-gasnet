@@ -623,8 +623,8 @@ FORTRANIFY (pshmem_collect8) (void *target, const void *source, int *nelems,
 
 #pragma weak shmem_collect4_ = pshmem_collect4_
 #pragma weak shmem_collect8_ = pshmem_collect8_
-#pragma weak shmem_collect32_ = pshmem_collect32_
-#pragma weak shmem_collect64_ = pshmem_collect64_
+#pragma weak shmem_collect32_ = pshmem_collect4_
+#pragma weak shmem_collect64_ = pshmem_collect8_
 
 
 /*

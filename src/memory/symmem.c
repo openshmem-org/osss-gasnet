@@ -349,10 +349,10 @@ psherror (void)
 #pragma weak pshmem_error = psherror
 
 #pragma weak shmalloc = pshmalloc
-#pragma weak shmem_malloc = pshmem_malloc
+#pragma weak shmem_malloc = pshmalloc
 #pragma weak shfree = pshfree
-#pragma weak shmem_free = pshmem_free
+#pragma weak shmem_free = pshfree
 #pragma weak shrealloc = pshrealloc
-#pragma weak shmem_realloc = pshmem_realloc
+#pragma weak shmem_realloc = pshrealloc
 #pragma weak shmemalign = pshmemalign
 #pragma weak sherror = psherror
