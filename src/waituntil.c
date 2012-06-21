@@ -126,9 +126,9 @@ SHMEM_TYPE_WAIT (longlong, long long)
 #pragma weak shmem_int_wait_until = pshmem_int_wait_until
 #pragma weak shmem_long_wait_until = pshmem_long_wait_until
 #pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
-#pragma weak shmem_wait_until = pshmem_wait_until
+#pragma weak shmem_wait_until = pshmem_long_wait_until
 #pragma weak shmem_short_wait = pshmem_short_wait
 #pragma weak shmem_int_wait = pshmem_int_wait
 #pragma weak shmem_long_wait = pshmem_long_wait
 #pragma weak shmem_longlong_wait = pshmem_longlong_wait
-#pragma weak shmem_wait = pshmem_wait
+#pragma weak shmem_wait = pshmem_long_wait

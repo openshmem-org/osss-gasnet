@@ -48,9 +48,12 @@
 \usepackage{courier}
 \usepackage{listings}
 \lstset{
-basicstyle=\scriptsize\ttfamily,
-backgroundcolor=\color{ListingBG},
-frame=tlBR
+  basicstyle=\scriptsize\ttfamily,
+  backgroundcolor=\color{ListingBG},
+  frame=tlBR,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false
 }
 
 % --------------------------------------------------------------------------
@@ -280,10 +283,8 @@ tolerance extensions could generalize this notion. Below are simple C
 and Fortran program templates:
 
 \vspace{0.1in}
-\begin{minipage}{\linewidth}
-\begin{lstlisting}
-/* Simple C ``hello world'' program */
-
+\begin{minipage}{0.75\linewidth}
+\begin{lstlisting}[language=C,caption={Simple C ``hello world'' program}]
 #include <stdio.h>
 #include <mpp/shmem.h>
 
@@ -302,9 +303,9 @@ main(int argc, char *argv[])
 \end{minipage}
 
 \vspace{0.1in}
-\begin{minipage}{\linewidth}
-\begin{lstlisting}
-! Simple Fortran ``hello world'' program
+
+\begin{minipage}{0.75\linewidth}
+\begin{lstlisting}[language=Fortran,caption={Simple Fortran ``hello world'' program}]
 program hello
   include 'mpp/shmem.fh'
   integer :: me, npes

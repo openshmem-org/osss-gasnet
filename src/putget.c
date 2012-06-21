@@ -122,9 +122,9 @@ pshmem_putmem(void *dest, const void *src, size_t nelems, int pe)
 #pragma weak shmem_complexf_put = pshmem_complexf_put
 #pragma weak shmem_complexd_put = pshmem_complexd_put
 #pragma weak shmem_putmem = pshmem_putmem
-#pragma weak shmem_put32 = pshmem_put32
-#pragma weak shmem_put64 = pshmem_put64
-#pragma weak shmem_put128 = pshmem_put128
+#pragma weak shmem_put32 = pshmem_int_put
+#pragma weak shmem_put64 = pshmem_long_put
+#pragma weak shmem_put128 = pshmem_longdouble_put
 /* #pragma weak pshmem_put = pshmem_long_put */
 /* #pragma weak shmem_put = pshmem_put */
 
@@ -191,9 +191,9 @@ pshmem_getmem(void *dest, const void *src, size_t nelems, int pe)
 #pragma weak shmem_complexf_get = pshmem_complexf_get
 #pragma weak shmem_complexd_get = pshmem_complexd_get
 #pragma weak shmem_getmem = pshmem_getmem
-#pragma weak shmem_get32 = pshmem_get32
-#pragma weak shmem_get64 = pshmem_get64
-#pragma weak shmem_get128 = pshmem_get128
+#pragma weak shmem_get32 = pshmem_int_get
+#pragma weak shmem_get64 = pshmem_long_get
+#pragma weak shmem_get128 = pshmem_longdouble_get
 /* #pragma weak pshmem_get = pshmem_long_get */
 /* #pragma weak shmem_get = pshmem_get */
 

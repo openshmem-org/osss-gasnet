@@ -85,13 +85,13 @@ SHMEM_TYPE_SWAP (longlong, long long);
 SHMEM_TYPE_SWAP (double, double);
 SHMEM_TYPE_SWAP (float, float);
 
-#pragma weak pshmem_swap = pshmem_long_swap
 #pragma weak shmem_int_swap = pshmem_int_swap
 #pragma weak shmem_long_swap = pshmem_long_swap
 #pragma weak shmem_longlong_swap = pshmem_longlong_swap
 #pragma weak shmem_float_swap = pshmem_float_swap
 #pragma weak shmem_double_swap = pshmem_double_swap
-#pragma weak shmem_swap = pshmem_swap
+#pragma weak pshmem_swap = pshmem_long_swap
+#pragma weak shmem_swap = pshmem_long_swap
 
 /*
  * The conditional swap routines conditionally update a target data
@@ -115,11 +115,11 @@ SHMEM_TYPE_CSWAP (int, int);
 SHMEM_TYPE_CSWAP (long, long);
 SHMEM_TYPE_CSWAP (longlong, long long);
 
-#pragma weak pshmem_cswap = pshmem_long_cswap
 #pragma weak shmem_int_cswap = pshmem_int_cswap
 #pragma weak shmem_long_cswap = pshmem_long_cswap
 #pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
-/* #pragma weak shmem_cswap = pshmem_cswap */
+#pragma weak pshmem_cswap = pshmem_long_cswap
+/* not currently in SGI API #pragma weak shmem_cswap = pshmem_long_cswap */
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
   /* @api@ */								\

@@ -181,6 +181,14 @@ libraries for linking.  Add
 
 to the PKG_CONFIG_PATH environment variable.
 
+This means you can compile/link programs as e.g. with Open64
+
+    opencc $(pkg-config --cflags openshmem) \
+        program.c \
+            $(pkg-config --libs openshmem)
+
+or any other compiler of your choice.
+
 Module
 ------
 
