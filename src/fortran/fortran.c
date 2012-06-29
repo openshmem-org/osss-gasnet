@@ -510,6 +510,26 @@ FORTRANIFY (pshmem_int8_cswap) (long *target, long *cond, long *value,
 
 
 /*
+ * Proposed by IBM Zuerich
+ *
+ */
+void
+FORTRANIFY (pshmem_int4_xor) (int *target, int *value, int *pe)
+{
+  pshmem_int_xor (target, *value, *pe);
+}
+
+void
+FORTRANIFY (pshmem_int8_xor) (long *target, long *value, int *pe)
+{
+  pshmem_long_xor (target, *value, *pe);
+}
+
+#pragma weak shmem_int4_xor_ = pshmem_int4_xor_
+#pragma weak shmem_int8_xor_ = pshmem_int8_xor_
+
+
+/*
  * broadcasts
  */
 
