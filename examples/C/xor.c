@@ -40,8 +40,8 @@
 /*
  * expected output on 2 PEs:
  *
- * 0: dst = 74
- * 1: dst = 75
+ * 0: dst = 0x12
+ * 1: dst = 0x4a
  *
  */
 
@@ -59,16 +59,16 @@ main ()
   start_pes (0);
   me = _my_pe ();
 
-  dst = 74;
+  dst = 0x12;
   shmem_barrier_all ();
 
   if (me == 0)
     {
-      shmem_int_xor (&dst, 54, 1);
+      shmem_int_xor (&dst, 0x58, 1);
     }
   shmem_barrier_all ();
 
-  printf ("%d: dst = %d\n", me, dst);
+  printf ("%d: dst = %#x\n", me, dst);
 
   return 0;
 }
