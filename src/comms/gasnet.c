@@ -718,6 +718,17 @@ static void handler_quiet_bak ();
 
 #endif /* not used */
 
+/*
+ * proposed by IBM Zuerich
+ *
+ */
+
+#define GASNET_HANDLER_XOR_OUT       146
+#define GASNET_HANDLER_XOR_BAK       147
+
+static void handler_xor_out ();
+static void handler_xor_bak ();
+
 #if defined(HAVE_MANAGED_SEGMENTS)
 
 #define GASNET_HANDLER_GLOBALVAR_PUT_OUT 160
@@ -757,6 +768,8 @@ static gasnet_handlerentry_t handlers[] = {
   {GASNET_HANDLER_QUIET_OUT, handler_quiet_out},
   {GASNET_HANDLER_QUIET_BAK, handler_quiet_bak},
 #endif /* not used */
+  {GASNET_HANDLER_XOR_OUT, handler_xor_out},
+  {GASNET_HANDLER_XOR_BAK, handler_xor_bak},
 #if defined(HAVE_MANAGED_SEGMENTS)
   {GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out},
   {GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak},
@@ -1811,6 +1824,91 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
 
   /* send and wait for ack */
   gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p), 0);
+
+  WAIT_ON_COMPLETION (p->completed);
+
+  free (p);
+}
+
+/*
+ * Proposed by IBM Zuerich
+ *
+ * remote xor
+ */
+
+typedef struct
+{
+  void *r_symm_addr;		/* recipient symmetric var */
+  volatile int completed;	/* transaction end marker */
+  volatile int *completed_addr;	/* addr of marker */
+  size_t nbytes;		/* how big the value is */
+  long long value;		/* to xor on remote var */
+} xor_payload_t;
+
+/*
+ * called by remote PE to do the remote xor
+ */
+static void
+handler_xor_out (gasnet_token_t token,
+		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+{
+  xor_payload_t *pp = (xor_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
+  long long v;
+
+  gasnet_hsl_lock (lk);
+
+  /* save and update */
+  v = * ((long long *)pp->r_symm_addr);
+  v ^= pp->value;
+  * ((long long *)pp->r_symm_addr) = v;
+  LOAD_STORE_FENCE ();
+
+  gasnet_hsl_unlock (lk);
+
+  /* return updated payload */
+  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz, unused);
+}
+
+/*
+ * called by remote xor invoker when store done
+ */
+static void
+handler_xor_bak (gasnet_token_t token,
+		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+{
+  xor_payload_t *pp = (xor_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
+
+  gasnet_hsl_lock (lk);
+
+  /* done it */
+  *(pp->completed_addr) = 1;
+
+  gasnet_hsl_unlock (lk);
+}
+
+/*
+ * perform the xor
+ */
+void
+__shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
+{
+  xor_payload_t *p = (xor_payload_t *) malloc (sizeof (*p));
+  if (p == (xor_payload_t *) NULL)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: unable to allocate remote exclusive-or payload memory");
+    }
+  /* build payload to send */
+  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->nbytes = nbytes;
+  p->value = *(long long *) value;
+  p->completed = 0;
+  p->completed_addr = &(p->completed);
+
+  /* send and wait for ack */
+  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p), 0);
 
   WAIT_ON_COMPLETION (p->completed);
 

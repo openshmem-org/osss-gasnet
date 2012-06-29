@@ -200,3 +200,26 @@ SHMEM_TYPE_INC (longlong, long long);
 #pragma weak shmem_int_inc = pshmem_int_inc
 #pragma weak shmem_long_inc = pshmem_long_inc
 #pragma weak shmem_longlong_inc = pshmem_longlong_inc
+
+/*
+ * proposed by IBM Zuerich
+ *
+ */
+
+#define SHMEM_TYPE_XOR(Name, Type)					\
+  /* @api@ */								\
+  void									\
+  pshmem_##Name##_xor(Type *target, Type value, int pe)			\
+  {									\
+    INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
+    __shmem_comms_xor_request(target, &value, sizeof(Type), pe);	\
+  }
+
+SHMEM_TYPE_XOR (int, int);
+SHMEM_TYPE_XOR (long, long);
+SHMEM_TYPE_XOR (longlong, long long);
+
+#pragma weak shmem_int_xor = pshmem_int_xor
+#pragma weak shmem_long_xor = pshmem_long_xor
+#pragma weak shmem_longlong_xor = pshmem_longlong_xor

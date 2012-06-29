@@ -137,6 +137,13 @@ extern void __shmem_comms_add_request (void *target, void *value,
 extern void __shmem_comms_inc_request (void *target, size_t nbytes, int pe);
 
 /*
+ * Proposed by IBM Zuerich
+ *
+ */
+extern void __shmem_comms_xor_request (void *target, void *value,
+				       size_t nbytes, int pe);
+
+/*
  * fence and quiet initiators
  */
 extern void __shmem_comms_fence_request (void);

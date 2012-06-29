@@ -1,3 +1,4 @@
+/* Emac: -*- mode: c -*- */
 /*
  *
  * Copyright (c) 2011, 2012
@@ -387,6 +388,14 @@ extern "C"
   extern void shmem_int_inc (int *target, int pe);
   extern void shmem_long_inc (long *target, int pe);
   extern void shmem_longlong_inc (long long *target, int pe);
+
+  /*
+   * Proposed by IBM Zuerich
+   *
+   */
+  extern void shmem_int_xor (int *target, int value, int pe);
+  extern void shmem_long_xor (long *target, long value, int pe);
+  extern void shmem_longlong_xor (long long *target, long long value, int pe);
 
   /*
    * cache flushing (deprecated)
