@@ -219,7 +219,8 @@ SHMEM_MINIMAX_FUNC (longdouble, long double)
       memcpy(target, tmptrg, snred);					\
       free(tmptrg);							\
       tmptrg = NULL;							\
-      shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+      /* shmem_barrier(PE_start, logPE_stride, PE_size, pSync);	 */	\
+      shmem_quiet ();							\
     }									\
   }
 
