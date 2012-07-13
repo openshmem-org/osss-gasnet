@@ -48,15 +48,15 @@
 
 #include "modules.h"
 
-/*
- * handlers for implementations
+/**
+ * handlers for implementations of these routines
  *
  */
 
 static module_info_t mi;
 
 
-/*
+/**
  * called during initialization of shmem
  *
  */
@@ -98,6 +98,11 @@ __shmem_collect_dispatch_init (void)
  */
 
 
+/**
+ * Collective concatenation of 32-bit data from participating PEs
+ * into a target array on all those PEs
+ */
+
 /* @api@ */
 void
 pshmem_collect32 (void *target, const void *source, size_t nelems,
@@ -108,6 +113,11 @@ pshmem_collect32 (void *target, const void *source, size_t nelems,
 
   mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
+
+/**
+ * Collective concatenation of 64-bit data from participating PEs
+ * into a target array on all those PEs
+ */
 
 /* @api@ */
 void

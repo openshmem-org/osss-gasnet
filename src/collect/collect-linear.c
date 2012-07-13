@@ -49,7 +49,7 @@
 
 #include "shmem.h"
 
-/*
+/**
  * collect puts nelems (can vary from PE to PE) from source on each
  * PE in the set to target on all PEs in the set.  source -> target is
  * done in PE order.

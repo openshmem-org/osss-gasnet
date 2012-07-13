@@ -40,6 +40,10 @@
 #include "comms.h"
 #include "utils.h"
 
+/**
+ * fence orders puts to a particular PE
+ */
+
 /* @api@ */
 void
 pshmem_fence (void)
@@ -47,6 +51,10 @@ pshmem_fence (void)
   INIT_CHECK ();
   __shmem_comms_fence_request ();
 }
+
+/**
+ * quiet orders puts to all PEs
+ */
 
 /* @api@ */
 void

@@ -46,7 +46,7 @@
 #include "trace.h"
 #include "modules.h"
 
-/*
+/**
  * read in the config file and set up tables
  *
  */
@@ -73,7 +73,7 @@ static char *fallback_algorithm = "linear";
  */
 #define CHOMP(L) (L)[strlen(L) - 1] = '\0'
 
-/*
+/**
  * read in config file and build table of module/algorithm lookups
  *
  */
@@ -150,7 +150,7 @@ create_module_table_from_config (char *cfg_file)
   (void) fclose (fp);
 }
 
-/*
+/**
  * clean up hash table when shutting down
  *
  */
@@ -168,7 +168,7 @@ free_module_table (void)
   }
 }
 
-/*
+/**
  * retrieve implementation for a given module, or the default
  * if nothing specific given
  *
@@ -193,7 +193,7 @@ __shmem_modules_get_implementation (char *mod)
   return fallback_algorithm;
 }
 
-/*
+/**
  * initialize modules: read from global config file if it exists
  *
  */
@@ -208,7 +208,7 @@ __shmem_modules_init (void)
   create_module_table_from_config (path_to_cfg);
 }
 
-/*
+/**
  * shut modules down
  *
  */
@@ -219,7 +219,7 @@ __shmem_modules_finalize (void)
   free_module_table ();
 }
 
-/*
+/**
  * TODO: currently keeping .so file open during run,
  * should really clean up
  *

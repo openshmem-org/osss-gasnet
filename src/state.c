@@ -40,7 +40,7 @@
 #include "state.h"
 #include "utils.h"
 
-/*
+/**
  * initialize the PE's state (this is all we need to initialize)
  */
 
@@ -48,7 +48,7 @@ state_t __state = {
   .pe_status = PE_UNINITIALIZED
 };
 
-/*
+/**
  * PE status and its human description
  */
 
@@ -58,7 +58,7 @@ struct state_desc
   const char *desc;
 };
 
-/*
+/**
  * table of known PE status
  */
 
@@ -71,7 +71,7 @@ static struct state_desc d[] = {
 };
 static const int nd = TABLE_SIZE (d);
 
-/*
+/**
  * translate PE status to human description
  */
 

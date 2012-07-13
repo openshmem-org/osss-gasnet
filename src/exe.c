@@ -54,7 +54,7 @@
 static const char *self = "/proc/self/exe";
 static const char *self_fmt = "/proc/%ld/exe";
 
-/*
+/**
  * inspect our own executable: find the real program name, and open a
  * file descriptor
  */
@@ -100,7 +100,7 @@ __shmem_executable_init (void)
   SET_STATE (exe_fd, fd);
 }
 
-/*
+/**
  * shut down the executable inspection: close the opened file
  * descriptor
  */

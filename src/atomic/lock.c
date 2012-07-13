@@ -54,7 +54,7 @@
 
 #include "shmem.h"
 
-/*
+/**
  * Implement the CRAY SHMEM locking API using MCS locks
  * 
  * Mellor-Crummey & Scott, Algorithms for scalable synchronisation on

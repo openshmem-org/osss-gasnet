@@ -47,12 +47,12 @@
 
 #include "shmem.h"
 
-/*
+/**
  * pre-defined reductions in SHMEM 1.0
  *
  */
 
-/*
+/**
  * these are the arithmetic operations
  *
  */
@@ -79,10 +79,11 @@ SHMEM_MATH_FUNC (longdouble, long double)
 SHMEM_MATH_FUNC (complexd, double complex)
 SHMEM_MATH_FUNC (complexf, float complex)
 
-/*
+/**
  * these are the logical operations.  Note: these are *bitwise*.
  *
  */
+
 #define SHMEM_LOGIC_FUNC(Name, Type)		\
   static Type					\
   and_##Name##_func(Type a, Type b)		\
@@ -105,10 +106,11 @@ SHMEM_LOGIC_FUNC (int, int)
 SHMEM_LOGIC_FUNC (long, long)
 SHMEM_LOGIC_FUNC (longlong, long long)
 
-/*
+/**
  * these are the minima/maxima operations
  *
  */
+
 #define SHMEM_MINIMAX_FUNC(Name, Type)		\
   static Type					\
   min_##Name##_func(Type a, Type b)		\
@@ -129,7 +131,7 @@ SHMEM_MINIMAX_FUNC (double, double)
 SHMEM_MINIMAX_FUNC (float, float)
 SHMEM_MINIMAX_FUNC (longdouble, long double)
 
-/*
+/**
  * common reduce code.  Build generalized reduction for various types.
  * Comparison operator passed as 1st parameter
  *
@@ -233,11 +235,14 @@ SHMEM_UDR_TYPE_OP (float, float)
 SHMEM_UDR_TYPE_OP (longdouble, long double)
 SHMEM_UDR_TYPE_OP (complexd, double complex)
 SHMEM_UDR_TYPE_OP (complexf, float complex)
-/*
+
+
+/**
  * Pass in type/operation, macro builds the reduction function as
  * defined above
  *
  */
+
 #define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
   /* @api@ */								\
   void									\

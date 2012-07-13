@@ -52,7 +52,7 @@ static const double DEFAULT_PE_ACCESSIBLE_TIMEOUT = 1.0;
 
 static struct itimerval zero;
 
-/*
+/**
  * Set the timer (we're not using the interval)
  * 
  */
@@ -66,7 +66,7 @@ assign_timer (long sec, long usec, struct itimerval *ivp)
   ivp->it_interval.tv_usec = 0;
 }
 
-/*
+/**
  * split human-readable time into timer struct
  *
  */
@@ -81,7 +81,7 @@ parse_alarm_time (double ts, struct itimerval *ivp)
   assign_timer ((long) s, 1000000L * f, ivp);
 }
 
-/*
+/**
  * set the time out.  Can also be used to tune library behavior
  *
  */
@@ -94,7 +94,7 @@ __shmem_set_ping_timeout (double secs)
 		 "PE accessibility timeout set to %f sec", secs);
 }
 
-/*
+/**
  * initialize the ping sub-system.  Respect any environment setting
  * asking for different ping timeout.
  *
@@ -125,7 +125,7 @@ __shmem_ping_init (void)
   assign_timer (0, 0, &zero);
 }
 
-/*
+/**
  * set up the alarm before doing a ping
  *
  */
@@ -141,7 +141,7 @@ __shmem_ping_set_alarm (void)
     }
 }
 
-/*
+/**
  * clear the alarm after doing a ping
  *
  */

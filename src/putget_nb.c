@@ -46,7 +46,7 @@
 
 #include "pshmem.h"
 
-/*
+/**
  * non-blocking extensions
  */
 
@@ -192,13 +192,19 @@ pshmem_getmem_nb (void *target, const void *source, size_t nelems,
 
 #pragma weak shmem_get_nb = pshmem_long_get_nb
 
-
+/**
+ * Wait for handle to be completed
+ */
 
 /* @api@ */
 void pshmem_wait_nb (void *h)
 {
   __shmem_comms_wait_nb (h);
 }
+
+/**
+ * Test whether handle has been completed
+ */
 
 /* @api@ */
 int

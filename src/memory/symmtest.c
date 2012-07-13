@@ -63,7 +63,7 @@ __shmem_symmetric_test_with_abort (void *remote_addr,
     }
 }
 
-/*
+/**
  * check that the address is accessible to shmem on that PE
  *
  */

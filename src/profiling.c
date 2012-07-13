@@ -39,7 +39,7 @@
 
 #include "trace.h"
 
-/*
+/**
  * stub for the proposed UFL profiling (PSHMEM) interface
  *
  */

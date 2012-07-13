@@ -42,7 +42,7 @@
 
 #include "shmem.h"
 
-/*
+/**
  *
  * void shmem_int_iput(symmetric int *target, const int *source,
  *                     ptrdiff_t target_stride,
@@ -90,7 +90,7 @@ SHMEM_EMIT_IPUT (longlong, long long)
 #pragma weak shmem_iput64 = pshmem_long_iput
 #pragma weak shmem_iput128 = pshmem_longdouble_iput
 
-/*
+/**
  *
  * void shmem_int_iget(int *target, symmetric const int *source,
  *                     ptrdiff_t target_stride,

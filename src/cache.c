@@ -46,6 +46,10 @@
 #include "utils.h"
 #include "trace.h"
 
+/**
+ * Compatibility no-op cache routines
+ */
+							\
 #define CACHE_NO_OP(Name, Params)			\
   /* @api@ */						\
   void							\

@@ -55,7 +55,7 @@
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
 
-/*
+/**
  * tracing states
  */
 
@@ -65,7 +65,7 @@ typedef enum
   ON,
 } shmem_trace_state_t;
 
-/*
+/**
  * trace levels and states
  */
 
@@ -106,7 +106,7 @@ static trace_table_t tracers[] = {
 };
 static const int n_tracers = TABLE_SIZE (tracers);
 
-/*
+/**
  * big enough?  I reckon so, we're not writing a novel...
  *
  * TODO: alternatively, can loop on increasing buffer size on
@@ -116,7 +116,7 @@ static const int n_tracers = TABLE_SIZE (tracers);
 
 #define TRACE_MSG_BUF_SIZE 256
 
-/*
+/**
  * enable the named message category.  Return 1 if matched,
  * 0 if not found
  *
@@ -141,7 +141,7 @@ __shmem_trace_enable_text (char *trace)
   return 0;
 }
 
-/*
+/**
  * enable all message categories
  */
 
@@ -158,7 +158,7 @@ __shmem_trace_enable_all (void)
     }
 }
 
-/*
+/**
  * translate the message level to text description
  *
  */
@@ -183,7 +183,7 @@ __level_to_string (shmem_trace_t level)
 
 /* -- end of private routines -- */
 
-/*
+/**
  * is the trace LEVEL currently enabled?
  */
 
@@ -205,13 +205,13 @@ __shmem_trace_is_enabled (shmem_trace_t level)
   return 0;
 }
 
-/*
+/**
  * where to send trace output
  */
 
 static FILE *trace_log_stream;
 
-/*
+/**
  * default log to stderr.  if env var set, try to append to that file
  * instead, fall back to stderr if not
  *
@@ -238,7 +238,7 @@ logging_filestream_init (void)
     }
 }
 
-/*
+/**
  * parse any environment settings and set up logging output
  *
  */
@@ -281,7 +281,7 @@ sgi_compat_environment_init (void)
     }
 }
 
-/*
+/**
  * check environment for settings, and enable listed levels
  */
 
@@ -308,7 +308,7 @@ parse_log_levels (void)
     }
 }
 
-/*
+/**
  * spit out information about environment variables known, if
  * requested
  */
@@ -358,7 +358,7 @@ __shmem_maybe_tracers_show_info (void)
 	    "How long to wait for PE accessibility check.");
 }
 
-/*
+/**
  * enable the tracers sub-system
  */
 
@@ -372,7 +372,7 @@ __shmem_tracers_init (void)
   parse_log_levels ();
 }
 
-/*
+/**
  * spit out which message levels are active
  *
  * OK to use public API here since we're only called when initialized
@@ -404,7 +404,7 @@ __shmem_tracers_show (void)
     }
 }
 
-/*
+/**
  * produce a trace message
  */
 

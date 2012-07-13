@@ -58,7 +58,7 @@
 long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
 
 
-/*
+/**
  * check that all PEs see the same shmalloc size: return first
  * mis-matching PE id if there's a mis-match, return -1 to record
  * correct symmetry (no offending PE)
@@ -116,7 +116,7 @@ __shmalloc_symmetry_check (size_t size)
   return any_failed_pe;
 }
 
-/*
+/**
  * this call avoids the symmetry check that the real shmalloc() has to
  * do and is thus cheaper.  Intended for internal use when we know in
  * advance the supplied size is symmetric.
@@ -145,6 +145,10 @@ __shmalloc_no_check (size_t size)
   return addr;
 }
 
+/**
+ * Symmetrically allocate "size" byte of memory across all PEs
+ */
+
 /* @api@ */
 void *
 pshmalloc (size_t size)
@@ -172,6 +176,10 @@ pshmalloc (size_t size)
 
 #pragma weak pshmem_malloc = pshmalloc
 
+/**
+ * Symmetrically free previously allocated memory
+ */
+
 /* @api@ */
 void
 pshfree (void *addr)
@@ -198,6 +206,10 @@ pshfree (void *addr)
 }
 
 #pragma weak pshmem_free = pshfree
+
+/**
+ * Resize previously allocated symmetric memory
+ */
 
 /* @api@ */
 void *
@@ -252,10 +264,11 @@ pshrealloc (void *addr, size_t size)
 
 #pragma weak pshmem_realloc = pshrealloc
 
-/*
+/**
  * The shmemalign function allocates a block in the symmetric heap that
  * has a byte alignment specified by the alignment argument.
  */
+
 /* @api@ */
 void *
 pshmemalign (size_t alignment, size_t size)
@@ -292,7 +305,7 @@ pshmemalign (size_t alignment, size_t size)
 
 #pragma weak pshmem_memalign = pshmemalign
 
-/*
+/**
  * readable error message for error code "e"
  */
 
@@ -323,6 +336,10 @@ static malloc_error_code_t error_table[] = {
    "address falls outside of symmetric heap"},
 };
 static const int nerrors = TABLE_SIZE (error_table);
+
+/**
+ * Return human-readable error message
+ */
 
 /* @api@ */
 char *

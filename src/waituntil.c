@@ -45,7 +45,7 @@
 
 #include "shmem.h"
 
-/*
+/**
  * this waits for the variable to change but also dispatches
  * other put/get traffic in the meantime
  */
@@ -55,7 +55,7 @@
     __shmem_comms_service ();					\
   }
 
-/*
+/**
  * wait_until with operator dispatchers, type-parameterized
  */
 
@@ -105,7 +105,7 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long)
 
 #pragma weak pshmem_wait_until = pshmem_long_wait_until
 
-/*
+/**
  * wait is just wait_until with equality test
  */
 #define SHMEM_TYPE_WAIT(Name, Type)					\

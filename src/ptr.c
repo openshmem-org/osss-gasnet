@@ -50,6 +50,12 @@
 #include "trace.h"
 #include "utils.h"
 
+/**
+ * return a pointer through which the calling PE can access
+ * another PE's memory directly (as a local r/w).  Return
+ * NULL if this is not possible
+ */
+
 /* @api@ */
 void *
 pshmem_ptr (void *target, int pe)

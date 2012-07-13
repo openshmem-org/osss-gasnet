@@ -66,7 +66,7 @@
 
 /* ----------------------------------------------------------------- */
 
-/*
+/**
  * shut down shmem, and then hand off to the comms layer to shut
  * itself down
  *
@@ -103,7 +103,7 @@ __shmem_exit (int status)
   __shmem_comms_finalize (status);
 }
 
-/*
+/**
  * registered by start_pes() to trigger shutdown at exit
  *
  */
@@ -113,7 +113,7 @@ __shmem_exit_handler (void)
   __shmem_exit (0);
 }
 
-/*
+/**
  * find the short & (potentially) long host/node name
  *
  */
@@ -129,7 +129,7 @@ __shmem_place_init (void)
     }
 }
 
-/*
+/**
  * this is where we get everything up and running
  *
  */

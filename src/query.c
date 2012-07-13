@@ -43,7 +43,7 @@
 
 #include "shmem.h"
 
-/*
+/**
  * these routines handle the questions "how many PEs?" and "which PE
  * am I?".  Also added an initial thought about locality with the
  * nodename query
@@ -95,7 +95,7 @@ SHMEM_NUM_PES (shmem_n_pes)
 #pragma weak shmem_n_pes = pshmem_n_pes
 
 
-/*
+/**
  * OpenSHMEM has a major.minor release number.  Return 0 if
  * successful, -1 otherwise
  *

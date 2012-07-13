@@ -60,7 +60,7 @@ __shmem_atomic_finalize (void)
 {
 }
 
-/*
+/**
  * shmem_swap performs an atomic swap operation. It writes value
  * "value" into target on processing element (PE) pe and returns the
  * previous contents of target as an atomic operation.
@@ -93,7 +93,7 @@ SHMEM_TYPE_SWAP (float, float);
 #pragma weak pshmem_swap = pshmem_long_swap
 #pragma weak shmem_swap = pshmem_long_swap
 
-/*
+/**
  * The conditional swap routines conditionally update a target data
  * object on an arbitrary processing element (PE) and return the prior
  * contents of the data object in one atomic operation.
@@ -141,6 +141,11 @@ SHMEM_TYPE_FADD (longlong, long long);
 #pragma weak shmem_long_fadd = pshmem_long_fadd
 #pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
 
+/**
+ * finc performs an atomic fetch-and-increment at an address
+ * on another PE
+ */
+
 #define SHMEM_TYPE_FINC(Name, Type)					\
   /* @api@ */								\
   Type									\
@@ -161,8 +166,8 @@ SHMEM_TYPE_FINC (longlong, long long);
 #pragma weak shmem_long_finc = pshmem_long_finc
 #pragma weak shmem_longlong_finc = pshmem_longlong_finc
 
-/*
- * remote increment/add
+/**
+ * remote atomic increment/add
  *
  */
 #define SHMEM_TYPE_ADD(Name, Type)					\
@@ -201,7 +206,7 @@ SHMEM_TYPE_INC (longlong, long long);
 #pragma weak shmem_long_inc = pshmem_long_inc
 #pragma weak shmem_longlong_inc = pshmem_longlong_inc
 
-/*
+/**
  * proposed by IBM Zuerich
  *
  */

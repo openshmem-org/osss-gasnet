@@ -41,6 +41,10 @@
 #include "globalvar.h"
 #include "utils.h"
 
+/**
+ * only true if PE "pe" can be accessed through SHMEM
+ */
+
 /* @api@ */
 int
 pshmem_pe_accessible (int pe)
@@ -50,9 +54,8 @@ pshmem_pe_accessible (int pe)
   return __shmem_comms_ping_request (pe);
 }
 
-/*
+/**
  * only true if address can be accessed through SHMEM
- *
  */
 
 /* @api@ */
