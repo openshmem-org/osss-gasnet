@@ -41,7 +41,6 @@
  */
 
 #include <stdio.h>
-#include <time.h>
 
 #include <shmem.h>
 
@@ -61,15 +60,13 @@ main (int argc, char **argv)
 
   *src = me;
 
-  shmem_barrier_all ();
-
   nextpe = (me + 1) % npes;
+
+  shmem_barrier_all ();
 
   shmem_long_get (&dest, src, 1, nextpe);
 
-  shmem_barrier_all ();
-
-  printf ("%d @ %s: %ld\n", me, shmem_nodename (), dest);
+  printf ("%d : %ld\n", me, dest);
 
   return 0;
 }
