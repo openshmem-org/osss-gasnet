@@ -37,7 +37,7 @@
 
 
 
-/*
+/**
  * This file provides the layer on top of GASNet, ARMCI or whatever.
  * API should be formalized at some point, but basically everything
  * non-static that starts with "__shmem_comms_"
@@ -73,7 +73,7 @@
 
 #include "service.h"
 
-/*
+/**
  * gasnet put model: this is just for testing different put
  * emulations; generally we want the nbi routines to get performance.
  *
@@ -98,7 +98,7 @@
 #define GASNET_GET(pe, dst, src, len)      gasnet_get (pe, dst, src, len)
 #define GASNET_GET_BULK(pe, dst, src, len) gasnet_get_bulk (pe, dst, src, len)
 
-/*
+/**
  * gasnet model choice
  *
  */
@@ -111,7 +111,7 @@
 #  error "I don't know what kind of GASNet segment model you're trying to use"
 #endif
 
-/*
+/**
  * set up segment/symmetric handling
  *
  */
@@ -120,7 +120,7 @@ static gasnet_seginfo_t *seginfo_table;
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
-/*
+/**
  * this will be malloc'ed so we can respect setting from environment
  * variable
  */
@@ -131,7 +131,7 @@ static void *great_big_heap;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
-/*
+/**
  * trap gasnet errors gracefully
  *
  */
@@ -146,12 +146,12 @@ static void *great_big_heap;
     }                                                                   \
   } while(0)
 
-/*
+/**
  * --------------- real work starts here ---------------------
  *
  */
 
-/*
+/**
  * define accepted size units in ascending order, which are
  * S.I. compliant
  *
@@ -163,7 +163,7 @@ static char *units_string = "kmgtpezy";
 
 static const size_t multiplier = 1000L;
 
-/*
+/**
  * work out how big the symmetric segment areas should be.
  *
  * Either from environment setting, or default value from
@@ -230,7 +230,7 @@ __shmem_comms_get_segment_size (void)
   return bytes * (size_t) strtol (mlss_str, (char **) NULL, 10);
 }
 
-/*
+/**
  * allow the runtime to change the spin/block behavior dynamically,
  * would allow adaptivity
  */
@@ -266,7 +266,7 @@ __shmem_comms_set_waitmode (comms_spinmode_t mode)
   __shmem_trace (SHMEM_LOG_DEBUG, "set waitmode to %s", mstr);
 }
 
-/*
+/**
  * traffic progress
  *
  */
@@ -276,7 +276,7 @@ __shmem_comms_service (void)
   GASNET_SAFE (gasnet_AMPoll ());
 }
 
-/*
+/**
  * can't just call getenv, it might not pass through environment
  * info to other nodes from launch.
  */
@@ -286,7 +286,7 @@ __shmem_comms_getenv (const char *name)
   return gasnet_getenv (name);
 }
 
-/*
+/**
  * which node (PE) am I?
  */
 int
@@ -295,7 +295,7 @@ __shmem_comms_mynode (void)
   return (int) gasnet_mynode ();
 }
 
-/*
+/**
  * how many nodes (PEs) take part in this program?
  */
 int
@@ -304,7 +304,7 @@ __shmem_comms_nodes (void)
   return (int) gasnet_nodes ();
 }
 
-/*
+/**
  * we use the _nbi routine, so that gasnet tracks outstanding
  * I/O for us (fence/barrier waits for these implicit handles)
  */
@@ -381,7 +381,7 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-/*
+/**
  * not completely sure about using longs in these two:
  * it's big enough and hides the gasnet type: is that good enough?
  */
@@ -424,7 +424,7 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
   return retval;
 }
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * non-blocking puts: not part of current API
@@ -441,7 +441,7 @@ typedef struct
 
 static nb_table_t *nb_table = NULL;
 
-/*
+/**
  * couple of simple helper macros
  */
 
@@ -451,7 +451,7 @@ static nb_table_t *nb_table = NULL;
 #define HASH_ADD_NB_TABLE(head, nbfield, add)			\
   HASH_ADD(hh, head, nbfield, sizeof (gasnet_handle_t), add)
 
-/*
+/**
  * add handle into hash table
  */
 
@@ -472,7 +472,7 @@ nb_table_add (gasnet_handle_t h)
   return n;
 }
 
-/*
+/**
  * iterate over hash table, build array of handles,
  * pass this to gasnet to wait
  */
@@ -574,7 +574,7 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
   return h;
 }
 
-/*
+/**
  * wait for the handle to be completed
  */
 void
@@ -597,7 +597,7 @@ __shmem_comms_wait_nb (void *h)
     }
 }
 
-/*
+/**
  * check to see if the handle has been completed.  Return 1 if so, 0
  * if not
  */
@@ -627,7 +627,7 @@ __shmem_comms_test_nb (void *h)
     }
 }
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * global barrier done through gasnet
@@ -650,7 +650,7 @@ __shmem_comms_barrier_all (void)
 }
 
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * start of handlers
@@ -718,7 +718,7 @@ static void handler_quiet_bak ();
 
 #endif /* not used */
 
-/*
+/**
  * proposed by IBM Zuerich
  *
  */
@@ -779,11 +779,11 @@ static gasnet_handlerentry_t handlers[] = {
 };
 static const int nhandlers = TABLE_SIZE (handlers);
 
-/*
+/**
  * end of handlers
  */
 
-/*
+/**
  * -----------------------------------------------------------------------
  *
  * This is where the communications layer gets set up and torn down
@@ -854,7 +854,7 @@ parse_cmdline(void)
   fclose(fp);
 }
 
-/*
+/**
  * GASNet does this timeout thing if its collective routines
  * (e.g. barrier) go idle, so make this as long as possible
  */
@@ -911,7 +911,7 @@ __shmem_comms_init (void)
   /* Up and running! */
 }
 
-/*
+/**
  * bail out of run-time with STATUS error code
  */
 void
@@ -920,7 +920,7 @@ __shmem_comms_exit (int status)
   gasnet_exit (status);
 }
 
-/*
+/**
  * make sure everyone finishes stuff, then exit with STATUS.
  */
 void
@@ -944,7 +944,7 @@ __shmem_comms_finalize (int status)
   __shmem_comms_exit (status);
 }
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * initialize the symmetric segments.
@@ -958,7 +958,7 @@ __shmem_comms_finalize (int status)
 
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
-/*
+/**
  * remotely modified, stop it being put in a register
  */
 static volatile int seg_setup_replies_received = 0;
@@ -966,7 +966,7 @@ static volatile int seg_setup_replies_received = 0;
 static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 
-/*
+/**
  * unpack buf from sender PE and store seg info locally.  Ack. receipt.
  */
 static void
@@ -994,7 +994,7 @@ handler_segsetup_out (gasnet_token_t token,
 			 (void *) NULL, 0, unused);
 }
 
-/*
+/**
  * record receipt ack.  We only need to count the number of replies
  */
 static void
@@ -1010,7 +1010,7 @@ handler_segsetup_bak (gasnet_token_t token,
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
-/*
+/**
  * initialize the symmetric memory, taking into account the different
  * gasnet configurations
  */
@@ -1118,7 +1118,7 @@ __shmem_symmetric_memory_init (void)
     }
 }
 
-/*
+/**
  * shut down the memory allocation handler
  */
 void
@@ -1130,7 +1130,7 @@ __shmem_symmetric_memory_finalize (void)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-/*
+/**
  * where the symmetric memory starts on the given PE
  */
 void *
@@ -1139,7 +1139,7 @@ __shmem_symmetric_var_base (int p)
   return seginfo_table[p].addr;
 }
 
-/*
+/**
  * is the address in the managed symmetric area?
  */
 int
@@ -1168,7 +1168,7 @@ __shmem_symmetric_var_in_range (void *addr, int pe)
   return retval;
 }
 
-/*
+/**
  * translate my "dest" to corresponding address on PE "pe"
  */
 void *
@@ -1199,7 +1199,7 @@ __shmem_symmetric_addr_lookup (void *dest, int pe)
   return rdest;
 }
 
-/*
+/**
  * -- lock finding/creating utility --
  */
 
@@ -1212,7 +1212,7 @@ typedef struct
 
 static lock_table_t *lock_table = NULL;
 
-/*
+/**
  * Look up the lock for a given address ADDR.  If ADDR has never been
  * seen before, create the lock for it.
  *
@@ -1263,11 +1263,11 @@ get_lock_for (void *addr)
   return try->lock;
 }
 
-/*
+/**
  * -- swap handlers ---------------------------------------------------------
  */
 
-/*
+/**
  * NB we make the cond/value "long long" throughout
  * to be used by smaller types as self-contained payload
  */
@@ -1282,7 +1282,7 @@ typedef struct
   long long value;		/* value to be swapped */
 } swap_payload_t;
 
-/*
+/**
  * called by remote PE to do the swap.  Store new value, send back old value
  */
 static void
@@ -1308,7 +1308,7 @@ handler_swap_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by swap invoker when old value returned by remote PE
  */
 static void
@@ -1331,7 +1331,7 @@ handler_swap_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the swap
  */
 void
@@ -1371,7 +1371,7 @@ typedef struct
   long long cond;		/* conditional value */
 } cswap_payload_t;
 
-/*
+/**
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
@@ -1414,7 +1414,7 @@ handler_cswap_out (gasnet_token_t token,
 			 unused);
 }
 
-/*
+/**
  * called by swap invoker when old value returned by remote PE
  * (same as swap_bak for now)
  */
@@ -1438,7 +1438,7 @@ handler_cswap_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the conditional swap
  */
 void
@@ -1471,7 +1471,7 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
   free (cp);
 }
 
-/*
+/**
  * fetch/add
  */
 
@@ -1485,7 +1485,7 @@ typedef struct
   long long value;		/* value to be added & then return old */
 } fadd_payload_t;
 
-/*
+/**
  * called by remote PE to do the fetch and add.  Store new value, send
  * back old value
  */
@@ -1514,7 +1514,7 @@ handler_fadd_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by fadd invoker when old value returned by remote PE
  */
 static void
@@ -1537,7 +1537,7 @@ handler_fadd_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the fetch-and-add
  */
 void
@@ -1566,7 +1566,7 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   free (p);
 }
 
-/*
+/**
  * fetch/increment
  */
 
@@ -1580,7 +1580,7 @@ typedef struct
   long long value;		/* value to be returned */
 } finc_payload_t;
 
-/*
+/**
  * called by remote PE to do the fetch and increment.  Store new
  * value, send back old value
  */
@@ -1609,7 +1609,7 @@ handler_finc_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by finc invoker when old value returned by remote PE
  */
 static void
@@ -1632,7 +1632,7 @@ handler_finc_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the fetch-and-increment
  */
 void
@@ -1659,7 +1659,7 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   free (p);
 }
 
-/*
+/**
  * remote add
  */
 
@@ -1672,7 +1672,7 @@ typedef struct
   long long value;		/* value to be returned */
 } add_payload_t;
 
-/*
+/**
  * called by remote PE to do the remote add.
  */
 static void
@@ -1699,7 +1699,7 @@ handler_add_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by remote add invoker when store done
  */
 static void
@@ -1719,7 +1719,7 @@ handler_add_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the add
  */
 void
@@ -1746,7 +1746,7 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   free (p);
 }
 
-/*
+/**
  * remote increment
  */
 
@@ -1758,7 +1758,7 @@ typedef struct
   size_t nbytes;		/* how big the value is */
 } inc_payload_t;
 
-/*
+/**
  * called by remote PE to do the remote increment
  */
 static void
@@ -1786,7 +1786,7 @@ handler_inc_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by remote increment invoker when store done
  */
 static void
@@ -1804,7 +1804,7 @@ handler_inc_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the increment
  */
 void
@@ -1830,7 +1830,7 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   free (p);
 }
 
-/*
+/**
  * Proposed by IBM Zuerich
  *
  * remote xor
@@ -1845,7 +1845,7 @@ typedef struct
   long long value;		/* to xor on remote var */
 } xor_payload_t;
 
-/*
+/**
  * called by remote PE to do the remote xor
  */
 static void
@@ -1870,7 +1870,7 @@ handler_xor_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by remote xor invoker when store done
  */
 static void
@@ -1888,7 +1888,7 @@ handler_xor_bak (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 }
 
-/*
+/**
  * perform the xor
  */
 void
@@ -1917,7 +1917,7 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
 
 
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * Handlers for pinging for shmem_pe_accessible
@@ -1935,7 +1935,7 @@ static int pe_acked = 1;
 
 static jmp_buf jb;
 
-/*
+/**
  * do this when the timeout occurs
  */
 static void
@@ -1946,13 +1946,13 @@ ping_timeout_handler (int signum)
   longjmp (jb, 1);
 }
 
-/*
+/**
  * can use single static lock here, no per-addr needed
  */
 static gasnet_hsl_t ping_out_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t ping_bak_lock = GASNET_HSL_INITIALIZER;
 
-/*
+/**
  * called by remote PE when (if) it gets the ping
  */
 static void
@@ -1971,7 +1971,7 @@ handler_ping_out (gasnet_token_t token,
   gasnet_AMReplyMedium1 (token, GASNET_HANDLER_PING_BAK, buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by sender PE when (if) remote PE ack's the ping
  */
 static void
@@ -1990,7 +1990,7 @@ handler_ping_bak (gasnet_token_t token,
   gasnet_hsl_unlock (&ping_bak_lock);
 }
 
-/*
+/**
  * perform the ping
  *
  * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
@@ -2057,13 +2057,13 @@ __shmem_comms_ping_request (int pe)
 #endif
 }
 
-/*
+/**
  * ---------------------------------------------------------------------------
  */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
-/*
+/**
  * atomic counters
  */
 static volatile unsigned long put_counter = 0L;
@@ -2130,7 +2130,7 @@ atomic_wait_get_zero (void)
 #endif /* HAVE_MANAGED_SEGMENTS */
 
 
-/*
+/**
  * called by mainline to fence off outstanding requests
  *
  * chances here for fence/quiet differentiation and optimization
@@ -2155,7 +2155,7 @@ __shmem_comms_fence_request (void)
 }
 
 
-/*
+/**
  * ---------------------------------------------------------------------------
  *
  * global variable put/get handlers (for non-everything cases):
@@ -2165,7 +2165,7 @@ __shmem_comms_fence_request (void)
  *
  */
 
-/*
+/**
  * suitably allocate buffer for transfers.
  *
  */
@@ -2209,11 +2209,11 @@ typedef struct
   volatile int *completed_addr;	/* addr of marker */
 } globalvar_payload_t;
 
-/*
+/**
  * Puts
  */
 
-/*
+/**
  * called by remote PE to grab and write to its variable
  */
 static void
@@ -2232,7 +2232,7 @@ handler_globalvar_put_out (gasnet_token_t token,
 			 buf, sizeof (*pp), unused);
 }
 
-/*
+/**
  * invoking PE just has to ack remote write
  */
 static void
@@ -2245,7 +2245,7 @@ handler_globalvar_put_bak (gasnet_token_t token,
   *(pp->completed_addr) = 1;
 }
 
-/*
+/**
  * Generate the active message to do a put to a global variable.
  *
  * Put a lock around this bit so we know when it is safe to reuse the
@@ -2284,7 +2284,7 @@ put_a_chunk (void *buf, size_t bufsize,
   atomic_dec_put_counter ();
 }
 
-/*
+/**
  * perform the put to a global variable
  */
 void
@@ -2333,12 +2333,12 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
   free (put_buf);
 }
 
-/*
+/**
  * Gets
  *
  */
 
-/*
+/**
  * called by remote PE to grab remote data and return
  */
 static void
@@ -2358,7 +2358,7 @@ handler_globalvar_get_out (gasnet_token_t token,
 			 buf, bufsiz, unused);
 }
 
-/*
+/**
  * called by invoking PE to write fetched data
  */
 static void
@@ -2375,7 +2375,7 @@ handler_globalvar_get_bak (gasnet_token_t token,
   *(pp->completed_addr) = 1;
 }
 
-/*
+/**
  * Generate the active message to do a get from a global variable.
  *
  */
@@ -2404,7 +2404,7 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
   atomic_dec_get_counter ();
 }
 
-/*
+/**
  * perform the get from a global variable
  */
 void

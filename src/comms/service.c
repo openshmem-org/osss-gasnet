@@ -37,7 +37,7 @@
 
 
 
-/*
+/**
  * Do network service.  When code is not engaged in shmem calls,
  * something needs to provide communication access so that operations
  * where "this" PE is a passive target can continue
@@ -48,7 +48,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-/*
+/**
  * for hi-res timer
  */
 
@@ -61,26 +61,26 @@
 #include "comms.h"
 #include "trace.h"
 
-/*
+/**
  * for refractory back-off
  */
 
 static long delay = 1000L; /* ns */
 static struct timespec delayspec;
 
-/*
+/**
  * new thread for progress-o-matic
  */
 
 static pthread_t thr;
 
-/*
+/**
  * polling sentinel
  */
 
 static volatile int done = 0;
 
-/*
+/**
  * does comms. service until told not to
  */
 
@@ -96,7 +96,7 @@ start_service (void *unused)
   while (! done);
 }
 
-/*
+/**
  * start the servicer
  */
 
@@ -122,7 +122,7 @@ __shmem_service_init (void)
 		 );
 }
 
-/*
+/**
  * stop the servicer
  */
 
