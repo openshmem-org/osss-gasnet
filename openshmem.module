@@ -7,7 +7,7 @@ proc ModulesHelp { } {
 
 module-whatis	"OpenSHMEM"
 
-set		shmem_root	$HOME/opt/OpenSHMEM
+set		shmem_root	/path/to/openshmem/installation
 
 prepend-path	PATH		$shmem_root/bin
 prepend-path	MANPATH		$shmem_root/share/man
