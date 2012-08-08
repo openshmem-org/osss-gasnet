@@ -43,6 +43,24 @@
 
 #include "shmem.h"
 
+
+
+#pragma weak shmem_my_pe = pshmem_my_pe
+#define shmem_my_pe pshmem_my_pe
+#pragma weak shmem_n_pes = pshmem_n_pes
+#define shmem_n_pes pshmem_n_pes
+
+/* #pragma weak my_pe = pmy_pe */
+#pragma weak _my_pe = p_my_pe
+#define _my_pe p_my_pe
+
+/* #pragma weak num_pes = pnum_pes */
+#pragma weak _num_pes = p_num_pes
+#define _num_pes p_num_pes
+
+#pragma weak shmem_nodename = pshmem_nodename
+#define shmem_nodename pshmem_nodename
+
 /**
  * these routines handle the questions "how many PEs?" and "which PE
  * am I?".  Also added an initial thought about locality with the
@@ -52,18 +70,18 @@
 
 #define SHMEM_MY_PE(Variant)			\
   int						\
-  p##Variant (void)				\
+  Variant (void)				\
   {						\
     INIT_CHECK();				\
     return GET_STATE(mype);			\
   }
 
 /* SHMEM_MY_PE(my_pe) */
-SHMEM_MY_PE (_my_pe)
+SHMEM_MY_PE (_my_pe);
 
 #define SHMEM_NUM_PES(Variant)			\
   int						\
-  p##Variant (void)				\
+  Variant (void)				\
   {						\
     INIT_CHECK();				\
     return GET_STATE(numpes);			\
@@ -71,29 +89,22 @@ SHMEM_MY_PE (_my_pe)
 
 /* SHMEM_NUM_PES(num_pes) */
 
-SHMEM_NUM_PES (_num_pes)
+SHMEM_NUM_PES (_num_pes);
 
-char *pshmem_nodename (void)
+char *
+shmem_nodename (void)
 {
   INIT_CHECK ();
   return GET_STATE (loc.nodename);
 }
 
 
-/* #pragma weak my_pe = pmy_pe */
-#pragma weak _my_pe = p_my_pe
+SHMEM_MY_PE (shmem_my_pe);
+SHMEM_NUM_PES (shmem_n_pes);
 
-/* #pragma weak num_pes = pnum_pes */
-#pragma weak _num_pes = p_num_pes
 
-#pragma weak shmem_nodename = pshmem_nodename
-
-SHMEM_MY_PE (shmem_my_pe)
-SHMEM_NUM_PES (shmem_n_pes)
-
-#pragma weak shmem_my_pe = pshmem_my_pe
-#pragma weak shmem_n_pes = pshmem_n_pes
-
+#pragma weak shmem_version = pshmem_version
+#define shmem_version pshmem_version
 
 /**
  * OpenSHMEM has a major.minor release number.  Return 0 if
@@ -103,7 +114,7 @@ SHMEM_NUM_PES (shmem_n_pes)
 
 /* @api@ */
 int
-pshmem_version (int *major, int *minor)
+shmem_version (int *major, int *minor)
 {
 #if ! defined(SHMEM_MAJOR_VERSION) && ! defined(SHMEM_MINOR_VERSION)
   return -1;
@@ -112,5 +123,3 @@ pshmem_version (int *major, int *minor)
   *minor = SHMEM_MINOR_VERSION;
   return 0;
 }
-
-#pragma weak shmem_version = pshmem_version

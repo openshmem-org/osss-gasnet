@@ -129,6 +129,11 @@ __shmem_place_init (void)
     }
 }
 
+
+
+#pragma weak start_pes = pstart_pes
+#define start_pes pstart_pes
+
 /**
  * this is where we get everything up and running
  *
@@ -136,7 +141,7 @@ __shmem_place_init (void)
 
 /* @api@ */
 void
-pstart_pes (int npes)
+start_pes (int npes)
 {
   /* these have to happen first to enable messages */
   __shmem_elapsed_clock_init ();	/* start the tracking clock */
@@ -223,5 +228,3 @@ pstart_pes (int npes)
 
   __shmem_comms_barrier_all ();
 }
-
-#pragma weak start_pes = pstart_pes

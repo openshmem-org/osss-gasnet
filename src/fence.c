@@ -40,13 +40,19 @@
 #include "comms.h"
 #include "utils.h"
 
+
+#pragma weak shmem_fence = pshmem_fence
+#define shmem_fence pshmem_fence
+#pragma weak shmem_quiet = pshmem_quiet
+#define shmem_quiet pshmem_quiet
+
 /**
  * fence orders puts to a particular PE
  */
 
 /* @api@ */
 void
-pshmem_fence (void)
+shmem_fence (void)
 {
   INIT_CHECK ();
   __shmem_comms_fence_request ();
@@ -58,11 +64,8 @@ pshmem_fence (void)
 
 /* @api@ */
 void
-pshmem_quiet (void)
+shmem_quiet (void)
 {
   INIT_CHECK ();
   __shmem_comms_quiet_request ();
 }
-
-#pragma weak shmem_fence = pshmem_fence
-#pragma weak shmem_quiet = pshmem_quiet

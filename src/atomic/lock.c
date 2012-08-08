@@ -252,9 +252,16 @@ mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
  * ------------------------------------------------------------
  */
 
+#pragma weak shmem_set_lock = pshmem_set_lock
+#define shmem_clear_lock pshmem_clear_lock
+#pragma weak shmem_test_lock = pshmem_test_lock
+#define shmem_set_lock pshmem_set_lock
+#pragma weak shmem_clear_lock = pshmem_clear_lock
+#define shmem_test_lock pshmem_test_lock
+
 /* @api@ */
 void
-pshmem_set_lock (long *lock)
+shmem_set_lock (long *lock)
 {
   mcs_lock_acquire (&((SHMEM_LOCK *) lock)[1],
 		    &((SHMEM_LOCK *) lock)[0], _my_pe ());
@@ -262,7 +269,7 @@ pshmem_set_lock (long *lock)
 
 /* @api@ */
 void
-pshmem_clear_lock (long *lock)
+shmem_clear_lock (long *lock)
 {
   /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
   shmem_quiet ();
@@ -273,12 +280,8 @@ pshmem_clear_lock (long *lock)
 
 /* @api@ */
 int
-pshmem_test_lock (long *lock)
+shmem_test_lock (long *lock)
 {
   return mcs_lock_test (&((SHMEM_LOCK *) lock)[1],
 			&((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
-
-#pragma weak shmem_set_lock = pshmem_set_lock
-#pragma weak shmem_clear_lock = pshmem_clear_lock
-#pragma weak shmem_test_lock = pshmem_test_lock
