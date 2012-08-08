@@ -122,27 +122,32 @@ __shmem_barriers_dispatch_init (void)
  */
 
 
+#pragma weak shmem_barrier_all = pshmem_barrier_all
+#define shmem_barrier_all pshmem_barrier_all
+
 /* @api@ */
 void
-pshmem_barrier_all (void)
+shmem_barrier_all (void)
 {
   INIT_CHECK ();
 
-  pshmem_quiet ();
+  shmem_quiet ();
 
   mi_all.func_32 ();
 }
 
+
+
+#pragma weak shmem_barrier = pshmem_barrier
+#define shmem_barrier pshmem_barrier
+
 /* @api@ */
 void
-pshmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   INIT_CHECK ();
 
-  /* barrier doesn't imply pshmem_quiet(); */
+  /* barrier doesn't imply shmem_quiet(); */
 
   mi_bar.func_32 (PE_start, logPE_stride, PE_size, pSync);
 }
-
-#pragma weak shmem_barrier_all = pshmem_barrier_all
-#pragma weak shmem_barrier = pshmem_barrier

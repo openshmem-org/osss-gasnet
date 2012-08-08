@@ -144,8 +144,8 @@ PE_start,								\
     shmem_quiet ();							\
   }
 
-SHMEM_COLLECT (32, 4)
-SHMEM_COLLECT (64, 8)
+SHMEM_COLLECT (32, 4);
+SHMEM_COLLECT (64, 8);
 
 #include "module_info.h"
      module_info_t

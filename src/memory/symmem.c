@@ -145,13 +145,19 @@ __shmalloc_no_check (size_t size)
   return addr;
 }
 
+
+#pragma weak shmalloc = pshmalloc
+#define shmalloc pshmalloc
+#pragma weak shmem_malloc = pshmalloc
+#define shmem_malloc pshmalloc
+
 /**
  * Symmetrically allocate "size" byte of memory across all PEs
  */
 
 /* @api@ */
 void *
-pshmalloc (size_t size)
+shmalloc (size_t size)
 {
   void *addr;
 
@@ -165,7 +171,8 @@ pshmalloc (size_t size)
     }
 
   __shmem_trace (SHMEM_LOG_MEMORY,
-		 "shmalloc(%ld bytes) passed symmetry check", size);
+		 "shmalloc(%ld bytes) passed symmetry check",
+		 size);
 
   addr = __shmalloc_no_check (size);
 
@@ -174,7 +181,11 @@ pshmalloc (size_t size)
   return addr;
 }
 
-#pragma weak pshmem_malloc = pshmalloc
+
+#pragma weak shfree = pshfree
+#define shfree pshfree
+#pragma weak shmem_free = pshfree
+#define shmem_free pshfree
 
 /**
  * Symmetrically free previously allocated memory
@@ -182,7 +193,7 @@ pshmalloc (size_t size)
 
 /* @api@ */
 void
-pshfree (void *addr)
+shfree (void *addr)
 {
   INIT_CHECK ();
 
@@ -205,7 +216,11 @@ pshfree (void *addr)
   malloc_error = SHMEM_MALLOC_OK;
 }
 
-#pragma weak pshmem_free = pshfree
+
+#pragma weak shrealloc = pshrealloc
+#define shrealloc pshrealloc
+#pragma weak shmem_realloc = pshrealloc
+#define shmem_realloc pshrealloc
 
 /**
  * Resize previously allocated symmetric memory
@@ -213,7 +228,7 @@ pshfree (void *addr)
 
 /* @api@ */
 void *
-pshrealloc (void *addr, size_t size)
+shrealloc (void *addr, size_t size)
 {
   void *newaddr;
 
@@ -231,7 +246,7 @@ pshrealloc (void *addr, size_t size)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
 		     "size passed to shrealloc() is 0, handing to shfree()");
-      pshfree (addr);
+      shfree (addr);
       return (void *) NULL;
       /* NOT REACHED */
     }
@@ -262,7 +277,11 @@ pshrealloc (void *addr, size_t size)
   return newaddr;
 }
 
-#pragma weak pshmem_realloc = pshrealloc
+
+#pragma weak shmemalign = pshmemalign
+#define shmemalign pshmemalign
+#pragma weak shmem_memalign = pshmemalign
+#define shmem_memalign pshrealloc
 
 /**
  * The shmemalign function allocates a block in the symmetric heap that
@@ -271,7 +290,7 @@ pshrealloc (void *addr, size_t size)
 
 /* @api@ */
 void *
-pshmemalign (size_t alignment, size_t size)
+shmemalign (size_t alignment, size_t size)
 {
   void *addr;
 
@@ -302,8 +321,6 @@ pshmemalign (size_t alignment, size_t size)
 
   return addr;
 }
-
-#pragma weak pshmem_memalign = pshmemalign
 
 /**
  * readable error message for error code "e"
@@ -337,13 +354,19 @@ static malloc_error_code_t error_table[] = {
 };
 static const int nerrors = TABLE_SIZE (error_table);
 
+
+#pragma weak sherror = psherror
+#define sherror psherror
+#pragma weak shmem_error = psherror
+#define shmem_error psherror
+
 /**
  * Return human-readable error message
  */
 
 /* @api@ */
 char *
-psherror (void)
+sherror (void)
 {
   malloc_error_code_t *etp = error_table;
   int i;
@@ -362,14 +385,3 @@ psherror (void)
 
   return "unknown memory error";
 }
-
-#pragma weak pshmem_error = psherror
-
-#pragma weak shmalloc = pshmalloc
-#pragma weak shmem_malloc = pshmalloc
-#pragma weak shfree = pshfree
-#pragma weak shmem_free = pshfree
-#pragma weak shrealloc = pshrealloc
-#pragma weak shmem_realloc = pshrealloc
-#pragma weak shmemalign = pshmemalign
-#pragma weak sherror = psherror

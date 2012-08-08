@@ -98,6 +98,9 @@ __shmem_collect_dispatch_init (void)
  */
 
 
+#pragma weak shmem_collect32 = pshmem_collect32
+#define shmem_collect32 pshmem_collect32
+
 /**
  * Collective concatenation of 32-bit data from participating PEs
  * into a target array on all those PEs
@@ -105,14 +108,19 @@ __shmem_collect_dispatch_init (void)
 
 /* @api@ */
 void
-pshmem_collect32 (void *target, const void *source, size_t nelems,
-		  int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_collect32 (void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_collect32");
   SYMMETRY_CHECK (source, 2, "shmem_collect32");
 
   mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
+
+
+
+#pragma weak shmem_collect64 = pshmem_collect64
+#define shmem_collect64 pshmem_collect64
 
 /**
  * Collective concatenation of 64-bit data from participating PEs
@@ -121,14 +129,11 @@ pshmem_collect32 (void *target, const void *source, size_t nelems,
 
 /* @api@ */
 void
-pshmem_collect64 (void *target, const void *source, size_t nelems,
-		  int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_collect64 (void *target, const void *source, size_t nelems,
+		 int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_collect64");
   SYMMETRY_CHECK (source, 2, "shmem_collect64");
 
   mi.func_64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
-
-#pragma weak shmem_collect32 = pshmem_collect32
-#pragma weak shmem_collect64 = pshmem_collect64

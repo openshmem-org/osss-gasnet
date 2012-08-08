@@ -60,6 +60,22 @@ __shmem_atomic_finalize (void)
 {
 }
 
+
+#pragma weak shmem_int_swap = pshmem_int_swap
+#define shmem_int_swap pshmem_int_swap
+#pragma weak shmem_long_swap = pshmem_long_swap
+#define shmem_long_swap pshmem_long_swap
+#pragma weak shmem_longlong_swap = pshmem_longlong_swap
+#define shmem_longlong_swap pshmem_longlong_swap
+#pragma weak shmem_float_swap = pshmem_float_swap
+#define shmem_float_swap pshmem_float_swap
+#pragma weak shmem_double_swap = pshmem_double_swap
+#define shmem_double_swap pshmem_double_swap
+#pragma weak pshmem_swap = pshmem_long_swap
+#define pshmem_swap pshmem_long_swap
+#pragma weak shmem_swap = pshmem_long_swap
+#define shmem_swap pshmem_long_swap
+
 /**
  * shmem_swap performs an atomic swap operation. It writes value
  * "value" into target on processing element (PE) pe and returns the
@@ -69,7 +85,7 @@ __shmem_atomic_finalize (void)
 #define SHMEM_TYPE_SWAP(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_swap(Type *target, Type value, int pe)		\
+  shmem_##Name##_swap (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -85,13 +101,17 @@ SHMEM_TYPE_SWAP (longlong, long long);
 SHMEM_TYPE_SWAP (double, double);
 SHMEM_TYPE_SWAP (float, float);
 
-#pragma weak shmem_int_swap = pshmem_int_swap
-#pragma weak shmem_long_swap = pshmem_long_swap
-#pragma weak shmem_longlong_swap = pshmem_longlong_swap
-#pragma weak shmem_float_swap = pshmem_float_swap
-#pragma weak shmem_double_swap = pshmem_double_swap
-#pragma weak pshmem_swap = pshmem_long_swap
-#pragma weak shmem_swap = pshmem_long_swap
+
+
+#pragma weak shmem_int_cswap = pshmem_int_cswap
+#define shmem_int_cswap pshmem_int_cswap
+#pragma weak shmem_long_cswap = pshmem_long_cswap
+#define shmem_long_cswap pshmem_long_cswap
+#pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
+#define shmem_longlong_cswap pshmem_longlong_cswap
+#pragma weak pshmem_cswap = pshmem_long_cswap
+#define pshmem_cswap pshmem_long_cswap
+/* not currently in SGI API #pragma weak shmem_cswap = pshmem_long_cswap */
 
 /**
  * The conditional swap routines conditionally update a target data
@@ -102,7 +122,7 @@ SHMEM_TYPE_SWAP (float, float);
 #define SHMEM_TYPE_CSWAP(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_cswap(Type *target, Type cond, Type value, int pe)	\
+  shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)	\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -115,21 +135,24 @@ SHMEM_TYPE_CSWAP (int, int);
 SHMEM_TYPE_CSWAP (long, long);
 SHMEM_TYPE_CSWAP (longlong, long long);
 
-#pragma weak shmem_int_cswap = pshmem_int_cswap
-#pragma weak shmem_long_cswap = pshmem_long_cswap
-#pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
-#pragma weak pshmem_cswap = pshmem_long_cswap
-/* not currently in SGI API #pragma weak shmem_cswap = pshmem_long_cswap */
+
+
+#pragma weak shmem_int_fadd = pshmem_int_fadd
+#define shmem_int_fadd pshmem_int_fadd
+#pragma weak shmem_long_fadd = pshmem_long_fadd
+#define shmem_long_fadd pshmem_long_fadd
+#pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
+#define shmem_longlong_fadd pshmem_longlong_fadd
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_fadd(Type *target, Type value, int pe)		\
+  shmem_##Name##_fadd (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-  __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
+    __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
 
@@ -137,9 +160,14 @@ SHMEM_TYPE_FADD (int, int);
 SHMEM_TYPE_FADD (long, long);
 SHMEM_TYPE_FADD (longlong, long long);
 
-#pragma weak shmem_int_fadd = pshmem_int_fadd
-#pragma weak shmem_long_fadd = pshmem_long_fadd
-#pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
+
+
+#pragma weak shmem_int_finc = pshmem_int_finc
+#define shmem_int_finc pshmem_int_finc
+#pragma weak shmem_long_finc = pshmem_long_finc
+#define shmem_long_finc pshmem_long_finc
+#pragma weak shmem_longlong_finc = pshmem_longlong_finc
+#define shmem_longlong_finc pshmem_longlong_finc
 
 /**
  * finc performs an atomic fetch-and-increment at an address
@@ -149,7 +177,7 @@ SHMEM_TYPE_FADD (longlong, long long);
 #define SHMEM_TYPE_FINC(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_finc(Type *target, int pe)				\
+  shmem_##Name##_finc (Type *target, int pe)				\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -162,9 +190,13 @@ SHMEM_TYPE_FINC (int, int);
 SHMEM_TYPE_FINC (long, long);
 SHMEM_TYPE_FINC (longlong, long long);
 
-#pragma weak shmem_int_finc = pshmem_int_finc
-#pragma weak shmem_long_finc = pshmem_long_finc
-#pragma weak shmem_longlong_finc = pshmem_longlong_finc
+
+#pragma weak shmem_int_add = pshmem_int_add
+#define shmem_int_add pshmem_int_add
+#pragma weak shmem_long_add = pshmem_long_add
+#define shmem_long_add pshmem_long_add
+#pragma weak shmem_longlong_add = pshmem_longlong_add
+#define shmem_longlong_add pshmem_longlong_add
 
 /**
  * remote atomic increment/add
@@ -173,7 +205,7 @@ SHMEM_TYPE_FINC (longlong, long long);
 #define SHMEM_TYPE_ADD(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_add(Type *target, Type value, int pe)			\
+  shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
@@ -184,14 +216,19 @@ SHMEM_TYPE_ADD (int, int);
 SHMEM_TYPE_ADD (long, long);
 SHMEM_TYPE_ADD (longlong, long long);
 
-#pragma weak shmem_int_add = pshmem_int_add
-#pragma weak shmem_long_add = pshmem_long_add
-#pragma weak shmem_longlong_add = pshmem_longlong_add
+
+
+#pragma weak shmem_int_inc = pshmem_int_inc
+#define shmem_int_inc pshmem_int_inc
+#pragma weak shmem_long_inc = pshmem_long_inc
+#define shmem_long_inc pshmem_long_inc
+#pragma weak shmem_longlong_inc = pshmem_longlong_inc
+#define shmem_longlong_inc pshmem_longlong_inc
 
 #define SHMEM_TYPE_INC(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_inc(Type *target, int pe)				\
+  shmem_##Name##_inc (Type *target, int pe)				\
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
@@ -201,10 +238,6 @@ SHMEM_TYPE_ADD (longlong, long long);
 SHMEM_TYPE_INC (int, int);
 SHMEM_TYPE_INC (long, long);
 SHMEM_TYPE_INC (longlong, long long);
-
-#pragma weak shmem_int_inc = pshmem_int_inc
-#pragma weak shmem_long_inc = pshmem_long_inc
-#pragma weak shmem_longlong_inc = pshmem_longlong_inc
 
 /* --------------------------------------------------------------- */
 
