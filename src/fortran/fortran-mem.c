@@ -51,7 +51,15 @@
  * Fortran symmetric memory operations
  */
 
-/*
+#pragma weak shpalloc_ = pshpalloc_
+#define shpalloc_ pshpalloc_
+#pragma weak shpdeallc_ = pshpdeallc_
+#define shpdeallc_ pshpdeallc_
+#pragma weak shpclmove_ = pshpclmove_
+#define shpclmove_ pshpclmove_
+
+/**
+ *
  * SYNOPSIS
  *   POINTER (addr, A(1))
  *   INTEGER (length, errcode, abort)
@@ -65,7 +73,8 @@
  *   missing, the program will hang.
  */
 
-/*
+/**
+ *
  * we've removed this from the C API since it's a hold-over from an
  * old SGI version.  Left it in the code for now, though, (a) for
  * Fortran to use and (b) in case people want it back.
@@ -73,14 +82,14 @@
 extern long malloc_error;
 
 void
-FORTRANIFY (pshpalloc) (void **addr, int *length, long *errcode, int *abort)
+FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
 {
   void *symm_addr;
 
   INIT_CHECK ();
 
   /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
-  symm_addr = pshmalloc (*length);
+  symm_addr = shmalloc (*length);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -100,13 +109,14 @@ FORTRANIFY (pshpalloc) (void **addr, int *length, long *errcode, int *abort)
 
   /* failed somehow, we might have to abort */
   __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		 "shpalloc() got non-symmetric memory sizes");
+		 "shpalloc() was given non-symmetric memory sizes");
   /* MAYBE NOT REACHED */
 
   addr = (void *) NULL;
 }
 
-/*
+/**
+ *
  * SYNOPSIS
  *   POINTER (addr, A(1))
  *   INTEGER errcode, abort
@@ -130,7 +140,7 @@ FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
 		 "shpdeallc(addr = %p, errcode = %d, abort = %d)",
 		 addr, *errcode, *abort);
 
-  pshfree (*addr);
+  shfree (*addr);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -148,7 +158,8 @@ FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
   /* MAYBE NOT REACHED */
 }
 
-/*
+/**
+ *
  * SYNOPSIS
  *   POINTER (addr, A(1))
  *   INTEGER length, status, abort
@@ -171,7 +182,7 @@ FORTRANIFY (pshpclmove) (int *addr, int *length, long *errcode, int *abort)
 {
   INIT_CHECK ();
 
-  addr = pshrealloc (addr, *length);
+  addr = shrealloc (addr, *length);
 
   /* pass back status code */
   *errcode = malloc_error;
@@ -188,7 +199,3 @@ FORTRANIFY (pshpclmove) (int *addr, int *length, long *errcode, int *abort)
 		 "shpdeallc() failed: %s", sherror ());
   /* MAYBE NOT REACHED */
 }
-
-#pragma weak shpalloc_ = pshpalloc_
-#pragma weak shpdeallc_ = pshpdeallc_
-#pragma weak shpclmove_ = pshpclmove_
