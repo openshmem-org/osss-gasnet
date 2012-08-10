@@ -248,6 +248,15 @@ SHMEM_TYPE_INC (longlong, long long);
 #pragma weak shmem_longlong_xor = pshmem_longlong_xor
 #define shmem_longlong_xor pshmem_longlong_xor
 
+#define SHMEM_TYPE_XOR(Name, Type)					\
+  void									\
+  shmem_##Name##_xor(Type *target, Type value, int pe)			\
+  {									\
+    INIT_CHECK();							\
+    PE_RANGE_CHECK(pe);							\
+    __shmem_comms_xor_request (target, &value, sizeof(Type), pe);	\
+  }
+
 /**
  * \brief These routines perform an atomic exclusive-or (xor) operation
  * between a data value and the target data object.
@@ -265,8 +274,8 @@ SHMEM_TYPE_INC (longlong, long long);
  * \code
  *   INTEGER pe
  *
- *   SHMEM_INT4_XOR(target, value, pe)
- *   SHMEM_INT8_XOR(target, value, pe)
+ *   SHMEM_INT4_XOR (target, value, pe)
+ *   SHMEM_INT8_XOR (target, value, pe)
  * \endcode
  *
  * \param target    Address of the symmetric data object where to save the data on the target pe.
@@ -297,17 +306,6 @@ SHMEM_TYPE_INC (longlong, long long);
  * \return None.
  *
  */
-
-
-#define SHMEM_TYPE_XOR(Name, Type)					\
-  /* @api@ */								\
-  void									\
-  shmem_##Name##_xor(Type *target, Type value, int pe)			\
-  {									\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_xor_request(target, &value, sizeof(Type), pe);	\
-  }
 
 SHMEM_TYPE_XOR (int, int);
 SHMEM_TYPE_XOR (long, long);

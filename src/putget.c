@@ -234,6 +234,8 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 
 
 
+#pragma weak shmem_char_p = pshmem_char_p
+#define shmem_char_p pshmem_char_p
 #pragma weak shmem_short_p = pshmem_short_p
 #define shmem_short_p pshmem_short_p
 #pragma weak shmem_int_p = pshmem_int_p
@@ -265,13 +267,17 @@ SHMEM_TYPE_P_WRAPPER (float, float);
 SHMEM_TYPE_P_WRAPPER (double, double);
 SHMEM_TYPE_P_WRAPPER (longdouble, long double);
 SHMEM_TYPE_P_WRAPPER (longlong, long long);
+SHMEM_TYPE_P_WRAPPER (char, char);
 SHMEM_TYPE_P_WRAPPER (short, short);
 SHMEM_TYPE_P_WRAPPER (int, int);
 SHMEM_TYPE_P_WRAPPER (long, long);
+SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
 
 
 
 
+#pragma weak shmem_char_g = pshmem_char_g
+#define shmem_char_g pshmem_char_g
 #pragma weak shmem_short_g = pshmem_short_g
 #define shmem_short_g pshmem_short_g
 #pragma weak shmem_int_g = pshmem_int_g
@@ -301,6 +307,8 @@ SHMEM_TYPE_G_WRAPPER (float, float);
 SHMEM_TYPE_G_WRAPPER (double, double);
 SHMEM_TYPE_G_WRAPPER (longlong, long long);
 SHMEM_TYPE_G_WRAPPER (longdouble, long double);
+SHMEM_TYPE_G_WRAPPER (char, char);
 SHMEM_TYPE_G_WRAPPER (short, short);
 SHMEM_TYPE_G_WRAPPER (int, int);
 SHMEM_TYPE_G_WRAPPER (long, long);
+SHMEM_TYPE_G_WRAPPER (complexf, COMPLEXIFY (float));

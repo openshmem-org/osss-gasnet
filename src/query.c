@@ -45,51 +45,100 @@
 
 
 
-#pragma weak shmem_my_pe = pshmem_my_pe
-#define shmem_my_pe pshmem_my_pe
-#pragma weak shmem_n_pes = pshmem_n_pes
-#define shmem_n_pes pshmem_n_pes
-
-/* #pragma weak my_pe = pmy_pe */
 #pragma weak _my_pe = p_my_pe
 #define _my_pe p_my_pe
-
-/* #pragma weak num_pes = pnum_pes */
-#pragma weak _num_pes = p_num_pes
-#define _num_pes p_num_pes
-
-#pragma weak shmem_nodename = pshmem_nodename
-#define shmem_nodename pshmem_nodename
+#pragma weak shmem_my_pe = pshmem_my_pe
+#define shmem_my_pe pshmem_my_pe
 
 /**
- * these routines handle the questions "how many PEs?" and "which PE
- * am I?".  Also added an initial thought about locality with the
- * nodename query
+ * \brief These routines return the "rank" or identity of the calling PE
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   int _my_pe (void);
+ *   int shmem_my_pe (void);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER I
+ *
+ *   I = MY_PE ()
+ * \endcode
+ *
+ * \b Effect:
+ *
+ * None.
+ *
+ * \return Rank of calling PE
  *
  */
 
-#define SHMEM_MY_PE(Variant)			\
-  int						\
-  Variant (void)				\
-  {						\
-    INIT_CHECK();				\
-    return GET_STATE(mype);			\
-  }
+int
+_my_pe (void)
+{
+  INIT_CHECK();
+  return GET_STATE(mype);
+}
 
-/* SHMEM_MY_PE(my_pe) */
-SHMEM_MY_PE (_my_pe);
+int
+shmem_my_pe (void)
+{
+  return _my_pe ();
+}
 
-#define SHMEM_NUM_PES(Variant)			\
-  int						\
-  Variant (void)				\
-  {						\
-    INIT_CHECK();				\
-    return GET_STATE(numpes);			\
-  }
 
-/* SHMEM_NUM_PES(num_pes) */
+#pragma weak _num_pes = p_num_pes
+#define _num_pes p_num_pes
+#pragma weak shmem_n_pes = pshmem_n_pes
+#define shmem_n_pes pshmem_n_pes
 
-SHMEM_NUM_PES (_num_pes);
+/**
+ * \brief These routines return the number of PEs in the program
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   int _num_pes (void);
+ *   int shmem_n_pes (void);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER I
+ *
+ *   I = NUM_PES ()
+ *   I = SHMEM_N_PES ()
+ * \endcode
+ *
+ * \b Effect:
+ *
+ * None.
+ *
+ * \return Number of PEs in program
+ *
+ */
+
+int
+_num_pes (void)
+{
+  INIT_CHECK();
+  return GET_STATE(numpes);
+}
+
+int
+shmem_n_pes (void)
+{
+  return _num_pes ();
+}
+
+
+
+#pragma weak shmem_nodename = pshmem_nodename
+#define shmem_nodename pshmem_nodename
 
 char *
 shmem_nodename (void)
@@ -97,10 +146,6 @@ shmem_nodename (void)
   INIT_CHECK ();
   return GET_STATE (loc.nodename);
 }
-
-
-SHMEM_MY_PE (shmem_my_pe);
-SHMEM_NUM_PES (shmem_n_pes);
 
 
 #pragma weak shmem_version = pshmem_version

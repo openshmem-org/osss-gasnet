@@ -135,11 +135,33 @@ __shmem_place_init (void)
 #define start_pes pstart_pes
 
 /**
- * this is where we get everything up and running
+ * \brief This routine initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void start_pes (int npes);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER npes
+ *
+ *   CALL START_PES (npes)
+ * \endcode
+ *
+ * \param npes the number of PEs participating in the program.  This
+ * is ignored and should be set to 0.
+ *
+ * \b Effect:
+ *
+ * Initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \return None.
  *
  */
 
-/* @api@ */
 void
 start_pes (int npes)
 {
@@ -208,10 +230,6 @@ start_pes (int npes)
 		     "start_pes() was passed %d, should be 0", npes);
     }
 
-  /*
-   * and we're up and running
-   */
-
   SET_STATE (pe_status, PE_RUNNING);
 
   {
@@ -227,4 +245,8 @@ start_pes (int npes)
   }
 
   __shmem_comms_barrier_all ();
+
+  /*
+   * and we're up and running
+   */
 }

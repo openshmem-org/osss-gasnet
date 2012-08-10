@@ -42,6 +42,13 @@
 
 #include "shmem.h"
 
+/*
+ * these two are needed for propagating complex number routines into Fortran,
+ * but aren't actually part of the API
+ */
+extern void shmem_complexf_p (complex float *addr, complex float value, int pe);
+extern complex float shmem_complexf_g (complex float *addr, int pe);
+
 
 #pragma weak pshmem_iput32 = pshmem_int_iput
 #define pshmem_iput32 pshmem_int_iput
@@ -51,6 +58,8 @@
 #define pshmem_iput128 pshmem_longdouble_iput
 #pragma weak shmem_short_iput = pshmem_short_iput
 #define shmem_short_iput pshmem_short_iput
+#pragma weak shmem_char_iput = pshmem_char_iput
+#define shmem_char_iput pshmem_char_iput
 #pragma weak shmem_int_iput = pshmem_int_iput
 #define shmem_int_iput pshmem_int_iput
 #pragma weak shmem_long_iput = pshmem_long_iput
@@ -90,12 +99,13 @@
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
     for (i = 0; i < nelems; i += 1) {					\
-      shmem_##Name##_p(& (target[ti]), source[si], pe);			\
+      shmem_##Name##_p (& (target[ti]), source[si], pe);		\
       ti += tst;							\
       si += sst;							\
     }									\
   }
 
+SHMEM_EMIT_IPUT (char, char);
 SHMEM_EMIT_IPUT (short, short);
 SHMEM_EMIT_IPUT (int, int);
 SHMEM_EMIT_IPUT (long, long);
@@ -103,6 +113,7 @@ SHMEM_EMIT_IPUT (double, double);
 SHMEM_EMIT_IPUT (float, float);
 SHMEM_EMIT_IPUT (longdouble, long double);
 SHMEM_EMIT_IPUT (longlong, long long);
+SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 
 
 
@@ -113,6 +124,8 @@ SHMEM_EMIT_IPUT (longlong, long long);
 #define pshmem_iget64 pshmem_long_iget
 #pragma weak pshmem_iget128 = pshmem_longdouble_iget
 #define pshmem_iget128 pshmem_longdouble_iget
+#pragma weak shmem_char_iget = pshmem_char_iget
+#define shmem_char_iget pshmem_char_iget
 #pragma weak shmem_short_iget = pshmem_short_iget
 #define shmem_short_iget pshmem_short_iget
 #pragma weak shmem_int_iget = pshmem_int_iget
@@ -154,12 +167,13 @@ SHMEM_EMIT_IPUT (longlong, long long);
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
     for (i = 0; i < nelems; i += 1) {					\
-      target[ti] = shmem_##Name##_g((Type *) & (source[si]), pe);	\
+      target[ti] = shmem_##Name##_g ((Type *) & (source[si]), pe);	\
       ti += tst;							\
       si += sst;							\
     }									\
   }
 
+SHMEM_EMIT_IGET (char, char);
 SHMEM_EMIT_IGET (short, short);
 SHMEM_EMIT_IGET (int, int);
 SHMEM_EMIT_IGET (long, long);
@@ -167,3 +181,4 @@ SHMEM_EMIT_IGET (double, double);
 SHMEM_EMIT_IGET (float, float);
 SHMEM_EMIT_IGET (longdouble, long double);
 SHMEM_EMIT_IGET (longlong, long long);
+SHMEM_EMIT_IGET (complexf, COMPLEXIFY (float));

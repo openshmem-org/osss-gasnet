@@ -72,17 +72,17 @@ FORTRANIFY (start_pes) (int *npes)
   start_pes (*npes);
 }
 
-#define SHMEM_FORTRAN_QUERY_PE(Name)		\
+#define SHMEM_FORTRAN_QUERY_PE(FName, CName)	\
   int						\
-  FORTRANIFY(Name)(void)			\
+  FORTRANIFY(FName)(void)			\
   {						\
-    return Name ();				\
+    return CName ();				\
   }
 
-SHMEM_FORTRAN_QUERY_PE (my_pe);
-SHMEM_FORTRAN_QUERY_PE (num_pes);
-SHMEM_FORTRAN_QUERY_PE (shmem_my_pe);
-SHMEM_FORTRAN_QUERY_PE (pshmem_n_pes);
+SHMEM_FORTRAN_QUERY_PE (my_pe, _my_pe);
+SHMEM_FORTRAN_QUERY_PE (num_pes, _num_pes);
+SHMEM_FORTRAN_QUERY_PE (shmem_my_pe, shmem_my_pe);
+SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 
 
 
@@ -224,8 +224,6 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
 #define shmem_logical_iput_ pshmem_logical_iput_
 #pragma weak shmem_real_iput_ = pshmem_real_iput_
 #define shmem_real_iput_ pshmem_real_iput_
-#pragma weak shmem_complex_iput_ = pshmem_complex_iput_
-#define shmem_complex_iput_ pshmem_complex_iput_
 #pragma weak shmem_iput4_ = pshmem_iput4_
 #define shmem_iput4_ pshmem_iput4_
 #pragma weak shmem_iput8_ = pshmem_iput8_
@@ -237,13 +235,18 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
 #pragma weak shmem_iput128_ = pshmem_iput128_
 #define shmem_iput128_ pshmem_iput128_
 
+
+#pragma weak shmem_complex_iput_ = pshmem_complex_iput_
+#define shmem_complex_iput_ pshmem_complex_iput_
+
+
 #define SHMEM_FORTRAN_IPUT(Name, CName, CType)				\
   void									\
   FORTRANIFY(shmem_##Name##_iput) (CType *target, const CType *src,	\
 				   int *tst, int *sst,			\
 				   int *size, int *pe)			\
   {									\
-    shmem_##CName##_iput (target, src, *tst, *sst, *size, *pe);	\
+    shmem_##CName##_iput (target, src, *tst, *sst, *size, *pe);		\
   }
 
 #include <stdio.h>
@@ -262,13 +265,13 @@ SHMEM_FORTRAN_IPUT (double, double, double);
 SHMEM_FORTRAN_IPUT (integer, int, int);
 SHMEM_FORTRAN_IPUT (logical, int, int);
 SHMEM_FORTRAN_IPUT (real, int, int);
-SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
 SHMEM_FORTRAN_IPUT_SIZE (4, int, int);
 SHMEM_FORTRAN_IPUT_SIZE (8, long, long);
 SHMEM_FORTRAN_IPUT_SIZE (32, int, int);
 SHMEM_FORTRAN_IPUT_SIZE (64, long, long);
 SHMEM_FORTRAN_IPUT_SIZE (128, longdouble, long double);
 
+SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
 
 /*
  * strided gets
@@ -284,8 +287,6 @@ SHMEM_FORTRAN_IPUT_SIZE (128, longdouble, long double);
 #define shmem_logical_iget_ pshmem_logical_iget_
 #pragma weak shmem_real_iget_ = pshmem_real_iget_
 #define shmem_real_iget_ pshmem_real_iget_
-#pragma weak shmem_complex_iget_ = pshmem_complex_iget_
-#define shmem_complex_iget_ pshmem_complex_iget_
 #pragma weak shmem_iget4_ = pshmem_iget4_
 #define shmem_iget4_ pshmem_iget4_
 #pragma weak shmem_iget8_ = pshmem_iget8_
@@ -296,6 +297,9 @@ SHMEM_FORTRAN_IPUT_SIZE (128, longdouble, long double);
 #define shmem_iget64_ pshmem_iget64_
 #pragma weak shmem_iget128_ = pshmem_iget128_
 #define shmem_iget128_ pshmem_iget128_
+
+#pragma weak shmem_complex_iget_ = pshmem_complex_iget_
+#define shmem_complex_iget_ pshmem_complex_iget_
 
 #define SHMEM_FORTRAN_IGET(Name, CName, CType)				\
   void									\
@@ -320,13 +324,13 @@ SHMEM_FORTRAN_IGET (double, double, double);
 SHMEM_FORTRAN_IGET (integer, int, int);
 SHMEM_FORTRAN_IGET (logical, int, int);
 SHMEM_FORTRAN_IGET (real, int, int);
-SHMEM_FORTRAN_IGET (complex, complexf, COMPLEXIFY (float));
 SHMEM_FORTRAN_IGET_SIZE (4, int, int);
 SHMEM_FORTRAN_IGET_SIZE (8, long, long);
 SHMEM_FORTRAN_IGET_SIZE (32, int, int);
 SHMEM_FORTRAN_IGET_SIZE (64, long, long);
 SHMEM_FORTRAN_IGET_SIZE (128, longdouble, long double);
 
+SHMEM_FORTRAN_IGET (complex, complexf, COMPLEXIFY (float));
 
 #if 0
 #pragma weak shmem_nodename_ = pshmem_nodename_
