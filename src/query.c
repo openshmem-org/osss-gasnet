@@ -43,6 +43,17 @@
 
 #include "shmem.h"
 
+/*
+ *
+ */
+
+static
+inline int
+mype_helper (void)
+{
+  INIT_CHECK();
+  return GET_STATE(mype);
+}
 
 
 #pragma weak _my_pe = p_my_pe
@@ -79,16 +90,25 @@
 int
 _my_pe (void)
 {
-  INIT_CHECK();
-  return GET_STATE(mype);
+  return mype_helper ();
 }
 
 int
 shmem_my_pe (void)
 {
-  return _my_pe ();
+  return mype_helper ();
 }
 
+/*
+ *
+ */
+
+static int
+numpes_helper (void)
+{
+  INIT_CHECK();
+  return GET_STATE(numpes);
+}
 
 #pragma weak _num_pes = p_num_pes
 #define _num_pes p_num_pes
@@ -125,16 +145,18 @@ shmem_my_pe (void)
 int
 _num_pes (void)
 {
-  INIT_CHECK();
-  return GET_STATE(numpes);
+  return numpes_helper ();
 }
 
 int
 shmem_n_pes (void)
 {
-  return _num_pes ();
+  return numpes_helper ();
 }
 
+/*
+ *
+ */
 
 
 #pragma weak shmem_nodename = pshmem_nodename
@@ -147,6 +169,9 @@ shmem_nodename (void)
   return GET_STATE (loc.nodename);
 }
 
+/*
+ *
+ */
 
 #pragma weak shmem_version = pshmem_version
 #define shmem_version pshmem_version
