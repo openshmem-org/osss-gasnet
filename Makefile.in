@@ -85,4 +85,5 @@ clean-src:
 distclean:	clean
 	$(MAKE) -C doc $@
 	$(MAKE) -C src $@
+	rm -f openshmem.module
 	rm -f config.status
