@@ -304,8 +304,14 @@ tell "Searching for compilers...done"
 tell ""
 
 # -- generate build files from .in templates --
+#
+# all .in Makefiles and the module file
+#
 
-find . -name Makefile.in -print |
+(
+    find . -name Makefile.in -print
+    echo "openshmem.module.in"
+) |
 while read mfin
 do
     mf="`echo $mfin | sed -e 's/\.in$//'`"
