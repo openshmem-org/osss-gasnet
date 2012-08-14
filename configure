@@ -206,8 +206,7 @@ tell ""
 tell "Starting configuration"
 tell ""
 
-tell "Looking for GASNet..."
-tell ""
+tell "Looking for GASNet ... "
 
 if [ -z "$gasnet_root" ]
 then
@@ -244,7 +243,7 @@ then
         gasnet_conduit="$KNOWN_CONDUITS"
 	cdt_auto="(auto-detected)"
         tell ""
-        tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
+        tell "Only conduit \"$gasnet_conduit\" is configured, using it."
         tell ""
     else
         # multiple configured, let the user decide
@@ -259,8 +258,7 @@ fi
 
 # -- ok, gasnet there --
 
-tell ""
-tell "Looking for GASNet...done"
+tell "Looking for GASNet ... done"
 tell ""
 
 # -- check compilers, defaults to GNU --
@@ -277,7 +275,7 @@ fc_flags=${FCFLAGS-"-g"}
 
 # -- make sure we can find compilers --
 
-tell "Searching for compilers"
+tell "Searching for compilers ..."
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
@@ -300,13 +298,15 @@ then
     bailout
 fi
 
-tell "Searching for compilers...done"
+tell "Searching for compilers ... done"
 tell ""
 
 # -- generate build files from .in templates --
 #
 # all .in Makefiles and the module file
 #
+
+tell "Making build files from templates ... "
 
 (
     find . -name Makefile.in -print
@@ -339,6 +339,52 @@ do
         $mfin > $mf
     tell "created $mf from $mfin"
 done
+
+tell "Making build files from templates ... done"
+
+# -- tell us all about what's configured --
+
+tell ""
+tell "-------------------------------------------------------------"
+tell ""
+tell "Compilers:"
+tell "  C compiler is                 $cc_cmd"
+tell "  C pre-processor flags are     $cpp_flags"
+tell "  C flags are                   $c_flags"
+tell ""
+tell "  C++ compiler is               $cxx_cmd"
+tell "  C++ flags are                 $cxx_flags"
+tell ""
+tell "  Fortran compiler is           $fc_cmd"
+tell "  Fortran flags are             $fc_flags"
+tell ""
+tell "  Linker is                     $ld_cmd"
+tell "  Linker flags are              $ld_flags"
+tell ""
+tell "GASNet:"
+tell "  Installed in                  $gasnet_root"
+tell "  Using conduit                 $gasnet_conduit $cdt_auto"
+if [ ! -z "$elf_headers" ]
+then
+tell ""
+tell "ELF headers                     $elf_headers"
+fi
+if [ ! -z "$elf_libs" ]
+then
+tell "ELF libraries                   $elf_libs"
+fi
+tell ""
+tell "Options:"
+tell "  Debug is                      $debug"
+tell "  Trace is                      $trace"
+tell "  Non-blocking extensions are   $putget_nb"
+tell ""
+tell "Installation:"
+tell "  Main package to               $prefix"
+tell "  Libraries to                  $libdir"
+tell "  Modules to                    $modulesdir"
+
+# -- save configure settings, makes it easy to re-run --
 
 cs=./config.status
 tmpcs=`mktemp`
@@ -374,45 +420,8 @@ cp $tmpcs $cs
 rm -f $tmpcs
 chmod +x $cs
 
-# -- tell us all about what's configured --
-
 tell ""
 tell "-------------------------------------------------------------"
 tell ""
-tell "Saved configuration in file   \"$cs\""
-tell ""
-tell "C compiler is                 \"$cc_cmd\""
-tell "C pre-processor flags are     \"$cpp_flags\""
-tell "C flags are                   \"$c_flags\""
-tell ""
-tell "C++ compiler is               \"$cxx_cmd\""
-tell "C++ flags are                 \"$cxx_flags\""
-tell ""
-tell "Fortran compiler is           \"$fc_cmd\""
-tell "Fortran flags are             \"$fc_flags\""
-tell ""
-tell "Linker is                     \"$ld_cmd\""
-tell "Linker flags are              \"$ld_flags\""
-tell ""
-tell ""
-tell "Installing OpenSHMEM to       \"$prefix\""
-tell "Installing libraries to       \"$libdir\""
-tell "Installing modules to         \"$modulesdir\""
-tell ""
-tell "Using GASNet installed in     \"$gasnet_root\""
-tell "Using GASNet conduit          \"$gasnet_conduit\" $cdt_auto"
-if [ ! -z "$elf_headers" ]
-then
-tell ""
-tell "ELF headers                   \"$elf_headers\""
-fi
-if [ ! -z "$elf_libs" ]
-then
-tell "ELF libraries                 \"$elf_libs\""
-fi
-
-tell ""
-tell "Debug is                      $debug"
-tell "Trace is                      $trace"
-tell "Non-blocking extensions are   $putget_nb"
+tell "Configuration in shell-script   $cs"
 tell ""
