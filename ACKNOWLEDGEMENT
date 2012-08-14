@@ -35,40 +35,15 @@
 #
 
 
-This project is hosted at
+Acknowledgement
+---------------
 
-    http://www.openshmem.org/
+This work is supported by Oak Ridge National Laboratory's Extreme
+Scale System Center.
 
-which is where you can find definitive information about OpenSHMEM.
-
-Testing Environment
--------------------
-
-1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
-   conduits, OpenMPI 1.4.3
-
-2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
-   conduit, OpenMPI 1.4.2 with slurm integration
-
-3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
-   conduit, OpenMPI 1.4.3 with pbs (called "tm") integration
-
-Support Software
-----------------
-
-1. GASNet   :: http://gasnet.cs.berkeley.edu/
-
-2. Open-MPI :: http://www.open-mpi.org/
-
-3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
-
-Feedback
---------
-
-The main project contact at the University of Houston is
-
-    Dr. Barbara Chapman <chapman@cs.uh.edu>
-
-The project development lead is
-
-    Tony Curtis <arcurtis@mail.uh.edu>
+Development at the University of Houston was supported in part by the
+National Science Foundation's Computer Systems Research program under
+Award No. CRI-0958464.  Any opinions, findings, and conclusions or
+recommendations expressed in this material are those of the authors
+and do not necessarily reflect the views of the National Science
+Foundation.
