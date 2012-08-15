@@ -140,37 +140,43 @@ __EOT__
 # parse command line
 #
 
+# split out value from key=value
+chompit()
+{
+    echo $@ | cut -d= -f2-
+}
+
 for o in $@
 do
     case $o in
 	--prefix=*)
-	    prefix="`echo $o | sed 's/--prefix=//'`"
+	    prefix="`chompit $o`"
 	    ;;
 	--with-libdir=*)
-	    libdir="`echo $o | sed 's/--with-libdir=//'`"
+	    libdir="`chompit $o`"
 	    ;;
 	--with-modulesdir=*)
-	    modulesdir="`echo $o | sed 's/--with-modulesdir=//'`"
+	    modulesdir="`chompit $o`"
 	    ;;
 	--with-gasnet-root=*)
-	    gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
+	    gasnet_root="`chompit $o`"
 	    ;;
 	--with-gasnet-conduit=*)
-	    gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
+	    gasnet_conduit="`chompit $o`"
 	    ;;
 	--with-libelf=*)
-	    elf_top_dir="`echo $o | sed 's/--with-libelf=//'`"
+	    elf_top_dir="`chompit $o`"
             elf_header_dir="$elf_top_dir/include"
             elf_lib_dir="$elf_top_dir/lib"
             elf_headers="-I$elf_header_dir"
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
             ;;
 	--with-libelf-headers=*)
-	    elf_header_dir="`echo $o | sed 's/--with-libelf-headers=//'`"
+	    elf_header_dir="`chompit $o`"
             elf_headers="-I$elf_header_dir"
 	    ;;
 	--with-libelf-libs=*)
-	    elf_lib_dir="`echo $o | sed 's/--with-libelf-libs=//'`"
+	    elf_lib_dir="`chompit $o`"
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
@@ -193,7 +199,7 @@ do
 	    ;;
 	--help)
 	    show_usage
-	    exit 0
+	    bailout
 	    ;;
 	*)
 	    show_usage $o
