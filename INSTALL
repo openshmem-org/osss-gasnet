@@ -165,5 +165,6 @@ A sample file
 
     openshmem.module
 
-will be created after configure is run (although not installed
-anywhere by this library).
+will be created after configure is run and will be installed to
+
+    <install>/modulefiles/openshmem

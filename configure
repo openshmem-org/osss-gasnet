@@ -54,6 +54,7 @@ trace=FALSE
 
 libdir=
 modulesdir=
+modulefilesdir=
 
 bailout()
 {
@@ -88,6 +89,9 @@ Usage: $progname [options]
 
     --with-modulesdir=DIR        Pluggable modules installed to DIR
                                      (default: LIBDIR/modules)
+
+    --with-modulefilesdir=DIR    pkg-config file installed to DIR
+                                     (default: PREFIX/modulefiles)
 
   Communications:
 
@@ -157,6 +161,9 @@ do
 	    ;;
 	--with-modulesdir=*)
 	    modulesdir="`chompit $o`"
+	    ;;
+	--with-modulefilesdir=*)
+	    modulefilesdir="`chompit $o`"
 	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
@@ -261,6 +268,7 @@ fi
 
 [ -z "$libdir" ] && libdir=$prefix/lib
 [ -z "$modulesdir" ] && modulesdir=$libdir/modules
+[ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
 # -- ok, gasnet there --
 
@@ -315,8 +323,8 @@ tell ""
 tell "Making build files from templates ... "
 
 (
-    find . -name Makefile.in -print
-    echo "openshmem.module.in"
+    find . -name 'Makefile.in' -print
+    echo 'openshmem.module.in'
 ) |
 while read mfin
 do
@@ -341,6 +349,7 @@ do
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
+        -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
         -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         $mfin > $mf
     tell "created $mf from $mfin"
@@ -388,7 +397,8 @@ tell ""
 tell "Installation:"
 tell "  Main package to               $prefix"
 tell "  Libraries to                  $libdir"
-tell "  Modules to                    $modulesdir"
+tell "  OpensHMEM modules to          $modulesdir"
+tell "  pkg-config file to            $modulefilesdir"
 
 # -- save configure settings, makes it easy to re-run --
 
