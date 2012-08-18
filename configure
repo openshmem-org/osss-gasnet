@@ -45,11 +45,11 @@ progname="`basename $0`"
 prefix=/usr/local
 gasnet_root=$prefix
 gasnet_conduit=
-elf_headers=
-elf_libs=
-putget_nb=FALSE
-debug=FALSE
-trace=FALSE
+elf_header_dir=/usr/include
+elf_lib_dir=/usr/lib64
+putget_nb=OFF
+debug=OFF
+trace=OFF
 # -- end defaults --
 
 libdir=
@@ -99,12 +99,16 @@ Usage: $progname [options]
     --with-gasnet-conduit=C      Use GASNet conduit "C"
                                      (if only 1 conduit configured, use it)
 
-  Optional features:
+  Optional Support Libraries:
 
     --with-libelf=E              Libelf header and library files under
                                      directory "E" (.../include, .../lib)
     --with-libelf-headers=H      Libelf header files in directory "H"
+                                     (default: /usr/include)
     --with-libelf-libs=L         Libelf library files in directory "L"
+                                     (default: /usr/lib64)
+
+  Optional features:
 
     --enable-debug               Run-time debugging checks
     --disable-debug              No run-time debugging checks
@@ -187,22 +191,22 @@ do
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
-	    debug=TRUE
+	    debug=ON
 	    ;;
 	--disable-debug)
-	    debug=FALSE
+	    debug=OFF
 	    ;;
 	--enable-trace)
-	    trace=TRUE
+	    trace=ON
 	    ;;
 	--disable-trace)
-	    trace=FALSE
+	    trace=OFF
 	    ;;
 	--enable-putget-nb)
-	    putget_nb=TRUE
+	    putget_nb=ON
 	    ;;
 	--disable-putget-nb)
-	    putget_nb=FALSE
+	    putget_nb=OFF
 	    ;;
 	--help)
 	    show_usage
@@ -217,6 +221,32 @@ done
 
 tell ""
 tell "Starting configuration"
+tell ""
+
+tell "Looking for ELF library ... "
+gelf_h="$elf_header_dir/gelf.h"
+if [ ! -r "$gelf_h" ]
+then
+    tell "Can't find header <gelf.h> for ELF executable support"
+    tell "  in $elf_header_dir"
+    bailout
+fi
+elf_lib_so="$elf_lib_dir/libelf.so"
+if [ -r "$elf_lib_so" ]
+then
+    found_libelf="shared"
+else
+    elf_lib_a="$elf_lib_dir/libelf.a"
+    if [ -r "$elf_lib_a" ]
+    then
+	found_libelf="static"
+    else
+	tell "Can't find library -lelf for ELF executable support"
+	tell "  in $elf_lib_dir"
+	bailout
+    fi
+fi
+tell "Looking for ELF library ... done"
 tell ""
 
 tell "Looking for GASNet ... "
@@ -266,14 +296,16 @@ then
     fi
 fi
 
-[ -z "$libdir" ] && libdir=$prefix/lib
-[ -z "$modulesdir" ] && modulesdir=$libdir/modules
-[ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
-
 # -- ok, gasnet there --
 
 tell "Looking for GASNet ... done"
 tell ""
+
+# -- fill in install locations --
+
+[ -z "$libdir" ] && libdir=$prefix/lib
+[ -z "$modulesdir" ] && modulesdir=$libdir/modules
+[ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
 # -- check compilers, defaults to GNU --
 
@@ -379,15 +411,9 @@ tell ""
 tell "GASNet:"
 tell "  Installed in                  $gasnet_root"
 tell "  Using conduit                 $gasnet_conduit $cdt_auto"
-if [ ! -z "$elf_headers" ]
-then
 tell ""
-tell "ELF headers                     $elf_headers"
-fi
-if [ ! -z "$elf_libs" ]
-then
-tell "ELF libraries                   $elf_libs"
-fi
+tell "  ELF headers in                $elf_header_dir"
+tell "  ELF library in                $elf_lib_dir ($found_libelf)"
 tell ""
 tell "Options:"
 tell "  Debug is                      $debug"
