@@ -148,8 +148,10 @@ __shmalloc_no_check (size_t size)
 
 #pragma weak shmalloc = pshmalloc
 #define shmalloc pshmalloc
+#if 0
 #pragma weak shmem_malloc = pshmalloc
 #define shmem_malloc pshmalloc
+#endif
 
 /**
  * Symmetrically allocate "size" byte of memory across all PEs
@@ -184,8 +186,10 @@ shmalloc (size_t size)
 
 #pragma weak shfree = pshfree
 #define shfree pshfree
+#if 0
 #pragma weak shmem_free = pshfree
 #define shmem_free pshfree
+#endif
 
 /**
  * Symmetrically free previously allocated memory
@@ -219,8 +223,10 @@ shfree (void *addr)
 
 #pragma weak shrealloc = pshrealloc
 #define shrealloc pshrealloc
+#if 0
 #pragma weak shmem_realloc = pshrealloc
 #define shmem_realloc pshrealloc
+#endif
 
 /**
  * Resize previously allocated symmetric memory
@@ -280,8 +286,10 @@ shrealloc (void *addr, size_t size)
 
 #pragma weak shmemalign = pshmemalign
 #define shmemalign pshmemalign
+#if 0
 #pragma weak shmem_memalign = pshmemalign
 #define shmem_memalign pshrealloc
+#endif
 
 /**
  * The shmemalign function allocates a block in the symmetric heap that
@@ -354,11 +362,12 @@ static malloc_error_code_t error_table[] = {
 };
 static const int nerrors = TABLE_SIZE (error_table);
 
-
 #pragma weak sherror = psherror
 #define sherror psherror
+#if 0
 #pragma weak shmem_error = psherror
 #define shmem_error psherror
+#endif
 
 /**
  * Return human-readable error message

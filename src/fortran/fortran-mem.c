@@ -48,6 +48,11 @@
 #include "fortran-common.h"
 
 /*
+ * used by Fortran routines, but not part of API
+ */
+extern char *sherror (void);
+
+/*
  * Fortran symmetric memory operations
  */
 

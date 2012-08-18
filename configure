@@ -403,7 +403,7 @@ tell "  pkg-config file to            $modulefilesdir"
 # -- save configure settings, makes it easy to re-run --
 
 cs=./config.status
-tmpcs=`mktemp`
+tmpcs=`mktemp /tmp/tmp.XXXXXX`
 cat > $tmpcs <<_EOT_
 #!/bin/sh
 #
