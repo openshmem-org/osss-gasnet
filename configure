@@ -429,7 +429,15 @@ tell "  pkg-config file to            $modulefilesdir"
 # -- save configure settings, makes it easy to re-run --
 
 cs=./config.status
-tmpcs=`mktemp /tmp/tmp.XXXXXX`
+# repect TMPDIR
+if [ -z "$TMPDIR" ]
+then
+  template="/tmp"
+else
+  template="$TMPDIR"
+fi
+template="$template/tmp.XXXXXX"
+tmpcs=`mktemp $template`
 cat > $tmpcs <<_EOT_
 #!/bin/sh
 #
