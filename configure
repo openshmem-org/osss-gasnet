@@ -47,9 +47,9 @@ gasnet_root=$prefix
 gasnet_conduit=
 elf_header_dir=/usr/include
 elf_lib_dir=/usr/lib64
-putget_nb=OFF
-debug=OFF
-trace=OFF
+putget_nb=FALSE
+debug=FALSE
+trace=FALSE
 # -- end defaults --
 
 libdir=
@@ -191,22 +191,22 @@ do
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
-	    debug=ON
+	    debug=TRUE
 	    ;;
 	--disable-debug)
-	    debug=OFF
+	    debug=FALSE
 	    ;;
 	--enable-trace)
-	    trace=ON
+	    trace=TRUE
 	    ;;
 	--disable-trace)
-	    trace=OFF
+	    trace=FALSE
 	    ;;
 	--enable-putget-nb)
-	    putget_nb=ON
+	    putget_nb=TRUE
 	    ;;
 	--disable-putget-nb)
-	    putget_nb=OFF
+	    putget_nb=FALSE
 	    ;;
 	--help)
 	    show_usage

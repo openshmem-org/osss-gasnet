@@ -67,11 +67,15 @@ CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
 CFLAGS          += -fPIC
 
 .PHONY: all default clean
+.PHONY: shmem-headers
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	$(OBJECTS)
+all default:	shmem-headers	$(OBJECTS)
+
+shmem-headers:
+	$(MAKE) -C .. shmem-headers
 
 clean:
 	rm -f $(OBJECTS)

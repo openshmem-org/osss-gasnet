@@ -241,6 +241,7 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 
 .PHONY: all default
 .PHONY:	$(OBJ_GEN)
+.PHONY:	shmem-headers
 .PHONY: install install-lib install-comms install-include
 .PHONY: uninstall uninstall-lib uninstall-comms uninstall-include
 .PHONY: clean distclean
@@ -302,6 +303,8 @@ uninstall-include:
 	- rmdir $(PREFIX)/include
 
 # -- header files ------------------------------------------
+
+shmem-headers: $(SHMEM_HEADERS)
 
 shmem.h:	shmem.h.in
 	$(M4) $(M4FLAGS) $^ > $@
