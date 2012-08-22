@@ -429,7 +429,7 @@ tell "  pkg-config file to            $modulefilesdir"
 # -- save configure settings, makes it easy to re-run --
 
 cs=./config.status
-# repect TMPDIR
+# respect mktemp & TMPDIR for different OSes
 if [ -z "$TMPDIR" ]
 then
   template="/tmp"

@@ -92,6 +92,51 @@ Optimized for SMP (no MPI involved):
 
     (GASNet built with fast/large model)
 
+The default layout of an installation is as follows:
+
+    .
+    |-- bin
+    |   |-- oshCC
+    |   |-- oshcc
+    |   |-- oshfort
+    |   `-- oshrun
+    |-- include
+    |   |-- mpp
+    |   |   |-- pshmem.h
+    |   |   |-- shmem.fh
+    |   |   `-- shmem.h
+    |   |-- pshmem.h
+    |   |-- shmem.fh
+    |   `-- shmem.h
+    |-- lib
+    |   |-- libopenshmem.so
+    |   |-- modules
+    |   |   |-- barrier-all-linear.so
+    |   |   |-- barrier-linear.so
+    |   |   |-- barrier-tree.so
+    |   |   |-- broadcast-linear.so
+    |   |   |-- broadcast-tree.so
+    |   |   |-- collect-linear.so
+    |   |   |-- config
+    |   |   `-- fcollect-linear.so
+    |   `-- pkgconfig
+    |       `-- openshmem.pc
+    |-- modulefiles
+    |   `-- openshmem
+    `-- share
+        `-- man
+            |-- man1
+            |   |-- oshCC.1
+            |   |-- oshcc.1
+            |   |-- oshfort.1
+            |   `-- oshrun.1
+            |-- man3
+            `-- man5
+                `-- oshconfig.5
+
+    12 directories, 26 files
+
+
 Installation Notes
 ------------------
 
