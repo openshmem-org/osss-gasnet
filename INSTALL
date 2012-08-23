@@ -208,8 +208,8 @@ ELF Library
 
 There are 2 common ELF libraries:
 
-  elfutils :: https://fedorahosted.org/elfutils/
-  libelf   :: http://www.mr511.de/software/english.html
+    elfutils :: https://fedorahosted.org/elfutils/
+    libelf   :: http://www.mr511.de/software/english.html
 
 While all local development (University of Houston) has used elfutils
 on a number of Linux distributions, we encountered some portability
@@ -260,4 +260,3 @@ will be created after configure is run and will be installed to
 
     <install>/modulefiles/openshmem
 
- LocalWords:  openshmem
