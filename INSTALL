@@ -35,7 +35,7 @@
 #
 
 Installation Instructions (preliminary) for OpenSHMEM
------------------------------------------------------
+=====================================================
 
 The library installs on top of GASNet and anything required by
 whichever conduit you want to use with GASNet, e.g. an MPI.  GASNet
@@ -44,8 +44,11 @@ OpenSHMEM to work on top of.
 
 The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
 any version that adheres to the "mpi" prefix for the command-line
-tools will slot right in, and if not, the fix is pretty trivial.
-We've used MPICH2 and MVAPICH2 successfully too.
+tools will slot right in, and if not, you don't have to use the
+wrapper programs provided by the library, rather using the MPI
+compilers and e.g. the pkg-config utility to locate headers and
+libraries (described below).  We've used MPICH2 and MVAPICH2
+successfully too.
 
 The main GASNet version has been 1.18.x during development, although
 1.42.2 and the 1.16.x series were used as well as a comparison for
@@ -66,7 +69,7 @@ machine, but for e.g. an Infiniband cluster, just change this to "ibv"
 by choosing a different conduit in the configure command.
 
 Configure Usage
----------------
+===============
 
 Here is how configure might be called on a cluster using Infiniband,
 with debugging support (e.g. argument and PE range checking) and
@@ -138,9 +141,40 @@ The default layout of an installation is as follows:
 
 
 Installation Notes
-------------------
+==================
 
-1. GASNet & Infiniband
+Building GASNet
+---------------
+
+GASNet can be configured in many weird and wonderful ways.  Unless
+you're working in a very particular environment, it is easiest to
+allow GASNet to auto-detect network support and configure discovered
+conduits.  This library's configure script will list them for you and
+prompt for a choice if you do not choose one explicitly.  A sample
+configuration that the OpenSHMEM library's author has used is:
+
+    1: 	  /path/to/gasnet-source-directory/configure \
+    2: 	      --enable-segment-fast                  \
+    3: 	      --disable-aligned-segments             \
+    4: 	      --enable-throttle-poll                 \
+    5:        --disable-udp                          \
+    6: 	      --prefix=/path/to/install
+
+This is for a general-purpose GNU/Linux system (or cluster):
+
+    1:    path to configure script (build in separate directory)
+    2: 	  "fast" (small messages) segment
+    3: 	  address-space-randomization
+    4: 	  throttled polling for SMP conduit
+    5:    don't bother building UDP support, don't want it
+    6: 	  where to install GASNet
+
+Note that GASNet is only needed to build this OpenSHMEM library,
+strictly speaking it does not need to be installed globally to
+actually use the library.
+
+GASNet & Infiniband
+-------------------
 
 On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
@@ -162,7 +196,8 @@ environment variable, and
 
 to set the number of Infiniband queue-pairs.
 
-2. ELF Library
+ELF Library
+-----------
 
 There are 2 common ELF libraries:
 
@@ -174,15 +209,17 @@ on a number of Linux distributions, we encountered some portability
 issues between elfutils and libelf on some remote systems.  Hopefully
 these issues have been addressed.
 
+N.B. we don't currently support other executable formats (XCOFF etc.).
+
 Pkg-Config
-----------
+==========
 
 pkg-config(1)
 
     http://www.freedesktop.org/wiki/Software/pkg-config
 
 helps packages provide configuration information for other packages to
-interact with them, so you can ask openshmem for its CFLAGS or
+interact with them, so you can ask OpenSHMEM for its CFLAGS or
 libraries for linking.  Add
 
     <install>/lib/pkgconfig
@@ -195,10 +232,12 @@ This means you can compile/link programs as e.g. with Open64
         program.c                               \
             $(pkg-config --libs openshmem)
 
-or any other compiler of your choice.
+or any other compiler of your choice (N.B. implementations on top of
+MPI will require compilation in this manner with the appropriate MPI
+compiler, such as mpicc).
 
 Module
-------
+======
 
 The module(1) command
 
@@ -213,3 +252,5 @@ A sample file
 will be created after configure is run and will be installed to
 
     <install>/modulefiles/openshmem
+
+ LocalWords:  openshmem
