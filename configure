@@ -429,7 +429,9 @@ tell "  pkg-config file to            $modulefilesdir"
 # -- save configure settings, makes it easy to re-run --
 
 cs=./config.status
+
 # respect mktemp & TMPDIR for different OSes
+
 if [ -z "$TMPDIR" ]
 then
   template="/tmp"
@@ -438,6 +440,15 @@ else
 fi
 template="$template/tmp.XXXXXX"
 tmpcs=`mktemp $template`
+
+# clean up our temporary file on exit, or if something happens
+
+clean_tmp()
+{
+    rm -f $tmpcs
+}
+trap clean_tmp 0 1 2 3 19 20
+
 cat > $tmpcs <<_EOT_
 #!/bin/sh
 #
@@ -467,7 +478,6 @@ export LDFLAGS
 $0 $@
 _EOT_
 cp $tmpcs $cs
-rm -f $tmpcs
 chmod +x $cs
 
 tell ""
