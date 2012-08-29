@@ -719,7 +719,7 @@ static void handler_quiet_bak ();
 #endif /* not used */
 
 /**
- * proposed by IBM Zuerich
+ * proposed by IBM Zurich
  *
  */
 
@@ -745,38 +745,39 @@ static void handler_globalvar_get_bak ();
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
-static gasnet_handlerentry_t handlers[] = {
+static gasnet_handlerentry_t handlers[] =
+  {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
-  {GASNET_HANDLER_SETUP_OUT, handler_segsetup_out},
-  {GASNET_HANDLER_SETUP_BAK, handler_segsetup_bak},
+    {GASNET_HANDLER_SETUP_OUT,          handler_segsetup_out},
+    {GASNET_HANDLER_SETUP_BAK,          handler_segsetup_bak},
 #endif /* ! HAVE_MANAGED_SEGMENTS */
-  {GASNET_HANDLER_SWAP_OUT, handler_swap_out},
-  {GASNET_HANDLER_SWAP_BAK, handler_swap_bak},
-  {GASNET_HANDLER_CSWAP_OUT, handler_cswap_out},
-  {GASNET_HANDLER_CSWAP_BAK, handler_cswap_bak},
-  {GASNET_HANDLER_FADD_OUT, handler_fadd_out},
-  {GASNET_HANDLER_FADD_BAK, handler_fadd_bak},
-  {GASNET_HANDLER_FINC_OUT, handler_finc_out},
-  {GASNET_HANDLER_FINC_BAK, handler_finc_bak},
-  {GASNET_HANDLER_ADD_OUT, handler_add_out},
-  {GASNET_HANDLER_ADD_BAK, handler_add_bak},
-  {GASNET_HANDLER_INC_OUT, handler_inc_out},
-  {GASNET_HANDLER_INC_BAK, handler_inc_bak},
-  {GASNET_HANDLER_PING_OUT, handler_ping_out},
-  {GASNET_HANDLER_PING_BAK, handler_ping_bak},
+    {GASNET_HANDLER_SWAP_OUT, 		handler_swap_out},
+    {GASNET_HANDLER_SWAP_BAK, 		handler_swap_bak},
+    {GASNET_HANDLER_CSWAP_OUT,	        handler_cswap_out},
+    {GASNET_HANDLER_CSWAP_BAK,	        handler_cswap_bak},
+    {GASNET_HANDLER_FADD_OUT, 		handler_fadd_out},
+    {GASNET_HANDLER_FADD_BAK, 		handler_fadd_bak},
+    {GASNET_HANDLER_FINC_OUT, 		handler_finc_out},
+    {GASNET_HANDLER_FINC_BAK, 		handler_finc_bak},
+    {GASNET_HANDLER_ADD_OUT, 		handler_add_out},
+    {GASNET_HANDLER_ADD_BAK, 		handler_add_bak},
+    {GASNET_HANDLER_INC_OUT, 		handler_inc_out},
+    {GASNET_HANDLER_INC_BAK, 		handler_inc_bak},
+    {GASNET_HANDLER_PING_OUT, 		handler_ping_out},
+    {GASNET_HANDLER_PING_BAK, 		handler_ping_bak},
 #if 0				/* not used */
-  {GASNET_HANDLER_QUIET_OUT, handler_quiet_out},
-  {GASNET_HANDLER_QUIET_BAK, handler_quiet_bak},
+    {GASNET_HANDLER_QUIET_OUT,          handler_quiet_out},
+    {GASNET_HANDLER_QUIET_BAK,          handler_quiet_bak},
 #endif /* not used */
-  {GASNET_HANDLER_XOR_OUT, handler_xor_out},
-  {GASNET_HANDLER_XOR_BAK, handler_xor_bak},
+    {GASNET_HANDLER_XOR_OUT,            handler_xor_out},
+    {GASNET_HANDLER_XOR_BAK,            handler_xor_bak},
 #if defined(HAVE_MANAGED_SEGMENTS)
-  {GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out},
-  {GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak},
-  {GASNET_HANDLER_GLOBALVAR_GET_OUT, handler_globalvar_get_out},
-  {GASNET_HANDLER_GLOBALVAR_GET_BAK, handler_globalvar_get_bak},
+    {GASNET_HANDLER_GLOBALVAR_PUT_OUT, 	handler_globalvar_put_out},
+    {GASNET_HANDLER_GLOBALVAR_PUT_BAK, 	handler_globalvar_put_bak},
+    {GASNET_HANDLER_GLOBALVAR_GET_OUT, 	handler_globalvar_get_out},
+    {GASNET_HANDLER_GLOBALVAR_GET_BAK, 	handler_globalvar_get_bak},
 #endif /* HAVE_MANAGED_SEGMENTS */
-};
+  };
 static const int nhandlers = TABLE_SIZE (handlers);
 
 /**

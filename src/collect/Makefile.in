@@ -68,9 +68,12 @@ MODULES = $(wildcard collect-*.c)
 OBJECTS = $(MODULES:.c=.o)
 SHOBJECTS = $(MODULES:.c=.so)
 
-.PHONY: all default install-lib uninstall-lib clean
+.PHONY: all default install-lib uninstall-lib clean shmem-headers
 
-all default:	$(SHOBJECTS) collect.o
+all default:	shmem-headers $(SHOBJECTS) collect.o
+
+shmem-headers:
+	$(MAKE) -C .. $@
 
 install-lib:	all default
 	mkdir -p @MODULES_DIR@

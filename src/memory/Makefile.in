@@ -72,12 +72,15 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
-.PHONY: all default clean
+.PHONY: all default clean shmem-headers
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	$(OBJECTS)
+all default:	shmem-headers $(OBJECTS)
+
+shmem-headers:
+	$(MAKE) -C .. $@
 
 clean:
 	rm -f $(OBJECTS)

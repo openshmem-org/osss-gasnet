@@ -75,7 +75,7 @@ OBJECTS  = $(SOURCES:.c=.o)
 all default:	shmem-headers	$(OBJECTS)
 
 shmem-headers:
-	$(MAKE) -C .. shmem-headers
+	$(MAKE) -C .. $@
 
 clean:
 	rm -f $(OBJECTS)
