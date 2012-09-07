@@ -63,7 +63,7 @@ extern "C"
 #endif				/* __cplusplus */
 
   /*
-   * "Orange Mocha Frappuccino" SHMEM release
+   * OpenSHMEM release (Eugoogoly)
    */
 
 #define SHMEM_MAJOR_VERSION 1

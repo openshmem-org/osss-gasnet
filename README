@@ -41,8 +41,8 @@ This project is hosted at
 
 which is where you can find definitive information about OpenSHMEM.
 
-Testing Environment
--------------------
+Testing Environments at University of Houston
+---------------------------------------------
 
 1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
    conduits, OpenMPI 1.4.3
@@ -53,8 +53,8 @@ Testing Environment
 3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
    conduit, OpenMPI 1.4.3 with pbs (called "tm") integration
 
-Support Software
-----------------
+Some Supporting Software
+-------------------------
 
 1. GASNet   :: http://gasnet.cs.berkeley.edu/
 
@@ -62,8 +62,8 @@ Support Software
 
 3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
 
-Feedback
---------
+Contact and Feedback
+--------------------
 
 The main project contact at the University of Houston is
 

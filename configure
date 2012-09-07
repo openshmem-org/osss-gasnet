@@ -223,6 +223,51 @@ tell ""
 tell "Starting configuration"
 tell ""
 
+# -- check compilers, defaults to GNU --
+
+cc_cmd=${CC-gcc}
+cpp_flags=${CPPFLAGS-""}
+c_flags=${CFLAGS-"-g"}
+ld_cmd=${LD-$cc_cmd}
+ld_flags=${LDFLAGS-""}
+cxx_cmd=${CXX-g++}
+cxx_flags=${CXXFLAGS-"-g"}
+fc_cmd=${FC-gfortran}
+fc_flags=${FCFLAGS-"-g"}
+
+# -- make sure we can find compilers --
+
+tell "Searching for compilers ..."
+
+which $cc_cmd >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    tell "I couldn't find the C compiler \"$cc_cmd\""
+    bailout
+fi
+tell "C compiler is \"$cc_cmd\""
+
+# we're not actually using these during build, so don't really check
+
+# which $cxx_cmd >/dev/null 2>&1
+# if [ $? -ne 0 ]
+# then
+#     tell "I couldn't find the C++ compiler \"$cxx_cmd\""
+#     bailout
+# fi
+# 
+# which $fc_cmd >/dev/null 2>&1
+# if [ $? -ne 0 ]
+# then
+#     tell "I couldn't find the Fortran compiler \"$fc_cmd\""
+#     bailout
+# fi
+
+tell "Searching for compilers ... done"
+tell ""
+
+# -- ELF (TODO expand for other exe formats) --
+
 tell "Looking for ELF library ... "
 gelf_h="$elf_header_dir/gelf.h"
 if [ ! -r "$gelf_h" ]
@@ -249,6 +294,8 @@ fi
 tell "Looking for ELF library ... done"
 tell ""
 
+# -- GASNet detection --
+
 tell "Looking for GASNet ... "
 
 if [ -z "$gasnet_root" ]
@@ -256,22 +303,60 @@ then
     tell "I don't know where GASNet is installed"
     bailout
 fi
-if [ ! -r "$gasnet_root/include/gasnet.h" ]
+
+gasnet_h="gasnet_config.h"
+gasnet_inc_dir="$gasnet_root/include"
+gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
+if [ ! -r "$gasnet_path_h" ]
 then
     tell "I can't find a GASNet installation in \"$gasnet_root\""
-    tell "  (no gasnet.h header file)"
+    tell "  (no $gasnet_h header file)"
+    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
     bailout
 fi
 
-KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
-                   sed -e 's/-conduit//g' )`"
+# check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
+
+find_ver_macro()
+{
+    var=$1
+    file=$2
+    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    eval $cmd
+}
+
+gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
+gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
+gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
+if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
+then
+    tell "Couldn't discover GASNet version in $gasnet_root"
+    bailout
+fi
+
+gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
+
+tell "Found GASNet version $gasnet_ver"
 
 #
 # see if we can autodetect which conduit to use.  if not, offer
 # all installed under the gasnet directory
 #
 
+KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+                   sed -e 's/-conduit$//g' )`"
+
+if [ "$KNOWN_CONDUITS" = '*' ]
+then
+    tell "I couldn't find any GASNet conduits under $gasnet_root"
+    bailout
+fi
+
 cdt_auto=""
+
+#
+# no conduit asked for on command-line
+#
 
 if [ -z "$gasnet_conduit" ]
 then
@@ -286,7 +371,7 @@ then
         gasnet_conduit="$KNOWN_CONDUITS"
 	cdt_auto="(auto-detected)"
         tell ""
-        tell "Only conduit \"$gasnet_conduit\" is configured, using it."
+        tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
         tell ""
     else
         # multiple configured, let the user decide
@@ -296,7 +381,18 @@ then
     fi
 fi
 
-# -- ok, gasnet there --
+# -- ok, we have a candidate conduit --
+
+gasnet_core_h="gasnet_core.h"
+gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
+gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
+if [ ! -r "$gasnet_path_core_h" ]
+then
+    tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
+    tell "  (no $core_h header file)"
+    bailout
+fi
+tell "Conduit \"$gasnet_conduit\" looks OK"
 
 tell "Looking for GASNet ... done"
 tell ""
@@ -306,46 +402,6 @@ tell ""
 [ -z "$libdir" ] && libdir=$prefix/lib
 [ -z "$modulesdir" ] && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
-
-# -- check compilers, defaults to GNU --
-
-cc_cmd=${CC-gcc}
-cpp_flags=${CPPFLAGS-""}
-c_flags=${CFLAGS-"-g"}
-ld_cmd=${LD-$cc_cmd}
-ld_flags=${LDFLAGS-""}
-cxx_cmd=${CXX-g++}
-cxx_flags=${CXXFLAGS-"-g"}
-fc_cmd=${FC-gfortran}
-fc_flags=${FCFLAGS-"-g"}
-
-# -- make sure we can find compilers --
-
-tell "Searching for compilers ..."
-
-which $cc_cmd >/dev/null 2>&1
-if [ $? -ne 0 ]
-then
-    tell "I couldn't find the C compiler \"$cc_cmd\""
-    bailout
-fi
-
-which $cxx_cmd >/dev/null 2>&1
-if [ $? -ne 0 ]
-then
-    tell "I couldn't find the C++ compiler \"$cxx_cmd\""
-    bailout
-fi
-
-which $fc_cmd >/dev/null 2>&1
-if [ $? -ne 0 ]
-then
-    tell "I couldn't find the Fortran compiler \"$fc_cmd\""
-    bailout
-fi
-
-tell "Searching for compilers ... done"
-tell ""
 
 # -- generate build files from .in templates --
 #
@@ -392,7 +448,9 @@ tell "Making build files from templates ... done"
 # -- tell us all about what's configured --
 
 tell ""
-tell "-------------------------------------------------------------"
+tell "============================================================="
+tell ""
+tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
 tell "  C compiler is                 $cc_cmd"
@@ -481,7 +539,7 @@ cp $tmpcs $cs
 chmod +x $cs
 
 tell ""
-tell "-------------------------------------------------------------"
+tell "============================================================="
 tell ""
 tell "Configuration in shell-script   $cs"
 tell ""
