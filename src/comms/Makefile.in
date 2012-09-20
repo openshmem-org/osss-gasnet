@@ -179,7 +179,7 @@ $(SHMEM_FC):	$(SHMEM_CC)
 $(SHMEM_RUN):
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
-		-e "s%bin/mpicc%bin/mpirun%" \
+		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
 		< $(RUN_WRAPPER) > $@
 
 # -- pkg-config --------------------------------------------
