@@ -176,11 +176,11 @@ $(SHMEM_FC):	$(SHMEM_CC)
 		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpif90'%" \
 		< $^ > $@
 
-$(SHMEM_RUN):
+$(SHMEM_RUN):	$(RUN_WRAPPER)
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
 		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
-		< $(RUN_WRAPPER) > $@
+		< $^ > $@
 
 # -- pkg-config --------------------------------------------
 
