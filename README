@@ -41,17 +41,17 @@ This project is hosted at
 
 which is where you can find definitive information about OpenSHMEM.
 
-Testing Environments at University of Houston
----------------------------------------------
+Testing Environments at the University of Houston
+-------------------------------------------------
 
 1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
-   conduits, OpenMPI 1.4.3
+   conduits, OpenMPI 1.4.3++
 
 2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
-   conduit, OpenMPI 1.4.2 with slurm integration
+   conduit, OpenMPI, MVAPICH2 with slurm integration
 
 3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
-   conduit, OpenMPI 1.4.3 with pbs (called "tm") integration
+   conduit, OpenMPI 1.4.3 with pbs ("tm") integration
 
 Some Supporting Software
 -------------------------
@@ -67,8 +67,8 @@ Contact and Feedback
 
 The main project contact at the University of Houston is
 
-    Dr. Barbara Chapman <chapman@cs.uh.edu>
+    Prof. Barbara Chapman <chapman@cs.uh.edu>
 
 The project development lead is
 
-    Tony Curtis <arcurtis@mail.uh.edu>
+    Tony Curtis <tonyc@uh.edu>

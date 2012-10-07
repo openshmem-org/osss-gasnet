@@ -137,7 +137,7 @@ extern void __shmem_comms_add_request (void *target, void *value,
 extern void __shmem_comms_inc_request (void *target, size_t nbytes, int pe);
 
 /*
- * Proposed by IBM Zuerich
+ * Proposed by IBM Zurich
  *
  */
 extern void __shmem_comms_xor_request (void *target, void *value,

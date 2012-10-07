@@ -47,12 +47,13 @@ gasnet_root=$prefix
 gasnet_conduit=
 elf_header_dir=/usr/include
 elf_lib_dir=/usr/lib64
-putget_nb=FALSE
+feature_experimental=FALSE
 debug=FALSE
 trace=FALSE
 # -- end defaults --
 
 libdir=
+bindir=
 modulesdir=
 modulefilesdir=
 
@@ -66,6 +67,11 @@ bailout()
 tell()
 {
     echo "$progname: $*"
+}
+
+deprecated()
+{
+    tell "Warning: option $1 is deprecated, use $@ instead"
 }
 
 show_usage()
@@ -83,6 +89,9 @@ Usage: $progname [options]
 
     --prefix=PREFIX              Install to directory root PREFIX
                                      (default: /usr/local)
+
+    --with-bindir=DIR            Executables installed to DIR
+                                     (default: PREFIX/bin)
 
     --with-libdir=DIR            Libraries installed to DIR
                                      (default: PREFIX/lib)
@@ -116,8 +125,16 @@ Usage: $progname [options]
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
 
-    --enable-putget-nb           Non-blocking extensions (experimental)
-    --disable-putget-nb          No non-blocking extensions (default)
+    --enable-experimental        Include experimental features of future
+                                   OpenSHMEM versions
+    --disable-experimental       No experimental features (default)
+
+  Deprecated:
+
+    --enable-putget-nb           Same as --enable-experimental
+    --disable-putget-nb          Same as --disable-experimental
+
+  Informational:
 
     --help                       Show this summary and exit
 
@@ -159,6 +176,9 @@ do
     case $o in
 	--prefix=*)
 	    prefix="`chompit $o`"
+	    ;;
+	--with-bindir=*)
+	    bindir="`chompit $o`"
 	    ;;
 	--with-libdir=*)
 	    libdir="`chompit $o`"
@@ -202,11 +222,19 @@ do
 	--disable-trace)
 	    trace=FALSE
 	    ;;
+	--enable-experimental)
+	    feature_experimental=TRUE
+	    ;;
+	--disable-experimental)
+	    feature_experimental=FALSE
+	    ;;
 	--enable-putget-nb)
-	    putget_nb=TRUE
+	    deprecated "$o" "--enable-experimental"
+	    feature_experimental=TRUE
 	    ;;
 	--disable-putget-nb)
-	    putget_nb=FALSE
+	    deprecated "$o" "--disable-experimental"
+	    feature_experimental=FALSE
 	    ;;
 	--help)
 	    show_usage
@@ -399,6 +427,7 @@ tell ""
 
 # -- fill in install locations --
 
+[ -z "$bindir" ] && bindir=$prefix/bin
 [ -z "$libdir" ] && libdir=$prefix/lib
 [ -z "$modulesdir" ] && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
@@ -431,10 +460,11 @@ do
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
-        -e "s%@PUTGET_NB@%$putget_nb%g" \
+        -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
         -e "s%@DEBUG@%$debug%g" \
         -e "s%@TRACE@%$trace%g" \
         -e "s%@PREFIX@%$prefix%g" \
+        -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
@@ -470,16 +500,18 @@ tell "GASNet:"
 tell "  Installed in                  $gasnet_root"
 tell "  Using conduit                 $gasnet_conduit $cdt_auto"
 tell ""
-tell "  ELF headers in                $elf_header_dir"
-tell "  ELF library in                $elf_lib_dir ($found_libelf)"
+tell "Executable Format:"
+tell "  Headers in                    $elf_header_dir"
+tell "  Library in                    $elf_lib_dir ($found_libelf)"
 tell ""
 tell "Options:"
 tell "  Debug is                      $debug"
 tell "  Trace is                      $trace"
-tell "  Non-blocking extensions are   $putget_nb"
+tell "  Experimental features are     $feature_experimental"
 tell ""
 tell "Installation:"
 tell "  Main package to               $prefix"
+tell "  Executables to                $bindir"
 tell "  Libraries to                  $libdir"
 tell "  OpensHMEM modules to          $modulesdir"
 tell "  pkg-config file to            $modulefilesdir"

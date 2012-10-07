@@ -1,3 +1,7 @@
+/*
+ *  -*- mode: c -*-
+ */
+
   /*
    * new ideas (not part of formal 1.0 API)
    */
@@ -56,3 +60,11 @@
 
   extern void shmem_wait_nb (void *h);
   extern int  shmem_test_nb (void *h) _WUR;
+
+  /*
+   * Proposed by IBM Zurich
+   *
+   */
+  extern void shmem_int_xor (int *target, int value, int pe);
+  extern void shmem_long_xor (long *target, long value, int pe);
+  extern void shmem_longlong_xor (long long *target, long long value, int pe);

@@ -241,6 +241,8 @@ SHMEM_TYPE_INC (longlong, long long);
 
 /* --------------------------------------------------------------- */
 
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
 #pragma weak shmem_int_xor = pshmem_int_xor
 #define shmem_int_xor pshmem_int_xor
 #pragma weak shmem_long_xor = pshmem_long_xor
@@ -310,3 +312,5 @@ SHMEM_TYPE_INC (longlong, long long);
 SHMEM_TYPE_XOR (int, int);
 SHMEM_TYPE_XOR (long, long);
 SHMEM_TYPE_XOR (longlong, long long);
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

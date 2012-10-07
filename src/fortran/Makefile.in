@@ -55,8 +55,8 @@ ifeq "@TRACE@" "TRUE"
 CPPFLAGS        += -DHAVE_TRACE
 endif
 
-ifeq "@PUTGET_NB@" "TRUE"
-CPPFLAGS        += -DHAVE_PUTGET_NB
+ifeq "@FEATURE_EXPERIMENTAL@" "TRUE"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
 CPPFLAGS        += -I..

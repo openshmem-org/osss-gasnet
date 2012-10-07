@@ -1832,7 +1832,7 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
 }
 
 /**
- * Proposed by IBM Zuerich
+ * Proposed by IBM Zurich
  *
  * remote xor
  */

@@ -629,6 +629,7 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value,
   return shmem_long_cswap (target, *cond, *value, *pe);
 }
 
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 /*
  * atomic xor
@@ -654,6 +655,7 @@ FORTRANIFY (shmem_int8_xor) (long *target, long *value, int *pe)
   shmem_long_xor (target, *value, *pe);
 }
 
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /*
  * broadcasts
@@ -955,7 +957,7 @@ FORTRANIFY (shmem_pcontrol) (int *level)
 }
 
 
-#if defined(HAVE_PUTGET_NB)
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 /*
  * WORK IN PROGRESS
@@ -1076,4 +1078,4 @@ SHMEM_FORTRAN_GET_SIZE_NB (32, int, int);
 SHMEM_FORTRAN_GET_SIZE_NB (64, long, long);
 SHMEM_FORTRAN_GET_SIZE_NB (128, longlong, long long);
 
-#endif /* HAVE_PUTGET_NB */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

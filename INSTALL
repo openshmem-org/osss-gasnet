@@ -42,16 +42,15 @@ whichever conduit you want to use with GASNet, e.g. an MPI.  GASNet
 provides a portable communications layer for this implementation of
 OpenSHMEM to work on top of.
 
-The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
-any version that adheres to the "mpi" prefix for the command-line
-tools will slot right in, and if not, you don't have to use the
-wrapper programs provided by the library, rather using the MPI
-compilers and e.g. the pkg-config utility to locate headers and
-libraries (described below).  We've used MPICH2 and MVAPICH2
-successfully too.
+The development versions of MPI are Open-MPI 1.4.x++ but I suspect any
+version that adheres to the "mpi" prefix for the command-line tools
+will slot right in, and if not, you don't have to use the wrapper
+programs provided by the library, rather using the MPI compilers and
+e.g. the pkg-config utility to locate headers and libraries (described
+below).  We've used MPICH2 and MVAPICH2 successfully too locally.
 
 The main GASNet version has been 1.18.x during development, although
-the 1.42.x and 1.16.x series were used as well as a comparison for
+the 1.14.x and 1.16.x series were used as well as a comparison for
 backward compatibility.
 
 Currently the Makefile is set up to use the GNU C Compiler (4.x
@@ -187,8 +186,8 @@ On some cluster setups we have seen issues with larger segment sizes.
 Restricting the segment allocation to 512MB has solved these problems.
 Note that you can do this via an environment variable supported by
 this OpenSHMEM library: see the man page for oshconfig(5).  The kernel
-parameters shmmax and shmall may affect this behavior.  Some notes on
-setting these can be found here:
+parameters "shmmax" and "shmall" may affect this behavior.  Some notes
+on setting these can be found here:
 
   http://www.puschitz.com/TuningLinuxForOracle.shtml#SettingSharedMemory
 
@@ -241,7 +240,8 @@ This means you can compile/link programs as e.g. with Open64
 
 or any other compiler of your choice (N.B. implementations on top of
 MPI will require compilation in this manner with the appropriate MPI
-compiler, such as mpicc).
+compiler, such as mpicc, or otherwise passing of appropriate headers
+and libraries).
 
 Module
 ======
@@ -252,11 +252,13 @@ The module(1) command
 
 allows users or sysadmins to simplify setting up extra packages.
 
-A sample file
-
-    openshmem.module
-
-will be created after configure is run and will be installed to
+A sample file will be created after configure is run and will be
+installed to
 
     <install>/modulefiles/openshmem
 
+You can then
+
+    module load <install>/modulefiles/openshmem
+
+to set up your environment for OpenSHMEM.

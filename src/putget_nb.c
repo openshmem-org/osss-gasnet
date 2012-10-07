@@ -37,7 +37,7 @@
 
 
 
-#if defined(HAVE_PUTGET_NB)
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #include "state.h"
 #include "comms.h"
@@ -216,4 +216,4 @@ pshmem_test_nb (void *h)
 #pragma weak shmem_wait_nb = pshmem_wait_nb
 #pragma weak shmem_test_nb = pshmem_test_nb
 
-#endif /* HAVE_PUTGET_NB */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
