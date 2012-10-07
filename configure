@@ -71,7 +71,9 @@ tell()
 
 deprecated()
 {
-    tell "Warning: option $1 is deprecated, use $@ instead"
+    old="$1"
+    shift
+    tell "Warning: option $old is deprecated, use $@ instead"
 }
 
 show_usage()
