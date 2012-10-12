@@ -12,11 +12,11 @@ show_usage_and_exit()
         echo "Error: $@"
         echo ""
     fi
-    echo "Usage: $progname [conduit options] -np PEs program [program args]"
+    echo "Usage: $progname [conduit options] -n|-np PEs program [program args]"
     echo ""
     echo "  Where"
     echo ""
-    echo "    -np PEs       is the number of processing elements to launch"
+    echo "    -n | -np PEs    is the number of processing elements to launch"
     echo ""
 
     exit 1
@@ -37,7 +37,7 @@ args=""
 while [ $# -gt 0 ]
 do
     case "$1" in
-        -np)
+        -n | -np)
 	    shift
 	    npes=$1
 	    ;;
@@ -72,18 +72,16 @@ case "$OPENSHMEM_GASNET_CONDUIT" in
     udp)
 	RUN_IT="$args"
 	;;
-    mpi|ibv)
+    # delegate to a GASNet launcher, if found
+    *)
 	# conduit-specific launcher
 	launcher="@GASNET_ROOT@/bin/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
         if [ ! -x "$launcher" ]
         then
-            show_usage_and_exit "GASNet launcher for $OPENSHMEM_GASNET_CONDUIT not found"
+            show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"
         fi
 	# pass number of PEs & other args
 	RUN_IT="$launcher -n $npes -- $args"
-	;;
-    *)
-        # TODO: I currently have no experience of the other conduits
 	;;
 esac
 
