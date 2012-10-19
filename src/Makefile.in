@@ -177,8 +177,6 @@ CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CFLAGS          += -std=c99
-CFLAGS          += -Wall
 CFLAGS          += -pthread
 
 # for "so" libraries

@@ -255,8 +255,8 @@ tell ""
 
 # -- check compilers, defaults to GNU --
 
-cc_cmd=${CC-gcc}
 cpp_flags=${CPPFLAGS-""}
+cc_cmd=${CC-gcc}
 c_flags=${CFLAGS-"-g"}
 ld_cmd=${LD-$cc_cmd}
 ld_flags=${LDFLAGS-""}
@@ -276,6 +276,32 @@ then
     bailout
 fi
 tell "C compiler is \"$cc_cmd\""
+
+# now see if we can work out how do do certain flags
+
+extra_c_flags=""
+extra_cxx_flags=""
+extra_fc_flags=""
+
+case "$cc_cmd" in
+    gcc)
+	extra_c_flags="-std=c99"
+	;;
+    icc)
+	extra_c_flags="-std=c99"
+	;;
+    suncc)
+	extra_c_flags="-xc99"
+	;;
+    pgcc)
+	extra_c_flags="-c99"
+	;;
+    opencc | uhcc)
+	extra_c_flags="-Wall -std=c99"
+	;;
+    *)
+	;;
+esac
 
 # we're not actually using these during build, so don't really check
 
@@ -451,11 +477,11 @@ do
     sed \
         -e "s%@CC@%$cc_cmd%g" \
         -e "s%@CPPFLAGS@%$cpp_flags%g" \
-        -e "s%@CFLAGS@%$c_flags%g" \
+        -e "s%@CFLAGS@%$c_flags $extra_c_flags%g" \
         -e "s%@CXX@%$cxx_cmd%g" \
-        -e "s%@CXXFLAGS@%$cxx_flags%g" \
+        -e "s%@CXXFLAGS@%$cxx_flags $extra_cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \
-        -e "s%@FCFLAGS@%$fc_flags%g" \
+        -e "s%@FCFLAGS@%$fc_flags $extra_fc_flags%g" \
         -e "s%@LD@%$ld_cmd%g" \
         -e "s%@LDFLAGS@%$ld_flags%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \

@@ -53,7 +53,7 @@ extern void __shmem_atomic_finalize (void);
 
 # include <mbarrier.h>
 
-# define LOAD_STORE_FENCE __machine_rw_barrier()
+# define LOAD_STORE_FENCE() __machine_rw_barrier()
 # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
 
 #else
