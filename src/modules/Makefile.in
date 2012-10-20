@@ -61,6 +61,7 @@ CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(MODDIR)\""
 CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 .PHONY: all default install-lib uninstall-lib clean
 

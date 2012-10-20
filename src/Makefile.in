@@ -130,15 +130,6 @@ FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
 # flags that do PIC, dependency, debug/optimize and C99 compliance
 #
 
-# Sun/Oracle Studio: state = testing
-#CC               = suncc
-#CPPFLAGS        += -xMMD
-#CFLAGS          += -PIC
-#CFLAGS          += -xc99=all
-#DEBUG_AND_OPT    = -ggdb -xO0
-#WARNINGS         =
-# WARNINGS        += -pedantic
-
 CC               = @CC@
 CXX              = @CXX@
 FC               = @FC@
@@ -178,6 +169,9 @@ M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
 CFLAGS          += -pthread
+
+CFLAGS          += @C99FLAGS@
+CFLAGS          += @WARNFLAGS@
 
 # for "so" libraries
 CFLAGS          += -fPIC

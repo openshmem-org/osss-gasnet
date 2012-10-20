@@ -58,6 +58,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 .PHONY: all default clean
 

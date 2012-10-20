@@ -69,6 +69,7 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
 CFLAGS          += -fPIC
 CFLAGS          += $(HASH_CFLAGS)
+CFLAGS          += @WARNFLAGS@
 
 .PHONY: all default clean shmem-headers
 

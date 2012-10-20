@@ -69,6 +69,7 @@ CPPFLAGS        += -DDEBUG
 endif
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 MODULES = $(wildcard barrier-*.c)
 OBJECTS = $(MODULES:.c=.o)

@@ -67,6 +67,7 @@ CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)

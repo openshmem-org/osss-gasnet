@@ -172,7 +172,6 @@ __shmem_broadcast32_tree (void *target, const void *source,
   int my_pe = GET_STATE (mype);
   int *target_ptr, *source_ptr;
   int old_target;
-  int thatpe, i;
   int no_children;
   long is_ready, lchild_ready, rchild_ready;
 

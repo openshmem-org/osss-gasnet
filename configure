@@ -277,27 +277,31 @@ then
 fi
 tell "C compiler is \"$cc_cmd\""
 
-# now see if we can work out how do do certain flags
+# now see if we can work out how to do C99 compliance and warnings
+# where needed
+#
+# TODO: should really test the compiler's -V/--version output
 
-extra_c_flags=""
-extra_cxx_flags=""
-extra_fc_flags=""
+c99_flags=""
+warn_flags=""
 
 case "$cc_cmd" in
     gcc)
-	extra_c_flags="-std=c99"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
 	;;
     icc)
-	extra_c_flags="-std=c99"
+	c99_flags="-std=c99"
 	;;
     suncc)
-	extra_c_flags="-xc99"
+	c99_flags="-xc99"
 	;;
     pgcc)
-	extra_c_flags="-c99"
+	c99_flags="-c99"
 	;;
     opencc | uhcc)
-	extra_c_flags="-Wall -std=c99"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
 	;;
     *)
 	;;
@@ -477,11 +481,13 @@ do
     sed \
         -e "s%@CC@%$cc_cmd%g" \
         -e "s%@CPPFLAGS@%$cpp_flags%g" \
-        -e "s%@CFLAGS@%$c_flags $extra_c_flags%g" \
+        -e "s%@CFLAGS@%$c_flags%g" \
+        -e "s%@C99FLAGS@%$c99_flags%g" \
+        -e "s%@WARNFLAGS@%$warn_flags%g" \
         -e "s%@CXX@%$cxx_cmd%g" \
-        -e "s%@CXXFLAGS@%$cxx_flags $extra_cxx_flags%g" \
+        -e "s%@CXXFLAGS@%$cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \
-        -e "s%@FCFLAGS@%$fc_flags $extra_fc_flags%g" \
+        -e "s%@FCFLAGS@%$fc_flags%g" \
         -e "s%@LD@%$ld_cmd%g" \
         -e "s%@LDFLAGS@%$ld_flags%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \

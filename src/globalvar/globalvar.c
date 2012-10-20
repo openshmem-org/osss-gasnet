@@ -101,13 +101,13 @@ static global_area_t elfdata;
 static int
 table_init_helper (void)
 {
-  Elf *e;
+  Elf *e = NULL;
   GElf_Ehdr ehdr;
-  char *shstr_name;
+  char *shstr_name = NULL;
   size_t shstrndx;
-  Elf_Scn *scn;
+  Elf_Scn *scn = NULL;
   GElf_Shdr shdr;
-  Elf_Data *data;
+  Elf_Data *data = NULL;
   int ret = -1;
   int (*getsi)();
 
