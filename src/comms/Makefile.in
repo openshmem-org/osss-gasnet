@@ -46,7 +46,9 @@ SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 # ---------------------------------------------------------
 
-COMMS_SRC        = comms.c
+COMMS_LIBRARY    = gasnet
+
+COMMS_SRC        = $(COMMS_LIBRARY).c
 COMMS_OBJ        = $(COMMS_SRC:.c=.o)
 
 # ---------------------------------------------------------
