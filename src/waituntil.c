@@ -56,7 +56,7 @@
   }
 
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak pshmem_wait = pshmem_long_wait
 #define pshmem_wait pshmem_long_wait
 #pragma weak shmem_short_wait_until = pshmem_short_wait_until
@@ -69,9 +69,9 @@
 #define shmem_longlong_wait_until pshmem_longlong_wait_until
 #pragma weak shmem_wait_until = pshmem_long_wait_until
 #define shmem_wait_until pshmem_long_wait_until
-
 #pragma weak pshmem_wait_until = pshmem_long_wait_until
 #define pshmem_wait_until pshmem_long_wait_until
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * wait_until with operator dispatchers, type-parameterized
@@ -121,7 +121,7 @@ SHMEM_TYPE_WAIT_UNTIL (int, int);
 SHMEM_TYPE_WAIT_UNTIL (long, long);
 SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_short_wait = pshmem_short_wait
 #define shmem_short_wait pshmem_short_wait
 #pragma weak shmem_int_wait = pshmem_int_wait
@@ -132,6 +132,7 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
 #define shmem_longlong_wait pshmem_longlong_wait
 #pragma weak shmem_wait = pshmem_long_wait
 #define shmem_wait pshmem_long_wait
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * wait is just wait_until with equality test

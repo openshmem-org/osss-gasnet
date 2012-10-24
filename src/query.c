@@ -56,10 +56,12 @@ mype_helper (void)
 }
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak _my_pe = p_my_pe
 #define _my_pe p_my_pe
 #pragma weak shmem_my_pe = pshmem_my_pe
 #define shmem_my_pe pshmem_my_pe
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * \brief These routines return the "rank" or identity of the calling PE
@@ -110,10 +112,12 @@ numpes_helper (void)
   return GET_STATE(numpes);
 }
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak _num_pes = p_num_pes
 #define _num_pes p_num_pes
 #pragma weak shmem_n_pes = pshmem_n_pes
 #define shmem_n_pes pshmem_n_pes
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * \brief These routines return the number of PEs in the program
@@ -158,9 +162,10 @@ shmem_n_pes (void)
  *
  */
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_nodename = pshmem_nodename
 #define shmem_nodename pshmem_nodename
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 char *
 shmem_nodename (void)
@@ -173,8 +178,10 @@ shmem_nodename (void)
  *
  */
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_version = pshmem_version
 #define shmem_version pshmem_version
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * OpenSHMEM has a major.minor release number.  Return 0 if

@@ -99,10 +99,15 @@ __shmem_fcollect_dispatch_init (void)
  */
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak shmem_fcollect32 = pshmem_fcollect32
+#define shmem_fcollect32 pshmem_fcollect32
+#endif /* HAVE_PSHMEM_SUPPORT */
+
 /* @api@ */
 void
-pshmem_fcollect32 (void *target, const void *source, size_t nelems,
-		   int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_fcollect32 (void *target, const void *source, size_t nelems,
+		  int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_fcollect32");
   SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
@@ -110,16 +115,18 @@ pshmem_fcollect32 (void *target, const void *source, size_t nelems,
   mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
 
+#ifdef HAVE_PSHMEM_SUPPORT
+#pragma weak shmem_fcollect64 = pshmem_fcollect64
+#define shmem_fcollect64 pshmem_fcollect64
+#endif /* HAVE_PSHMEM_SUPPORT */
+
 /* @api@ */
 void
-pshmem_fcollect64 (void *target, const void *source, size_t nelems,
-		   int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_fcollect64 (void *target, const void *source, size_t nelems,
+		  int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_fcollect64");
   SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
 
   mi.func_64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
-
-#pragma weak shmem_fcollect32 = pshmem_fcollect32
-#pragma weak shmem_fcollect64 = pshmem_fcollect64

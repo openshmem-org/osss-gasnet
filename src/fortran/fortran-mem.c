@@ -56,12 +56,14 @@ extern char *sherror (void);
  * Fortran symmetric memory operations
  */
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shpalloc_ = pshpalloc_
 #define shpalloc_ pshpalloc_
 #pragma weak shpdeallc_ = pshpdeallc_
 #define shpdeallc_ pshpdeallc_
 #pragma weak shpclmove_ = pshpclmove_
 #define shpclmove_ pshpclmove_
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  *
@@ -93,7 +95,7 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
 
   INIT_CHECK ();
 
-  /* symm_addr = (long *) pshmalloc(*length * sizeof(long)); */
+  /* symm_addr = (long *) shmalloc(*length * sizeof(long)); */
   symm_addr = shmalloc (*length);
 
   /* pass back status code */
@@ -137,7 +139,7 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
  */
 
 void
-FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
+FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
 {
   INIT_CHECK ();
 
@@ -183,7 +185,7 @@ FORTRANIFY (pshpdeallc) (void **addr, long *errcode, int *abort)
  */
 
 void
-FORTRANIFY (pshpclmove) (int *addr, int *length, long *errcode, int *abort)
+FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
 {
   INIT_CHECK ();
 

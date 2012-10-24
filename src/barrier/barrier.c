@@ -122,8 +122,10 @@ __shmem_barriers_dispatch_init (void)
  */
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_barrier_all = pshmem_barrier_all
 #define shmem_barrier_all pshmem_barrier_all
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
 void
@@ -138,8 +140,10 @@ shmem_barrier_all (void)
 
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_barrier = pshmem_barrier
 #define shmem_barrier pshmem_barrier
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
 void

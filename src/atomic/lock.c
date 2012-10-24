@@ -252,12 +252,14 @@ mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
  * ------------------------------------------------------------
  */
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_set_lock = pshmem_set_lock
 #define shmem_set_lock pshmem_set_lock
 #pragma weak shmem_test_lock = pshmem_test_lock
 #define shmem_test_lock pshmem_test_lock
 #pragma weak shmem_clear_lock = pshmem_clear_lock
 #define shmem_clear_lock pshmem_clear_lock
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /* @api@ */
 void

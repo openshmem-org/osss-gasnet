@@ -239,7 +239,7 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
 
 
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_complexd_sum_to_all = pshmem_complexd_sum_to_all
 #define shmem_complexd_sum_to_all pshmem_complexd_sum_to_all
 #pragma weak shmem_complexf_sum_to_all = pshmem_complexf_sum_to_all
@@ -328,6 +328,7 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
 #define shmem_float_min_to_all pshmem_float_min_to_all
 #pragma weak shmem_double_min_to_all = pshmem_double_min_to_all
 #define shmem_double_min_to_all pshmem_double_min_to_all
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * Pass in type/operation, macro builds the reduction function as

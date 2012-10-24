@@ -146,12 +146,10 @@ __shmalloc_no_check (size_t size)
 }
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmalloc = pshmalloc
 #define shmalloc pshmalloc
-#if 0
-#pragma weak shmem_malloc = pshmalloc
-#define shmem_malloc pshmalloc
-#endif
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * Symmetrically allocate "size" byte of memory across all PEs
@@ -183,13 +181,10 @@ shmalloc (size_t size)
   return addr;
 }
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shfree = pshfree
 #define shfree pshfree
-#if 0
-#pragma weak shmem_free = pshfree
-#define shmem_free pshfree
-#endif
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * Symmetrically free previously allocated memory
@@ -220,13 +215,10 @@ shfree (void *addr)
   malloc_error = SHMEM_MALLOC_OK;
 }
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shrealloc = pshrealloc
 #define shrealloc pshrealloc
-#if 0
-#pragma weak shmem_realloc = pshrealloc
-#define shmem_realloc pshrealloc
-#endif
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * Resize previously allocated symmetric memory
@@ -244,7 +236,7 @@ shrealloc (void *addr, size_t size)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
 		     "address passed to shrealloc() is null, handing to shmalloc()");
-      return pshmalloc (size);
+      return shmalloc (size);
       /* NOT REACHED */
     }
 
@@ -283,13 +275,10 @@ shrealloc (void *addr, size_t size)
   return newaddr;
 }
 
-
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmemalign = pshmemalign
 #define shmemalign pshmemalign
-#if 0
-#pragma weak shmem_memalign = pshmemalign
-#define shmem_memalign pshrealloc
-#endif
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * The shmemalign function allocates a block in the symmetric heap that
@@ -362,12 +351,10 @@ static malloc_error_code_t error_table[] = {
 };
 static const int nerrors = TABLE_SIZE (error_table);
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak sherror = psherror
 #define sherror psherror
-#if 0
-#pragma weak shmem_error = psherror
-#define shmem_error psherror
-#endif
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * Return human-readable error message

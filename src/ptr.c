@@ -50,8 +50,10 @@
 #include "trace.h"
 #include "utils.h"
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak shmem_ptr = pshmem_ptr
 #define shmem_ptr pshmem_ptr
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  *

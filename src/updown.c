@@ -131,8 +131,10 @@ __shmem_place_init (void)
 
 
 
+#ifdef HAVE_PSHMEM_SUPPORT
 #pragma weak start_pes = pstart_pes
 #define start_pes pstart_pes
+#endif /* HAVE_PSHMEM_SUPPORT */
 
 /**
  * \brief This routine initializes the OpenSHMEM environment on the calling PE.
