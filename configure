@@ -48,8 +48,9 @@ gasnet_conduit=
 elf_header_dir=/usr/include
 elf_lib_dir=/usr/lib64
 feature_experimental=FALSE
-debug=FALSE
-trace=FALSE
+feature_debug=FALSE
+feature_trace=FALSE
+feature_pshmem=FALSE
 # -- end defaults --
 
 libdir=
@@ -127,9 +128,15 @@ Usage: $progname [options]
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
 
+  Optional and not-stable-yet:
+
     --enable-experimental        Include experimental features of future
                                    OpenSHMEM versions
     --disable-experimental       No experimental features (default)
+
+    --enable-pshmem              Build the PSHMEM profiling interface
+                                   (not considered stable yet)
+    --disable-pshmem             No PSHMEM profiling interface (default)
 
   Deprecated:
 
@@ -213,16 +220,22 @@ do
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
-	    debug=TRUE
+	    feature_debug=TRUE
 	    ;;
 	--disable-debug)
-	    debug=FALSE
+	    feature_debug=FALSE
 	    ;;
 	--enable-trace)
-	    trace=TRUE
+	    feature_trace=TRUE
 	    ;;
 	--disable-trace)
-	    trace=FALSE
+	    feature_trace=FALSE
+	    ;;
+	--enable-pshmem)
+	    feature_pshmem=TRUE
+	    ;;
+	--disable-pshmem)
+	    feature_pshmem=FALSE
 	    ;;
 	--enable-experimental)
 	    feature_experimental=TRUE
@@ -495,8 +508,9 @@ do
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
         -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
-        -e "s%@DEBUG@%$debug%g" \
-        -e "s%@TRACE@%$trace%g" \
+        -e "s%@PSHMEM@%$feature_pshmem%g" \
+        -e "s%@DEBUG@%$feature_debug%g" \
+        -e "s%@TRACE@%$feature_trace%g" \
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
@@ -539,8 +553,9 @@ tell "  Headers in                    $elf_header_dir"
 tell "  Library in                    $elf_lib_dir ($found_libelf)"
 tell ""
 tell "Options:"
-tell "  Debug is                      $debug"
-tell "  Trace is                      $trace"
+tell "  Debug is                      $feature_debug"
+tell "  Trace is                      $feature_trace"
+tell "  PSHMEM support is             $feature_pshmem"
 tell "  Experimental features are     $feature_experimental"
 tell ""
 tell "Installation:"
