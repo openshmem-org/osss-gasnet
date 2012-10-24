@@ -149,3 +149,13 @@ SHMEM_TYPE_WAIT (short, short);
 SHMEM_TYPE_WAIT (int, int);
 SHMEM_TYPE_WAIT (long, long);
 SHMEM_TYPE_WAIT (longlong, long long);
+
+/**
+ * and a special case for the untyped call
+ */
+
+void
+shmem_wait (long *ivar, long cmp_value)
+{
+  shmem_long_wait (ivar, cmp_value);
+}
