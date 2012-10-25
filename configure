@@ -288,46 +288,68 @@ then
     tell "I couldn't find the C compiler \"$cc_cmd\""
     bailout
 fi
-tell "C compiler is \"$cc_cmd\""
 
 # now see if we can work out how to do C99 compliance and warnings
 # where needed
-#
-# TODO: should really test the compiler's -V/--version output
 
 c99_flags=""
 warn_flags=""
 
-case "$cc_cmd" in
-    gcc)
+# TODO: should really test the compiler's -V/--version output
+# capture the -V output, and then try --version if non-0 exit
+cc_ver="`$cc_cmd -V 2>&1`"
+if [ $? -ne 0 ]
+then
+    cc_ver="`$cc_cmd --version 2>&1`"
+fi
+
+cc_type="unknown"
+
+case "$cc_ver" in
+    *"gcc (GCC)"*)
+	cc_type="GNU"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	fc_cmd=gfortran
+	cxx_cmd="g++"
 	;;
-    icc)
+    *"Intel Corporation"*)
+	cc_type=Intel
 	c99_flags="-std=c99"
 	fc_cmd=ifort
+	cxx_cmd=icpc
 	;;
-    suncc)
-	c99_flags="-xc99"
-	fc_cmd=sunf90
-	;;
-    pgcc)
+    *"The Portland Group"*)
+	cc_type=PGI
 	c99_flags="-c99"
 	fc_cmd=pgfortran
+	cxx_cmd=pgCC
 	;;
-    opencc)
-	c99_flags="-std=c99"
-	warn_flags="-Wall"
-	fc_cmd=openf90
+    *"Sun C"*)
+	cc_type="Oracle (was Sun) Studio"
+	c99_flags="-xc99"
+	fc_cmd=sunf90
+	cxx_cmd=sunCC
 	;;
-    uhcc)
+    *OpenUH*)
+	cc_type="OpenUH (Open64)"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	fc_cmd=uhf90
+	cxx_cmd=uhCC
+	;;
+    *Open64*)
+	cc_type="Open64"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	fc_cmd=openf90
+	cxx_cmd=openCC
 	;;
     *)
 	;;
 esac
+
+tell "C compiler is \"$cc_cmd\" ($cc_type)"
 
 # we're not actually using these during build, so don't really check
 
@@ -540,18 +562,20 @@ tell ""
 tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
-tell "  C compiler is                 $cc_cmd"
-tell "  C pre-processor flags are     $cpp_flags"
-tell "  C flags are                   $c_flags"
+tell "  Suite is                      $cc_type"
 tell ""
-tell "  C++ compiler is               $cxx_cmd"
-tell "  C++ flags are                 $cxx_flags"
+tell "    C compiler is               $cc_cmd"
+tell "    C pre-processor flags are   $cpp_flags"
+tell "    C flags are                 $c_flags"
 tell ""
-tell "  Fortran compiler is           $fc_cmd"
-tell "  Fortran flags are             $fc_flags"
+tell "    C++ compiler is             $cxx_cmd"
+tell "    C++ flags are               $cxx_flags"
 tell ""
-tell "  Linker is                     $ld_cmd"
-tell "  Linker flags are              $ld_flags"
+tell "    Fortran compiler is         $fc_cmd"
+tell "    Fortran flags are           $fc_flags"
+tell ""
+tell "    Linker is                   $ld_cmd"
+tell "    Linker flags are            $ld_flags"
 tell ""
 tell "GASNet:"
 tell "  Installed in                  $gasnet_root"
