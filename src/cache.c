@@ -50,7 +50,7 @@
  * Compatibility no-op cache routines
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
 #define shmem_clear_cache_inv pshmem_clear_cache_inv
 #pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
@@ -63,7 +63,7 @@
 #define shmem_udcflush pshmem_udcflush
 #pragma weak shmem_udcflush_line = pshmem_udcflush_line
 #define shmem_udcflush_line pshmem_udcflush_line
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 static void
 cache_helper (char *name)

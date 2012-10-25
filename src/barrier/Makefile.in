@@ -64,8 +64,12 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
-ifeq "@DEBUG@" "TRUE"
+ifeq "@DEBUG@" "ENABLED"
 CPPFLAGS        += -DDEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CFLAGS          += -fPIC

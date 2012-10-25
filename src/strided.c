@@ -50,7 +50,7 @@ extern void shmem_complexf_p (complex float *addr, complex float value, int pe);
 extern complex float shmem_complexf_g (complex float *addr, int pe);
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_iput32 = pshmem_int_iput
 #define pshmem_iput32 pshmem_int_iput
 #pragma weak pshmem_iput64 = pshmem_long_iput
@@ -79,7 +79,7 @@ extern complex float shmem_complexf_g (complex float *addr, int pe);
 #define shmem_iput64 pshmem_long_iput
 #pragma weak shmem_iput128 = pshmem_longdouble_iput
 #define shmem_iput128 pshmem_longdouble_iput
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  *
@@ -119,7 +119,7 @@ SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_iget32 = pshmem_int_iget
 #define pshmem_iget32 pshmem_int_iget
 #pragma weak pshmem_iget64 = pshmem_long_iget
@@ -148,7 +148,7 @@ SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 #define shmem_iget64 pshmem_long_iget
 #pragma weak shmem_iget128 = pshmem_longdouble_iget
 #define shmem_iget128 pshmem_longdouble_iget
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  *

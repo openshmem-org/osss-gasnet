@@ -97,10 +97,10 @@ __shmem_collect_dispatch_init (void)
  *
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_collect32 = pshmem_collect32
 #define shmem_collect32 pshmem_collect32
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Collective concatenation of 32-bit data from participating PEs
@@ -119,10 +119,10 @@ shmem_collect32 (void *target, const void *source, size_t nelems,
 }
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_collect64 = pshmem_collect64
 #define shmem_collect64 pshmem_collect64
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Collective concatenation of 64-bit data from participating PEs

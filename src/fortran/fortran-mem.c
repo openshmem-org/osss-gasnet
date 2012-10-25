@@ -56,14 +56,14 @@ extern char *sherror (void);
  * Fortran symmetric memory operations
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shpalloc_ = pshpalloc_
 #define shpalloc_ pshpalloc_
 #pragma weak shpdeallc_ = pshpdeallc_
 #define shpdeallc_ pshpdeallc_
 #pragma weak shpclmove_ = pshpclmove_
 #define shpclmove_ pshpclmove_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  *

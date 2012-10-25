@@ -59,8 +59,12 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CPPFLAGS        += -I.

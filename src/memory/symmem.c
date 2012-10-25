@@ -146,10 +146,10 @@ __shmalloc_no_check (size_t size)
 }
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmalloc = pshmalloc
 #define shmalloc pshmalloc
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Symmetrically allocate "size" byte of memory across all PEs
@@ -181,10 +181,10 @@ shmalloc (size_t size)
   return addr;
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shfree = pshfree
 #define shfree pshfree
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Symmetrically free previously allocated memory
@@ -215,10 +215,10 @@ shfree (void *addr)
   malloc_error = SHMEM_MALLOC_OK;
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shrealloc = pshrealloc
 #define shrealloc pshrealloc
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Resize previously allocated symmetric memory
@@ -275,10 +275,10 @@ shrealloc (void *addr, size_t size)
   return newaddr;
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmemalign = pshmemalign
 #define shmemalign pshmemalign
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * The shmemalign function allocates a block in the symmetric heap that
@@ -351,10 +351,10 @@ static malloc_error_code_t error_table[] = {
 };
 static const int nerrors = TABLE_SIZE (error_table);
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak sherror = psherror
 #define sherror psherror
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Return human-readable error message

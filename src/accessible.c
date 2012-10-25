@@ -41,12 +41,12 @@
 #include "globalvar.h"
 #include "utils.h"
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible
 #define shmem_pe_accessible pshmem_pe_accessible
 #pragma weak shmem_addr_accessible = pshmem_addr_accessible
 #define shmem_addr_accessible pshmem_addr_accessible
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * only true if PE "pe" can be accessed through SHMEM

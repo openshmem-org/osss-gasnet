@@ -46,7 +46,7 @@
 
 #include "pshmem.h"
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_put16_nb = pshmem_short_put_nb
 #pragma weak pshmem_put32_nb = pshmem_int_put_nb
 #pragma weak pshmem_put64_nb = pshmem_long_put_nb
@@ -63,7 +63,7 @@
 #pragma weak shmem_put32_nb = pshmem_int_put_nb
 #pragma weak shmem_put64_nb = pshmem_long_put_nb
 #pragma weak shmem_put128_nb = pshmem_longdouble_put_nb
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * non-blocking extensions
@@ -99,11 +99,11 @@ SHMEM_TYPE_PUT_NB (double, double);
 SHMEM_TYPE_PUT_NB (float, float);
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_putmem_nb = pshmem_putmem_nb
 #pragma weak pshmem_put_nb = pshmem_long_put_nb
 #pragma weak shmem_put_nb = pshmem_long_put_nb
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void *
@@ -124,7 +124,7 @@ shmem_putmem_nb (void *target, const void *source, size_t nelems,
   return h;
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_get32_nb = pshmem_int_get_nb
 #pragma weak pshmem_get64_nb = pshmem_long_get_nb
 #pragma weak pshmem_get128_nb = pshmem_longdouble_get_nb
@@ -139,7 +139,7 @@ shmem_putmem_nb (void *target, const void *source, size_t nelems,
 #pragma weak shmem_get32_nb = pshmem_int_get_nb
 #pragma weak shmem_get64_nb = pshmem_long_get_nb
 #pragma weak shmem_get128_nb = pshmem_longdouble_get_nb
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
   /* @api@ */								\
@@ -171,11 +171,11 @@ SHMEM_TYPE_GET_NB (double, double);
 SHMEM_TYPE_GET_NB (float, float);
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_getmem_nb = pshmem_getmem_nb
 #pragma weak pshmem_get_nb = pshmem_long_get_nb
 #pragma weak shmem_get_nb = pshmem_long_get_nb
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void *
@@ -196,10 +196,10 @@ shmem_getmem_nb (void *target, const void *source, size_t nelems,
   return h;
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_wait_nb = pshmem_wait_nb
 #pragma weak shmem_test_nb = pshmem_test_nb
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Wait for handle to be completed

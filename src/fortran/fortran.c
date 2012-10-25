@@ -55,7 +55,7 @@
  * init & query functions
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak start_pes_ = pstart_pes_
 #define start_pes_ pstart_pes_
 #pragma weak my_pe_ = pmy_pe_
@@ -66,7 +66,7 @@
 #define shmem_my_pe_ pshmem_my_pe_
 #pragma weak shmem_n_pes_ = pshmem_n_pes_
 #define shmem_n_pes_ pshmem_n_pes_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (start_pes) (int *npes)
@@ -92,7 +92,7 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
  * puts and gets
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_character_put_ = pshmem_character_put_
 #define shmem_character_put_ pshmem_character_put_
 #pragma weak shmem_double_put_ = pshmem_double_put_
@@ -117,7 +117,7 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 #define shmem_put128_ pshmem_put128_
 #pragma weak shmem_putmem_ = pshmem_putmem_
 #define shmem_putmem_ pshmem_putmem_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
   void									\
@@ -154,7 +154,7 @@ FORTRANIFY (shmem_putmem) (void *target, const void *src,
   shmem_putmem (target, src, *size, *pe);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_character_get_ = pshmem_character_get_
 #define shmem_character_get_ pshmem_character_get_
 #pragma weak shmem_double_get_ = pshmem_double_get_
@@ -179,7 +179,7 @@ FORTRANIFY (shmem_putmem) (void *target, const void *src,
 #define shmem_get128_ pshmem_get128_
 #pragma weak shmem_getmem_ = pshmem_getmem_
 #define shmem_getmem_ pshmem_getmem_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_GET(FName, CName, CType)				\
   void									\
@@ -220,7 +220,7 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
  * strided puts
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_character_iput_ = pshmem_character_iput_
 #define shmem_character_iput_ pshmem_character_iput_
 #pragma weak shmem_double_iput_ = pshmem_double_iput_
@@ -243,7 +243,7 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
 #define shmem_iput128_ pshmem_iput128_
 #pragma weak shmem_complex_iput_ = pshmem_complex_iput_
 #define shmem_complex_iput_ pshmem_complex_iput_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_IPUT(Name, CName, CType)				\
   void									\
@@ -282,7 +282,7 @@ SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
  * strided gets
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_character_iget_ = pshmem_character_iget_
 #define shmem_character_iget_ pshmem_character_iget_
 #pragma weak shmem_double_iget_ = pshmem_double_iget_
@@ -305,7 +305,7 @@ SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
 #define shmem_iget128_ pshmem_iget128_
 #pragma weak shmem_complex_iget_ = pshmem_complex_iget_
 #define shmem_complex_iget_ pshmem_complex_iget_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_IGET(Name, CName, CType)				\
   void									\
@@ -363,12 +363,12 @@ FORTRANIFY (shmem_version) (int *major, int *minor)
  * accessibility
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_addr_accessible_ = pshmem_addr_accessible_
 #define shmem_addr_accessible_ pshmem_addr_accessible_
 #pragma weak shmem_pe_accessible_ = pshmem_pe_accessible_
 #define shmem_pe_accessible_ pshmem_pe_accessible_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 int
 FORTRANIFY (shmem_addr_accessible) (void *addr, int *pe)
@@ -387,7 +387,7 @@ FORTRANIFY (shmem_pe_accessible) (int *pe)
  * barriers & fences
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_barrier_ = pshmem_barrier_
 #define shmem_barrier_ pshmem_barrier_
 #pragma weak shmem_barrier_all_ = pshmem_barrier_all_
@@ -396,7 +396,7 @@ FORTRANIFY (shmem_pe_accessible) (int *pe)
 #define shmem_fence_ pshmem_fence_
 #pragma weak shmem_quiet_ = pshmem_quiet_
 #define shmem_quiet_ pshmem_quiet_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_barrier) (int *PE_start, int *logPE_stride, int *PE_size,
@@ -413,7 +413,7 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
  * wait operations
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
 #define pshmem_wait_until_ pshmem_int4_wait_until_
 #pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
@@ -430,7 +430,7 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
 #define shmem_int4_wait_ pshmem_int4_wait_
 #pragma weak shmem_int8_wait_ = pshmem_int8_wait_
 #define shmem_int8_wait_ pshmem_int8_wait_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define FORTRANIFY_WAIT_UNTIL(Name, Type)				\
   void									\
@@ -455,7 +455,7 @@ FORTRANIFY_WAIT (int8, long);
  * cache flushing
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
 #define shmem_clear_cache_inv_ pshmem_clear_cache_inv_
 #pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
@@ -468,7 +468,7 @@ FORTRANIFY_WAIT (int8, long);
 #define shmem_udcflush_line_ pshmem_udcflush_line_
 #pragma weak shmem_udcflush_ = pshmem_udcflush_
 #define shmem_udcflush_ pshmem_udcflush_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 
 FORTRANIFY_VOID_VOID (shmem_clear_cache_inv);
@@ -495,12 +495,12 @@ FORTRANIFY_CACHE (shmem_udcflush_line);
  * incs
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_inc_ = pshmem_int4_inc_
 #define shmem_int4_inc_ pshmem_int4_inc_
 #pragma weak shmem_int8_inc_ = pshmem_int8_inc_
 #define shmem_int8_inc_ pshmem_int8_inc_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_int4_inc) (int *target, int *pe)
@@ -518,12 +518,12 @@ FORTRANIFY (shmem_int8_inc) (long *target, int *pe)
  * fincs
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_finc_ = pshmem_int4_finc_
 #define shmem_int4_finc_ pshmem_int4_finc_
 #pragma weak shmem_int8_finc_ = pshmem_int8_finc_
 #define shmem_int8_finc_ pshmem_int8_finc_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 int
 FORTRANIFY (shmem_int4_finc) (int *target, int *pe)
@@ -541,12 +541,12 @@ FORTRANIFY (shmem_int8_finc) (long *target, int *pe)
  * adds
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_add_ = pshmem_int4_add_
 #define shmem_int4_add_ pshmem_int4_add_
 #pragma weak shmem_int8_add_ = pshmem_int8_add_
 #define shmem_int8_add_ pshmem_int8_add_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_int4_add) (int *target, int *value, int *pe)
@@ -564,12 +564,12 @@ FORTRANIFY (shmem_int8_add) (long *target, long *value, int *pe)
  * fadds
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_fadd_ = pshmem_int4_fadd_
 #define shmem_int4_fadd_ pshmem_int4_fadd_
 #pragma weak shmem_int8_fadd_ = pshmem_int8_fadd_
 #define shmem_int8_fadd_ pshmem_int8_fadd_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 int
 FORTRANIFY (shmem_int4_fadd) (int *target, int *value, int *pe)
@@ -588,7 +588,7 @@ FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
  * swaps
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_swap_ = pshmem_int4_swap_
 #define shmem_int4_swap_ pshmem_int4_swap_
 #pragma weak shmem_int8_swap_ = pshmem_int8_swap_
@@ -599,7 +599,7 @@ FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
 #define shmem_real8_swap_ pshmem_real8_swap_
 #pragma weak shmem_swap_ = pshmem_swap_
 #define shmem_swap_ pshmem_swap_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 int
 FORTRANIFY (shmem_int4_swap) (int *target, int *value, int *pe)
@@ -635,12 +635,12 @@ FORTRANIFY (shmem_swap) (long *target, long *value, int *pe)
  * cswaps
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_cswap_ = pshmem_int4_cswap_
 #define shmem_int4_cswap_ pshmem_int4_cswap_
 #pragma weak shmem_int8_cswap_ = pshmem_int8_cswap_
 #define shmem_int8_cswap_ pshmem_int8_cswap_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 int
 FORTRANIFY (shmem_int4_cswap) (int *target, int *cond, int *value, int *pe)
@@ -664,12 +664,12 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value,
  *
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int4_xor_ = pshmem_int4_xor_
 #define shmem_int4_xor_ pshmem_int4_xor_
 #pragma weak shmem_int8_xor_ = pshmem_int8_xor_
 #define shmem_int8_xor_ pshmem_int8_xor_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_int4_xor) (int *target, int *value, int *pe)
@@ -689,7 +689,7 @@ FORTRANIFY (shmem_int8_xor) (long *target, long *value, int *pe)
  * broadcasts
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_broadcast4_ = pshmem_broadcast4_
 #define shmem_broadcast4_ pshmem_broadcast4_
 #pragma weak shmem_broadcast8_ = pshmem_broadcast8_
@@ -698,7 +698,7 @@ FORTRANIFY (shmem_int8_xor) (long *target, long *value, int *pe)
 #define shmem_broadcast32_ pshmem_broadcast32_
 #pragma weak shmem_broadcast64_ = pshmem_broadcast64_
 #define shmem_broadcast64_ pshmem_broadcast64_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_broadcast4) (void *target, const void *source, int *nelems,
@@ -746,7 +746,7 @@ FORTRANIFY (shmem_broadcast64) (void *target, const void *source,
  * fixed collects
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_fcollect4_ = pshmem_fcollect4_
 #define shmem_fcollect4_ pshmem_fcollect4_
 #pragma weak shmem_fcollect8_ = pshmem_fcollect8_
@@ -755,7 +755,7 @@ FORTRANIFY (shmem_broadcast64) (void *target, const void *source,
 #define shmem_fcollect32_ pshmem_fcollect4_
 #pragma weak shmem_fcollect64_ = pshmem_fcollect8_
 #define shmem_fcollect64_ pshmem_fcollect8_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_fcollect4) (void *target, const void *source, int *nelems,
@@ -782,7 +782,7 @@ FORTRANIFY (shmem_fcollect8) (void *target, const void *source, int *nelems,
  * generalized collects
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_collect4_ = pshmem_collect4_
 #define shmem_collect4_ pshmem_collect4_
 #pragma weak shmem_collect8_ = pshmem_collect8_
@@ -791,7 +791,7 @@ FORTRANIFY (shmem_fcollect8) (void *target, const void *source, int *nelems,
 #define shmem_collect32_ pshmem_collect4_
 #pragma weak shmem_collect64_ = pshmem_collect8_
 #define shmem_collect64_ pshmem_collect8_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_collect4) (void *target, const void *source, int *nelems,
@@ -819,7 +819,7 @@ FORTRANIFY (shmem_collect8) (void *target, const void *source, int *nelems,
  *
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int2_sum_to_all_ = pshmem_int2_sum_to_all_
 #define shmem_int2_sum_to_all_ pshmem_int2_sum_to_all_
 #pragma weak shmem_int4_sum_to_all_ = pshmem_int4_sum_to_all_
@@ -892,7 +892,7 @@ FORTRANIFY (shmem_collect8) (void *target, const void *source, int *nelems,
 #define shmem_comp4_prod_to_all_ pshmem_comp4_prod_to_all_
 #pragma weak shmem_comp8_prod_to_all_ = pshmem_comp8_prod_to_all_
 #define shmem_comp8_prod_to_all_ pshmem_comp8_prod_to_all_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define REDUCIFY(Op, Fname, Cname, Ctype)				\
   void									\
@@ -951,14 +951,14 @@ REDUCIFY (prod, comp8, complexd, double complex);
  *
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_clear_lock_ = pshmem_clear_lock_
 #define shmem_clear_lock_ pshmem_clear_lock_
 #pragma weak shmem_set_lock_ = pshmem_set_lock_
 #define shmem_set_lock_ pshmem_set_lock_
 #pragma weak shmem_test_lock_ = pshmem_test_lock_
 #define shmem_test_lock_ pshmem_test_lock_
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void
 FORTRANIFY (shmem_clear_lock) (long *lock)
@@ -1000,7 +1000,7 @@ FORTRANIFY (shmem_pcontrol) (int *level)
  * non-blocking putss
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 /* #pragma weak shmem_character_put_nb_ = pshmem_character_put_nb_ */
 /* #define shmem_character_put_nb_ pshmem_character_put_nb_ */
 #pragma weak shmem_double_put_nb_ = pshmem_double_put_nb_
@@ -1025,7 +1025,7 @@ FORTRANIFY (shmem_pcontrol) (int *level)
 #define shmem_put128_nb_ pshmem_put128_nb_
 /* #pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
 /* #define shmem_putmem_nb_ pshmem_putmem_nb_ */
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_PUT_NB(FName, CName, CType)			\
   void *								\
@@ -1059,7 +1059,7 @@ SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
  * non-blocking gets
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 /* #pragma weak shmem_character_get_nb_ = pshmem_character_get_nb_ */
 /* #define shmem_character_get_nb_ pshmem_character_get_nb_ */
 #pragma weak shmem_double_get_nb_ = pshmem_double_get_nb_
@@ -1084,7 +1084,7 @@ SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
 #define shmem_get128_nb_ pshmem_get128_nb_
 /* #pragma weak shmem_getmem_nb_ = pshmem_getmem_nb_ */
 /* #define shmem_getmem_nb_ pshmem_getmem_nb_ */
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_GET_NB(FName, CName, CType)			\
   void *								\

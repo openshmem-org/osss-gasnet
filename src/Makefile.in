@@ -155,15 +155,19 @@ CPPFLAGS        += $(MODULES_CPPFLAGS)
 
 CPPFLAGS        += -I./include
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@TRACE@" "TRUE"
-CPPFLAGS        += -DHAVE_TRACE
+ifeq "@HAVE_FEATURE_TRACE@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
-ifeq "@FEATURE_EXPERIMENTAL@" "TRUE"
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
+endif
+
+ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
@@ -185,9 +189,6 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # init.
 SHMEM_SOURCES    =
-
-# not used right now
-# SHMEM_SOURCES   +=	service.c
 
 # internal
 SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c exe.c

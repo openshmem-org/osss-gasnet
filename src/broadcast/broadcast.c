@@ -96,10 +96,10 @@ __shmem_broadcast_dispatch_init (void)
  *
  */
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_broadcast32 = pshmem_broadcast32
 #define shmem_broadcast32 pshmem_broadcast32
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
@@ -114,10 +114,10 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_broadcast64 = pshmem_broadcast64
 #define shmem_broadcast64 pshmem_broadcast64
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
@@ -132,10 +132,10 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_sync_init = pshmem_sync_init
 #define shmem_sync_init pshmem_sync_init
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void

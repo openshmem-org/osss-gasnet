@@ -95,3 +95,4 @@ distclean:	clean
 	$(MAKE) -C src $@
 	rm -f openshmem.module
 	rm -f config.status
+	rm -f config.h

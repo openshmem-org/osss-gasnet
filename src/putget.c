@@ -53,7 +53,7 @@
 
 #include "shmem.h"
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_put32 = pshmem_int_put
 #define pshmem_put32 pshmem_int_put
 #pragma weak pshmem_put64 = pshmem_long_put
@@ -89,7 +89,7 @@
 #define shmem_put128 pshmem_longdouble_put
 /* #pragma weak pshmem_put = pshmem_long_put */
 /* #pragma weak shmem_put = pshmem_put */
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /*
  * short-circuit local puts/gets, otherwise translate between
@@ -147,7 +147,7 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 }
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak pshmem_get32 = pshmem_int_get
 #define pshmem_get32 pshmem_int_get
 #pragma weak pshmem_get64 = pshmem_long_get
@@ -183,7 +183,7 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 #define shmem_get128 pshmem_longdouble_get
 /* #pragma weak pshmem_get = pshmem_long_get */
 /* #pragma weak shmem_get = pshmem_get */
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET(Name, Type)					\
   /* @api@ */								\
@@ -235,7 +235,7 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 }
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_char_p = pshmem_char_p
 #define shmem_char_p pshmem_char_p
 #pragma weak shmem_short_p = pshmem_short_p
@@ -252,7 +252,7 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 #define shmem_double_p pshmem_double_p
 #pragma weak shmem_float_p = pshmem_float_p
 #define shmem_float_p pshmem_float_p
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /*
  * gasnet_(get|get)_val can't handle bigger types..
@@ -277,7 +277,7 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
 
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_char_g = pshmem_char_g
 #define shmem_char_g pshmem_char_g
 #pragma weak shmem_short_g = pshmem_short_g
@@ -294,7 +294,7 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
 #define shmem_double_g pshmem_double_g
 #pragma weak shmem_float_g = pshmem_float_g
 #define shmem_float_g pshmem_float_g
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
   /* @api@ */								\

@@ -99,10 +99,10 @@ __shmem_fcollect_dispatch_init (void)
  */
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_fcollect32 = pshmem_fcollect32
 #define shmem_fcollect32 pshmem_fcollect32
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
@@ -115,10 +115,10 @@ shmem_fcollect32 (void *target, const void *source, size_t nelems,
   mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_fcollect64 = pshmem_fcollect64
 #define shmem_fcollect64 pshmem_fcollect64
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void

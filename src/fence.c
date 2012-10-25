@@ -41,18 +41,17 @@
 #include "utils.h"
 
 
-#ifdef HAVE_PSHMEM_SUPPORT
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_fence = pshmem_fence
 #define shmem_fence pshmem_fence
 #pragma weak shmem_quiet = pshmem_quiet
 #define shmem_quiet pshmem_quiet
-#endif /* HAVE_PSHMEM_SUPPORT */
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * fence orders puts to a particular PE
  */
 
-/* @api@ */
 void
 shmem_fence (void)
 {
@@ -64,7 +63,6 @@ shmem_fence (void)
  * quiet orders puts to all PEs
  */
 
-/* @api@ */
 void
 shmem_quiet (void)
 {
