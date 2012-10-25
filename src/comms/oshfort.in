@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# generated from OpenSHMEM src directory, don't edit installed version
+#
+
+progname="`basename $0`"
+
+show_usage_and_exit()
+{
+  echo "Usage: $progname [flags] source | objects ..."
+  exit 1
+}
+
+if [ $# -eq 0 ]
+then
+  show_usage_and_exit
+fi
+
+SHMEM_LDFLAGS='@SHMEM_LDFLAGS@'
+
+SHMEM_LIBS='@SHMEM_LIBS@'
+
+SHMEM_INC_DIR='@SHMEM_INC_DIR@'
+
+# shouldn't really be needed
+# GASNET_CPPFLAGS='@GASNET_CPPFLAGS@'
+# GASNET_CFLAGS='@GASNET_CFLAGS@'
+
+GASNET_LDFLAGS='@GASNET_LDFLAGS@'
+
+GASNET_LIBS='@GASNET_LIBS@'
+
+# check to see if linking required: if not, throw away link args
+for c in $@
+do
+  case $c in
+    -[cE])
+      SHMEM_LDFLAGS=''
+      SHMEM_LIBS=''
+      GASNET_LDFLAGS=''
+      GASNET_LIBS=''
+      ;;
+    *)
+      ;;
+  esac
+done
+
+
+exec @DRIVER@ \
+    -I$SHMEM_INC_DIR \
+    $@ \
+    $SHMEM_LDFLAGS $SHMEM_LIBS $GASNET_LIBS

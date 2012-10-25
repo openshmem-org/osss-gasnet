@@ -131,6 +131,13 @@ Optimized for SMP (no MPI involved):
 
     (GASNet built with fast/large model)
 
+After configure has run successfully, it will leave a file
+"config.status" in the top-level source directory containing the
+information required to recreate the selected configuration.  The file
+is executable, so to re-run the same configure you can just say
+
+    ./config.status
+
 The default layout of an installation is as follows:
 
     .

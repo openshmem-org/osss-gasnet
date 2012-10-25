@@ -117,11 +117,9 @@ COMMON_FLAGS     = $(CFLAGS)
 
 # ---------------------------------------------------------
 
-COMP_WRAPPER     = osh-compiler.in
 SHMEM_CC         = oshcc
 SHMEM_CXX        = oshCC
 SHMEM_FC         = oshfort
-RUN_WRAPPER      = oshrun.in
 SHMEM_RUN        = oshrun
 
 # ---------------------------------------------------------
@@ -165,29 +163,37 @@ $(SERVICE_OBJ):	$(SERVICE_SRC)
 
 wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
 
-$(SHMEM_CC):	$(COMP_WRAPPER)
+# 2012-10-25: TODO: lots of commonality here, need to consolidate
+
+$(SHMEM_CC):	$(SHMEM_CC).in
 	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(LD)%" \
+		-e "s%@DRIVER@%$(CC)%" \
 		< $^ > $@
 
-# Tony: this is a mess :(  Need to discover the corresponding
-# C++ and Fortran compilers for a given vendor cc.  Yuck.
-
-$(SHMEM_CXX):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1g++'%" \
-		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpic++'%" \
+$(SHMEM_CXX):	$(SHMEM_CXX).in
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@DRIVER@%$(CXX)%" \
 		< $^ > $@
 
-$(SHMEM_FC):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1gfortran'%" \
-		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpif90'%" \
+$(SHMEM_FC):	$(SHMEM_FC).in
+	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@DRIVER@%$(FC)%" \
 		< $^ > $@
 
-$(SHMEM_RUN):	$(RUN_WRAPPER)
+
+$(SHMEM_RUN):	$(SHMEM_RUN).in
 	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
 		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \

@@ -305,16 +305,25 @@ case "$cc_cmd" in
 	;;
     icc)
 	c99_flags="-std=c99"
+	fc_cmd=ifort
 	;;
     suncc)
 	c99_flags="-xc99"
+	fc_cmd=sunf90
 	;;
     pgcc)
 	c99_flags="-c99"
+	fc_cmd=pgfortran
 	;;
-    opencc | uhcc)
+    opencc)
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	fc_cmd=openf90
+	;;
+    uhcc)
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	fc_cmd=uhf90
 	;;
     *)
 	;;

@@ -28,8 +28,6 @@ SHMEM_INC_DIR='@SHMEM_INC_DIR@'
 
 GASNET_LDFLAGS='@GASNET_LDFLAGS@'
 
-SHMEM_LD='@SHMEM_LD@'
-
 GASNET_LIBS='@GASNET_LIBS@'
 
 # check to see if linking required: if not, throw away link args
@@ -48,6 +46,7 @@ do
 done
 
 
-exec $SHMEM_LD -I$SHMEM_INC_DIR \
+exec @DRIVER@ \
+    -I$SHMEM_INC_DIR \
     $@ \
     $SHMEM_LDFLAGS $SHMEM_LIBS $GASNET_LIBS
