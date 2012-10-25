@@ -306,7 +306,7 @@ fi
 cc_type="unknown"
 
 case "$cc_ver" in
-    *"gcc (GCC)"*)
+    *"Free Software Foundation"*)
 	cc_type="GNU"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
