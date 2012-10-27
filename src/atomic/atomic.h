@@ -40,14 +40,24 @@
 #ifndef _ATOMIC_H
 #define _ATOMIC_H 1
 
+/*
+ * This sub-module's initialization and finalization
+ */
+
 extern void __shmem_atomic_init (void);
 extern void __shmem_atomic_finalize (void);
 
-#if defined(__GNUC__)
+/*
+ * How do various compilers handle memory barriers and intrinsics?
+ *
+ * Some guesswork here...
+ *
+ */
 
-/* # define LOAD_STORE_FENCE() __asm__ volatile("mfence":::"memory") */
-# define LOAD_STORE_FENCE() __sync_synchronize()
-# define SYNC_FETCH_AND_ADD(t, v) __sync_fetch_and_add(t, v)
+#if defined(__INTEL_COMPILER)
+
+# define LOAD_STORE_FENCE() __memory_barrier()
+# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
 
 #elif defined(__SUNPRO_C)
 
@@ -55,6 +65,11 @@ extern void __shmem_atomic_finalize (void);
 
 # define LOAD_STORE_FENCE() __machine_rw_barrier()
 # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+
+#elif defined(__GNUC__)
+
+# define LOAD_STORE_FENCE() __sync_synchronize()
+# define SYNC_FETCH_AND_ADD(t, v) __sync_fetch_and_add(t, v)
 
 #else
 

@@ -45,6 +45,7 @@
  */
 
 extern void __shmem_symmetric_globalvar_table_init (void);
+extern void __shmem_symmetric_globalvar_table_finalize (void);
 
 extern int __shmem_symmetric_is_globalvar (void *addr);
 

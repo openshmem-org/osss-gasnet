@@ -80,6 +80,7 @@ __shmem_exit (int status)
   /* clean up atomics and memory */
   __shmem_atomic_finalize ();
   __shmem_symmetric_memory_finalize ();
+  __shmem_symmetric_globalvar_table_finalize ();
 
   /* clean up plugin modules */
   __shmem_modules_finalize ();

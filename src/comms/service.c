@@ -94,6 +94,8 @@ start_service (void *unused)
       nanosleep (&delayspec, NULL); /* back off */
     }
   while (! done);
+
+  return NULL;
 }
 
 /**
