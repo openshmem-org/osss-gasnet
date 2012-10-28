@@ -45,8 +45,9 @@ do
   esac
 done
 
+DRIVER=@DRIVER@	
 
-exec @DRIVER@ \
+exec $DRIVER \
     -I$SHMEM_INC_DIR \
     $@ \
     $SHMEM_LDFLAGS $SHMEM_LIBS $GASNET_LIBS

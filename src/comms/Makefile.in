@@ -119,6 +119,7 @@ COMMON_FLAGS     = $(CFLAGS)
 
 SHMEM_CC         = oshcc
 SHMEM_CXX        = oshCC
+SHMEM_CXX_ALT    = oshcxx
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
 
@@ -161,40 +162,49 @@ $(SERVICE_OBJ):	$(SERVICE_SRC)
 
 # -- command wrappers depend on gasnet settings ------------
 
-wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT) $(SHMEM_FC) $(SHMEM_RUN)
 
-# 2012-10-25: TODO: lots of commonality here, need to consolidate
+# 2012-10-27: TODO: this is really tricky.  GASNet only tells us
+# about the linker command for C (could be compiler, or MPI wrapper
+# or similar).  There's no sure-fire way of inferring the appropriate
+# C++ and Fortran command names from that.  I can guess, but only guess.
 
 $(SHMEM_CC):	$(SHMEM_CC).in
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@DRIVER@%$(CC)%" \
+		-e "s%@DRIVER@%$(GASNET_LD)%" \
+		-e "s%[ |\\t][ |\\t]*$$%%g" \
 		< $^ > $@
 
-$(SHMEM_CXX):	$(SHMEM_CXX).in
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@DRIVER@%$(CXX)%" \
+$(SHMEM_CXX):	$(SHMEM_CC)
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpicxx; else lnk=$(CXX); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
 		< $^ > $@
 
-$(SHMEM_FC):	$(SHMEM_FC).in
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
-		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
-		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
-		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@DRIVER@%$(FC)%" \
+$(SHMEM_CXX_ALT):	$(SHMEM_CXX)
+	cp $^ $@
+
+$(SHMEM_FC):	$(SHMEM_CC)
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpif90; else lnk=$(FC); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
 		< $^ > $@
 
 
 $(SHMEM_RUN):	$(SHMEM_RUN).in
-	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
+	sed \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
 		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
 		< $^ > $@
@@ -202,7 +212,8 @@ $(SHMEM_RUN):	$(SHMEM_RUN).in
 # -- pkg-config --------------------------------------------
 
 openshmem.pc:   openshmem.pc.in
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
@@ -214,14 +225,15 @@ openshmem.pc:   openshmem.pc.in
 
 install:	install-bin install-lib
 
-install-bin:
+install-bin:	all
 	mkdir -p $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX)     $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX_ALT) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN)     $(PREFIX)/bin
 
-install-lib:
+install-lib:	all
 	mkdir -p $(PREFIX)/lib/pkgconfig
 	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
 
@@ -234,6 +246,7 @@ uninstall-lib:
 uninstall-bin:
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX_ALT)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
 	- rmdir $(PREFIX)/bin
@@ -242,5 +255,7 @@ uninstall-bin:
 
 clean:
 	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
-	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
+	$(REMOVE) $(SHMEM_FC)
+	$(REMOVE) $(SHMEM_RUN)
 	$(REMOVE) openshmem.pc
