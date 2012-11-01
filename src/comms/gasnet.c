@@ -656,89 +656,79 @@ __shmem_comms_barrier_all (void)
  * start of handlers
  */
 
-#if ! defined(HAVE_MANAGED_SEGMENTS)
+/*
+ * GASNet allows applications to use handler codes 128-255.
+ *
+ * See http://gasnet.cs.berkeley.edu/dist/docs/gasnet.html, under
+ * description of gasnet_attach ()
+ */
 
-#define GASNET_HANDLER_SETUP_OUT     128
-#define GASNET_HANDLER_SETUP_BAK     129
+enum
+  {
+    GASNET_HANDLER_SETUP_OUT=128,
+    GASNET_HANDLER_SETUP_BAK=129,
+    GASNET_HANDLER_SWAP_OUT=130,
+    GASNET_HANDLER_SWAP_BAK=131,
+    GASNET_HANDLER_CSWAP_OUT=132,
+    GASNET_HANDLER_CSWAP_BAK=133,
+    GASNET_HANDLER_FADD_OUT=134,
+    GASNET_HANDLER_FADD_BAK=135,
+    GASNET_HANDLER_FINC_OUT=136,
+    GASNET_HANDLER_FINC_BAK=137,
+    GASNET_HANDLER_ADD_OUT=138,
+    GASNET_HANDLER_ADD_BAK=139,
+    GASNET_HANDLER_INC_OUT=140,
+    GASNET_HANDLER_INC_BAK=141,
+    GASNET_HANDLER_PING_OUT=142,
+    GASNET_HANDLER_PING_BAK=143,
+    GASNET_HANDLER_XOR_OUT=146,
+    GASNET_HANDLER_XOR_BAK=147,
+    GASNET_HANDLER_GLOBALVAR_PUT_OUT=148,
+    GASNET_HANDLER_GLOBALVAR_PUT_BAK=149,
+    GASNET_HANDLER_GLOBALVAR_GET_OUT=150,
+    GASNET_HANDLER_GLOBALVAR_GET_BAK=151,
+  };
+
+#if ! defined(HAVE_MANAGED_SEGMENTS)
 
 static void handler_segsetup_out ();
 static void handler_segsetup_bak ();
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
-#define GASNET_HANDLER_SWAP_OUT      130
-#define GASNET_HANDLER_SWAP_BAK      131
-
 static void handler_swap_out ();
 static void handler_swap_bak ();
-
-#define GASNET_HANDLER_CSWAP_OUT     132
-#define GASNET_HANDLER_CSWAP_BAK     133
 
 static void handler_cswap_out ();
 static void handler_cswap_bak ();
 
-#define GASNET_HANDLER_FADD_OUT      134
-#define GASNET_HANDLER_FADD_BAK      135
-
 static void handler_fadd_out ();
 static void handler_fadd_bak ();
-
-#define GASNET_HANDLER_FINC_OUT      136
-#define GASNET_HANDLER_FINC_BAK      137
 
 static void handler_finc_out ();
 static void handler_finc_bak ();
 
-#define GASNET_HANDLER_ADD_OUT       138
-#define GASNET_HANDLER_ADD_BAK       139
-
 static void handler_add_out ();
 static void handler_add_bak ();
-
-#define GASNET_HANDLER_INC_OUT       140
-#define GASNET_HANDLER_INC_BAK       141
 
 static void handler_inc_out ();
 static void handler_inc_bak ();
 
-#define GASNET_HANDLER_PING_OUT      142
-#define GASNET_HANDLER_PING_BAK      143
-
 static void handler_ping_out ();
 static void handler_ping_bak ();
-
-#if 0				/* not used */
-
-#define GASNET_HANDLER_QUIET_OUT     144
-#define GASNET_HANDLER_QUIET_BAK     145
-
-static void handler_quiet_out ();
-static void handler_quiet_bak ();
-
-#endif /* not used */
 
 /**
  * proposed by IBM Zurich
  *
  */
 
-#define GASNET_HANDLER_XOR_OUT       146
-#define GASNET_HANDLER_XOR_BAK       147
-
 static void handler_xor_out ();
 static void handler_xor_bak ();
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
-#define GASNET_HANDLER_GLOBALVAR_PUT_OUT 160
-#define GASNET_HANDLER_GLOBALVAR_PUT_BAK 161
-
 static void handler_globalvar_put_out ();
 static void handler_globalvar_put_bak ();
-
-#define GASNET_HANDLER_GLOBALVAR_GET_OUT 162
-#define GASNET_HANDLER_GLOBALVAR_GET_BAK 163
 
 static void handler_globalvar_get_out ();
 static void handler_globalvar_get_bak ();
