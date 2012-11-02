@@ -49,15 +49,21 @@ programs provided by the library, rather using the MPI compilers and
 e.g. the pkg-config utility to locate headers and libraries (described
 below).  We've used MPICH2 and MVAPICH2 successfully too locally.
 
-The main GASNet version has been 1.18.x during development, although
-the 1.14.x and 1.16.x series were used as well as a comparison for
-backward compatibility.  At the time of writing, 1.20.0 is the newest
-GASNet version and has been tested too.
-
 Currently the Makefile is set up to use the GNU C Compiler (4.x
 series), but there's a relatively small number of changes that need to
 be made to change that (e.g. debugging and optimization flags, PIC
 option, C99 compliance).
+
+GASNet Versions
+===============
+
+1.14.x, 1.16.x: were used to test backward compatibility of older
+     GASNets
+
+1.18.x: was the main version during most of the development work
+
+1.20.0: is the newest GASNet version (Nov 2012) and is the one in use
+     for development currently
 
 The "configure" script
 ======================
@@ -67,7 +73,7 @@ it's just a basic shell script to give the same kind of look-and-feel.
 The script accepts a --help option.  It doesn't (yet) support the GNU
 separate-build-directory thing.
 
-By default I'm using the "smp" conduit for development on a single
+By default we're using the "smp" conduit for development on a single
 machine, but for e.g. an Infiniband cluster, just change this to "ibv"
 by choosing a different conduit in the configure command.
 
@@ -145,6 +151,7 @@ The default layout of an installation is as follows:
     |-- bin
     |   |-- oshCC
     |   |-- oshcc
+    |   |-- oshcxx
     |   |-- oshfort
     |   `-- oshrun
     |-- include
@@ -175,13 +182,14 @@ The default layout of an installation is as follows:
             |-- man1
             |   |-- oshCC.1
             |   |-- oshcc.1
+            |   |-- oshcxx.1
             |   |-- oshfort.1
             |   `-- oshrun.1
             |-- man3
             `-- man5
                 `-- oshconfig.5
 
-    12 directories, 26 files
+    12 directories, 28 files
 
 
 Installation Notes
