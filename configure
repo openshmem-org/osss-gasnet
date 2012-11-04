@@ -447,7 +447,7 @@ tell "Found GASNet version $gasnet_ver"
 #
 
 KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
-                   sed -e 's/-conduit$//g' )`"
+                   sed -e 's/-conduit//g' )`"
 
 if [ "$KNOWN_CONDUITS" = '*' ]
 then
