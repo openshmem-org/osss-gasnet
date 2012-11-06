@@ -117,6 +117,9 @@ SHMEM_EMIT_IPUT (longdouble, long double);
 SHMEM_EMIT_IPUT (longlong, long long);
 SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 
+#pragma weak shmem_iput32 = shmem_int_iput
+#pragma weak shmem_iput64 = shmem_long_iput
+#pragma weak shmem_iput128 = shmem_longdouble_iput
 
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -185,3 +188,7 @@ SHMEM_EMIT_IGET (float, float);
 SHMEM_EMIT_IGET (longdouble, long double);
 SHMEM_EMIT_IGET (longlong, long long);
 SHMEM_EMIT_IGET (complexf, COMPLEXIFY (float));
+
+#pragma weak shmem_iget32 = shmem_int_iget
+#pragma weak shmem_iget64 = shmem_long_iget
+#pragma weak shmem_iget128 = shmem_longdouble_iget

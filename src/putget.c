@@ -127,6 +127,10 @@ SHMEM_TYPE_PUT (float, float);
 SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double));
 
+#pragma weak shmem_put32 = shmem_int_put
+#pragma weak shmem_put64 = shmem_long_put
+#pragma weak shmem_put128 = shmem_longdouble_put
+
 /* @api@ */
 void
 shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
@@ -214,6 +218,10 @@ SHMEM_TYPE_GET (double, double);
 SHMEM_TYPE_GET (float, float);
 SHMEM_TYPE_GET (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_GET (complexd, COMPLEXIFY (double));;
+
+#pragma weak shmem_get32 = shmem_int_get
+#pragma weak shmem_get64 = shmem_long_get
+#pragma weak shmem_get128 = shmem_longdouble_get
 
 /* @api@ */
 void
