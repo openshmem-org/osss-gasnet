@@ -778,7 +778,6 @@ void write_ft_info(FILE *fp, int nprocs, char class)
   if (ny > maxdim) maxdim = ny;
   if (nz > maxdim) maxdim = nz;
   fprintf(fp, "%sinteger nx, ny, nz, maxdim, niter_default, ntdivnp, np_min\n", FINDENT);
-  fprintf(fp, "%sinteger nx, ny, nz, maxdim, niter_default, ntdivnp, np_min\n", FINDENT);
   fprintf(fp, "%sparameter (nx=%d, ny=%d, nz=%d, maxdim=%d)\n", 
           FINDENT, nx, ny, nz, maxdim);
   fprintf(fp, "%sparameter (niter_default=%d)\n", FINDENT, niter);
