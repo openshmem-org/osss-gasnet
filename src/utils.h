@@ -40,7 +40,7 @@
 #ifndef _UTILS_H
 #define _UTILS_H 1
 
-#ifdef DEBUG
+#ifdef HAVE_FEATURE_DEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,11 +49,11 @@
 
 #define IF_DEBUGGING(x) do { x ; } while (0)
 
-#else /* ! DEBUG */
+#else /* ! HAVE_FEATURE_DEBUG */
 
 #define IF_DEBUGGING(x)
 
-#endif /* DEBUG */
+#endif /* HAVE_FEATURE_DEBUG */
 
 /*
  * if we haven't initialized through start_pes() then try to do

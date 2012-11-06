@@ -35,92 +35,26 @@
 #
 
 
-Acknowledgement
----------------
+This project is hosted at
 
-This work is supported by Oak Ridge National Laboratory's Extreme
-Scale System Center.
+    http://www.openshmem.org/
 
-Development at the University of Houston was supported in part by the
-National Science Foundation's Computer Systems Research program under
-Award No. CRI-0958464.  Any opinions, findings, and conclusions or
-recommendations expressed in this material are those of the authors
-and do not necessarily reflect the views of the National Science
-Foundation.
+which is where you can find definitive information about OpenSHMEM.
 
-Installation Instructions (preliminary) for OpenSHMEM
------------------------------------------------------
-
-The library installs on top of GASNet and anything required by
-whichever conduit you want to use with GASNet, e.g. an MPI.  GASNet
-provides a portable communications layer for this implementation of
-OpenSHMEM to work on top of.
-
-The development versions of MPI are Open-MPI 1.4.{3,4,5} but I suspect
-any version that adheres to the "mpi" prefix for the command-line
-tools will slot right in, and if not, the fix is pretty trivial.
-We've used MPICH and MVAPICH successfully too.
-
-The main GASNet version has been 1.18.0 during development, although
-1.42.2 and the 1.16.x series were used as well as a comparison for
-backward compatibility.
-
-Currently the Makefile is set up to use the GNU C Compiler (4.x
-series), but there's a relatively small number of changes that need to
-be made to change that (e.g. debugging and optimization flags, PIC
-option, C99 compliance).
-
-There's a configure script.  This will eventually be the GNU autotools
-setup, but for now it's just a basic shell script to give the same
-kind of look-and-feel.  The script accepts a --help option.  It
-doesn't (yet) support the GNU separate-build-directory thing.
-
-By default I'm using the "smp" conduit for development on a single
-machine, but for e.g. an Infiniband cluster, just change this to "ibv"
-by choosing a different conduit in the configure command.
-
-Configure Usage
----------------
-
-Here is how configure might be called on a cluster using Infiniband,
-with debugging support (e.g. argument and PE range checking) and
-operation tracing:
-
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=ibv     \
-                --with-gasnet-root=/usr	      \
-		--enable-debug --enable-trace
-
-On a cluster using gigabit as interconnect, or on a single SMP
-machine:
-
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=mpi     \
-                --with-gasnet-root=/opt/gasnet/everything
-
-Optimized for SMP:
-
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=smp     \
-                --with-gasnet-root=/usr
-
-    (GASNet built with fast/large model)
-
-Testing Environment
--------------------
+Testing Environments at the University of Houston
+-------------------------------------------------
 
 1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
-   conduits, OpenMPI 1.4.3
+   conduits, OpenMPI 1.4.3++
 
 2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
-   conduit, OpenMPI 1.4.2 with slurm integration
+   conduit, OpenMPI, MVAPICH2 with slurm integration
 
 3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
-   conduit, OpenMPI 1.4.3 with pbs (called "tm") integration
+   conduit, OpenMPI 1.4.3 with pbs ("tm") integration
 
-
-Support Software
-----------------
+Some Supporting Software
+-------------------------
 
 1. GASNet   :: http://gasnet.cs.berkeley.edu/
 
@@ -128,93 +62,13 @@ Support Software
 
 3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
 
-
-Installation Notes
-------------------
-
-1. GASNet & Infiniband
-
-On some cluster setups we have seen issues with larger segment sizes.
-Restricting the segment allocation to 512MB has solved these problems.
-Note that you can do this via an environment variable supported by
-this OpenSHMEM library: see the man page for oshconfig(5).  The kernel
-parameters shmmax and shmall may affect this behavior.  Some notes on
-setting these can be found here:
-
-  http://www.puschitz.com/TuningLinuxForOracle.shtml#SettingSharedMemory
-
-Other GASNet environment variables that may help include
-
-  GASNET_PHYSMEM_NOPROBE
-
-in conjunction with this library's SHMEM_SYMMETRIC_HEAP_SIZE
-environment variable, and
-
-  GASNET_NUM_QPS
-
-to set the number of Infiniband queue-pairs.
-
-2. ELF Library
-
-There are 2 common ELF libraries:
-
-  elfutils :: https://fedorahosted.org/elfutils/
-  libelf   :: http://www.mr511.de/software/english.html
-
-While all local development (University of Houston) has used elfutils
-on a number of Linux distributions, we encountered some portability
-issues between elfutils and libelf on some remote systems.  Hopefully
-these have been addressed.
-
-Pkg-Config
-----------
-
-pkg-config(1)
-
-    http://www.freedesktop.org/wiki/Software/pkg-config
-
-helps packages provide configuration information for other packages to
-interact with them, so you can ask openshmem for its CFLAGS or
-libraries for linking.  Add
-
-    <install>/lib/pkgconfig
-
-to the PKG_CONFIG_PATH environment variable.
-
-This means you can compile/link programs as e.g. with Open64
-
-    opencc $(pkg-config --cflags openshmem) \
-        program.c \
-            $(pkg-config --libs openshmem)
-
-or any other compiler of your choice.
-
-Module
-------
-
-The module(1) command
-
-    http://modules.sourceforge.net/
-
-allows users or sysadmins to simplify setting up extra packages.  A
-file
-
-    openshmem.module
-
-is included as a template (although not installed anywhere by this
-library).
-
-Feedback
---------
+Contact and Feedback
+--------------------
 
 The main project contact at the University of Houston is
 
-    Dr. Barbara Chapman <chapman@cs.uh.edu>
+    Prof. Barbara Chapman <chapman@cs.uh.edu>
 
 The project development lead is
 
-    Tony Curtis <arcurtis@mail.uh.edu>
-
-The OpenSHMEM project is hosted at
-
-    http://www.openshmem.org/
+    Tony Curtis <tonyc@uh.edu>

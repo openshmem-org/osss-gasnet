@@ -58,19 +58,27 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 MODULES = $(wildcard broadcast-*.c)
 OBJECTS = $(MODULES:.c=.o)
 SHOBJECTS = $(MODULES:.c=.so)
 
-.PHONY: all default install-lib uninstall-lib clean
+.PHONY: all default install-lib uninstall-lib clean shmem-headers
 
-all default:	$(SHOBJECTS) broadcast.o
+all default:	shmem-headers $(SHOBJECTS) broadcast.o
+
+shmem-headers:
+	$(MAKE) -C .. $@
 
 install-lib:	all default
 	mkdir -p @MODULES_DIR@

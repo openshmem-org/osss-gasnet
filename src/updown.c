@@ -80,6 +80,7 @@ __shmem_exit (int status)
   /* clean up atomics and memory */
   __shmem_atomic_finalize ();
   __shmem_symmetric_memory_finalize ();
+  __shmem_symmetric_globalvar_table_finalize ();
 
   /* clean up plugin modules */
   __shmem_modules_finalize ();
@@ -129,14 +130,43 @@ __shmem_place_init (void)
     }
 }
 
+
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak start_pes = pstart_pes
+#define start_pes pstart_pes
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
- * this is where we get everything up and running
+ * \brief This routine initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void start_pes (int npes);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER npes
+ *
+ *   CALL START_PES (npes)
+ * \endcode
+ *
+ * \param npes the number of PEs participating in the program.  This
+ * is ignored and should be set to 0.
+ *
+ * \b Effect:
+ *
+ * Initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \return None.
  *
  */
 
-/* @api@ */
 void
-pstart_pes (int npes)
+start_pes (int npes)
 {
   /* these have to happen first to enable messages */
   __shmem_elapsed_clock_init ();	/* start the tracking clock */
@@ -203,10 +233,6 @@ pstart_pes (int npes)
 		     "start_pes() was passed %d, should be 0", npes);
     }
 
-  /*
-   * and we're up and running
-   */
-
   SET_STATE (pe_status, PE_RUNNING);
 
   {
@@ -222,6 +248,8 @@ pstart_pes (int npes)
   }
 
   __shmem_comms_barrier_all ();
-}
 
-#pragma weak start_pes = pstart_pes
+  /*
+   * and we're up and running
+   */
+}

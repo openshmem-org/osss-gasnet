@@ -55,3 +55,11 @@
 
   extern void pshmem_wait_nb (void *h);
   extern int  pshmem_test_nb (void *h) _WUR;
+
+  /*
+   * Proposed by IBM Zurich
+   *
+   */
+  extern void pshmem_int_xor (int *target, int value, int pe);
+  extern void pshmem_long_xor (long *target, long value, int pe);
+  extern void pshmem_longlong_xor (long long *target, long long value, int pe);

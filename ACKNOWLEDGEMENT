@@ -1,6 +1,7 @@
+# Emacs: -*- mode: text; mode: auto-fill; -*-
 #
 # Copyright (c) 2011, 2012
-#  University of Houston System and Oak Ridge National Laboratory.
+#   University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
 # 
@@ -34,56 +35,15 @@
 #
 
 
-# ---------------------------------------------------------
+Acknowledgement
+---------------
 
-COMMS_DIR        =    ../comms
-COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
+This work is supported by Oak Ridge National Laboratory's Extreme
+Scale System Center.
 
-# ---------------------------------------------------------
-
-MEMORY_DIR        =    ../memory
-MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
-
-# ---------------------------------------------------------
-
-
-CC               = @CC@
-CFLAGS           = @CFLAGS@
-CPPFLAGS         = @CPPFLAGS@
-LD               = @LD@
-LDFLAGS          = @LDFLAGS@
-
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
-CPPFLAGS        += -DHAVE_FEATURE_DEBUG
-endif
-
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
-CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
-endif
-
-ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
-CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
-M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
-endif
-
-CPPFLAGS        += -I..
-
-CPPFLAGS        += $(COMMS_CPPFLAGS)
-CPPFLAGS        += $(MEMORY_CPPFLAGS)
-
-CFLAGS          += -fPIC
-CFLAGS          += $(HASH_CFLAGS)
-CFLAGS          += @WARNFLAGS@
-
-.PHONY: all default clean shmem-headers
-
-SOURCES  = $(wildcard *.c)
-OBJECTS  = $(SOURCES:.c=.o)
-
-all default:	shmem-headers $(OBJECTS)
-
-shmem-headers:
-	$(MAKE) -C .. $@
-
-clean:
-	rm -f $(OBJECTS)
+Development at the University of Houston was supported in part by the
+National Science Foundation's Computer Systems Research program under
+Award No. CRI-0958464.  Any opinions, findings, and conclusions or
+recommendations expressed in this material are those of the authors
+and do not necessarily reflect the views of the National Science
+Foundation.

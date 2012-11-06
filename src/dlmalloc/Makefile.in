@@ -40,10 +40,6 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
-endif
-
 CFLAGS          += -fPIC
 
 .PHONY: all default clean

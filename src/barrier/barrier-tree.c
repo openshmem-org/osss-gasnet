@@ -93,7 +93,6 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
   int child_l, child_r, parent;
   const int step = 1 << logPE_stride;
   int my_pe = GET_STATE (mype);
-  int thatpe, i;
   int no_children;
   long is_ready, lchild_ready, rchild_ready;
 

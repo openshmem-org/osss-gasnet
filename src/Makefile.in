@@ -130,15 +130,6 @@ FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
 # flags that do PIC, dependency, debug/optimize and C99 compliance
 #
 
-# Sun/Oracle Studio: state = testing
-#CC               = suncc
-#CPPFLAGS        += -xMMD
-#CFLAGS          += -PIC
-#CFLAGS          += -xc99=all
-#DEBUG_AND_OPT    = -ggdb -xO0
-#WARNINGS         =
-# WARNINGS        += -pedantic
-
 CC               = @CC@
 CXX              = @CXX@
 FC               = @FC@
@@ -164,22 +155,27 @@ CPPFLAGS        += $(MODULES_CPPFLAGS)
 
 CPPFLAGS        += -I./include
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@TRACE@" "TRUE"
-CPPFLAGS        += -DHAVE_TRACE
+ifeq "@HAVE_FEATURE_TRACE@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
-ifeq "@PUTGET_NB@" "TRUE"
-CPPFLAGS        += -DHAVE_PUTGET_NB
-M4FLAGS          = -DHAVE_PUTGET_NB
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CFLAGS          += -std=c99
-CFLAGS          += -Wall
+ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
+endif
+
 CFLAGS          += -pthread
+
+CFLAGS          += @C99FLAGS@
+CFLAGS          += @WARNFLAGS@
 
 # for "so" libraries
 CFLAGS          += -fPIC
@@ -193,9 +189,6 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # init.
 SHMEM_SOURCES    =
-
-# not used right now
-# SHMEM_SOURCES   +=	service.c
 
 # internal
 SHMEM_SOURCES   +=	state.c trace.c clock.c ping.c exe.c
@@ -241,6 +234,7 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 
 .PHONY: all default
 .PHONY:	$(OBJ_GEN)
+.PHONY:	shmem-headers
 .PHONY: install install-lib install-comms install-include
 .PHONY: uninstall uninstall-lib uninstall-comms uninstall-include
 .PHONY: clean distclean
@@ -302,6 +296,8 @@ uninstall-include:
 	- rmdir $(PREFIX)/include
 
 # -- header files ------------------------------------------
+
+shmem-headers: $(SHMEM_HEADERS)
 
 shmem.h:	shmem.h.in
 	$(M4) $(M4FLAGS) $^ > $@

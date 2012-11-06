@@ -35,8 +35,8 @@
 
 
 .PHONY: all all-doc all-src
-.PHONY: install install-doc install-src
-.PHONY: uninstall uninstall-doc uninstall-src
+.PHONY: install install-doc install-src install-module
+.PHONY: uninstall uninstall-doc uninstall-src uninstall-module
 .PHONY: clean clean-doc clean-src
 .PHONY: distclean
 
@@ -52,7 +52,7 @@ all-src:
 
 # -------------------------------------------------------------
 
-install: install-doc install-src
+install: all	install-doc install-src install-module
 
 install-doc:
 	$(MAKE) -C doc install
@@ -60,15 +60,23 @@ install-doc:
 install-src:
 	$(MAKE) -C src install
 
+install-module:
+	mkdir -p @MODULEFILES_DIR@
+	install -c -m 644 openshmem.module @MODULEFILES_DIR@/openshmem
+
 # -------------------------------------------------------------
 
-uninstall: uninstall-doc uninstall-src
+uninstall: uninstall-doc uninstall-src uninstall-module
 
 uninstall-doc:
 	$(MAKE) -C doc uninstall
 
 uninstall-src:
 	$(MAKE) -C src uninstall
+
+uninstall-module:
+	rm -f @MODULEFILES_DIR@/openshmem
+	- rmdir @MODULEFILES_DIR@
 
 # -------------------------------------------------------------
 
@@ -85,4 +93,6 @@ clean-src:
 distclean:	clean
 	$(MAKE) -C doc $@
 	$(MAKE) -C src $@
+	rm -f openshmem.module
 	rm -f config.status
+	rm -f config.h

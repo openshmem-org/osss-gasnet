@@ -37,7 +37,7 @@
 
 
 
-#if defined(HAVE_PUTGET_NB)
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #include "state.h"
 #include "comms.h"
@@ -46,6 +46,25 @@
 
 #include "pshmem.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak pshmem_put16_nb = pshmem_short_put_nb
+#pragma weak pshmem_put32_nb = pshmem_int_put_nb
+#pragma weak pshmem_put64_nb = pshmem_long_put_nb
+#pragma weak pshmem_put128_nb = pshmem_longdouble_put_nb
+
+#pragma weak shmem_short_put_nb = pshmem_short_put_nb
+#pragma weak shmem_int_put_nb = pshmem_int_put_nb
+#pragma weak shmem_long_put_nb = pshmem_long_put_nb
+#pragma weak shmem_longdouble_put_nb = pshmem_longdouble_put_nb
+#pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
+#pragma weak shmem_double_put_nb = pshmem_double_put_nb
+#pragma weak shmem_float_put_nb = pshmem_float_put_nb
+#pragma weak shmem_put16_nb = pshmem_short_put_nb
+#pragma weak shmem_put32_nb = pshmem_int_put_nb
+#pragma weak shmem_put64_nb = pshmem_long_put_nb
+#pragma weak shmem_put128_nb = pshmem_longdouble_put_nb
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
  * non-blocking extensions
  */
@@ -53,8 +72,8 @@
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
-			  int pe, void **hp)				\
+  shmem_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
+			 int pe, void **hp)				\
   {									\
     void *h;								\
     void *rdest;							\
@@ -79,27 +98,17 @@ SHMEM_TYPE_PUT_NB (longlong, long long);
 SHMEM_TYPE_PUT_NB (double, double);
 SHMEM_TYPE_PUT_NB (float, float);
 
-#pragma weak pshmem_put16_nb = pshmem_short_put_nb
-#pragma weak pshmem_put32_nb = pshmem_int_put_nb
-#pragma weak pshmem_put64_nb = pshmem_long_put_nb
-#pragma weak pshmem_put128_nb = pshmem_longdouble_put_nb
 
-#pragma weak shmem_short_put_nb = pshmem_short_put_nb
-#pragma weak shmem_int_put_nb = pshmem_int_put_nb
-#pragma weak shmem_long_put_nb = pshmem_long_put_nb
-#pragma weak shmem_longdouble_put_nb = pshmem_longdouble_put_nb
-#pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
-#pragma weak shmem_double_put_nb = pshmem_double_put_nb
-#pragma weak shmem_float_put_nb = pshmem_float_put_nb
-#pragma weak shmem_put16_nb = pshmem_short_put_nb
-#pragma weak shmem_put32_nb = pshmem_int_put_nb
-#pragma weak shmem_put64_nb = pshmem_long_put_nb
-#pragma weak shmem_put128_nb = pshmem_longdouble_put_nb
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_putmem_nb = pshmem_putmem_nb
+#pragma weak pshmem_put_nb = pshmem_long_put_nb
+#pragma weak shmem_put_nb = pshmem_long_put_nb
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void *
-pshmem_putmem_nb (void *target, const void *source, size_t nelems,
-		  int pe, void **hp)
+shmem_putmem_nb (void *target, const void *source, size_t nelems,
+		 int pe, void **hp)
 {
   void *h;
   void *rdest;
@@ -115,18 +124,28 @@ pshmem_putmem_nb (void *target, const void *source, size_t nelems,
   return h;
 }
 
-#pragma weak shmem_putmem_nb = pshmem_putmem_nb
-
-#pragma weak pshmem_put_nb = pshmem_long_put_nb
-
-#pragma weak shmem_put_nb = pshmem_long_put_nb
-
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak pshmem_get32_nb = pshmem_int_get_nb
+#pragma weak pshmem_get64_nb = pshmem_long_get_nb
+#pragma weak pshmem_get128_nb = pshmem_longdouble_get_nb
+#pragma weak shmem_short_get_nb = pshmem_short_get_nb
+#pragma weak shmem_int_get_nb = pshmem_int_get_nb
+#pragma weak shmem_long_get_nb = pshmem_long_get_nb
+#pragma weak shmem_longdouble_get_nb = pshmem_longdouble_get_nb
+#pragma weak shmem_longlong_get_nb = pshmem_longlong_get_nb
+#pragma weak shmem_double_get_nb = pshmem_double_get_nb
+#pragma weak shmem_float_get_nb = pshmem_float_get_nb
+#pragma weak shmem_get16_nb = pshmem_short_get_nb
+#pragma weak shmem_get32_nb = pshmem_int_get_nb
+#pragma weak shmem_get64_nb = pshmem_long_get_nb
+#pragma weak shmem_get128_nb = pshmem_longdouble_get_nb
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
   /* @api@ */								\
   void *								\
-  pshmem_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
-			  int pe, void **hp)				\
+  shmem_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
+			 int pe, void **hp)				\
   {									\
     void *h;								\
     void *rsrc;								\
@@ -151,26 +170,17 @@ SHMEM_TYPE_GET_NB (longlong, long long);
 SHMEM_TYPE_GET_NB (double, double);
 SHMEM_TYPE_GET_NB (float, float);
 
-#pragma weak pshmem_get32_nb = pshmem_int_get_nb
-#pragma weak pshmem_get64_nb = pshmem_long_get_nb
-#pragma weak pshmem_get128_nb = pshmem_longdouble_get_nb
 
-#pragma weak shmem_short_get_nb = pshmem_short_get_nb
-#pragma weak shmem_int_get_nb = pshmem_int_get_nb
-#pragma weak shmem_long_get_nb = pshmem_long_get_nb
-#pragma weak shmem_longdouble_get_nb = pshmem_longdouble_get_nb
-#pragma weak shmem_longlong_get_nb = pshmem_longlong_get_nb
-#pragma weak shmem_double_get_nb = pshmem_double_get_nb
-#pragma weak shmem_float_get_nb = pshmem_float_get_nb
-#pragma weak shmem_get16_nb = pshmem_short_get_nb
-#pragma weak shmem_get32_nb = pshmem_int_get_nb
-#pragma weak shmem_get64_nb = pshmem_long_get_nb
-#pragma weak shmem_get128_nb = pshmem_longdouble_get_nb
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_getmem_nb = pshmem_getmem_nb
+#pragma weak pshmem_get_nb = pshmem_long_get_nb
+#pragma weak shmem_get_nb = pshmem_long_get_nb
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void *
-pshmem_getmem_nb (void *target, const void *source, size_t nelems,
-		  int pe, void **hp)
+shmem_getmem_nb (void *target, const void *source, size_t nelems,
+		 int pe, void **hp)
 {
   void *h;
   void *rsrc;
@@ -186,18 +196,17 @@ pshmem_getmem_nb (void *target, const void *source, size_t nelems,
   return h;
 }
 
-#pragma weak shmem_getmem_nb = pshmem_getmem_nb
-
-#pragma weak pshmem_get_nb = pshmem_long_get_nb
-
-#pragma weak shmem_get_nb = pshmem_long_get_nb
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_wait_nb = pshmem_wait_nb
+#pragma weak shmem_test_nb = pshmem_test_nb
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Wait for handle to be completed
  */
 
 /* @api@ */
-void pshmem_wait_nb (void *h)
+void shmem_wait_nb (void *h)
 {
   __shmem_comms_wait_nb (h);
 }
@@ -208,12 +217,9 @@ void pshmem_wait_nb (void *h)
 
 /* @api@ */
 int
-pshmem_test_nb (void *h)
+shmem_test_nb (void *h)
 {
   return __shmem_comms_test_nb (h);
 }
 
-#pragma weak shmem_wait_nb = pshmem_wait_nb
-#pragma weak shmem_test_nb = pshmem_test_nb
-
-#endif /* HAVE_PUTGET_NB */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

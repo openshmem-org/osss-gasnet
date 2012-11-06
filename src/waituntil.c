@@ -55,6 +55,20 @@
     __shmem_comms_service ();					\
   }
 
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_short_wait_until = pshmem_short_wait_until
+#define shmem_short_wait_until pshmem_short_wait_until
+#pragma weak shmem_int_wait_until = pshmem_int_wait_until
+#define shmem_int_wait_until pshmem_int_wait_until
+#pragma weak shmem_long_wait_until = pshmem_long_wait_until
+#define shmem_long_wait_until pshmem_long_wait_until
+#pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
+#define shmem_longlong_wait_until pshmem_longlong_wait_until
+#pragma weak shmem_wait_until = pshmem_wait_until
+#define shmem_wait_until pshmem_wait_until
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
  * wait_until with operator dispatchers, type-parameterized
  */
@@ -62,7 +76,7 @@
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
+  shmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
     switch (cmp) {							\
     case SHMEM_CMP_EQ:							\
@@ -98,12 +112,32 @@
     }									\
   }
 
-SHMEM_TYPE_WAIT_UNTIL (short, short)
-SHMEM_TYPE_WAIT_UNTIL (int, int)
-SHMEM_TYPE_WAIT_UNTIL (long, long)
-SHMEM_TYPE_WAIT_UNTIL (longlong, long long)
+SHMEM_TYPE_WAIT_UNTIL (short, short);
+SHMEM_TYPE_WAIT_UNTIL (int, int);
+SHMEM_TYPE_WAIT_UNTIL (long, long);
+SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
 
-#pragma weak pshmem_wait_until = pshmem_long_wait_until
+/**
+ * and a special case for the untyped call
+ */
+void
+shmem_wait_until (long *ivar, int cmp, long cmp_value)
+{
+  shmem_long_wait_until (ivar, cmp, cmp_value);
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_short_wait = pshmem_short_wait
+#define shmem_short_wait pshmem_short_wait
+#pragma weak shmem_int_wait = pshmem_int_wait
+#define shmem_int_wait pshmem_int_wait
+#pragma weak shmem_long_wait = pshmem_long_wait
+#define shmem_long_wait pshmem_long_wait
+#pragma weak shmem_longlong_wait = pshmem_longlong_wait
+#define shmem_longlong_wait pshmem_longlong_wait
+#pragma weak shmem_wait = pshmem_wait
+#define shmem_wait pshmem_wait
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * wait is just wait_until with equality test
@@ -111,24 +145,21 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long)
 #define SHMEM_TYPE_WAIT(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_wait(Type *ivar, Type cmp_value)			\
+  shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\
-    pshmem_##Name##_wait_until(ivar, SHMEM_CMP_NE, cmp_value);		\
+    shmem_##Name##_wait_until(ivar, SHMEM_CMP_NE, cmp_value);		\
   }
 
-SHMEM_TYPE_WAIT (short, short)
-SHMEM_TYPE_WAIT (int, int)
-SHMEM_TYPE_WAIT (long, long)
-SHMEM_TYPE_WAIT (longlong, long long)
+SHMEM_TYPE_WAIT (short, short);
+SHMEM_TYPE_WAIT (int, int);
+SHMEM_TYPE_WAIT (long, long);
+SHMEM_TYPE_WAIT (longlong, long long);
 
-#pragma weak pshmem_wait = pshmem_long_wait
-#pragma weak shmem_short_wait_until = pshmem_short_wait_until
-#pragma weak shmem_int_wait_until = pshmem_int_wait_until
-#pragma weak shmem_long_wait_until = pshmem_long_wait_until
-#pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
-#pragma weak shmem_wait_until = pshmem_long_wait_until
-#pragma weak shmem_short_wait = pshmem_short_wait
-#pragma weak shmem_int_wait = pshmem_int_wait
-#pragma weak shmem_long_wait = pshmem_long_wait
-#pragma weak shmem_longlong_wait = pshmem_longlong_wait
-#pragma weak shmem_wait = pshmem_long_wait
+/**
+ * and a special case for the untyped call
+ */
+void
+shmem_wait (long *ivar, long cmp_value)
+{
+  shmem_long_wait (ivar, cmp_value);
+}

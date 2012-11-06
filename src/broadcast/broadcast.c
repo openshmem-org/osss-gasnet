@@ -96,12 +96,16 @@ __shmem_broadcast_dispatch_init (void)
  *
  */
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_broadcast32 = pshmem_broadcast32
+#define shmem_broadcast32 pshmem_broadcast32
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
-pshmem_broadcast32 (void *target, const void *source, size_t nelems,
-		    int PE_root, int PE_start, int logPE_stride, int PE_size,
-		    long *pSync)
+shmem_broadcast32 (void *target, const void *source, size_t nelems,
+		   int PE_root, int PE_start, int logPE_stride, int PE_size,
+		   long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_broadcast32");
   SYMMETRY_CHECK (source, 2, "shmem_broadcast32");
@@ -110,12 +114,16 @@ pshmem_broadcast32 (void *target, const void *source, size_t nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_broadcast64 = pshmem_broadcast64
+#define shmem_broadcast64 pshmem_broadcast64
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
-pshmem_broadcast64 (void *target, const void *source, size_t nelems,
-		    int PE_root, int PE_start, int logPE_stride, int PE_size,
-		    long *pSync)
+shmem_broadcast64 (void *target, const void *source, size_t nelems,
+		   int PE_root, int PE_start, int logPE_stride, int PE_size,
+		   long *pSync)
 {
   SYMMETRY_CHECK (target, 1, "shmem_broadcast64");
   SYMMETRY_CHECK (source, 2, "shmem_broadcast64");
@@ -124,12 +132,14 @@ pshmem_broadcast64 (void *target, const void *source, size_t nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
-#pragma weak shmem_broadcast32 = pshmem_broadcast32
-#pragma weak shmem_broadcast64 = pshmem_broadcast64
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_sync_init = pshmem_sync_init
+#define shmem_sync_init pshmem_sync_init
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /* @api@ */
 void
-pshmem_sync_init (long *pSync)
+shmem_sync_init (long *pSync)
 {
   const int nb = _SHMEM_BCAST_SYNC_SIZE;
   int i;
@@ -142,5 +152,3 @@ pshmem_sync_init (long *pSync)
     }
   shmem_barrier_all ();
 }
-
-#pragma weak shmem_sync_init = pshmem_sync_init

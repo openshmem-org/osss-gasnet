@@ -101,13 +101,13 @@ static global_area_t elfdata;
 static int
 table_init_helper (void)
 {
-  Elf *e;
+  Elf *e = NULL;
   GElf_Ehdr ehdr;
-  char *shstr_name;
+  char *shstr_name = NULL;
   size_t shstrndx;
-  Elf_Scn *scn;
+  Elf_Scn *scn = NULL;
   GElf_Shdr shdr;
-  Elf_Data *data;
+  Elf_Data *data = NULL;
   int ret = -1;
   int (*getsi)();
 
@@ -278,6 +278,8 @@ bail:
 
 /* ======================================================================== */
 
+#if 0
+
 /*
  * helpers for debug output: not used currently
  */
@@ -312,6 +314,8 @@ print_global_var_table (shmem_trace_t msgtype)
   __shmem_trace (msgtype, "-- end hash table --");
 }
 
+#endif /* 0: unused debugging routines */
+
 /*
  * read in the symbol table and global data areas
  */
@@ -331,7 +335,7 @@ __shmem_symmetric_globalvar_table_init (void)
 /*
  * free hash table here
  */
-static void
+void
 __shmem_symmetric_globalvar_table_finalize (void)
 {
   globalvar_t *current;

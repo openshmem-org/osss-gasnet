@@ -7,13 +7,24 @@ progname="`basename $0`"
 
 show_usage_and_exit()
 {
-  echo "Usage: $progname [conduit options] -np PEs program"
-  exit 1
+    if [ $# -gt 0 ]
+    then
+        echo "Error: $@"
+        echo ""
+    fi
+    echo "Usage: $progname [conduit options] -n|-np PEs program [program args]"
+    echo ""
+    echo "  Where"
+    echo ""
+    echo "    -n | -np PEs    is the number of processing elements to launch"
+    echo ""
+
+    exit 1
 }
 
 if [ $# -eq 0 ]
 then
-  show_usage_and_exit
+    show_usage_and_exit
 fi
 
 #
@@ -25,50 +36,52 @@ args=""
 
 while [ $# -gt 0 ]
 do
-  case "$1" in
-      -np)
-	  shift
-	  npes=$1
-	  ;;
-      *)
-          args="$args $1"
-	  ;;
-  esac
-  shift
+    case "$1" in
+        -n | -np)
+	    shift
+	    npes=$1
+	    ;;
+        *)
+            args="$args $1"
+	    ;;
+    esac
+    shift
 done
 
 if [ "$npes" ]
 then
-  case "$npes" in
-    [0-9]*)
-      # good, user-supplied
-      ;;
-     *)
-      show_usage_and_exit
-      ;;
-  esac
+    case "$npes" in
+      [0-9]*)
+        # good, user-supplied
+        ;;
+       *)
+        show_usage_and_exit "NPEs is not a number"
+        ;;
+    esac
+else
+    show_usage_and_exit
 fi
 
 OPENSHMEM_GASNET_CONDUIT="@GASNET_CONDUIT@"
 export OPENSHMEM_GASNET_CONDUIT
 
-case "@GASNET_CONDUIT@" in
+case "$OPENSHMEM_GASNET_CONDUIT" in
     smp)
 	RUN_IT="env GASNET_PSHM_NODES=$npes $args"
         ;;
     udp)
 	RUN_IT="$args"
 	;;
-    mpi|ibv)
-	RUN_IT="@GASNET_LD@"
-	# set number of PEs if provided (or may come from job scheduler)
-	if [ "$npes" ]
-        then
-          RUN_IT="$RUN_IT -np $npes"
-        fi
-        RUN_IT="$RUN_IT $args"
-	;;
+    # delegate to a GASNet launcher, if found
     *)
+	# conduit-specific launcher
+	launcher="@GASNET_ROOT@/bin/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
+        if [ ! -x "$launcher" ]
+        then
+            show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"
+        fi
+	# pass number of PEs & other args
+	RUN_IT="$launcher -n $npes -- $args"
 	;;
 esac
 

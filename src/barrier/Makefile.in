@@ -64,19 +64,27 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
-ifeq "@DEBUG@" "TRUE"
+ifeq "@DEBUG@" "ENABLED"
 CPPFLAGS        += -DDEBUG
 endif
 
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
+endif
+
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 MODULES = $(wildcard barrier-*.c)
 OBJECTS = $(MODULES:.c=.o)
 SHOBJECTS = $(MODULES:.c=.so)
 
-.PHONY: all default install-lib uninstall-lib clean
+.PHONY: all default install-lib uninstall-lib clean shmem-headers
 
-all default:	$(SHOBJECTS) barrier.o
+all default:	shmem-headers $(SHOBJECTS) barrier.o
+
+shmem-headers:
+	$(MAKE) -C .. $@
 
 install-lib:	all default
 	mkdir -p @MODULES_DIR@

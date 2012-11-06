@@ -63,8 +63,8 @@ intro_shmem(3),
 .br
 oshCC(1),
 .br
-oshrun(1),
+oshfort(1),
 .br
-oshfort(1).
+oshrun(1).
 .SH OPENSHMEM
 http://www.openshmem.org/

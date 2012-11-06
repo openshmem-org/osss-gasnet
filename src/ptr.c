@@ -50,15 +50,58 @@
 #include "trace.h"
 #include "utils.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_ptr = pshmem_ptr
+#define shmem_ptr pshmem_ptr
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
- * return a pointer through which the calling PE can access
- * another PE's memory directly (as a local r/w).  Return
- * NULL if this is not possible
+ *
+ *
+ * \brief Return a pointer through which the calling PE can access
+ * another PE's memory directly (as a local r/w).
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void *shmem_ptr (void *target, int pe);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   POINTER (PTR, POINTEE)
+ *   INTEGER pe
+ *
+ *   PTR = SHMEM_PTR(target, pe)
+ * \endcode
+ *
+ * \param target    The symmetric data object to be referenced.
+ * \param pe        An integer that indicates the PE number upon
+ *                which target is to be accessed. If you are using Fortran, it must
+ *                be a default integer value.
+ *
+ * \b Constraints:
+ *      - target must be the address of a symmetric data object.
+ *
+ * \b Effect:
+ *
+ * The shmem_ptr routine returns an address that can be used to
+ * directly reference target on the remote PE pe. With this address we
+ * can perform ordinary loads and stores to the remote address.  When a
+ * sequence of loads (gets) and stores (puts) to a data object on a
+ * remote PE does not match the access pattern provided in a SHMEM data
+ * transfer routine like shmem_put32(3) or shmem_real_iget(3), the
+ * shmem_ptr function can provide an efficient means to accomplish the
+ * communication.
+ *
+ * \return Address of remote memory, or NULL if the memory can not be
+ * accessed.
+ *
  */
 
-/* @api@ */
 void *
-pshmem_ptr (void *target, int pe)
+shmem_ptr (void *target, int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
@@ -74,5 +117,3 @@ pshmem_ptr (void *target, int pe)
 
 #endif /* SHMEM_PUTGET_SHARED_MEMORY */
 }
-
-#pragma weak shmem_ptr = pshmem_ptr

@@ -47,8 +47,12 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "TRUE"
+ifeq "@DEBUG@" "ENABLED"
 CPPFLAGS        += -DDEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CPPFLAGS        += @ELF_HEADERS@
@@ -58,6 +62,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(HASH_CPPFLAGS)
 
 CFLAGS          += -fPIC
+CFLAGS          += @WARNFLAGS@
 
 .PHONY: all default clean
 

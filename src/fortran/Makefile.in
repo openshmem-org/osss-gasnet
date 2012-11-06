@@ -47,16 +47,20 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@TRACE@" "TRUE"
-CPPFLAGS        += -DHAVE_TRACE
+ifeq "@HAVE_FEATURE_TRACE@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
-ifeq "@PUTGET_NB@" "TRUE"
-CPPFLAGS        += -DHAVE_PUTGET_NB
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
+endif
+
+ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
 CPPFLAGS        += -I..
@@ -67,11 +71,15 @@ CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
 CFLAGS          += -fPIC
 
 .PHONY: all default clean
+.PHONY: shmem-headers
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	$(OBJECTS)
+all default:	shmem-headers	$(OBJECTS)
+
+shmem-headers:
+	$(MAKE) -C .. $@
 
 clean:
 	rm -f $(OBJECTS)

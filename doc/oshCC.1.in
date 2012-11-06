@@ -34,17 +34,17 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
 
-.TH oshCC 1 ""
+.TH oshCC/oshcxx 1 ""
 .SH NAME
-\fBoshCC\fP - compile an OpenSHMEM C++ program
+\fBoshCC/oshcxx\fP - compile an OpenSHMEM C++ program
 .SH SYNOPSIS
-\fBoshCC\fP
+\fBoshCC/oshcxx\fP
 [ underlying compiler flags ]
 file.cxx [file.cxx ...]
 .SH DESCRIPTION
-\fBoshCC\fP is a wrapper in the vein of mpiCC that compiles
-an OpenSHMEM program.  The wrapper hides implementation
-details from the user.
+\fBoshCC\fP, or equivalently \fBoshcxx\fP, is a wrapper in the vein
+of mpiCC/mpicxx that compiles an OpenSHMEM program.  The wrapper hides
+implementation details from the user.
 .SH EXAMPLES
 The command
 .LP
@@ -61,10 +61,10 @@ Library for convenience.
 .SH SEE ALSO
 intro_shmem(3),
 .br
-oshCC(1),
+oshcc(1),
 .br
-oshrun(1),
+oshfort(1),
 .br
-oshfort(1).
+oshrun(1).
 .SH OPENSHMEM
 http://www.openshmem.org/

@@ -45,15 +45,18 @@ progname="`basename $0`"
 prefix=/usr/local
 gasnet_root=$prefix
 gasnet_conduit=
-elf_headers=
-elf_libs=
-putget_nb=FALSE
-debug=FALSE
-trace=FALSE
+elf_header_dir=/usr/include
+elf_lib_dir=/usr/lib64
+feature_experimental=DISABLED
+feature_debug=DISABLED
+feature_trace=DISABLED
+feature_pshmem=DISABLED
 # -- end defaults --
 
 libdir=
+bindir=
 modulesdir=
+modulefilesdir=
 
 bailout()
 {
@@ -65,6 +68,13 @@ bailout()
 tell()
 {
     echo "$progname: $*"
+}
+
+deprecated()
+{
+    old="$1"
+    shift
+    tell "Warning: option $old is deprecated, use $@ instead"
 }
 
 show_usage()
@@ -83,11 +93,17 @@ Usage: $progname [options]
     --prefix=PREFIX              Install to directory root PREFIX
                                      (default: /usr/local)
 
+    --with-bindir=DIR            Executables installed to DIR
+                                     (default: PREFIX/bin)
+
     --with-libdir=DIR            Libraries installed to DIR
                                      (default: PREFIX/lib)
 
     --with-modulesdir=DIR        Pluggable modules installed to DIR
                                      (default: LIBDIR/modules)
+
+    --with-modulefilesdir=DIR    pkg-config file installed to DIR
+                                     (default: PREFIX/modulefiles)
 
   Communications:
 
@@ -95,12 +111,16 @@ Usage: $progname [options]
     --with-gasnet-conduit=C      Use GASNet conduit "C"
                                      (if only 1 conduit configured, use it)
 
-  Optional features:
+  Optional Support Libraries:
 
     --with-libelf=E              Libelf header and library files under
                                      directory "E" (.../include, .../lib)
     --with-libelf-headers=H      Libelf header files in directory "H"
+                                     (default: /usr/include)
     --with-libelf-libs=L         Libelf library files in directory "L"
+                                     (default: /usr/lib64)
+
+  Optional features:
 
     --enable-debug               Run-time debugging checks
     --disable-debug              No run-time debugging checks
@@ -108,8 +128,22 @@ Usage: $progname [options]
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
 
-    --enable-putget-nb           Non-blocking extensions (experimental)
-    --disable-putget-nb          No non-blocking extensions (default)
+  Optional and not-stable-yet:
+
+    --enable-experimental        Include experimental features of future
+                                   OpenSHMEM versions
+    --disable-experimental       No experimental features (default)
+
+    --enable-pshmem              Build the PSHMEM profiling interface
+                                   (not considered stable yet)
+    --disable-pshmem             No PSHMEM profiling interface (default)
+
+  Deprecated:
+
+    --enable-putget-nb           Same as --enable-experimental
+    --disable-putget-nb          Same as --disable-experimental
+
+  Informational:
 
     --help                       Show this summary and exit
 
@@ -140,60 +174,86 @@ __EOT__
 # parse command line
 #
 
+# split out value from key=value
+chompit()
+{
+    echo $@ | cut -d= -f2-
+}
+
 for o in $@
 do
     case $o in
 	--prefix=*)
-	    prefix="`echo $o | sed 's/--prefix=//'`"
+	    prefix="`chompit $o`"
+	    ;;
+	--with-bindir=*)
+	    bindir="`chompit $o`"
 	    ;;
 	--with-libdir=*)
-	    libdir="`echo $o | sed 's/--with-libdir=//'`"
+	    libdir="`chompit $o`"
 	    ;;
 	--with-modulesdir=*)
-	    modulesdir="`echo $o | sed 's/--with-modulesdir=//'`"
+	    modulesdir="`chompit $o`"
+	    ;;
+	--with-modulefilesdir=*)
+	    modulefilesdir="`chompit $o`"
 	    ;;
 	--with-gasnet-root=*)
-	    gasnet_root="`echo $o | sed 's/--with-gasnet-root=//'`"
+	    gasnet_root="`chompit $o`"
 	    ;;
 	--with-gasnet-conduit=*)
-	    gasnet_conduit="`echo $o | sed 's/--with-gasnet-conduit=//'`"
+	    gasnet_conduit="`chompit $o`"
 	    ;;
 	--with-libelf=*)
-	    elf_top_dir="`echo $o | sed 's/--with-libelf=//'`"
+	    elf_top_dir="`chompit $o`"
             elf_header_dir="$elf_top_dir/include"
             elf_lib_dir="$elf_top_dir/lib"
             elf_headers="-I$elf_header_dir"
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
             ;;
 	--with-libelf-headers=*)
-	    elf_header_dir="`echo $o | sed 's/--with-libelf-headers=//'`"
+	    elf_header_dir="`chompit $o`"
             elf_headers="-I$elf_header_dir"
 	    ;;
 	--with-libelf-libs=*)
-	    elf_lib_dir="`echo $o | sed 's/--with-libelf-libs=//'`"
+	    elf_lib_dir="`chompit $o`"
             elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
 	    ;;
 	--enable-debug)
-	    debug=TRUE
+	    feature_debug=ENABLED
 	    ;;
 	--disable-debug)
-	    debug=FALSE
+	    feature_debug=DISABLED
 	    ;;
 	--enable-trace)
-	    trace=TRUE
+	    feature_trace=ENABLED
 	    ;;
 	--disable-trace)
-	    trace=FALSE
+	    feature_trace=DISABLED
+	    ;;
+	--enable-pshmem)
+	    feature_pshmem=ENABLED
+	    ;;
+	--disable-pshmem)
+	    feature_pshmem=DISABLED
+	    ;;
+	--enable-experimental)
+	    feature_experimental=ENABLED
+	    ;;
+	--disable-experimental)
+	    feature_experimental=DISABLED
 	    ;;
 	--enable-putget-nb)
-	    putget_nb=TRUE
+	    deprecated "$o" "--enable-experimental"
+	    feature_experimental=ENABLED
 	    ;;
 	--disable-putget-nb)
-	    putget_nb=FALSE
+	    deprecated "$o" "--disable-experimental"
+	    feature_experimental=DISABLED
 	    ;;
 	--help)
 	    show_usage
-	    exit 0
+	    bailout
 	    ;;
 	*)
 	    show_usage $o
@@ -206,67 +266,10 @@ tell ""
 tell "Starting configuration"
 tell ""
 
-tell "Looking for GASNet..."
-tell ""
-
-if [ -z "$gasnet_root" ]
-then
-    tell "I don't know where GASNet is installed"
-    bailout
-fi
-if [ ! -r "$gasnet_root/include/gasnet.h" ]
-then
-    tell "I can't find a GASNet installation in \"$gasnet_root\""
-    tell "  (no gasnet.h header file)"
-    bailout
-fi
-
-KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
-                   sed -e 's/-conduit//g' )`"
-
-#
-# see if we can autodetect which conduit to use.  if not, offer
-# all installed under the gasnet directory
-#
-
-cdt_auto=""
-
-if [ -z "$gasnet_conduit" ]
-then
-    nw=`echo $KNOWN_CONDUITS | wc -w`
-    if [ $nw -eq 0 ]
-    then
-        tell "I couldn't find any GASNet conduits under $gasnet_root"
-        bailout
-    elif [ $nw -eq 1 ]
-    then
-        # only one there, just use it
-        gasnet_conduit="$KNOWN_CONDUITS"
-	cdt_auto="(auto-detected)"
-        tell ""
-        tell "Only conduit \"$gasnet_conduit\" is configured, using it..."
-        tell ""
-    else
-        # multiple configured, let the user decide
-        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-        tell "Indicate which one to use via --with-gasnet-conduit=NAME"
-        bailout
-    fi
-fi
-
-[ -z "$libdir" ] && libdir=$prefix/lib
-[ -z "$modulesdir" ] && modulesdir=$libdir/modules
-
-# -- ok, gasnet there --
-
-tell ""
-tell "Looking for GASNet...done"
-tell ""
-
 # -- check compilers, defaults to GNU --
 
-cc_cmd=${CC-gcc}
 cpp_flags=${CPPFLAGS-""}
+cc_cmd=${CC-gcc}
 c_flags=${CFLAGS-"-g"}
 ld_cmd=${LD-$cc_cmd}
 ld_flags=${LDFLAGS-""}
@@ -277,7 +280,7 @@ fc_flags=${FCFLAGS-"-g"}
 
 # -- make sure we can find compilers --
 
-tell "Searching for compilers"
+tell "Searching for compilers ..."
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
@@ -286,26 +289,236 @@ then
     bailout
 fi
 
-which $cxx_cmd >/dev/null 2>&1
+# now see if we can work out how to do C99 compliance and warnings
+# where needed
+
+# try to work out the compiler family by querying the C command
+cc_ver="`$cc_cmd -V 2>&1`"
 if [ $? -ne 0 ]
 then
-    tell "I couldn't find the C++ compiler \"$cxx_cmd\""
-    bailout
+    cc_ver="`$cc_cmd --version 2>&1`"
 fi
 
-which $fc_cmd >/dev/null 2>&1
-if [ $? -ne 0 ]
-then
-    tell "I couldn't find the Fortran compiler \"$fc_cmd\""
-    bailout
-fi
+case "$cc_ver" in
+    *"Free Software Foundation"*)
+	cc_type="GNU"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	fc_cmd="gfortran"
+	cxx_cmd="g++"
+	;;
+    *"Intel Corporation"*)
+	cc_type="Intel"
+	c99_flags="-std=c99"
+	fc_cmd="ifort"
+	cxx_cmd="icpc"
+	;;
+    *"The Portland Group"*)
+	cc_type="PGI"
+	c99_flags="-c99"
+	fc_cmd="pgfortran"
+	cxx_cmd="pgCC"
+	;;
+    *"Sun C"*)
+	cc_type="Oracle (formerly Sun Microsystems) Studio"
+	c99_flags="-xc99"
+	fc_cmd="sunf90"
+	cxx_cmd="sunCC"
+	;;
+    *OpenUH*)
+	cc_type="OpenUH (Open64)"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	fc_cmd="uhf90"
+	cxx_cmd="uhCC"
+	;;
+    *Open64*)
+	cc_type="Open64"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	fc_cmd="openf90"
+	cxx_cmd="openCC"
+	;;
+    *)
+	cc_type="unknown"
+	c99_flags=""
+	warn_flags=""
+	fc_cmd="false"
+	cxx_cmd="false"		# what else to do?
+	;;
+esac
 
-tell "Searching for compilers...done"
+tell "C compiler is \"$cc_cmd\" ($cc_type)"
+
+# TODO: we're not actually using these during build, so don't really check
+#
+# which $cxx_cmd >/dev/null 2>&1
+# if [ $? -ne 0 ]
+# then
+#     tell "I couldn't find the C++ compiler \"$cxx_cmd\""
+#     bailout
+# fi
+# 
+# which $fc_cmd >/dev/null 2>&1
+# if [ $? -ne 0 ]
+# then
+#     tell "I couldn't find the Fortran compiler \"$fc_cmd\""
+#     bailout
+# fi
+
+tell "Searching for compilers ... done"
 tell ""
 
-# -- generate build files from .in templates --
+# -- ELF (TODO expand for other exe formats) --
 
-find . -name Makefile.in -print |
+tell "Looking for ELF library ... "
+gelf_h="$elf_header_dir/gelf.h"
+if [ ! -r "$gelf_h" ]
+then
+    tell "Can't find header <gelf.h> for ELF executable support"
+    tell "  in $elf_header_dir"
+    bailout
+fi
+elf_lib_so="$elf_lib_dir/libelf.so"
+if [ -r "$elf_lib_so" ]
+then
+    found_libelf="shared"
+else
+    elf_lib_a="$elf_lib_dir/libelf.a"
+    if [ -r "$elf_lib_a" ]
+    then
+	found_libelf="static"
+    else
+	tell "Can't find library -lelf for ELF executable support"
+	tell "  in $elf_lib_dir"
+	bailout
+    fi
+fi
+tell "Looking for ELF library ... done"
+tell ""
+
+# -- GASNet detection --
+
+tell "Looking for GASNet ... "
+
+if [ -z "$gasnet_root" ]
+then
+    tell "I don't know where GASNet is installed"
+    bailout
+fi
+
+gasnet_h="gasnet_config.h"
+gasnet_inc_dir="$gasnet_root/include"
+gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
+if [ ! -r "$gasnet_path_h" ]
+then
+    tell "I can't find a GASNet installation in \"$gasnet_root\""
+    tell "  (no $gasnet_h header file)"
+    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
+    bailout
+fi
+
+# check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
+
+find_ver_macro()
+{
+    var=$1
+    file=$2
+    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    eval $cmd
+}
+
+gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
+gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
+gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
+if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
+then
+    tell "Couldn't discover GASNet version in $gasnet_root"
+    bailout
+fi
+
+gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
+
+tell "Found GASNet version $gasnet_ver"
+
+#
+# see if we can autodetect which conduit to use.  if not, offer
+# all installed under the gasnet directory
+#
+
+KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+                   sed -e 's/-conduit//g' )`"
+
+if [ "$KNOWN_CONDUITS" = '*' ]
+then
+    tell "I couldn't find any GASNet conduits under $gasnet_root"
+    bailout
+fi
+
+cdt_auto=""
+
+#
+# no conduit asked for on command-line
+#
+
+if [ -z "$gasnet_conduit" ]
+then
+    kc=`echo $KNOWN_CONDUITS | wc -w`
+    if [ $kc -eq 0 ]
+    then
+        tell "I couldn't find any GASNet conduits under $gasnet_root"
+        bailout
+    elif [ $kc -eq 1 ]
+    then
+        # only one there, just use it
+        gasnet_conduit="$KNOWN_CONDUITS"
+	cdt_auto="(auto-detected)"
+        tell ""
+        tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
+        tell ""
+    else
+        # multiple configured, let the user decide
+        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+        tell "Indicate which one to use via --with-gasnet-conduit=NAME"
+        bailout
+    fi
+fi
+
+# -- ok, we have a candidate conduit --
+
+gasnet_core_h="gasnet_core.h"
+gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
+gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
+if [ ! -r "$gasnet_path_core_h" ]
+then
+    tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
+    tell "  (no $core_h header file)"
+    bailout
+fi
+
+tell "Conduit \"$gasnet_conduit\" looks OK"
+
+tell "Looking for GASNet ... done"
+tell ""
+
+# -- fill in install locations if not known yet --
+
+[ -z "$bindir" ]         && bindir=$prefix/bin
+[ -z "$libdir" ]         && libdir=$prefix/lib
+[ -z "$modulesdir" ]     && modulesdir=$libdir/modules
+[ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
+
+# -- generate build files from .in templates --
+#
+# all .in Makefiles and the module file
+#
+
+tell "Making build files from templates ... "
+
+(
+    find . -name 'Makefile.in' -print
+    echo 'openshmem.module.in'
+) |
 while read mfin
 do
     mf="`echo $mfin | sed -e 's/\.in$//'`"
@@ -313,6 +526,8 @@ do
         -e "s%@CC@%$cc_cmd%g" \
         -e "s%@CPPFLAGS@%$cpp_flags%g" \
         -e "s%@CFLAGS@%$c_flags%g" \
+        -e "s%@C99FLAGS@%$c99_flags%g" \
+        -e "s%@WARNFLAGS@%$warn_flags%g" \
         -e "s%@CXX@%$cxx_cmd%g" \
         -e "s%@CXXFLAGS@%$cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \
@@ -323,23 +538,107 @@ do
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
-        -e "s%@PUTGET_NB@%$putget_nb%g" \
-        -e "s%@DEBUG@%$debug%g" \
-        -e "s%@TRACE@%$trace%g" \
+        -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
+        -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
+        -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \
+        -e "s%@HAVE_FEATURE_TRACE@%$feature_trace%g" \
         -e "s%@PREFIX@%$prefix%g" \
+        -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
+        -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
         -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         $mfin > $mf
     tell "created $mf from $mfin"
 done
 
+tell "Making build files from templates ... done"
+
+# -- tell us all about what's configured --
+
+tell ""
+tell "============================================================="
+tell ""
+tell "-- Configuration Summary --"
+tell ""
+tell "Compilers:"
+tell "  Suite is                      $cc_type"
+tell ""
+tell "    C compiler is               $cc_cmd"
+tell "    C pre-processor flags are   $cpp_flags"
+tell "    C flags are                 $c_flags"
+tell ""
+tell "    C++ compiler is             $cxx_cmd"
+tell "    C++ flags are               $cxx_flags"
+tell ""
+tell "    Fortran compiler is         $fc_cmd"
+tell "    Fortran flags are           $fc_flags"
+tell ""
+tell "    Linker is                   $ld_cmd"
+tell "    Linker flags are            $ld_flags"
+tell ""
+tell "GASNet:"
+tell "  Installed in                  $gasnet_root"
+tell "  Using conduit                 $gasnet_conduit $cdt_auto"
+tell ""
+tell "Executable Format:"
+tell "  Headers in                    $elf_header_dir"
+tell "  Library in                    $elf_lib_dir ($found_libelf)"
+tell ""
+tell "Options:"
+tell "  Debug is                      $feature_debug"
+tell "  Trace is                      $feature_trace"
+tell "  PSHMEM support is             $feature_pshmem"
+tell "  Experimental features are     $feature_experimental"
+tell ""
+tell "Installation:"
+tell "  Main package to               $prefix"
+tell "  Executables to                $bindir"
+tell "  Libraries to                  $libdir"
+tell "  OpensHMEM modules to          $modulesdir"
+tell "  pkg-config file to            $modulefilesdir"
+
+# -- save configure settings, makes it easy to re-run --
+
 cs=./config.status
-tmpcs=`mktemp`
+
+# respect mktemp & TMPDIR for different OSes
+
+if [ -z "$TMPDIR" ]
+then
+  template="/tmp"
+else
+  template="$TMPDIR"
+fi
+template="$template/tmp.XXXXXX"
+tmpcs=`mktemp $template`
+
+# save configuration options for C source code
+
+config_h="config.h"
+
+# clean up our temporary files on exit, or if something unexpected happens
+# only clean config.h if problem
+
+clean_cfg()
+{
+    rm -f $config_h
+}
+clean_tmp()
+{
+    rm -f $tmpcs
+}
+
+trap_list="1 2 3 19 20"
+
+trap clean_tmp 0 $trap_list
+trap clean_cfg   $trap_list
+
 cat > $tmpcs <<_EOT_
 #!/bin/sh
 #
-# generated by $progname, do not edit directly
+# generated by $progname: subsequent runs will overwrite
+#                         the current contents of this file.
 #
 
 CC="$cc_cmd"
@@ -365,48 +664,68 @@ export LDFLAGS
 $0 $@
 _EOT_
 cp $tmpcs $cs
-rm -f $tmpcs
 chmod +x $cs
 
-# -- tell us all about what's configured --
+#
+# now create config.h
+#
+
+cat > $config_h <<EOF
+/*
+ * This file was generated by the $progname script.
+ *
+ * It will be re-generated if $progname is re-run.
+ *
+ * NOT CURRENTLY USED FOR ANYTHING!
+ *
+ */
+
+EOF
+
+echo "#ifndef CONFIG_H" >> $config_h
+echo "#define CONFIG_H 1" >> $config_h
+echo >> $config_h
+
+echo "/* run-time debug and other sanity checks */" >> $config_h
+if [ $feature_debug = "ENABLED" ]
+then
+    echo "#define HAVE_FEATURE_DEBUG 1" >> $config_h
+else
+    echo "#undef HAVE_FEATURE_DEBUG" >> $config_h
+fi
+echo >> $config_h
+
+echo "/* run-time tracing calls */" >> $config_h
+if [ $feature_trace = "ENABLED" ]
+then
+    echo "#define HAVE_FEATURE_TRACE 1" >> $config_h
+else
+    echo "#undef HAVE_FEATURE_TRACE" >> $config_h
+fi
+echo >> $config_h
+
+echo "/* PSHMEM profiling interface */" >> $config_h
+if [ $feature_pshmem = "ENABLED" ]
+then
+    echo "#define HAVE_FEATURE_PSHMEM 1" >> $config_h
+else
+    echo "#undef HAVE_FEATURE_PSHMEM" >> $config_h
+fi
+echo >> $config_h
+
+echo "/* Experimental (non-API) routines */" >> $config_h
+if [ $feature_experimental = "ENABLED" ]
+then
+    echo "#define HAVE_FEATURE_EXPERIMENTAL 1" >> $config_h
+else
+    echo "#undef HAVE_FEATURE_EXPERIMENTAL" >> $config_h
+fi
+
+echo >> $config_h
+echo "#endif /* CONFIG_H */" >> $config_h
 
 tell ""
-tell "-------------------------------------------------------------"
+tell "============================================================="
 tell ""
-tell "Saved configuration in file   \"$cs\""
-tell ""
-tell "C compiler is                 \"$cc_cmd\""
-tell "C pre-processor flags are     \"$cpp_flags\""
-tell "C flags are                   \"$c_flags\""
-tell ""
-tell "C++ compiler is               \"$cxx_cmd\""
-tell "C++ flags are                 \"$cxx_flags\""
-tell ""
-tell "Fortran compiler is           \"$fc_cmd\""
-tell "Fortran flags are             \"$fc_flags\""
-tell ""
-tell "Linker is                     \"$ld_cmd\""
-tell "Linker flags are              \"$ld_flags\""
-tell ""
-tell ""
-tell "Installing OpenSHMEM to       \"$prefix\""
-tell "Installing libraries to       \"$libdir\""
-tell "Installing modules to         \"$modulesdir\""
-tell ""
-tell "Using GASNet installed in     \"$gasnet_root\""
-tell "Using GASNet conduit          \"$gasnet_conduit\" $cdt_auto"
-if [ ! -z "$elf_headers" ]
-then
-tell ""
-tell "ELF headers                   \"$elf_headers\""
-fi
-if [ ! -z "$elf_libs" ]
-then
-tell "ELF libraries                 \"$elf_libs\""
-fi
-
-tell ""
-tell "Debug is                      $debug"
-tell "Trace is                      $trace"
-tell "Non-blocking extensions are   $putget_nb"
+tell "Configuration in shell-script   $cs"
 tell ""

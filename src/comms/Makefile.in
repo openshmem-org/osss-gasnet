@@ -46,7 +46,14 @@ SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
 
 # ---------------------------------------------------------
 
-COMMS_SRC        = comms.c
+#
+# TODO: this abstracts the choice of underlying communications layer,
+# allows us to hopefully use other than GASNet more easily
+#
+
+COMMS_LIBRARY    = gasnet
+
+COMMS_SRC        = $(COMMS_LIBRARY).c
 COMMS_OBJ        = $(COMMS_SRC:.c=.o)
 
 # ---------------------------------------------------------
@@ -88,8 +95,12 @@ LDFLAGS          = @LDFLAGS@
 
 CPPFLAGS        += -I..
 
-ifeq "@DEBUG@" "TRUE"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CPPFLAGS        += @ELF_HEADERS@
@@ -106,11 +117,10 @@ COMMON_FLAGS     = $(CFLAGS)
 
 # ---------------------------------------------------------
 
-COMP_WRAPPER     = osh-compiler.in
 SHMEM_CC         = oshcc
 SHMEM_CXX        = oshCC
+SHMEM_CXX_ALT    = oshcxx
 SHMEM_FC         = oshfort
-RUN_WRAPPER      = oshrun.in
 SHMEM_RUN        = oshrun
 
 # ---------------------------------------------------------
@@ -152,59 +162,78 @@ $(SERVICE_OBJ):	$(SERVICE_SRC)
 
 # -- command wrappers depend on gasnet settings ------------
 
-wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT) $(SHMEM_FC) $(SHMEM_RUN)
 
-$(SHMEM_CC):	$(COMP_WRAPPER)
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+# 2012-10-27: TODO: this is really tricky.  GASNet only tells us
+# about the linker command for C (could be compiler, or MPI wrapper
+# or similar).  There's no sure-fire way of inferring the appropriate
+# C++ and Fortran command names from that.  I can guess, but only guess.
+
+$(SHMEM_CC):	$(SHMEM_CC).in
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@DRIVER@%$(GASNET_LD)%" \
+		-e "s%[ |\\t][ |\\t]*$$%%g" \
 		< $^ > $@
-
-# Tony: this is a mess :(  Need to discover the corresponding
-# C++ and Fortran compilers for a given vendor cc.  Yuck.
 
 $(SHMEM_CXX):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1g++'%" \
-		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpic++'%" \
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpicxx; else lnk=$(CXX); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
 		< $^ > $@
+
+$(SHMEM_CXX_ALT):	$(SHMEM_CXX)
+	cp $^ $@
 
 $(SHMEM_FC):	$(SHMEM_CC)
-	sed -e "s%^\(SHMEM_LD=..*\)gcc[ |\t]*'%\1gfortran'%" \
-		-e "s%^\(SHMEM_LD=..*\)mpicc[ |\t]*'%\1mpif90'%" \
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpif90; else lnk=$(FC); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
 		< $^ > $@
 
-$(SHMEM_RUN):
-	sed -e "s%@GASNET_LD@%$(GASNET_LD)%" \
+
+$(SHMEM_RUN):	$(SHMEM_RUN).in
+	sed \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
-		-e "s%bin/mpicc%bin/mpirun%" \
-		< $(RUN_WRAPPER) > $@
+		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
+		< $^ > $@
 
 # -- pkg-config --------------------------------------------
 
 openshmem.pc:   openshmem.pc.in
-	sed -e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
-		-e "s%@SHMEM_LD@%$(GASNET_LD)%" \
+		-e "s%@SHMEM_LD@%$(LD)%" \
 		< $^ > $@
 
 # ---------------------------------------------------------
 
 install:	install-bin install-lib
 
-install-bin:
+install-bin:	all
 	mkdir -p $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CXX) $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_FC)  $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_RUN) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX)     $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX_ALT) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN)     $(PREFIX)/bin
 
-install-lib:
+install-lib:	all
 	mkdir -p $(PREFIX)/lib/pkgconfig
 	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
 
@@ -217,6 +246,7 @@ uninstall-lib:
 uninstall-bin:
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX_ALT)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
 	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
 	- rmdir $(PREFIX)/bin
@@ -225,5 +255,7 @@ uninstall-bin:
 
 clean:
 	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
-	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_FC) $(SHMEM_RUN)
+	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
+	$(REMOVE) $(SHMEM_FC)
+	$(REMOVE) $(SHMEM_RUN)
 	$(REMOVE) openshmem.pc

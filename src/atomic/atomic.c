@@ -60,6 +60,21 @@ __shmem_atomic_finalize (void)
 {
 }
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_swap = pshmem_int_swap
+#define shmem_int_swap pshmem_int_swap
+#pragma weak shmem_long_swap = pshmem_long_swap
+#define shmem_long_swap pshmem_long_swap
+#pragma weak shmem_longlong_swap = pshmem_longlong_swap
+#define shmem_longlong_swap pshmem_longlong_swap
+#pragma weak shmem_float_swap = pshmem_float_swap
+#define shmem_float_swap pshmem_float_swap
+#pragma weak shmem_double_swap = pshmem_double_swap
+#define shmem_double_swap pshmem_double_swap
+#pragma weak shmem_swap = pshmem_swap
+#define shmem_swap pshmem_swap
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
  * shmem_swap performs an atomic swap operation. It writes value
  * "value" into target on processing element (PE) pe and returns the
@@ -67,9 +82,8 @@ __shmem_atomic_finalize (void)
  */
 
 #define SHMEM_TYPE_SWAP(Name, Type)					\
-  /* @api@ */								\
   Type									\
-  pshmem_##Name##_swap(Type *target, Type value, int pe)		\
+  shmem_##Name##_swap (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -85,13 +99,23 @@ SHMEM_TYPE_SWAP (longlong, long long);
 SHMEM_TYPE_SWAP (double, double);
 SHMEM_TYPE_SWAP (float, float);
 
-#pragma weak shmem_int_swap = pshmem_int_swap
-#pragma weak shmem_long_swap = pshmem_long_swap
-#pragma weak shmem_longlong_swap = pshmem_longlong_swap
-#pragma weak shmem_float_swap = pshmem_float_swap
-#pragma weak shmem_double_swap = pshmem_double_swap
-#pragma weak pshmem_swap = pshmem_long_swap
-#pragma weak shmem_swap = pshmem_long_swap
+/**
+ * untyped variant
+ */
+long
+shmem_swap (long *target, long value, int pe)
+{
+  return shmem_long_swap (target, value, pe);
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_cswap = pshmem_int_cswap
+#define shmem_int_cswap pshmem_int_cswap
+#pragma weak shmem_long_cswap = pshmem_long_cswap
+#define shmem_long_cswap pshmem_long_cswap
+#pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
+#define shmem_longlong_cswap pshmem_longlong_cswap
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * The conditional swap routines conditionally update a target data
@@ -100,9 +124,8 @@ SHMEM_TYPE_SWAP (float, float);
  */
 
 #define SHMEM_TYPE_CSWAP(Name, Type)					\
-  /* @api@ */								\
   Type									\
-  pshmem_##Name##_cswap(Type *target, Type cond, Type value, int pe)	\
+  shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)	\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -115,21 +138,24 @@ SHMEM_TYPE_CSWAP (int, int);
 SHMEM_TYPE_CSWAP (long, long);
 SHMEM_TYPE_CSWAP (longlong, long long);
 
-#pragma weak shmem_int_cswap = pshmem_int_cswap
-#pragma weak shmem_long_cswap = pshmem_long_cswap
-#pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
-#pragma weak pshmem_cswap = pshmem_long_cswap
-/* not currently in SGI API #pragma weak shmem_cswap = pshmem_long_cswap */
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_fadd = pshmem_int_fadd
+#define shmem_int_fadd pshmem_int_fadd
+#pragma weak shmem_long_fadd = pshmem_long_fadd
+#define shmem_long_fadd pshmem_long_fadd
+#pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
+#define shmem_longlong_fadd pshmem_longlong_fadd
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_fadd(Type *target, Type value, int pe)		\
+  shmem_##Name##_fadd (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-  __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
+    __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
     return retval;							\
   }
 
@@ -137,9 +163,15 @@ SHMEM_TYPE_FADD (int, int);
 SHMEM_TYPE_FADD (long, long);
 SHMEM_TYPE_FADD (longlong, long long);
 
-#pragma weak shmem_int_fadd = pshmem_int_fadd
-#pragma weak shmem_long_fadd = pshmem_long_fadd
-#pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_finc = pshmem_int_finc
+#define shmem_int_finc pshmem_int_finc
+#pragma weak shmem_long_finc = pshmem_long_finc
+#define shmem_long_finc pshmem_long_finc
+#pragma weak shmem_longlong_finc = pshmem_longlong_finc
+#define shmem_longlong_finc pshmem_longlong_finc
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * finc performs an atomic fetch-and-increment at an address
@@ -149,7 +181,7 @@ SHMEM_TYPE_FADD (longlong, long long);
 #define SHMEM_TYPE_FINC(Name, Type)					\
   /* @api@ */								\
   Type									\
-  pshmem_##Name##_finc(Type *target, int pe)				\
+  shmem_##Name##_finc (Type *target, int pe)				\
   {									\
     Type retval;							\
     INIT_CHECK();							\
@@ -162,9 +194,14 @@ SHMEM_TYPE_FINC (int, int);
 SHMEM_TYPE_FINC (long, long);
 SHMEM_TYPE_FINC (longlong, long long);
 
-#pragma weak shmem_int_finc = pshmem_int_finc
-#pragma weak shmem_long_finc = pshmem_long_finc
-#pragma weak shmem_longlong_finc = pshmem_longlong_finc
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_add = pshmem_int_add
+#define shmem_int_add pshmem_int_add
+#pragma weak shmem_long_add = pshmem_long_add
+#define shmem_long_add pshmem_long_add
+#pragma weak shmem_longlong_add = pshmem_longlong_add
+#define shmem_longlong_add pshmem_longlong_add
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * remote atomic increment/add
@@ -173,7 +210,7 @@ SHMEM_TYPE_FINC (longlong, long long);
 #define SHMEM_TYPE_ADD(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_add(Type *target, Type value, int pe)			\
+  shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
@@ -184,14 +221,20 @@ SHMEM_TYPE_ADD (int, int);
 SHMEM_TYPE_ADD (long, long);
 SHMEM_TYPE_ADD (longlong, long long);
 
-#pragma weak shmem_int_add = pshmem_int_add
-#pragma weak shmem_long_add = pshmem_long_add
-#pragma weak shmem_longlong_add = pshmem_longlong_add
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_inc = pshmem_int_inc
+#define shmem_int_inc pshmem_int_inc
+#pragma weak shmem_long_inc = pshmem_long_inc
+#define shmem_long_inc pshmem_long_inc
+#pragma weak shmem_longlong_inc = pshmem_longlong_inc
+#define shmem_longlong_inc pshmem_longlong_inc
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_INC(Name, Type)					\
   /* @api@ */								\
   void									\
-  pshmem_##Name##_inc(Type *target, int pe)				\
+  shmem_##Name##_inc (Type *target, int pe)				\
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
@@ -202,29 +245,80 @@ SHMEM_TYPE_INC (int, int);
 SHMEM_TYPE_INC (long, long);
 SHMEM_TYPE_INC (longlong, long long);
 
-#pragma weak shmem_int_inc = pshmem_int_inc
-#pragma weak shmem_long_inc = pshmem_long_inc
-#pragma weak shmem_longlong_inc = pshmem_longlong_inc
+/* --------------------------------------------------------------- */
 
-/**
- * proposed by IBM Zuerich
- *
- */
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int_xor = pshmem_int_xor
+#define shmem_int_xor pshmem_int_xor
+#pragma weak shmem_long_xor = pshmem_long_xor
+#define shmem_long_xor pshmem_long_xor
+#pragma weak shmem_longlong_xor = pshmem_longlong_xor
+#define shmem_longlong_xor pshmem_longlong_xor
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_XOR(Name, Type)					\
-  /* @api@ */								\
   void									\
-  pshmem_##Name##_xor(Type *target, Type value, int pe)			\
+  shmem_##Name##_xor(Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK();							\
     PE_RANGE_CHECK(pe);							\
-    __shmem_comms_xor_request(target, &value, sizeof(Type), pe);	\
+    __shmem_comms_xor_request (target, &value, sizeof(Type), pe);	\
   }
+
+/**
+ * \brief These routines perform an atomic exclusive-or (xor) operation
+ * between a data value and the target data object.
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void shmem_int_xor (int *target, int value, int pe);
+ *   void shmem_long_xor (long *target, long value, int pe);
+ *   void shmem_longlong_xor (long long *target, long long value, int pe);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER pe
+ *
+ *   SHMEM_INT4_XOR (target, value, pe)
+ *   SHMEM_INT8_XOR (target, value, pe)
+ * \endcode
+ *
+ * \param target    Address of the symmetric data object where to save the data on the target pe.
+ * \param value     The value with which the exclusive-or operation is atomically
+ *                performed with the data at address target.
+ * \param pe        An integer that indicates the PE number upon
+ *                which target is to be updated. If you are using Fortran, it must
+ *                be a default integer value.
+ *
+ * \b Constraints:
+ *      - target must be the address of a symmetric data object.
+ *      - If using C/C++, the type of value must match that implied in the Synopsis
+ *      section. When calling from Fortran, the data type of value must be as follows:
+ *          - For SHMEM_INT4_XOR(), value must be of type Integer,
+ *            with element size of 4 bytes
+ *          - For SHMEM_INT8_XOR(), value must be of type Integer,
+ *            with element size of 8 bytes.
+ *      - value must be the same type as the target data object.
+ *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+ *
+ * \b Effect:
+ *
+ * The atomic exclusive-or routines perform an xor-operation between
+ * value and the data at address target on PE pe. The operation must
+ * be completed without the possibility of another process updating
+ * target between the time of the fetch and the update.
+ *
+ * \return None.
+ *
+ */
 
 SHMEM_TYPE_XOR (int, int);
 SHMEM_TYPE_XOR (long, long);
 SHMEM_TYPE_XOR (longlong, long long);
 
-#pragma weak shmem_int_xor = pshmem_int_xor
-#pragma weak shmem_long_xor = pshmem_long_xor
-#pragma weak shmem_longlong_xor = pshmem_longlong_xor
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

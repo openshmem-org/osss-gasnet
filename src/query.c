@@ -43,57 +43,145 @@
 
 #include "shmem.h"
 
-/**
- * these routines handle the questions "how many PEs?" and "which PE
- * am I?".  Also added an initial thought about locality with the
- * nodename query
+/*
  *
  */
 
-#define SHMEM_MY_PE(Variant)			\
-  int						\
-  p##Variant (void)				\
-  {						\
-    INIT_CHECK();				\
-    return GET_STATE(mype);			\
-  }
+static
+inline int
+mype_helper (void)
+{
+  INIT_CHECK();
+  return GET_STATE(mype);
+}
 
-/* SHMEM_MY_PE(my_pe) */
-SHMEM_MY_PE (_my_pe)
 
-#define SHMEM_NUM_PES(Variant)			\
-  int						\
-  p##Variant (void)				\
-  {						\
-    INIT_CHECK();				\
-    return GET_STATE(numpes);			\
-  }
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak _my_pe = p_my_pe
+#define _my_pe p_my_pe
+#pragma weak shmem_my_pe = pshmem_my_pe
+#define shmem_my_pe pshmem_my_pe
+#endif /* HAVE_FEATURE_PSHMEM */
 
-/* SHMEM_NUM_PES(num_pes) */
+/**
+ * \brief These routines return the "rank" or identity of the calling PE
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   int _my_pe (void);
+ *   int shmem_my_pe (void);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER I
+ *
+ *   I = MY_PE ()
+ * \endcode
+ *
+ * \b Effect:
+ *
+ * None.
+ *
+ * \return Rank of calling PE
+ *
+ */
 
-SHMEM_NUM_PES (_num_pes)
+int
+_my_pe (void)
+{
+  return mype_helper ();
+}
 
-char *pshmem_nodename (void)
+int
+shmem_my_pe (void)
+{
+  return mype_helper ();
+}
+
+/*
+ *
+ */
+
+static int
+numpes_helper (void)
+{
+  INIT_CHECK();
+  return GET_STATE(numpes);
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak _num_pes = p_num_pes
+#define _num_pes p_num_pes
+#pragma weak shmem_n_pes = pshmem_n_pes
+#define shmem_n_pes pshmem_n_pes
+#endif /* HAVE_FEATURE_PSHMEM */
+
+/**
+ * \brief These routines return the number of PEs in the program
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   int _num_pes (void);
+ *   int shmem_n_pes (void);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER I
+ *
+ *   I = NUM_PES ()
+ *   I = SHMEM_N_PES ()
+ * \endcode
+ *
+ * \b Effect:
+ *
+ * None.
+ *
+ * \return Number of PEs in program
+ *
+ */
+
+int
+_num_pes (void)
+{
+  return numpes_helper ();
+}
+
+int
+shmem_n_pes (void)
+{
+  return numpes_helper ();
+}
+
+/*
+ *
+ */
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_nodename = pshmem_nodename
+#define shmem_nodename pshmem_nodename
+#endif /* HAVE_FEATURE_PSHMEM */
+
+char *
+shmem_nodename (void)
 {
   INIT_CHECK ();
   return GET_STATE (loc.nodename);
 }
 
+/*
+ *
+ */
 
-/* #pragma weak my_pe = pmy_pe */
-#pragma weak _my_pe = p_my_pe
-
-/* #pragma weak num_pes = pnum_pes */
-#pragma weak _num_pes = p_num_pes
-
-#pragma weak shmem_nodename = pshmem_nodename
-
-SHMEM_MY_PE (shmem_my_pe)
-SHMEM_NUM_PES (shmem_n_pes)
-
-#pragma weak shmem_my_pe = pshmem_my_pe
-#pragma weak shmem_n_pes = pshmem_n_pes
-
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_version = pshmem_version
+#define shmem_version pshmem_version
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * OpenSHMEM has a major.minor release number.  Return 0 if
@@ -103,7 +191,7 @@ SHMEM_NUM_PES (shmem_n_pes)
 
 /* @api@ */
 int
-pshmem_version (int *major, int *minor)
+shmem_version (int *major, int *minor)
 {
 #if ! defined(SHMEM_MAJOR_VERSION) && ! defined(SHMEM_MINOR_VERSION)
   return -1;
@@ -112,5 +200,3 @@ pshmem_version (int *major, int *minor)
   *minor = SHMEM_MINOR_VERSION;
   return 0;
 }
-
-#pragma weak shmem_version = pshmem_version

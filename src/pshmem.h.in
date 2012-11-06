@@ -1,4 +1,7 @@
-/* Emac: -*- mode: c -*- */
+/*
+ * Emacs: -*- mode: c -*-
+ */
+
 /*
  *
  * Copyright (c) 2011, 2012
@@ -310,14 +313,6 @@ extern "C"
   extern void pshmem_longlong_inc (long long *target, int pe);
 
   /*
-   * Proposed by IBM Zuerich
-   *
-   */
-  extern void pshmem_int_xor (int *target, int value, int pe);
-  extern void pshmem_long_xor (long *target, long value, int pe);
-  extern void pshmem_longlong_xor (long long *target, long long value, int pe);
-
-  /*
    * cache flushing
    */
 
@@ -570,7 +565,7 @@ extern "C"
   extern void pshmem_clear_lock (long *lock);
   extern int pshmem_test_lock (long *lock) _WUR;
 
-ifdef(`HAVE_PUTGET_NB', include(`putget_nb.protosp'))
+ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protosp'))
 
 #if 0
   extern void pshmem_init (void);

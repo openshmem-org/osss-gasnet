@@ -7,8 +7,20 @@ proc ModulesHelp { } {
 
 module-whatis	"OpenSHMEM"
 
-set		shmem_root	~/opt/OpenSHMEM
+set		shmem_root	@PREFIX@
 
 prepend-path	PATH		$shmem_root/bin
 prepend-path	MANPATH		$shmem_root/share/man
 prepend-path	PKG_CONFIG_PATH	$shmem_root/lib/pkgconfig
+
+#
+# Customize run tracing
+#
+# setenv		SHMEM_LOG_LEVELS	debug,info,notice
+
+#
+# Examples for tuning Infiniband environment
+#
+# setenv		SHMEM_SYMMETRIC_HEAP_SIZE	256M
+# setenv		GASNET_PHYSMEM_NOPROBE		1
+# setenv		MV2_NUM_HCAS			2

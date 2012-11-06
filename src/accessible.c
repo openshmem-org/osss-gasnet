@@ -41,13 +41,20 @@
 #include "globalvar.h"
 #include "utils.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_pe_accessible = pshmem_pe_accessible
+#define shmem_pe_accessible pshmem_pe_accessible
+#pragma weak shmem_addr_accessible = pshmem_addr_accessible
+#define shmem_addr_accessible pshmem_addr_accessible
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /**
  * only true if PE "pe" can be accessed through SHMEM
  */
 
 /* @api@ */
 int
-pshmem_pe_accessible (int pe)
+shmem_pe_accessible (int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
@@ -60,12 +67,9 @@ pshmem_pe_accessible (int pe)
 
 /* @api@ */
 int
-pshmem_addr_accessible (void *addr, int pe)
+shmem_addr_accessible (void *addr, int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
   return __shmem_symmetric_addr_accessible (addr, pe);
 }
-
-#pragma weak shmem_pe_accessible = pshmem_pe_accessible
-#pragma weak shmem_addr_accessible = pshmem_addr_accessible
