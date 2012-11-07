@@ -58,12 +58,22 @@
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak start_pes_ = pstart_pes_
 #define start_pes_ pstart_pes_
+
 #pragma weak my_pe_ = pmy_pe_
 #define my_pe_ pmy_pe_
+
 #pragma weak num_pes_ = pnum_pes_
 #define num_pes_ pnum_pes_
+
+#pragma weak _my_pe_ = p_my_pe_
+#define _my_pe_ p_my_pe_
+
+#pragma weak _num_pes_ = p_num_pes_
+#define _num_pes_ p_num_pes_
+
 #pragma weak shmem_my_pe_ = pshmem_my_pe_
 #define shmem_my_pe_ pshmem_my_pe_
+
 #pragma weak shmem_n_pes_ = pshmem_n_pes_
 #define shmem_n_pes_ pshmem_n_pes_
 #endif /* HAVE_FEATURE_PSHMEM */
@@ -83,6 +93,8 @@ FORTRANIFY (start_pes) (int *npes)
 
 SHMEM_FORTRAN_QUERY_PE (my_pe, _my_pe);
 SHMEM_FORTRAN_QUERY_PE (num_pes, _num_pes);
+SHMEM_FORTRAN_QUERY_PE (_my_pe, _my_pe);
+SHMEM_FORTRAN_QUERY_PE (_num_pes, _num_pes);
 SHMEM_FORTRAN_QUERY_PE (shmem_my_pe, shmem_my_pe);
 SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 
@@ -751,11 +763,21 @@ FORTRANIFY (shmem_broadcast64) (void *target, const void *source,
 #define shmem_fcollect4_ pshmem_fcollect4_
 #pragma weak shmem_fcollect8_ = pshmem_fcollect8_
 #define shmem_fcollect8_ pshmem_fcollect8_
-#pragma weak shmem_fcollect32_ = pshmem_fcollect4_
-#define shmem_fcollect32_ pshmem_fcollect4_
-#pragma weak shmem_fcollect64_ = pshmem_fcollect8_
-#define shmem_fcollect64_ pshmem_fcollect8_
+#pragma weak shmem_fcollect32_ = pshmem_fcollect32_
+#define shmem_fcollect32_ pshmem_fcollect32_
+#pragma weak shmem_fcollect64_ = pshmem_fcollect64_
+#define shmem_fcollect64_ pshmem_fcollect64_
 #endif /* HAVE_FEATURE_PSHMEM */
+
+void
+FORTRANIFY (shmem_fcollect32) (void *target, const void *source, int *nelems,
+			       int *PE_start, int *logPE_stride, int *PE_size,
+			       int *pSync)
+{
+  shmem_fcollect32 (target, source,
+		    *nelems, *PE_start, *logPE_stride, *PE_size,
+		    (long *) pSync);
+}
 
 void
 FORTRANIFY (shmem_fcollect4) (void *target, const void *source, int *nelems,
@@ -763,6 +785,16 @@ FORTRANIFY (shmem_fcollect4) (void *target, const void *source, int *nelems,
 			      int *pSync)
 {
   shmem_fcollect32 (target, source,
+		    *nelems, *PE_start, *logPE_stride, *PE_size,
+		    (long *) pSync);
+}
+
+void
+FORTRANIFY (shmem_fcollect64) (void *target, const void *source, int *nelems,
+			       int *PE_start, int *logPE_stride, int *PE_size,
+			       int *pSync)
+{
+  shmem_fcollect64 (target, source,
 		    *nelems, *PE_start, *logPE_stride, *PE_size,
 		    (long *) pSync);
 }
@@ -787,11 +819,31 @@ FORTRANIFY (shmem_fcollect8) (void *target, const void *source, int *nelems,
 #define shmem_collect4_ pshmem_collect4_
 #pragma weak shmem_collect8_ = pshmem_collect8_
 #define shmem_collect8_ pshmem_collect8_
-#pragma weak shmem_collect32_ = pshmem_collect4_
-#define shmem_collect32_ pshmem_collect4_
-#pragma weak shmem_collect64_ = pshmem_collect8_
-#define shmem_collect64_ pshmem_collect8_
+#pragma weak shmem_collect32_ = pshmem_collect32_
+#define shmem_collect32_ pshmem_collect32_
+#pragma weak shmem_collect64_ = pshmem_collect64_
+#define shmem_collect64_ pshmem_collect64_
 #endif /* HAVE_FEATURE_PSHMEM */
+
+void
+FORTRANIFY (shmem_collect32) (void *target, const void *source, int *nelems,
+			      int *PE_start, int *logPE_stride, int *PE_size,
+			      int *pSync)
+{
+  shmem_collect32 (target, source, *nelems,
+		   *PE_start, *logPE_stride, *PE_size,
+		   (long *) pSync);
+}
+
+void
+FORTRANIFY (shmem_collect64) (void *target, const void *source, int *nelems,
+			      int *PE_start, int *logPE_stride, int *PE_size,
+			      int *pSync)
+{
+  shmem_collect64 (target, source, *nelems,
+		   *PE_start, *logPE_stride, *PE_size,
+		   (long *) pSync);
+}
 
 void
 FORTRANIFY (shmem_collect4) (void *target, const void *source, int *nelems,
