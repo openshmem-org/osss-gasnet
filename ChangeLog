@@ -25,6 +25,7 @@ Build
     * pass correct linker/compiler commands in more situations
     * delegate runs to GASNet launchers when available to avoid
       guess-work in this library
+    * this requires passing "-np npes" to the oshrun wrapper too
     * New alias for C++: oshCC (and man page)
 
   * Library builds with non-GNU compilers, such as Intel, PGI,
