@@ -927,6 +927,8 @@ FORTRANIFY (shmem_collect8) (void *target, const void *source, int *nelems,
 #pragma weak shmem_int8_and_to_all_ = pshmem_int8_and_to_all_
 #define shmem_int8_and_to_all_ pshmem_int8_and_to_all_
 #pragma weak shmem_int4_or_to_all_ = pshmem_int4_or_to_all_
+#define shmem_int2_or_to_all_ pshmem_int2_or_to_all_
+#pragma weak shmem_int2_or_to_all_ = pshmem_int2_or_to_all_
 #define shmem_int4_or_to_all_ pshmem_int4_or_to_all_
 #pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
 #define shmem_int8_or_to_all_ pshmem_int8_or_to_all_
