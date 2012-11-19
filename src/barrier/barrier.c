@@ -139,7 +139,6 @@ shmem_barrier_all (void)
 }
 
 
-
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_barrier = pshmem_barrier
 #define shmem_barrier pshmem_barrier

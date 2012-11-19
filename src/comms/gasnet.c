@@ -962,7 +962,7 @@ static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
  */
 static void
 handler_segsetup_out (gasnet_token_t token,
-		      void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		      void *buf, size_t bufsiz)
 {
   gasnet_node_t src_pe;
   gasnet_seginfo_t *gsp = (gasnet_seginfo_t *) buf;
@@ -981,8 +981,8 @@ handler_segsetup_out (gasnet_token_t token,
 
   /* gasnet_hsl_unlock(& setup_out_lock); */
 
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_SETUP_BAK,
-			 (void *) NULL, 0, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SETUP_BAK,
+			 (void *) NULL, 0);
 }
 
 /**
@@ -990,7 +990,7 @@ handler_segsetup_out (gasnet_token_t token,
  */
 static void
 handler_segsetup_bak (gasnet_token_t token,
-		      void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		      void *buf, size_t bufsiz)
 {
   gasnet_hsl_lock (&setup_bak_lock);
 
@@ -1072,8 +1072,8 @@ __shmem_symmetric_memory_init (void)
 	/* send to everyone else */
 	if (me != pe)
 	  {
-	    gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_SETUP_OUT,
-				     &gs, sizeof (gs), 0);
+	    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
+				     &gs, sizeof (gs));
 	  }
       }
 
@@ -1278,7 +1278,7 @@ typedef struct
  */
 static void
 handler_swap_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   long long old;
   swap_payload_t *pp = (swap_payload_t *) buf;
@@ -1296,7 +1296,7 @@ handler_swap_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz);
 }
 
 /**
@@ -1304,7 +1304,7 @@ handler_swap_out (gasnet_token_t token,
  */
 static void
 handler_swap_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   swap_payload_t *pp = (swap_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1344,7 +1344,7 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1368,7 +1368,7 @@ typedef struct
  */
 static void
 handler_cswap_out (gasnet_token_t token,
-		   void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		   void *buf, size_t bufsiz)
 {
   void *old;
   cswap_payload_t *pp = (cswap_payload_t *) buf;
@@ -1401,8 +1401,7 @@ handler_cswap_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz,
-			 unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz);
 }
 
 /**
@@ -1411,7 +1410,7 @@ handler_cswap_out (gasnet_token_t token,
  */
 static void
 handler_cswap_bak (gasnet_token_t token,
-		   void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		   void *buf, size_t bufsiz)
 {
   cswap_payload_t *pp = (cswap_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1455,7 +1454,7 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
   LOAD_STORE_FENCE ();
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp));
 
   WAIT_ON_COMPLETION (cp->completed);
 
@@ -1482,7 +1481,7 @@ typedef struct
  */
 static void
 handler_fadd_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus = 0;
@@ -1502,7 +1501,7 @@ handler_fadd_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz);
 }
 
 /**
@@ -1510,7 +1509,7 @@ handler_fadd_out (gasnet_token_t token,
  */
 static void
 handler_fadd_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   fadd_payload_t *pp = (fadd_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1550,7 +1549,7 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1577,7 +1576,7 @@ typedef struct
  */
 static void
 handler_finc_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus = 1;
@@ -1597,7 +1596,7 @@ handler_finc_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz);
 }
 
 /**
@@ -1605,7 +1604,7 @@ handler_finc_out (gasnet_token_t token,
  */
 static void
 handler_finc_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   finc_payload_t *pp = (finc_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1643,7 +1642,7 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1668,7 +1667,7 @@ typedef struct
  */
 static void
 handler_add_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus = 0;
@@ -1687,7 +1686,7 @@ handler_add_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz);
 }
 
 /**
@@ -1695,7 +1694,7 @@ handler_add_out (gasnet_token_t token,
  */
 static void
 handler_add_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   add_payload_t *pp = (add_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1730,7 +1729,7 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1754,7 +1753,7 @@ typedef struct
  */
 static void
 handler_inc_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus = 0;
@@ -1774,7 +1773,7 @@ handler_inc_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz);
 }
 
 /**
@@ -1782,7 +1781,7 @@ handler_inc_out (gasnet_token_t token,
  */
 static void
 handler_inc_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   inc_payload_t *pp = (inc_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1814,7 +1813,7 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1841,7 +1840,7 @@ typedef struct
  */
 static void
 handler_xor_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   xor_payload_t *pp = (xor_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1858,7 +1857,7 @@ handler_xor_out (gasnet_token_t token,
   gasnet_hsl_unlock (lk);
 
   /* return updated payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz);
 }
 
 /**
@@ -1866,7 +1865,7 @@ handler_xor_out (gasnet_token_t token,
  */
 static void
 handler_xor_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		 void *buf, size_t bufsiz)
 {
   xor_payload_t *pp = (xor_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
@@ -1899,7 +1898,7 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
   p->completed_addr = &(p->completed);
 
   /* send and wait for ack */
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p), 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1948,7 +1947,7 @@ static gasnet_hsl_t ping_bak_lock = GASNET_HSL_INITIALIZER;
  */
 static void
 handler_ping_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   ping_payload_t *pp = (ping_payload_t *) buf;
 
@@ -1959,7 +1958,7 @@ handler_ping_out (gasnet_token_t token,
   gasnet_hsl_unlock (&ping_out_lock);
 
   /* return ack'ed payload */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_PING_BAK, buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_PING_BAK, buf, bufsiz);
 }
 
 /**
@@ -1967,7 +1966,7 @@ handler_ping_out (gasnet_token_t token,
  */
 static void
 handler_ping_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz, gasnet_handlerarg_t unused)
+		  void *buf, size_t bufsiz)
 {
   ping_payload_t *pp = (ping_payload_t *) buf;
 
@@ -2026,8 +2025,8 @@ __shmem_comms_ping_request (int pe)
   if (sj_status == 0)
     {
       /* send and wait for ack */
-      gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_PING_OUT,
-			       p, sizeof (*p), 0);
+      gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_PING_OUT,
+			       p, sizeof (*p));
 
       WAIT_ON_COMPLETION (p->completed);
     }
@@ -2209,8 +2208,7 @@ typedef struct
  */
 static void
 handler_globalvar_put_out (gasnet_token_t token,
-			   void *buf, size_t bufsiz,
-			   gasnet_handlerarg_t unused)
+			   void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof (*pp);
@@ -2219,8 +2217,8 @@ handler_globalvar_put_out (gasnet_token_t token,
   LOAD_STORE_FENCE ();
 
   /* return ack, just need the control structure */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
-			 buf, sizeof (*pp), unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
+			 buf, sizeof (*pp));
 }
 
 /**
@@ -2228,8 +2226,7 @@ handler_globalvar_put_out (gasnet_token_t token,
  */
 static void
 handler_globalvar_put_bak (gasnet_token_t token,
-			   void *buf, size_t bufsiz,
-			   gasnet_handlerarg_t unused)
+			   void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
@@ -2267,8 +2264,8 @@ put_a_chunk (void *buf, size_t bufsize,
   memmove (data, source + offset, bytes_to_send);
   LOAD_STORE_FENCE ();
 
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
-			   p, bufsize, 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
+			   p, bufsize);
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -2334,8 +2331,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
  */
 static void
 handler_globalvar_get_out (gasnet_token_t token,
-			   void *buf, size_t bufsiz,
-			   gasnet_handlerarg_t unused)
+			   void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof (*pp);
@@ -2345,8 +2341,8 @@ handler_globalvar_get_out (gasnet_token_t token,
   LOAD_STORE_FENCE ();
 
   /* return ack, copied data is returned */
-  gasnet_AMReplyMedium1 (token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
-			 buf, bufsiz, unused);
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
+			 buf, bufsiz);
 }
 
 /**
@@ -2354,8 +2350,7 @@ handler_globalvar_get_out (gasnet_token_t token,
  */
 static void
 handler_globalvar_get_bak (gasnet_token_t token,
-			   void *buf, size_t bufsiz,
-			   gasnet_handlerarg_t unused)
+			   void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
@@ -2387,8 +2382,8 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 
   atomic_inc_get_counter ();
 
-  gasnet_AMRequestMedium1 (pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
-			   p, bufsize, 0);
+  gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
+			   p, bufsize);
 
   WAIT_ON_COMPLETION (p->completed);
 
