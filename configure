@@ -43,10 +43,15 @@ progname="`basename $0`"
 
 # -- defaults --
 prefix=/usr/local
+
+comms_layer=
 gasnet_root=$prefix
 gasnet_conduit=
+uccs_root=$prefix
+
 elf_header_dir=/usr/include
 elf_lib_dir=/usr/lib64
+
 feature_experimental=DISABLED
 feature_debug=DISABLED
 feature_trace=DISABLED
@@ -107,9 +112,15 @@ Usage: $progname [options]
 
   Communications:
 
+    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
+                                 (currrently just a stub)
+
     --with-gasnet-root=G         Use the GASNet installed under directory "G"
     --with-gasnet-conduit=C      Use GASNet conduit "C"
                                      (if only 1 conduit configured, use it)
+
+    --with-uccs-root=U           Use the UCCS installed under directory "U"
+                                 (currrently just a stub)
 
   Optional Support Libraries:
 
@@ -180,6 +191,15 @@ chompit()
     echo $@ | cut -d= -f2-
 }
 
+# lower case things
+setlower()
+{
+    var=$1
+    shift
+    tmp="`echo $* | tr '[:upper:]' '[:lower:]'`"
+    eval "$var=\"$tmp\""
+}
+
 for o in $@
 do
     case $o in
@@ -198,11 +218,20 @@ do
 	--with-modulefilesdir=*)
 	    modulefilesdir="`chompit $o`"
 	    ;;
+	--with-comms-layer=*)
+	    setlower comms_layer "`chompit $o`"
+	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
+	    setlower comms_layer GASNet
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
+	    setlower comms_layer GASNet
+	    ;;
+	--with-uccs-root=*)
+	    uccs_root="`chompit $o`"
+	    setlower comms_layer UCCS
 	    ;;
 	--with-libelf=*)
 	    elf_top_dir="`chompit $o`"
@@ -397,108 +426,119 @@ fi
 tell "Looking for ELF library ... done"
 tell ""
 
-# -- GASNet detection --
+# -- Comms. detection --
 
-tell "Looking for GASNet ... "
+tell "Looking for communication layer ... "
 
-if [ -z "$gasnet_root" ]
-then
-    tell "I don't know where GASNet is installed"
-    bailout
-fi
+case "$comms_layer" in
+    gasnet)
 
-gasnet_h="gasnet_config.h"
-gasnet_inc_dir="$gasnet_root/include"
-gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
-if [ ! -r "$gasnet_path_h" ]
-then
-    tell "I can't find a GASNet installation in \"$gasnet_root\""
-    tell "  (no $gasnet_h header file)"
-    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
-    bailout
-fi
+	if [ -z "$gasnet_root" ]
+	    then
+	    tell "I don't know where GASNet is installed"
+	    bailout
+	fi
 
-# check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
+        gasnet_h="gasnet_config.h"
+        gasnet_inc_dir="$gasnet_root/include"
+        gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
+        if [ ! -r "$gasnet_path_h" ]
+    	then
+    	tell "I can't find a GASNet installation in \"$gasnet_root\""
+    	tell "  (no $gasnet_h header file)"
+    	tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
+    	bailout
+        fi
 
-find_ver_macro()
-{
-    var=$1
-    file=$2
-    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
-    eval $cmd
-}
+        # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
 
-gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
-gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
-gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
-if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
-then
-    tell "Couldn't discover GASNet version in $gasnet_root"
-    bailout
-fi
+        find_ver_macro()
+        {
+    	var=$1
+    	file=$2
+    	cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    	eval $cmd
+        }
 
-gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
+        gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
+        gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
+        gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
+        if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
+    	then
+    	tell "Couldn't discover GASNet version in $gasnet_root"
+    	bailout
+        fi
 
-tell "Found GASNet version $gasnet_ver"
+        gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
 
-#
-# see if we can autodetect which conduit to use.  if not, offer
-# all installed under the gasnet directory
-#
+        tell "Found GASNet version $gasnet_ver"
 
-KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
-                   sed -e 's/-conduit//g' )`"
+        #
+        # see if we can autodetect which conduit to use.  if not, offer
+        # all installed under the gasnet directory
+        #
 
-if [ "$KNOWN_CONDUITS" = '*' ]
-then
-    tell "I couldn't find any GASNet conduits under $gasnet_root"
-    bailout
-fi
+        KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+                           sed -e 's/-conduit//g' )`"
 
-cdt_auto=""
+        if [ "$KNOWN_CONDUITS" = '*' ]
+        then
+            tell "I couldn't find any GASNet conduits under $gasnet_root"
+            bailout
+        fi
 
-#
-# no conduit asked for on command-line
-#
+        cdt_auto=""
 
-if [ -z "$gasnet_conduit" ]
-then
-    kc=`echo $KNOWN_CONDUITS | wc -w`
-    if [ $kc -eq 0 ]
-    then
-        tell "I couldn't find any GASNet conduits under $gasnet_root"
-        bailout
-    elif [ $kc -eq 1 ]
-    then
-        # only one there, just use it
-        gasnet_conduit="$KNOWN_CONDUITS"
-	cdt_auto="(auto-detected)"
-        tell ""
-        tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
-        tell ""
-    else
-        # multiple configured, let the user decide
-        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-        tell "Indicate which one to use via --with-gasnet-conduit=NAME"
-        bailout
-    fi
-fi
+        #
+        # no conduit asked for on command-line
+        #
 
-# -- ok, we have a candidate conduit --
+        if [ -z "$gasnet_conduit" ]
+        then
+            kc=`echo $KNOWN_CONDUITS | wc -w`
+            if [ $kc -eq 0 ]
+            then
+                tell "I couldn't find any GASNet conduits under $gasnet_root"
+                bailout
+            elif [ $kc -eq 1 ]
+            then
+                # only one there, just use it
+                gasnet_conduit="$KNOWN_CONDUITS"
+        	cdt_auto="(auto-detected)"
+                tell ""
+                tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
+                tell ""
+            else
+                # multiple configured, let the user decide
+                tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+                tell "Indicate which one to use via --with-gasnet-conduit=NAME"
+                bailout
+            fi
+        fi
 
-gasnet_core_h="gasnet_core.h"
-gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
-gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
-if [ ! -r "$gasnet_path_core_h" ]
-then
-    tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
-    tell "  (no $core_h header file)"
-    bailout
-fi
+        # -- ok, we have a candidate conduit --
 
-tell "Conduit \"$gasnet_conduit\" looks OK"
+        gasnet_core_h="gasnet_core.h"
+        gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
+        gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
+        if [ ! -r "$gasnet_path_core_h" ]
+        then
+            tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
+            tell "  (no $core_h header file)"
+            bailout
+        fi
 
-tell "Looking for GASNet ... done"
+        tell "Conduit \"$gasnet_conduit\" looks OK"
+	;;  #  end of gasnet section
+    uccs)
+	;;
+    *)
+	tell "I don't know what to do with communications layer \"$comms_layer\""
+	bailout
+	;;
+esac
+
+tell "Looking for communication layer ... done"
 tell ""
 
 # -- fill in install locations if not known yet --
@@ -577,9 +617,23 @@ tell ""
 tell "    Linker is                   $ld_cmd"
 tell "    Linker flags are            $ld_flags"
 tell ""
-tell "GASNet:"
-tell "  Installed in                  $gasnet_root"
-tell "  Using conduit                 $gasnet_conduit $cdt_auto"
+
+tell "Communications Layer:"
+case "$comms_layer" in
+    gasnet)
+	tell "  GASNet:"
+	tell "    Installed in                $gasnet_root"
+	tell "    Using conduit               $gasnet_conduit $cdt_auto"
+	;;
+    uccs)
+	tell "  UCCS:"
+	tell "    Installed in                $uccs_root"
+	;;
+    *)
+	# should never get here
+	;;
+esac
+
 tell ""
 tell "Executable Format:"
 tell "  Headers in                    $elf_header_dir"
@@ -720,11 +774,19 @@ chmod +x $cs
     fi
     echo
 
-    echo "/* GASNet */"
-    echo "#define HAVE_GASNET    1"
-    echo "#define GASNET_ROOT    \"$gasnet_root\""
-    echo "#define GASNET_CONDUIT \"$gasnet_conduit\""
-
+    echo "/* Communication Layer */"
+    echo "#define COMMS_LAYER \"$comms_layer\""
+    case "$comms_layer" in
+	gasnet)
+	    echo "#define HAVE_GASNET    1"
+	    echo "#define GASNET_ROOT    \"$gasnet_root\""
+	    echo "#define GASNET_CONDUIT \"$gasnet_conduit\""
+	    ;;
+	uccs)
+	    echo "#define HAVE_UCCS      1"
+	    echo "#define UCCS_ROOT      \"uccs_root\""
+	    ;;
+    esac
     echo
     echo "#endif /* CONFIG_H */"
 ) > $config_h

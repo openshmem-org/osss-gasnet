@@ -5,8 +5,7 @@
 # default     = linear
 
 # examples: override defaults
-# barrier_all built on top of shmem primitives
-# barrier-all = shmem
+# barrier-all = tree
 # barrier     = tree
 # broadcast   = tree
 # fcollect    = linear
