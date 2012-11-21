@@ -106,10 +106,6 @@ This is for a general-purpose GNU/Linux system (or cluster):
     5:    don't bother building UDP support, don't want it
     6: 	  where to install GASNet
 
-Note that GASNet is only needed to build this OpenSHMEM library,
-strictly speaking it does not need to be installed globally to
-actually use the library.
-
 Configure Usage
 ===============
 

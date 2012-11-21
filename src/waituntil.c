@@ -70,7 +70,8 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
- * wait_until with operator dispatchers, type-parameterized
+ * wait_until with operator dispatchers, type-parameterized.
+ * NB the _SHMEM_CMP values are identical to the SHMEM_CMP ones.
  */
 
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
@@ -80,27 +81,21 @@
   {									\
     switch (cmp) {							\
     case SHMEM_CMP_EQ:							\
-    case _SHMEM_CMP_EQ:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, ==, cmp_value);		\
       break;								\
     case SHMEM_CMP_NE:							\
-    case _SHMEM_CMP_NE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, !=, cmp_value);		\
       break;								\
     case SHMEM_CMP_GT:							\
-    case _SHMEM_CMP_GT:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >, cmp_value);		\
       break;								\
     case SHMEM_CMP_LE:							\
-    case _SHMEM_CMP_LE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <=, cmp_value);		\
       break;								\
     case SHMEM_CMP_LT:							\
-    case _SHMEM_CMP_LT:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, <, cmp_value);		\
       break;								\
     case SHMEM_CMP_GE:							\
-    case _SHMEM_CMP_GE:							\
       SHMEM_WAIT_LOOP_FRAGMENT(Type, ivar, >=, cmp_value);		\
       break;								\
     default:								\
