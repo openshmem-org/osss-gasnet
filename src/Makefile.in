@@ -43,7 +43,10 @@ PREFIX           = @PREFIX@
 #
 # the communications API lives in .../comms.o
 #
-COMMS_DIR            = ./comms
+
+COMMS_LAYER          = @COMMS_LAYER@
+
+COMMS_DIR            = ./comms/$(COMMS_LAYER)
 COMMS_CPPFLAGS       = -I$(COMMS_DIR)
 COMMS_OBJ            = $(COMMS_DIR)/*.o
 

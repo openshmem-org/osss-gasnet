@@ -40,10 +40,11 @@
 #include <stdio.h>
 
 #include "state.h"
-#include "comms.h"
 #include "trace.h"
 
 #include "shmem.h"
+
+#include "comms/comms.h"
 
 /**
  * this waits for the variable to change but also dispatches

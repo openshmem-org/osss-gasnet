@@ -45,7 +45,8 @@
 
 #include "state.h"
 #include "trace.h"
-#include "comms.h"
+
+#include "comms/comms.h"
 
 static const char *ping_timeout_envvar = "SHMEM_PE_ACCESSIBLE_TIMEOUT";
 static const double DEFAULT_PE_ACCESSIBLE_TIMEOUT = 1.0;

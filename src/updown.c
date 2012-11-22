@@ -42,7 +42,6 @@
 #include <sys/utsname.h>	/* uname()                        */
 #include <sys/types.h>		/* size_t                         */
 
-#include "comms.h"
 #include "globalvar.h"
 #include "state.h"
 #include "trace.h"
@@ -63,6 +62,8 @@
 #include "query.h"
 
 #include "shmem.h"
+
+#include "comms/comms.h"
 
 /* ----------------------------------------------------------------- */
 

@@ -576,6 +576,7 @@ do
         -e "s%@FCFLAGS@%$fc_flags%g" \
         -e "s%@LD@%$ld_cmd%g" \
         -e "s%@LDFLAGS@%$ld_flags%g" \
+        -e "s%@COMMS_LAYER@%$comms_layer%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \

@@ -37,8 +37,9 @@
 
 
 
-#include "comms.h"
 #include "utils.h"
+
+#include "comms/comms.h"
 
 
 #ifdef HAVE_FEATURE_PSHMEM

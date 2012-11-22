@@ -40,11 +40,12 @@
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #include "state.h"
-#include "comms.h"
 #include "trace.h"
 #include "utils.h"
 
-#include "pshmem.h"
+#include "shmem.h"
+
+#include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_short_put_nb = pshmem_short_put_nb

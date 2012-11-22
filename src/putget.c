@@ -43,7 +43,6 @@
 
 #include "state.h"
 #include "symmem.h"
-#include "comms.h"
 #include "globalvar.h"
 #include "updown.h"
 #include "trace.h"
@@ -52,6 +51,8 @@
 #include "symmtest.h"
 
 #include "shmem.h"
+
+#include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_short_put = pshmem_short_put

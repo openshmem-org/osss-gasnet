@@ -48,9 +48,10 @@
 #include "state.h"
 #include "trace.h"
 #include "updown.h"
-#include "comms.h"
 #include "clock.h"
 #include "utils.h"
+
+#include "comms/comms.h"
 
 static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
 static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";

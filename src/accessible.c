@@ -37,9 +37,10 @@
 
 
 
-#include "comms.h"
 #include "globalvar.h"
 #include "utils.h"
+
+#include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible
