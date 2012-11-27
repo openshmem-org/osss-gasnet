@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -37,9 +37,10 @@
 
 
 
-#include "comms.h"
 #include "globalvar.h"
 #include "utils.h"
+
+#include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible

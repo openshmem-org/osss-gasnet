@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -43,7 +43,6 @@
 
 #include "state.h"
 #include "symmem.h"
-#include "comms.h"
 #include "globalvar.h"
 #include "updown.h"
 #include "trace.h"
@@ -53,14 +52,9 @@
 
 #include "shmem.h"
 
-#ifdef HAVE_FEATURE_PSHMEM
-#pragma weak pshmem_put32 = pshmem_int_put
-#define pshmem_put32 pshmem_int_put
-#pragma weak pshmem_put64 = pshmem_long_put
-#define pshmem_put64 pshmem_long_put
-#pragma weak pshmem_put128 = pshmem_longdouble_put
-#define pshmem_put128 pshmem_longdouble_put
+#include "comms/comms.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_short_put = pshmem_short_put
 #define shmem_short_put pshmem_short_put
 #pragma weak shmem_int_put = pshmem_int_put
@@ -81,12 +75,12 @@
 #define shmem_complexd_put pshmem_complexd_put
 #pragma weak shmem_putmem = pshmem_putmem
 #define shmem_putmem pshmem_putmem
-#pragma weak shmem_put32 = pshmem_int_put
-#define shmem_put32 pshmem_int_put
-#pragma weak shmem_put64 = pshmem_long_put
-#define shmem_put64 pshmem_long_put
-#pragma weak shmem_put128 = pshmem_longdouble_put
-#define shmem_put128 pshmem_longdouble_put
+#pragma weak shmem_put32 = pshmem_put32
+#define shmem_put32 pshmem_put32
+#pragma weak shmem_put64 = pshmem_put64
+#define shmem_put64 pshmem_put64
+#pragma weak shmem_put128 = pshmem_put128
+#define shmem_put128 pshmem_put128
 /* #pragma weak pshmem_put = pshmem_long_put */
 /* #pragma weak shmem_put = pshmem_put */
 #endif /* HAVE_FEATURE_PSHMEM */
@@ -127,9 +121,23 @@ SHMEM_TYPE_PUT (float, float);
 SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double));
 
-#pragma weak shmem_put32 = shmem_int_put
-#pragma weak shmem_put64 = shmem_long_put
-#pragma weak shmem_put128 = shmem_longdouble_put
+void
+shmem_put32 (void *dest, const void *src, size_t nelems, int pe)
+{
+  shmem_int_put (dest, src, nelems, pe);
+}
+
+void
+shmem_put64 (void *dest, const void *src, size_t nelems, int pe)
+{
+  shmem_long_put (dest, src, nelems, pe);
+}
+
+void
+shmem_put128 (void *dest, const void *src, size_t nelems, int pe)
+{
+  shmem_longdouble_put (dest, src, nelems, pe);
+}
 
 /* @api@ */
 void
@@ -152,13 +160,6 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak pshmem_get32 = pshmem_int_get
-#define pshmem_get32 pshmem_int_get
-#pragma weak pshmem_get64 = pshmem_long_get
-#define pshmem_get64 pshmem_long_get
-#pragma weak pshmem_get128 = pshmem_longdouble_get
-#define pshmem_get128 pshmem_longdouble_get
-
 #pragma weak shmem_short_get = pshmem_short_get
 #define shmem_short_get pshmem_short_get
 #pragma weak shmem_int_get = pshmem_int_get
@@ -179,12 +180,12 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 #define shmem_complexd_get pshmem_complexd_get
 #pragma weak shmem_getmem = pshmem_getmem
 #define shmem_getmem pshmem_getmem
-#pragma weak shmem_get32 = pshmem_int_get
-#define shmem_get32 pshmem_int_get
-#pragma weak shmem_get64 = pshmem_long_get
-#define shmem_get64 pshmem_long_get
-#pragma weak shmem_get128 = pshmem_longdouble_get
-#define shmem_get128 pshmem_longdouble_get
+#pragma weak shmem_get32 = pshmem_get32
+#define shmem_get32 pshmem_get32
+#pragma weak shmem_get64 = pshmem_get64
+#define shmem_get64 pshmem_get64
+#pragma weak shmem_get128 = pshmem_get128
+#define shmem_get128 pshmem_get128
 /* #pragma weak pshmem_get = pshmem_long_get */
 /* #pragma weak shmem_get = pshmem_get */
 #endif /* HAVE_FEATURE_PSHMEM */
@@ -219,9 +220,23 @@ SHMEM_TYPE_GET (float, float);
 SHMEM_TYPE_GET (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_GET (complexd, COMPLEXIFY (double));;
 
-#pragma weak shmem_get32 = shmem_int_get
-#pragma weak shmem_get64 = shmem_long_get
-#pragma weak shmem_get128 = shmem_longdouble_get
+void
+shmem_get32 (void *dest, const void *src, size_t nelems, int pe)
+{
+  shmem_int_get (dest, src, nelems, pe);
+}
+
+void
+shmem_get64 (void *dest, const void *src, size_t nelems, int pe)
+{
+  shmem_long_get (dest, src, nelems, pe);
+}
+
+void
+shmem_get128 (void *dest, const void*src, size_t nelems, int pe)
+{
+  shmem_longdouble_get (dest, src, nelems, pe);
+}
 
 /* @api@ */
 void

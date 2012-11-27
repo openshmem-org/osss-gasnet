@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -51,12 +51,6 @@ extern complex float shmem_complexf_g (complex float *addr, int pe);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak pshmem_iput32 = pshmem_int_iput
-#define pshmem_iput32 pshmem_int_iput
-#pragma weak pshmem_iput64 = pshmem_long_iput
-#define pshmem_iput64 pshmem_long_iput
-#pragma weak pshmem_iput128 = pshmem_longdouble_iput
-#define pshmem_iput128 pshmem_longdouble_iput
 #pragma weak shmem_short_iput = pshmem_short_iput
 #define shmem_short_iput pshmem_short_iput
 #pragma weak shmem_char_iput = pshmem_char_iput
@@ -73,12 +67,12 @@ extern complex float shmem_complexf_g (complex float *addr, int pe);
 #define shmem_longdouble_iput pshmem_longdouble_iput
 #pragma weak shmem_longlong_iput = pshmem_longlong_iput
 #define shmem_longlong_iput pshmem_longlong_iput
-#pragma weak shmem_iput32 = pshmem_int_iput
-#define shmem_iput32 pshmem_int_iput
-#pragma weak shmem_iput64 = pshmem_long_iput
-#define shmem_iput64 pshmem_long_iput
-#pragma weak shmem_iput128 = pshmem_longdouble_iput
-#define shmem_iput128 pshmem_longdouble_iput
+#pragma weak shmem_iput32 = pshmem_iput32
+#define shmem_iput32 pshmem_iput32
+#pragma weak shmem_iput64 = pshmem_iput64
+#define shmem_iput64 pshmem_iput64
+#pragma weak shmem_iput128 = pshmem_iput128
+#define shmem_iput128 pshmem_iput128
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -117,18 +111,28 @@ SHMEM_EMIT_IPUT (longdouble, long double);
 SHMEM_EMIT_IPUT (longlong, long long);
 SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 
-#pragma weak shmem_iput32 = shmem_int_iput
-#pragma weak shmem_iput64 = shmem_long_iput
-#pragma weak shmem_iput128 = shmem_longdouble_iput
+void
+shmem_iput32 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_int_iput (target, source, tst, sst, nelems, pe);
+}
 
+void
+shmem_iput64 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_long_iput (target, source, tst, sst, nelems, pe);
+}
+
+void
+shmem_iput128 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_longdouble_iput (target, source, tst, sst, nelems, pe);
+}
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak pshmem_iget32 = pshmem_int_iget
-#define pshmem_iget32 pshmem_int_iget
-#pragma weak pshmem_iget64 = pshmem_long_iget
-#define pshmem_iget64 pshmem_long_iget
-#pragma weak pshmem_iget128 = pshmem_longdouble_iget
-#define pshmem_iget128 pshmem_longdouble_iget
 #pragma weak shmem_char_iget = pshmem_char_iget
 #define shmem_char_iget pshmem_char_iget
 #pragma weak shmem_short_iget = pshmem_short_iget
@@ -145,12 +149,12 @@ SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 #define shmem_longdouble_iget pshmem_longdouble_iget
 #pragma weak shmem_longlong_iget = pshmem_longlong_iget
 #define shmem_longlong_iget pshmem_longlong_iget
-#pragma weak shmem_iget32 = pshmem_int_iget
-#define shmem_iget32 pshmem_int_iget
-#pragma weak shmem_iget64 = pshmem_long_iget
-#define shmem_iget64 pshmem_long_iget
-#pragma weak shmem_iget128 = pshmem_longdouble_iget
-#define shmem_iget128 pshmem_longdouble_iget
+#pragma weak shmem_iget32 = pshmem_iget32
+#define shmem_iget32 pshmem_iget32
+#pragma weak shmem_iget64 = pshmem_iget64
+#define shmem_iget64 pshmem_iget64
+#pragma weak shmem_iget128 = pshmem_iget128
+#define shmem_iget128 pshmem_iget128
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -189,6 +193,23 @@ SHMEM_EMIT_IGET (longdouble, long double);
 SHMEM_EMIT_IGET (longlong, long long);
 SHMEM_EMIT_IGET (complexf, COMPLEXIFY (float));
 
-#pragma weak shmem_iget32 = shmem_int_iget
-#pragma weak shmem_iget64 = shmem_long_iget
-#pragma weak shmem_iget128 = shmem_longdouble_iget
+void
+shmem_iget32 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_int_iget (target, source, tst, sst, nelems, pe);
+}
+
+void
+shmem_iget64 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_long_iget (target, source, tst, sst, nelems, pe);
+}
+
+void
+shmem_iget128 (void *target, const void *source,
+	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
+{
+  shmem_longdouble_iget (target, source, tst, sst, nelems, pe);
+}

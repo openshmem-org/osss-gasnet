@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2011, 2012
+# Copyright (c) 2011 - 2013
 #   University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
@@ -43,10 +43,15 @@ progname="`basename $0`"
 
 # -- defaults --
 prefix=/usr/local
+
+comms_layer=
 gasnet_root=$prefix
 gasnet_conduit=
+uccs_root=$prefix
+
 elf_header_dir=/usr/include
 elf_lib_dir=/usr/lib64
+
 feature_experimental=DISABLED
 feature_debug=DISABLED
 feature_trace=DISABLED
@@ -107,9 +112,15 @@ Usage: $progname [options]
 
   Communications:
 
+    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
+                                     (currently just a stub)
+
     --with-gasnet-root=G         Use the GASNet installed under directory "G"
     --with-gasnet-conduit=C      Use GASNet conduit "C"
                                      (if only 1 conduit configured, use it)
+
+    --with-uccs-root=U           Use the UCCS installed under directory "U"
+                                     (currently just a stub)
 
   Optional Support Libraries:
 
@@ -124,18 +135,20 @@ Usage: $progname [options]
 
     --enable-debug               Run-time debugging checks
     --disable-debug              No run-time debugging checks
+                                     (default)
 
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
+                                     (default)
 
   Optional and not-stable-yet:
 
     --enable-experimental        Include experimental features of future
-                                   OpenSHMEM versions
+                                     OpenSHMEM versions
     --disable-experimental       No experimental features (default)
 
     --enable-pshmem              Build the PSHMEM profiling interface
-                                   (not considered stable yet)
+                                     (not considered stable yet)
     --disable-pshmem             No PSHMEM profiling interface (default)
 
   Deprecated:
@@ -150,21 +163,21 @@ Usage: $progname [options]
   Environment Variables:
 
     CC                           C compiler
-                                   (default: gcc)
+                                     (default: gcc)
     CFLAGS                       User-supplied options for C compiler
-                                   (default: -g)
+                                     (default: -g)
     CXX                          C++ compiler
-                                   (default: g++, but not used)
+                                     (default: g++, but not used)
     CXXFLAGS                     User-supplied options for C++ compiler
-                                   (default: -g, but not used)
+                                     (default: -g, but not used)
     FC                           Fortran 90 compiler
-                                   (default: gfortran, but not used)
+                                     (default: gfortran, but not used)
     FFLAGS                       User-supplied options for Fortran compiler
-                                   (default: -g, but not used)
+                                     (default: -g, but not used)
     LD                           To link the library
-                                   (default: same as CC)
+                                     (default: same as CC)
     LDFLAGS                      User-supplied options for linker
-                                   (default: none)
+                                     (default: none)
 
 __EOT__
 }
@@ -178,6 +191,15 @@ __EOT__
 chompit()
 {
     echo $@ | cut -d= -f2-
+}
+
+# lower case things to remember them canonically
+setlower()
+{
+    var=$1
+    shift
+    tmp="`echo $* | tr '[:upper:]' '[:lower:]'`"
+    eval "$var=\"$tmp\""
 }
 
 for o in $@
@@ -198,11 +220,20 @@ do
 	--with-modulefilesdir=*)
 	    modulefilesdir="`chompit $o`"
 	    ;;
+	--with-comms-layer=*)
+	    setlower comms_layer "`chompit $o`"
+	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
+	    setlower comms_layer GASNet
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
+	    setlower comms_layer GASNet
+	    ;;
+	--with-uccs-root=*)
+	    uccs_root="`chompit $o`"
+	    setlower comms_layer UCCS
 	    ;;
 	--with-libelf=*)
 	    elf_top_dir="`chompit $o`"
@@ -397,108 +428,119 @@ fi
 tell "Looking for ELF library ... done"
 tell ""
 
-# -- GASNet detection --
+# -- Comms. detection --
 
-tell "Looking for GASNet ... "
+tell "Looking for communication layer ... "
 
-if [ -z "$gasnet_root" ]
-then
-    tell "I don't know where GASNet is installed"
-    bailout
-fi
+case "$comms_layer" in
+    gasnet)
 
-gasnet_h="gasnet_config.h"
-gasnet_inc_dir="$gasnet_root/include"
-gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
-if [ ! -r "$gasnet_path_h" ]
-then
-    tell "I can't find a GASNet installation in \"$gasnet_root\""
-    tell "  (no $gasnet_h header file)"
-    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
-    bailout
-fi
+	if [ -z "$gasnet_root" ]
+	    then
+	    tell "I don't know where GASNet is installed"
+	    bailout
+	fi
 
-# check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
+        gasnet_h="gasnet_config.h"
+        gasnet_inc_dir="$gasnet_root/include"
+        gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
+        if [ ! -r "$gasnet_path_h" ]
+    	then
+    	tell "I can't find a GASNet installation in \"$gasnet_root\""
+    	tell "  (no $gasnet_h header file)"
+    	tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
+    	bailout
+        fi
 
-find_ver_macro()
-{
-    var=$1
-    file=$2
-    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
-    eval $cmd
-}
+        # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
 
-gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
-gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
-gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
-if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
-then
-    tell "Couldn't discover GASNet version in $gasnet_root"
-    bailout
-fi
+        find_ver_macro()
+        {
+    	var=$1
+    	file=$2
+    	cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    	eval $cmd
+        }
 
-gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
+        gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
+        gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
+        gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
+        if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
+    	then
+    	tell "Couldn't discover GASNet version in $gasnet_root"
+    	bailout
+        fi
 
-tell "Found GASNet version $gasnet_ver"
+        gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
 
-#
-# see if we can autodetect which conduit to use.  if not, offer
-# all installed under the gasnet directory
-#
+        tell "Found GASNet version $gasnet_ver"
 
-KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
-                   sed -e 's/-conduit//g' )`"
+        #
+        # see if we can autodetect which conduit to use.  if not, offer
+        # all installed under the gasnet directory
+        #
 
-if [ "$KNOWN_CONDUITS" = '*' ]
-then
-    tell "I couldn't find any GASNet conduits under $gasnet_root"
-    bailout
-fi
+        KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+                           sed -e 's/-conduit//g' )`"
 
-cdt_auto=""
+        if [ "$KNOWN_CONDUITS" = '*' ]
+        then
+            tell "I couldn't find any GASNet conduits under $gasnet_root"
+            bailout
+        fi
 
-#
-# no conduit asked for on command-line
-#
+        cdt_auto=""
 
-if [ -z "$gasnet_conduit" ]
-then
-    kc=`echo $KNOWN_CONDUITS | wc -w`
-    if [ $kc -eq 0 ]
-    then
-        tell "I couldn't find any GASNet conduits under $gasnet_root"
-        bailout
-    elif [ $kc -eq 1 ]
-    then
-        # only one there, just use it
-        gasnet_conduit="$KNOWN_CONDUITS"
-	cdt_auto="(auto-detected)"
-        tell ""
-        tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
-        tell ""
-    else
-        # multiple configured, let the user decide
-        tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-        tell "Indicate which one to use via --with-gasnet-conduit=NAME"
-        bailout
-    fi
-fi
+        #
+        # no conduit asked for on command-line
+        #
 
-# -- ok, we have a candidate conduit --
+        if [ -z "$gasnet_conduit" ]
+        then
+            kc=`echo $KNOWN_CONDUITS | wc -w`
+            if [ $kc -eq 0 ]
+            then
+                tell "I couldn't find any GASNet conduits under $gasnet_root"
+                bailout
+            elif [ $kc -eq 1 ]
+            then
+                # only one there, just use it
+                gasnet_conduit="$KNOWN_CONDUITS"
+        	cdt_auto="(auto-detected)"
+                tell ""
+                tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
+                tell ""
+            else
+                # multiple configured, let the user decide
+                tell "I found the following conduits: \"$KNOWN_CONDUITS\""
+                tell "Indicate which one to use via --with-gasnet-conduit=NAME"
+                bailout
+            fi
+        fi
 
-gasnet_core_h="gasnet_core.h"
-gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
-gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
-if [ ! -r "$gasnet_path_core_h" ]
-then
-    tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
-    tell "  (no $core_h header file)"
-    bailout
-fi
+        # -- ok, we have a candidate conduit --
 
-tell "Conduit \"$gasnet_conduit\" looks OK"
+        gasnet_core_h="gasnet_core.h"
+        gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
+        gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
+        if [ ! -r "$gasnet_path_core_h" ]
+        then
+            tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
+            tell "  (no $core_h header file)"
+            bailout
+        fi
 
-tell "Looking for GASNet ... done"
+        tell "Conduit \"$gasnet_conduit\" looks OK"
+	;;  #  end of gasnet section
+    uccs)
+	;;
+    *)
+	tell "I don't know what to do with communications layer \"$comms_layer\""
+	bailout
+	;;
+esac
+
+tell "Looking for communication layer ... done"
 tell ""
 
 # -- fill in install locations if not known yet --
@@ -534,6 +576,7 @@ do
         -e "s%@FCFLAGS@%$fc_flags%g" \
         -e "s%@LD@%$ld_cmd%g" \
         -e "s%@LDFLAGS@%$ld_flags%g" \
+        -e "s%@COMMS_LAYER@%$comms_layer%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
@@ -577,9 +620,23 @@ tell ""
 tell "    Linker is                   $ld_cmd"
 tell "    Linker flags are            $ld_flags"
 tell ""
-tell "GASNet:"
-tell "  Installed in                  $gasnet_root"
-tell "  Using conduit                 $gasnet_conduit $cdt_auto"
+
+tell "Communications Layer:"
+case "$comms_layer" in
+    gasnet)
+	tell "  GASNet:"
+	tell "    Installed in                $gasnet_root"
+	tell "    Using conduit               $gasnet_conduit $cdt_auto"
+	;;
+    uccs)
+	tell "  UCCS:"
+	tell "    Installed in                $uccs_root"
+	;;
+    *)
+	# should never get here
+	;;
+esac
+
 tell ""
 tell "Executable Format:"
 tell "  Headers in                    $elf_header_dir"
@@ -615,10 +672,10 @@ tmpcs=`mktemp $template`
 
 # save configuration options for C source code
 
-config_h="config.h"
+config_h="./config.h"
 
 # clean up our temporary files on exit, or if something unexpected happens
-# only clean config.h if problem
+# but only clean config.h if problem
 
 clean_cfg()
 {
@@ -636,6 +693,32 @@ trap clean_cfg   $trap_list
 
 cat > $tmpcs <<_EOT_
 #!/bin/sh
+#
+# Copyright (c) 2011 - 2013
+#   University of Houston System and Oak Ridge National Laboratory.
+# 
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 
+# o Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# 
+# o Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# 
+# o Neither the name of the University of Houston System, Oak Ridge
+#   National Laboratory nor the names of its contributors may be used to
+#   endorse or promote products derived from this software without specific
+#   prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#
+
 #
 # generated by $progname: subsequent runs will overwrite
 #                         the current contents of this file.
@@ -670,62 +753,79 @@ chmod +x $cs
 # now create config.h
 #
 
-cat > $config_h <<EOF
-/*
- * This file was generated by the $progname script.
- *
- * It will be re-generated if $progname is re-run.
- *
- * NOT CURRENTLY USED FOR ANYTHING!
- *
- */
+(
+    echo "#ifndef CONFIG_H"
+    echo "#define CONFIG_H 1"
+    echo
 
-EOF
+    echo "/*"
+    echo " * This file was generated by the $progname script."
+    echo " *"
+    echo " * It will be re-generated if $progname is re-run."
+    echo " *"
+    echo " * NOT CURRENTLY USED FOR ANYTHING!"
+    echo " *"
+    echo " */"
+    echo
 
-echo "#ifndef CONFIG_H" >> $config_h
-echo "#define CONFIG_H 1" >> $config_h
-echo >> $config_h
+    echo "/* run-time debug and other sanity checks */"
+    if [ $feature_debug = "ENABLED" ]
+    then
+	echo "#define HAVE_FEATURE_DEBUG 1"
+    else
+	echo "#undef HAVE_FEATURE_DEBUG"
+    fi
+    echo
 
-echo "/* run-time debug and other sanity checks */" >> $config_h
-if [ $feature_debug = "ENABLED" ]
-then
-    echo "#define HAVE_FEATURE_DEBUG 1" >> $config_h
-else
-    echo "#undef HAVE_FEATURE_DEBUG" >> $config_h
-fi
-echo >> $config_h
+    echo "/* run-time tracing calls */"
+    if [ $feature_trace = "ENABLED" ]
+    then
+	echo "#define HAVE_FEATURE_TRACE 1"
+    else
+	echo "#undef HAVE_FEATURE_TRACE"
+    fi
+    echo
 
-echo "/* run-time tracing calls */" >> $config_h
-if [ $feature_trace = "ENABLED" ]
-then
-    echo "#define HAVE_FEATURE_TRACE 1" >> $config_h
-else
-    echo "#undef HAVE_FEATURE_TRACE" >> $config_h
-fi
-echo >> $config_h
+    echo "/* PSHMEM profiling interface */"
+    if [ $feature_pshmem = "ENABLED" ]
+    then
+	echo "#define HAVE_FEATURE_PSHMEM 1"
+    else
+	echo "#undef HAVE_FEATURE_PSHMEM"
+    fi
+    echo
 
-echo "/* PSHMEM profiling interface */" >> $config_h
-if [ $feature_pshmem = "ENABLED" ]
-then
-    echo "#define HAVE_FEATURE_PSHMEM 1" >> $config_h
-else
-    echo "#undef HAVE_FEATURE_PSHMEM" >> $config_h
-fi
-echo >> $config_h
+    echo "/* Experimental (non-API) routines */"
+    if [ $feature_experimental = "ENABLED" ]
+    then
+	echo "#define HAVE_FEATURE_EXPERIMENTAL 1"
+    else
+	echo "#undef HAVE_FEATURE_EXPERIMENTAL"
+    fi
+    echo
 
-echo "/* Experimental (non-API) routines */" >> $config_h
-if [ $feature_experimental = "ENABLED" ]
-then
-    echo "#define HAVE_FEATURE_EXPERIMENTAL 1" >> $config_h
-else
-    echo "#undef HAVE_FEATURE_EXPERIMENTAL" >> $config_h
-fi
+    echo "/* Communications Layer */"
+    echo         "#define COMMS_LAYER    \"$comms_layer\""
+    case "$comms_layer" in
+	gasnet)
+	    echo "#define HAVE_GASNET    1"
+	    echo "#define GASNET_ROOT    \"$gasnet_root\""
+	    echo "#define GASNET_CONDUIT \"$gasnet_conduit\""
+	    ;;
+	uccs)
+	    echo "#define HAVE_UCCS      1"
+	    echo "#define UCCS_ROOT      \"uccs_root\""
+	    # and more, don't know what yet, though
+	    ;;
+    esac
 
-echo >> $config_h
-echo "#endif /* CONFIG_H */" >> $config_h
+    echo
+    echo "#endif /* CONFIG_H */"
+) > $config_h
 
 tell ""
 tell "============================================================="
 tell ""
+tell "C header information in         $config_h"
 tell "Configuration in shell-script   $cs"
 tell ""

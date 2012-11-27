@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -137,7 +137,6 @@ shmem_barrier_all (void)
 
   mi_all.func_32 ();
 }
-
 
 
 #ifdef HAVE_FEATURE_PSHMEM

@@ -1,7 +1,7 @@
 /* Emac: -*- mode: c -*- */
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -307,37 +307,22 @@ extern "C"
   /*
    * values aren't important
    */
-#if 0
-#define SHMEM_CMP_EQ 0
-#define SHMEM_CMP_NE 1
-#define SHMEM_CMP_GT 2
-#define SHMEM_CMP_LE 3
-#define SHMEM_CMP_LT 4
-#define SHMEM_CMP_GE 5
 
-#define _SHMEM_CMP_EQ SHMEM_CMP_EQ
-#define _SHMEM_CMP_NE SHMEM_CMP_NE
-#define _SHMEM_CMP_GT SHMEM_CMP_GT
-#define _SHMEM_CMP_LE SHMEM_CMP_LE
-#define _SHMEM_CMP_LT SHMEM_CMP_LT
-#define _SHMEM_CMP_GE SHMEM_CMP_GE
-#endif
-
-  typedef enum
-  {
-    SHMEM_CMP_EQ = 0,
-    SHMEM_CMP_NE,
-    SHMEM_CMP_GT,
-    SHMEM_CMP_LE,
-    SHMEM_CMP_LT,
-    SHMEM_CMP_GE,
-    _SHMEM_CMP_EQ,
-    _SHMEM_CMP_NE,
-    _SHMEM_CMP_GT,
-    _SHMEM_CMP_LE,
-    _SHMEM_CMP_LT,
-    _SHMEM_CMP_GE,
-  } shmem_cmp_t;
+  enum
+    {
+      SHMEM_CMP_EQ = 0,
+      SHMEM_CMP_NE,
+      SHMEM_CMP_GT,
+      SHMEM_CMP_LE,
+      SHMEM_CMP_LT,
+      SHMEM_CMP_GE,
+      _SHMEM_CMP_EQ = 0,
+      _SHMEM_CMP_NE,
+      _SHMEM_CMP_GT,
+      _SHMEM_CMP_LE,
+      _SHMEM_CMP_LT,
+      _SHMEM_CMP_GE,
+    };
 
   extern void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
   extern void shmem_int_wait_until (int *ivar, int cmp, int cmp_value);

@@ -1,6 +1,6 @@
 # Emacs: -*- mode: text; mode: auto-fill; -*-
 #
-# Copyright (c) 2011, 2012
+# Copyright (c) 2011 - 2013
 #   University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
@@ -41,8 +41,36 @@ This project is hosted at
 
 which is where you can find definitive information about OpenSHMEM.
 
+Source Directory Layout
+=======================
+
+.
+|-- doc                   } Documentation
+|-- examples
+|   |-- C                 }
+|   |-- C++               } Language-specific demos
+|   |-- Fortran           }
+`-- src
+    |-- atomic
+    |-- barrier
+    |-- broadcast
+    |-- collect
+    |-- comms
+    |   |-- gasnet        } different
+        ...               } communication
+    |   `-- uccs          } layers
+    |-- fcollect
+    |-- fortran
+    |-- globalvar
+    |-- memory
+    |-- modules
+    |-- mpp
+    |-- dlmalloc          } 3rd party
+    `-- uthash            } utilities
+
+
 Testing Environments at the University of Houston
--------------------------------------------------
+=================================================
 
 1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
    conduits, OpenMPI 1.4.3++
@@ -54,7 +82,7 @@ Testing Environments at the University of Houston
    conduit, OpenMPI 1.4.3 with pbs ("tm") integration
 
 Some Supporting Software
--------------------------
+========================
 
 1. GASNet   :: http://gasnet.cs.berkeley.edu/
 
@@ -63,7 +91,7 @@ Some Supporting Software
 3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
 
 Contact and Feedback
---------------------
+====================
 
 The main project contact at the University of Houston is
 

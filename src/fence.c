@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -37,8 +37,9 @@
 
 
 
-#include "comms.h"
 #include "utils.h"
+
+#include "comms/comms.h"
 
 
 #ifdef HAVE_FEATURE_PSHMEM

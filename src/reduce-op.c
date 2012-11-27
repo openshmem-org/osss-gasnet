@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011, 2012
+ * Copyright (c) 2011 - 2013
  *   University of Houston System and Oak Ridge National Laboratory.
  * 
  * All rights reserved.
@@ -40,7 +40,6 @@
 #include "state.h"
 #include "trace.h"
 #include "putget.h"
-#include "comms.h"
 #include "globalvar.h"
 #include "utils.h"
 #include "atomic.h"

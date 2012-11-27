@@ -1,0 +1,45 @@
+Tue Nov 6 2012 -- Updates in Release 1.0d:
+==========================================
+
+Configure
+---------
+
+  * Improved GASNet presence, version and conduit detection
+    * Tested with latest GASNet version (1.20.0)
+  * Improved checking of compiler suite used to build library
+  * Find and check ELF library
+  * Added some new configure options
+  * New experimental or testing features enabled with configure
+    option, including
+    * put/get_nb, atomic xor, PSHMEM interface
+  * More installation layout control
+  * Run configure with "--help" to see
+
+Build
+-----
+
+  * Various code fixes, cleanups in source and Makefiles
+    * Doxygen (in progress)
+    * Moving defines to enum rather than macros
+  * Improved generation of the convenience wrapper scripts
+    * pass correct linker/compiler commands in more situations
+    * delegate runs to GASNet launchers when available to avoid
+      guess-work in this library
+    * this requires passing "-np npes" to the oshrun wrapper too
+    * New alias for C++: oshCC (and man page)
+
+  * Library builds with non-GNU compilers, such as Intel, PGI,
+    Open64/UH
+
+  * Tested in some more Linux distributions, e.g. newest Fedora,
+    CentOS, OpenSUSE
+
+Ecosystem
+---------
+
+  * Update of documentation regarding support software,
+    installation options and configuration process (from
+    feedback at a couple of workshops)
+
+  * Worked with the TAU profiling tool developers to ensure the
+    library and tool cooperate

@@ -1,0 +1,254 @@
+#
+# Copyright (c) 2011 - 2013
+#   University of Houston System and Oak Ridge National Laboratory.
+# 
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 
+# o Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# 
+# o Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# 
+# o Neither the name of the University of Houston System, Oak Ridge
+#   National Laboratory nor the names of its contributors may be used to
+#   endorse or promote products derived from this software without specific
+#   prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+#
+# installation root
+#
+PREFIX           = @PREFIX@
+
+SHMEM_INC_DIR    = $(PREFIX)/include
+SHMEM_LIBNAME    = openshmem
+SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
+SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+
+# ---------------------------------------------------------
+
+COMMS_SRC        = gasnet.c
+COMMS_OBJ        = $(COMMS_SRC:.c=.o)
+
+# ---------------------------------------------------------
+
+SERVICE_SRC      = service.c
+SERVICE_OBJ      = $(SERVICE_SRC:.c=.o)
+
+# ---------------------------------------------------------
+
+HASH_DIR         = ../../uthash
+HASH_CPPFLAGS    = -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
+ATOMIC_DIR       = ../../atomic
+ATOMIC_CPPFLAGS  = -I$(ATOMIC_DIR)
+
+# ---------------------------------------------------------
+
+MEMORY_DIR       = ../../memory
+MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
+
+# ---------------------------------------------------------
+
+INSTALL          = install -c
+REMOVE           = rm -f
+
+#
+# compiler-independent options
+#
+
+CC               = @CC@
+CXX              = @CXX@
+FC               = @FC@
+CFLAGS           = @CFLAGS@
+CPPFLAGS         = @CPPFLAGS@
+LD               = @LD@
+LDFLAGS          = @LDFLAGS@
+
+CPPFLAGS        += -I../..
+
+ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
+endif
+
+CPPFLAGS        += @ELF_HEADERS@
+
+CPPFLAGS        += $(GASNET_CPPFLAGS)
+CPPFLAGS        += $(DLMALLOC_CFLAGS)
+CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+
+CFLAGS          += -fPIC
+
+COMMON_FLAGS     = $(CFLAGS)
+
+# ---------------------------------------------------------
+
+SHMEM_CC         = oshcc
+SHMEM_CXX        = oshCC
+SHMEM_CXX_ALT    = oshcxx
+SHMEM_FC         = oshfort
+SHMEM_RUN        = oshrun
+
+# ---------------------------------------------------------
+
+.PHONY: all default
+.PHONY: wrappers
+.PHONY: install install-bin install-lib
+.PHONY: uninstall uninstall-bin uninstall-lib
+.PHONY: clean
+
+# -- start GASNet ------------------------------------------
+
+all:	$(COMMS_OBJ) $(SERVICE_OBJ) wrappers openshmem.pc
+
+#
+# GASNet installation root, and setup
+#
+GASNET_ROOT      = @GASNET_ROOT@
+GASNET_CONDUIT   = @GASNET_CONDUIT@
+
+include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+
+# tony: remove GASNET_CFLAGS for now, makes compiler
+#       interoperability easier
+
+$(COMMS_OBJ):	$(COMMS_SRC)
+	$(CC) \
+		$(CPPFLAGS) \
+		$(COMMON_FLAGS) \
+		-c -o $@ $<
+
+# -- end GASNet --------------------------------------------
+
+$(SERVICE_OBJ):	$(SERVICE_SRC)
+	$(CC) \
+		$(CPPFLAGS) \
+		$(COMMON_FLAGS) \
+		-c -o $@ $<
+
+# -- command wrappers depend on gasnet settings ------------
+
+wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT) $(SHMEM_FC) $(SHMEM_RUN)
+
+# 2012-10-27: TODO: this is really tricky.  GASNet only tells us
+# about the linker command for C (could be compiler, or MPI wrapper
+# or similar).  There's no sure-fire way of inferring the appropriate
+# C++ and Fortran command names from that.  I can guess, but only guess.
+
+$(SHMEM_CC):	$(SHMEM_CC).in
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@DRIVER@%$(GASNET_LD)%" \
+		-e "s%[ |\\t][ |\\t]*$$%%g" \
+		< $^ > $@
+
+$(SHMEM_CXX):	$(SHMEM_CC)
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpicxx; else lnk=$(CXX); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
+		< $^ > $@
+
+$(SHMEM_CXX_ALT):	$(SHMEM_CXX)
+	cp $^ $@
+
+$(SHMEM_FC):	$(SHMEM_CC)
+	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	dir=`dirname $$lnk`; \
+	lnk=`basename $$lnk`; \
+	if [ "$$lnk" = "mpicc" ]; then lnk=mpif90; else lnk=$(FC); fi; \
+	sed \
+		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
+		< $^ > $@
+
+
+$(SHMEM_RUN):	$(SHMEM_RUN).in
+	sed \
+		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
+		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
+		< $^ > $@
+
+# -- pkg-config --------------------------------------------
+
+openshmem.pc:   openshmem.pc.in
+	sed \
+		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
+		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
+		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
+		-e "s%@SHMEM_LD@%$(LD)%" \
+		< $^ > $@
+
+# ---------------------------------------------------------
+
+install:	install-bin install-lib
+
+install-bin:	all
+	mkdir -p $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX)     $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX_ALT) $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)      $(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN)     $(PREFIX)/bin
+
+install-lib:	all
+	mkdir -p $(PREFIX)/lib/pkgconfig
+	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
+
+uninstall:	uninstall-lib uninstall-bin
+
+uninstall-lib:
+	$(REMOVE) $(PREFIX)/lib/pkgconfig/openshmem.pc
+	- rmdir $(PREFIX)/lib/pkgconfig
+
+uninstall-bin:
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX_ALT)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
+	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
+	- rmdir $(PREFIX)/bin
+
+# -------------------------------------------------------
+
+clean:
+	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
+	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
+	$(REMOVE) $(SHMEM_FC)
+	$(REMOVE) $(SHMEM_RUN)
+	$(REMOVE) openshmem.pc

@@ -1,6 +1,6 @@
 # Emacs: -*- mode: text; mode: auto-fill; -*-
 #
-# Copyright (c) 2011, 2012
+# Copyright (c) 2011 - 2013
 #   University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
@@ -105,10 +105,6 @@ This is for a general-purpose GNU/Linux system (or cluster):
     4: 	  throttled polling for SMP conduit
     5:    don't bother building UDP support, don't want it
     6: 	  where to install GASNet
-
-Note that GASNet is only needed to build this OpenSHMEM library,
-strictly speaking it does not need to be installed globally to
-actually use the library.
 
 Configure Usage
 ===============
