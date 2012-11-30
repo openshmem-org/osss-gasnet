@@ -110,17 +110,21 @@ Usage: $progname [options]
     --with-modulefilesdir=DIR    pkg-config file installed to DIR
                                      (default: PREFIX/modulefiles)
 
-  Communications:
+  Communications Layer:
 
     --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
                                      (currently just a stub)
 
-    --with-gasnet-root=G         Use the GASNet installed under directory "G"
-    --with-gasnet-conduit=C      Use GASNet conduit "C"
-                                     (if only 1 conduit configured, use it)
+  Per-layer options:
 
-    --with-uccs-root=U           Use the UCCS installed under directory "U"
-                                     (currently just a stub)
+      --with-gasnet-root=G       Use the GASNet installed under directory "G"
+      --with-gasnet-conduit=C    Use GASNet conduit "C"
+                                   (if only 1 conduit configured, use it)
+
+      --with-uccs-root=U         Use the UCCS installed under directory "U"
+                                   (currently just a stub)
+
+      (These imply --with-comms-layer=GASNet/UCCS as appropriate)
 
   Optional Support Libraries:
 
@@ -193,12 +197,23 @@ chompit()
     echo $@ | cut -d= -f2-
 }
 
+# lower/upper case things
+downcase()
+{
+    echo $* | tr '[:upper:]' '[:lower:]'
+}
+
+upcase()
+{
+    echo $* | tr '[:lower:]' '[:upper:]'
+}
+
 # lower case things to remember them canonically
-setlower()
+setcanonical()
 {
     var=$1
     shift
-    tmp="`echo $* | tr '[:upper:]' '[:lower:]'`"
+    tmp="`downcase $*`"
     eval "$var=\"$tmp\""
 }
 
@@ -221,19 +236,19 @@ do
 	    modulefilesdir="`chompit $o`"
 	    ;;
 	--with-comms-layer=*)
-	    setlower comms_layer "`chompit $o`"
+	    setcanonical comms_layer "`chompit $o`"
 	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
-	    setlower comms_layer GASNet
+	    setcanonical comms_layer GASNet
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
-	    setlower comms_layer GASNet
+	    setcanonical comms_layer GASNet
 	    ;;
 	--with-uccs-root=*)
 	    uccs_root="`chompit $o`"
-	    setlower comms_layer UCCS
+	    setcanonical comms_layer UCCS
 	    ;;
 	--with-libelf=*)
 	    elf_top_dir="`chompit $o`"
@@ -533,6 +548,8 @@ case "$comms_layer" in
         tell "Conduit \"$gasnet_conduit\" looks OK"
 	;;  #  end of gasnet section
     uccs)
+	tell "UCCS support is just a stub for future use."
+	bailout
 	;;
     *)
 	tell "I don't know what to do with communications layer \"$comms_layer\""
@@ -605,26 +622,31 @@ tell ""
 tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
-tell "  Suite is                      $cc_type"
+tell "  Suite appears to be           $cc_type"
 tell ""
 tell "    C compiler is               $cc_cmd"
-tell "    C pre-processor flags are   $cpp_flags"
-tell "    C flags are                 $c_flags"
+tell "    C pre-processor flags are   \"$cpp_flags\""
+tell "    C flags are                 \"$c_flags\""
 tell ""
 tell "    C++ compiler is             $cxx_cmd"
-tell "    C++ flags are               $cxx_flags"
+tell "    C++ flags are               \"$cxx_flags\""
 tell ""
 tell "    Fortran compiler is         $fc_cmd"
-tell "    Fortran flags are           $fc_flags"
+tell "    Fortran flags are           \"$fc_flags\""
 tell ""
 tell "    Linker is                   $ld_cmd"
-tell "    Linker flags are            $ld_flags"
+tell "    Linker flags are            \"$ld_flags\""
+tell ""
+tell "Executable Format:"
+tell "  Headers in                    $elf_header_dir"
+tell "  Library in                    $elf_lib_dir ($found_libelf)"
 tell ""
 
 tell "Communications Layer:"
 case "$comms_layer" in
     gasnet)
 	tell "  GASNet:"
+	tell "    Version                     $gasnet_ver"
 	tell "    Installed in                $gasnet_root"
 	tell "    Using conduit               $gasnet_conduit $cdt_auto"
 	;;
@@ -633,14 +655,12 @@ case "$comms_layer" in
 	tell "    Installed in                $uccs_root"
 	;;
     *)
-	# should never get here
+	tell "I do not recognize communicationa layer \"$comms_layer\"."
+	tell "  I should not get here, please report this"
+	bailout
 	;;
 esac
 
-tell ""
-tell "Executable Format:"
-tell "  Headers in                    $elf_header_dir"
-tell "  Library in                    $elf_lib_dir ($found_libelf)"
 tell ""
 tell "Options:"
 tell "  Debug is                      $feature_debug"
@@ -753,6 +773,25 @@ chmod +x $cs
 # now create config.h
 #
 
+setfeature()
+{
+    pred="feature_$1"
+    eval 'predval=$'$pred
+    PRED="`upcase $1`"
+    var="HAVE_FEATURE_$PRED"
+    shift
+    comment="$*"
+
+    echo "/* $comment */"
+    if [ "$predval" = "ENABLED" ]
+    then
+	echo "#define %$var 1"
+    else
+	echo ##undef $var"
+    fi
+    echo ""
+}
+
 (
     echo "#ifndef CONFIG_H"
     echo "#define CONFIG_H 1"
@@ -768,41 +807,10 @@ chmod +x $cs
     echo " */"
     echo
 
-    echo "/* run-time debug and other sanity checks */"
-    if [ $feature_debug = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_DEBUG 1"
-    else
-	echo "#undef HAVE_FEATURE_DEBUG"
-    fi
-    echo
-
-    echo "/* run-time tracing calls */"
-    if [ $feature_trace = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_TRACE 1"
-    else
-	echo "#undef HAVE_FEATURE_TRACE"
-    fi
-    echo
-
-    echo "/* PSHMEM profiling interface */"
-    if [ $feature_pshmem = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_PSHMEM 1"
-    else
-	echo "#undef HAVE_FEATURE_PSHMEM"
-    fi
-    echo
-
-    echo "/* Experimental (non-API) routines */"
-    if [ $feature_experimental = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_EXPERIMENTAL 1"
-    else
-	echo "#undef HAVE_FEATURE_EXPERIMENTAL"
-    fi
-    echo
+    setfeature debug        "run-time debug and other sanity checks"
+    setfeature trace        "run-time tracing calls"
+    setfeature pshmem       "PSHMEM profiling interface"
+    setfeature experimental "Experimental (non-API) routines"
 
     echo "/* Communications Layer */"
     echo         "#define COMMS_LAYER    \"$comms_layer\""
@@ -828,4 +836,5 @@ tell "============================================================="
 tell ""
 tell "C header information in         $config_h"
 tell "Configuration in shell-script   $cs"
+tell "  (Execute $cs to re-configure library)"
 tell ""
