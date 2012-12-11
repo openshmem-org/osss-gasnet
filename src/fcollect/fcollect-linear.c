@@ -73,8 +73,7 @@
       shmem_put##Bits(target + tidx, source, nelems, pe);		\
       pe += step;							\
     }									\
-    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);	\
-    /*shmem_quiet ();*/							\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }
 
 SHMEM_FCOLLECT (32, 4)

@@ -140,8 +140,7 @@ PE_start,								\
 		  "acc_off before barrier = %ld",			\
 		  *acc_off						\
 		  );							\
-    /* shmem_barrier(PE_start, logPE_stride, PE_size, pSync); */	\
-    shmem_quiet ();							\
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
   }
 
 SHMEM_COLLECT (32, 4);
