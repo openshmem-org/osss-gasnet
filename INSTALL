@@ -57,7 +57,8 @@ option, C99 compliance).
 GASNet Versions
 ===============
 
-1.14.x, 1.16.x: were used to test backward compatibility of older
+1.14.x:
+1.16.x: were used to test backward compatibility of older
      GASNets
 
 1.18.x: was the main version during most of the development work
@@ -251,9 +252,9 @@ This means you can compile/link programs as e.g. with Open64
             $(pkg-config --libs openshmem)
 
 or any other compiler of your choice (N.B. implementations on top of
-MPI will require compilation in this manner with the appropriate MPI
-compiler, such as mpicc, or otherwise passing of appropriate headers
-and libraries).
+some MPIs will require compilation in this manner with the appropriate
+MPI compiler wrapper such as mpicc, or otherwise passing the
+definitions, headers and libraries for that MPI to a compiler).
 
 Module
 ======
