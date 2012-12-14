@@ -68,7 +68,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 
 .PHONY: all default clean
 .PHONY: shmem-headers

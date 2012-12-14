@@ -104,7 +104,7 @@ CPPFLAGS        += $(HASH_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 
 COMMON_FLAGS     = $(CFLAGS)
 

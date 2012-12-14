@@ -71,7 +71,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += $(HASH_CFLAGS)
 CFLAGS          += @WARNFLAGS@
 

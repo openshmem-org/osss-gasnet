@@ -312,21 +312,24 @@ tell ""
 tell "Starting configuration"
 tell ""
 
-# -- check compilers, defaults to GNU --
+# -- make sure we can find compilers --
+
+tell "Searching for compilers ..."
+
+# --defaults to GNU --
 
 cpp_flags=${CPPFLAGS-""}
 cc_cmd=${CC-gcc}
 c_flags=${CFLAGS-"-g"}
-ld_cmd=${LD-$cc_cmd}
-ld_flags=${LDFLAGS-""}
 cxx_cmd=${CXX-g++}
 cxx_flags=${CXXFLAGS-"-g"}
 fc_cmd=${FC-gfortran}
 fc_flags=${FCFLAGS-"-g"}
 
-# -- make sure we can find compilers --
+ld_cmd=""
+ld_flags=${LDFLAGS-""}
 
-tell "Searching for compilers ..."
+# --
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
@@ -350,47 +353,94 @@ case "$cc_ver" in
 	cc_type="GNU"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="gfortran"
 	cxx_cmd="g++"
+	ld_cmd="$cc_cmd"
 	;;
     *"Intel Corporation"*)
 	cc_type="Intel"
 	c99_flags="-std=c99"
+	warn_flags=""     # enabled by default
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="ifort"
 	cxx_cmd="icpc"
+	ld_cmd="$cc_cmd"
 	;;
     *"The Portland Group"*)
 	cc_type="PGI"
 	c99_flags="-c99"
+	warn_flags=""     # enabled by default
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="pgfortran"
 	cxx_cmd="pgCC"
+	ld_cmd="$cc_cmd"
 	;;
     *"Sun C"*)
 	cc_type="Oracle (formerly Sun Microsystems) Studio"
 	c99_flags="-xc99"
+	warn_flags=""     # enabled by default
+	pic_flags="-PIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="sunf90"
 	cxx_cmd="sunCC"
+	ld_cmd="$cc_cmd"
 	;;
     *OpenUH*)
 	cc_type="OpenUH (Open64)"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="uhf90"
 	cxx_cmd="uhCC"
+	ld_cmd="$cc_cmd"
 	;;
     *Open64*)
 	cc_type="Open64"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="openf90"
 	cxx_cmd="openCC"
+	ld_cmd="$cc_cmd"
+	;;
+    *"IBM XL C/C++"*)
+	cc_type="IBM XL (GNU wrappers)"
+	c99_flags="-qlanglvl=stdc99"
+	warn_flags=""
+	pic_flags="-qpic"
+	thread_flags="-qthreaded"
+	so_flags="-G"
+	cc_cmd="xlc"
+	fc_cmd="xlf"
+	cxx_cmd="xlc++"
+	c_flags="$c_flags -q64"
+	fc_flags="$fc_flags -q64"
+	cxx_flags="$cxx_flags -q64"
+	ld_cmd="$cc_cmd"
+	ld_flags="$ld_flags -q64"
 	;;
     *)
 	cc_type="unknown"
 	c99_flags=""
 	warn_flags=""
+	pic_flags=""
+	thread_flags=""
+	so_flags=""
 	fc_cmd="false"
-	cxx_cmd="false"		# what else to do?
+	cxx_cmd="false"
+	ld_cmd="false"		# what else to do?
 	;;
 esac
 
@@ -587,6 +637,9 @@ do
         -e "s%@CFLAGS@%$c_flags%g" \
         -e "s%@C99FLAGS@%$c99_flags%g" \
         -e "s%@WARNFLAGS@%$warn_flags%g" \
+        -e "s%@PICFLAGS@%$pic_flags%g" \
+        -e "s%@THREADFLAGS@%$thread_flags%g" \
+        -e "s%@SOFLAGS@%$so_flags%g" \
         -e "s%@CXX@%$cxx_cmd%g" \
         -e "s%@CXXFLAGS@%$cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \

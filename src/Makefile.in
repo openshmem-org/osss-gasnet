@@ -175,14 +175,16 @@ CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CFLAGS          += -pthread
+CFLAGS          += @THREADFLAGS@
 
 CFLAGS          += @C99FLAGS@
 CFLAGS          += @WARNFLAGS@
 
 # for "so" libraries
-CFLAGS          += -fPIC
-LDFLAGS         += -fPIC
+CFLAGS          += @PICFLAGS@
+LDFLAGS         += @PICFLAGS@
+
+SOFLAGS          = @SOFLAGS@
 
 # -- compiler-independent options -------------------------
 
@@ -374,7 +376,7 @@ fortran-obj-gen:
 $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 	$(LD) \
 		$(LDFLAGS) \
-		-shared -Wl,-soname,$@ \
+		$(SOFLAGS) \
 		-o $@ \
 		$(COMMS_OBJ) \
 		$(GLOBALVAR_OBJ) \

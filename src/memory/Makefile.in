@@ -70,7 +70,7 @@ endif
 CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
 CPPFLAGS        += $(COMMS_CPPFLAGS)

@@ -72,8 +72,10 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
+
+SOFLAGS          = @SOFLAGS@
 
 MODULES = $(wildcard barrier-*.c)
 OBJECTS = $(MODULES:.c=.o)
@@ -95,7 +97,7 @@ uninstall-lib:
 	- rmdir @MODULES_DIR@
 
 %.so:	%.o
-	$(LD) -shared $(LDFLAGS) $(CFLAGS) -o $@ $^
+	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
 
 clean:
 	rm -f $(OBJECTS) $(SHOBJECTS) barrier.o

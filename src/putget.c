@@ -102,7 +102,7 @@
     SYMMETRY_CHECK(dest, 1, "shmem_" #Name "_put");			\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_nelems);					\
-      LOAD_STORE_FENCE();						\
+      LOAD_STORE_FENCE;							\
     }									\
     else {								\
       void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
@@ -149,7 +149,7 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
   if (GET_STATE (mype) == pe)
     {
       memmove (dest, src, nelems);
-      LOAD_STORE_FENCE();
+      LOAD_STORE_FENCE;
     }
   else
     {
@@ -201,7 +201,7 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
     SYMMETRY_CHECK(src, 2, "shmem_" #Name "_get");			\
     if (GET_STATE(mype) == pe) {					\
       memmove(dest, src, typed_nelems);					\
-      LOAD_STORE_FENCE();						\
+      LOAD_STORE_FENCE;							\
     }									\
     else {								\
       void *their_src = __shmem_symmetric_addr_lookup((void *) src, pe); \
@@ -248,7 +248,7 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
   if (GET_STATE (mype) == pe)
     {
       memmove (dest, src, nelems);
-      LOAD_STORE_FENCE();
+      LOAD_STORE_FENCE;
     }
   else
     {
