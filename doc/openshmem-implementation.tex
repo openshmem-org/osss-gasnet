@@ -528,10 +528,16 @@ GNU setup and will do lots more feature tests. So the usual procedure
 applies:
 
 \begin{lstlisting}
-$ ./configure [--options ...]
+$ /path/to/source/configure [--options...]
 $ make
 $ make install
 \end{lstlisting}
+
+The \texttt{configure} script accepts a
+% make sure we get a real double-dash
+\texttt{-{}-help} option that lists all the various settings.  Note
+that you must run \texttt{configure} from a separate build directory,
+not the source tree.
 
 \section{Environment Variables\label{sec:Environment-Variables}}
 

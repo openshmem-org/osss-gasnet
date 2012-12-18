@@ -83,22 +83,6 @@ tell()
     echo "$progname: $*"
 }
 
-# --------------------------------------------------------------------
-
-# bail out immediately if running from source directory (should be in
-# separate build directory)
-
-if [ -f "INSTALL" ]
-then
-    tell "Looks like we're in the source directory."
-    tell "  (There's a file called \"INSTALL\" here.)"
-    tell ""
-    tell "Please run $progname from a separate build directory."
-    bailout
-fi
-
-# --------------------------------------------------------------------
-
 deprecated()
 {
     old="$1"
@@ -176,7 +160,6 @@ Usage: $progname [options]
     --disable-experimental       No experimental features (default)
 
     --enable-pshmem              Build the PSHMEM profiling interface
-                                     (not considered stable yet)
     --disable-pshmem             No PSHMEM profiling interface (default)
 
   Deprecated:
@@ -333,6 +316,25 @@ do
     esac
 done
 
+# --------------------------------------------------------------------
+
+# bail out immediately if running from source directory (should be in
+# separate build directory)
+#
+# We do this here to allow people to run with --help even in source
+# tree
+
+if [ -f "INSTALL" ]
+then
+    tell "Looks like we're in the source directory."
+    tell "  (There's a file called \"INSTALL\" here.)"
+    tell ""
+    tell "Please run $progname from a separate build directory."
+    bailout
+fi
+
+# --------------------------------------------------------------------
+
 tell ""
 tell "Starting configuration"
 tell ""
@@ -457,7 +459,7 @@ case "$cc_ver" in
 	ld_flags="$ld_flags -q64"
 	;;
     *)
-	cc_type="unknown"
+	cc_type="Not Sure"
 	c99_flags=""
 	warn_flags=""
 	pic_flags=""
@@ -648,8 +650,15 @@ tell ""
 
 tell "Populating build directory tree ... "
 
-build_me_dirs="doc src"
-top_levels="./Makefile.in ./openshmem.module.in"
+build_me_dirs="
+doc
+src
+"
+
+top_levels="
+./Makefile.in
+./openshmem.module.in
+"
 
 # so sub-shell to generate template names can see these
 export build_me_dirs top_levels
