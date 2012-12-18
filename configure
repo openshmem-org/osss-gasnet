@@ -452,11 +452,12 @@ case "$cc_ver" in
 	cc_cmd="xlc"
 	fc_cmd="xlf"
 	cxx_cmd="xlc++"
-	c_flags="$c_flags -q64"
-	fc_flags="$fc_flags -q64"
-	cxx_flags="$cxx_flags -q64"
+        # TODO: not sure if DCMF works with 64-bit
+	# c_flags="$c_flags -q64"
+	# fc_flags="$fc_flags -q64"
+	# cxx_flags="$cxx_flags -q64"
 	ld_cmd="$cc_cmd"
-	ld_flags="$ld_flags -q64"
+	# ld_flags="$ld_flags -q64"
 	;;
     *)
 	cc_type="Not Sure"
