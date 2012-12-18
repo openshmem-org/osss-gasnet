@@ -39,8 +39,6 @@
 # NB: this will turn into the GNU autotools setup at some point.
 #
 
-progname="`basename $0`"
-
 # -- defaults --
 prefix=/usr/local
 
@@ -56,12 +54,22 @@ feature_experimental=DISABLED
 feature_debug=DISABLED
 feature_trace=DISABLED
 feature_pshmem=DISABLED
-# -- end defaults --
 
 libdir=
 bindir=
 modulesdir=
 modulefilesdir=
+# -- end defaults --
+
+# find out where things are
+progname="`basename -- $0`"
+
+# canonicalize where source is
+srctreedir="`dirname -- $0`"
+srctreedir="`cd $srctreedir && pwd`"
+
+# same for where we are
+buildtreedir="`pwd`"
 
 bailout()
 {
@@ -74,6 +82,22 @@ tell()
 {
     echo "$progname: $*"
 }
+
+# --------------------------------------------------------------------
+
+# bail out immediately if running from source directory (should be in
+# separate build directory)
+
+if [ -f "INSTALL" ]
+then
+    tell "Looks like we're in the source directory."
+    tell "  (There's a file called \"INSTALL\" here.)"
+    tell ""
+    tell "Please run $progname from a separate build directory."
+    bailout
+fi
+
+# --------------------------------------------------------------------
 
 deprecated()
 {
@@ -187,9 +211,6 @@ __EOT__
 }
 
 # ------------------------------------------------------------------------------
-#
-# parse command line
-#
 
 # split out value from key=value
 chompit()
@@ -216,6 +237,10 @@ setcanonical()
     tmp="`downcase $*`"
     eval "$var=\"$tmp\""
 }
+
+#
+# parse command line
+#
 
 for o in $@
 do
@@ -617,6 +642,41 @@ tell ""
 [ -z "$modulesdir" ]     && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
+# -- create build directory tree --
+
+# from the source tree, pull in doc, src, and top-level input files
+
+tell "Populating build directory tree ... "
+
+build_me_dirs="doc src"
+top_levels="./Makefile.in ./openshmem.module.in"
+
+# so sub-shell to generate template names can see these
+export build_me_dirs top_levels
+
+for d in $build_me_dirs $top_levels
+do
+  find $srctreedir/$d \! -type d -print |
+  while read f
+  do
+    # tell "Found source file $f"
+    treepart="`dirname -- $f`"
+    treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
+    [ -z "$treepart" ] && treepart="."
+    # tell "Directory is $treepart"
+    mkdir -p $treepart
+    (
+	cd $treepart
+	thispart="`basename -- $f`"
+	rm -f $thispart
+	ln -s $f
+    )
+  done
+done
+
+tell "Populating build directory tree ... done"
+tell ""
+
 # -- generate build files from .in templates --
 #
 # all .in Makefiles and the module file
@@ -625,8 +685,8 @@ tell ""
 tell "Making build files from templates ... "
 
 (
-    find . -name 'Makefile.in' -print
-    echo 'openshmem.module.in'
+    find $build_me_dirs -name 'Makefile.in' -print
+    echo $top_levels | tr '[:space:]' '\n'
 ) |
 while read mfin
 do
@@ -769,25 +829,25 @@ cat > $tmpcs <<_EOT_
 #
 # Copyright (c) 2011 - 2013
 #   University of Houston System and Oak Ridge National Laboratory.
-# 
+#
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 # o Redistributions of source code must retain the above copyright notice,
 #   this list of conditions and the following disclaimer.
-# 
+#
 # o Redistributions in binary form must reproduce the above copyright
 #   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
-# 
+#
 # o Neither the name of the University of Houston System, Oak Ridge
 #   National Laboratory nor the names of its contributors may be used to
 #   endorse or promote products derived from this software without specific
 #   prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #
