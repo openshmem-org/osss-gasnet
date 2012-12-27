@@ -661,9 +661,6 @@ top_levels="
 ./openshmem.module.in
 "
 
-# so sub-shell to generate template names can see these
-export build_me_dirs top_levels
-
 for d in $build_me_dirs $top_levels
 do
   find $srctreedir/$d \! -type d -print |
@@ -673,7 +670,6 @@ do
     treepart="`dirname -- $f`"
     treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
     [ -z "$treepart" ] && treepart="."
-    # tell "Directory is $treepart"
     mkdir -p $treepart
     (
 	cd $treepart

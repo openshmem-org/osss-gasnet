@@ -5,6 +5,7 @@ Configure
 ---------
 
   * Separate build directory support
+    * Attempts to build in source tree are detected
   * Improved checking of compiler suite used to build library
   * Preliminary BG/P support ("dcmf" conduit)
   * Run configure with "--help" to see all
@@ -12,10 +13,10 @@ Configure
 Build
 -----
 
-  * Review of collectives with fixes
+  * Review of collectives with some fixes
   * Rearranged comms structure to anticipate alternatives to
     GASNet
-  * discovered some GASNet improvements from discussions at
+  * Discovered some GASNet improvements from discussions at
     SC12
 
 Ecosystem
