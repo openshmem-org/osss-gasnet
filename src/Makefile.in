@@ -37,7 +37,7 @@
 #
 # installation root
 #
-PREFIX           = @PREFIX@
+PREFIX               = @PREFIX@
 
 # ---------------------------------------------------------
 #
@@ -215,10 +215,11 @@ SHMEM_SOURCES   +=	profiling.c
 
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
+SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
+SHMEM_INC_DIR    = @INCLUDE_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h
-SHMEM_INC_DIR    = $(PREFIX)/include
 
 LDFLAGS         += @ELF_LIBS@
 LIBS             = -lelf -ldl
@@ -251,8 +252,8 @@ all default:	$(SHMEM_HEADERS) $(SHMEM_LIBRARY)
 install:	install-lib install-comms install-include
 
 install-lib:	all
-	mkdir -p $(PREFIX)/lib
-	$(INSTALL) $(SHMEM_LIBRARY) $(PREFIX)/lib
+	mkdir -p $(SHMEM_LIB_DIR)
+	$(INSTALL) $(SHMEM_LIBRARY) $(SHMEM_LIB_DIR)
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(FCOLLECT_DIR) $@
@@ -263,12 +264,12 @@ install-comms:	all
 	$(MAKE) -C $(COMMS_DIR) install
 
 install-include:	all
-	mkdir -p $(PREFIX)/include/mpp
+	mkdir -p $(SHMEM_INC_DIR)/mpp
 	( \
 		for h in $(SHMEM_HEADERS); \
 		do \
-			$(INSTALL) -m 644 $$h $(PREFIX)/include; \
-			$(INSTALL) -m 644 mpp/$$h $(PREFIX)/include/mpp; \
+			$(INSTALL) -m 644 $$h $(SHMEM_INC_DIR); \
+			$(INSTALL) -m 644 mpp/$$h $(SHMEM_INC_DIR)/mpp; \
 		done \
 	)
 
@@ -285,8 +286,8 @@ uninstall-lib:
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
-	$(REMOVE) $(PREFIX)/lib/$(SHMEM_LIBRARY)
-	- rmdir $(PREFIX)/lib
+	$(REMOVE) $(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY)
+	- rmdir $(SHMEM_LIB_DIR)
 
 uninstall-comms:
 	$(MAKE) -C $(COMMS_DIR) uninstall
@@ -294,11 +295,11 @@ uninstall-comms:
 uninstall-include:
 	for h in $(SHMEM_HEADERS); \
 	do \
-		$(REMOVE) $(PREFIX)/include/mpp/$$h; \
-		$(REMOVE) $(PREFIX)/include/$$h; \
+		$(REMOVE) $(SHMEM_INC_DIR)/mpp/$$h; \
+		$(REMOVE) $(SHMEM_INC_DIR)/$$h; \
 	done
-	- rmdir $(PREFIX)/include/mpp
-	- rmdir $(PREFIX)/include
+	- rmdir $(SHMEM_INC_DIR)/mpp
+	- rmdir $(SHMEM_INC_DIR)
 
 # -- header files ------------------------------------------
 

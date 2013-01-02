@@ -56,6 +56,7 @@ feature_trace=DISABLED
 feature_pshmem=DISABLED
 
 libdir=
+incdir=
 bindir=
 modulesdir=
 modulefilesdir=
@@ -111,6 +112,9 @@ Usage: $progname [options]
 
     --with-libdir=DIR            Libraries installed to DIR
                                      (default: PREFIX/lib)
+
+    --with-includedir=DIR        Header files installed to DIR
+                                     (default: PREFIX/include)
 
     --with-modulesdir=DIR        Pluggable modules installed to DIR
                                      (default: LIBDIR/modules)
@@ -236,6 +240,9 @@ do
 	    ;;
 	--with-libdir=*)
 	    libdir="`chompit $o`"
+	    ;;
+	--with-includedir=*)
+	    incdir="`chompit $o`"
 	    ;;
 	--with-modulesdir=*)
 	    modulesdir="`chompit $o`"
@@ -642,6 +649,7 @@ tell ""
 
 [ -z "$bindir" ]         && bindir=$prefix/bin
 [ -z "$libdir" ]         && libdir=$prefix/lib
+[ -z "$incdir" ]         && incdir=$prefix/include
 [ -z "$modulesdir" ]     && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
@@ -724,6 +732,7 @@ do
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
+        -e "s%@INCLUDE_DIR@%$incdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
         -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
@@ -774,7 +783,7 @@ case "$comms_layer" in
 	tell "    Installed in                $uccs_root"
 	;;
     *)
-	tell "I do not recognize communicationa layer \"$comms_layer\"."
+	tell "I do not recognize communications layer \"$comms_layer\"."
 	tell "  I should not get here, please report this"
 	bailout
 	;;
@@ -791,6 +800,7 @@ tell "Installation:"
 tell "  Main package to               $prefix"
 tell "  Executables to                $bindir"
 tell "  Libraries to                  $libdir"
+tell "  Headers to                    $incdir"
 tell "  OpensHMEM modules to          $modulesdir"
 tell "  pkg-config file to            $modulefilesdir"
 

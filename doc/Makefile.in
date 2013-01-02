@@ -38,7 +38,6 @@
 PREFIX = @PREFIX@
 
 MANDIR = $(PREFIX)/share/man
-LIB_DIR = @LIB_DIR@
 MODULES_DIR = @MODULES_DIR@
 
 MANPAGES_1_IN = $(wildcard *.1.in)
@@ -119,7 +118,7 @@ uninstall-man1:
 	for p in $(MANPAGES_1); do \
 		$(REMOVE) $(MANDIR)/man1/$$p; \
 	done
-	-rmdir $(MANDIR)/an1
+	-rmdir $(MANDIR)/man1
 
 uninstall-man3:
 	for p in $(MANPAGES_3); do \

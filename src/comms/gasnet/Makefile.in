@@ -39,10 +39,11 @@
 #
 PREFIX           = @PREFIX@
 
-SHMEM_INC_DIR    = $(PREFIX)/include
+SHMEM_INC_DIR    = @INCLUDE_DIR@
+SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
-SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 
 # ---------------------------------------------------------
 
