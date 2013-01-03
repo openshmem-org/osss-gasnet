@@ -350,20 +350,9 @@ tell ""
 
 tell "Searching for compilers ..."
 
-# --defaults to GNU --
+# -- either gnu (guess) or from environment --
 
-cpp_flags=${CPPFLAGS-""}
-cc_cmd=${CC-gcc}
-c_flags=${CFLAGS-"-g"}
-cxx_cmd=${CXX-g++}
-cxx_flags=${CXXFLAGS-"-g"}
-fc_cmd=${FC-gfortran}
-fc_flags=${FCFLAGS-"-g"}
-
-ld_cmd=""
-ld_flags=${LDFLAGS-""}
-
-# --
+cc_cmd=${CC-"$cc_cmd"}
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
@@ -449,8 +438,19 @@ case "$cc_ver" in
 	cxx_cmd="openCC"
 	ld_cmd="$cc_cmd"
 	;;
+    *clang*)
+	cc_type="Clang"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
+	fc_cmd="false"
+	cxx_cmd="false"
+	ld_cmd="$cc_cmd"
+	;;
     *"IBM XL C/C++"*)
-	cc_type="IBM XL (GNU wrappers)"
+	cc_type="IBM XL"
 	c99_flags="-qlanglvl=stdc99"
 	warn_flags=""
 	pic_flags="-qpic"
@@ -463,7 +463,6 @@ case "$cc_ver" in
 	# c_flags="$c_flags -q64"
 	# fc_flags="$fc_flags -q64"
 	# cxx_flags="$cxx_flags -q64"
-	ld_cmd="$cc_cmd"
 	# ld_flags="$ld_flags -q64"
 	;;
     *)
@@ -478,6 +477,17 @@ case "$cc_ver" in
 	ld_cmd="false"		# what else to do?
 	;;
 esac
+
+# -- allow user to override from environment --
+
+cpp_flags=${CPPFLAGS-"$cpp_flags"}
+c_flags=${CFLAGS-"$c_flags"}
+cxx_cmd=${CXX-"$cxx_cmd"}
+cxx_flags=${CXXFLAGS-"$cxx_flags"}
+fc_cmd=${FC-"$fc_cmd"}
+fc_flags=${FCFLAGS-"$fc_flags"}
+ld_cmd=${LD-"$ld_cmd"}
+ld_flags=${LDFLAGS-"$ld_flags"}
 
 tell "C compiler is \"$cc_cmd\" ($cc_type)"
 

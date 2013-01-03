@@ -14,6 +14,7 @@ Build
 -----
 
   * Review of collectives with some fixes
+  * Compiles with Clang
   * Rearranged comms structure to anticipate alternatives to
     GASNet
   * Discovered some GASNet improvements from discussions at

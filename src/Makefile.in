@@ -277,7 +277,7 @@ install-include:	all
 # blindly zap directories when uninstalling, allow them to remain
 # there gracefully.
 
-uninstall:	uninstall-lib uninstall-comms uninstall-include
+uninstall:	uninstall-include uninstall-comms uninstall-lib
 	- rmdir $(PREFIX)
 
 uninstall-lib:
