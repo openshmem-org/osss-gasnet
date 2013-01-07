@@ -47,13 +47,13 @@ gasnet_root=$prefix
 gasnet_conduit=
 uccs_root=$prefix
 
-elf_header_dir=/usr/include
-elf_lib_dir=/usr/lib64
+exe_header_dir=/usr/include
+exe_lib_dir=/usr/lib64
 
-feature_experimental=DISABLED
-feature_debug=DISABLED
-feature_trace=DISABLED
-feature_pshmem=DISABLED
+feature_experimental=disabled
+feature_debug=disabled
+feature_trace=disabled
+feature_pshmem=disabled
 
 libdir=
 incdir=
@@ -140,8 +140,8 @@ Usage: $progname [options]
 
   Optional Support Libraries:
 
-    --with-libelf=E              Libelf header and library files under
-                                     directory "E" (.../include, .../lib)
+    --with-libelf=LE             Libelf header and library files under
+                                     directory "LE" (.../include, .../lib)
     --with-libelf-headers=H      Libelf header files in directory "H"
                                      (default: /usr/include)
     --with-libelf-libs=L         Libelf library files in directory "L"
@@ -266,51 +266,56 @@ do
 	    setcanonical comms_layer UCCS
 	    ;;
 	--with-libelf=*)
-	    elf_top_dir="`chompit $o`"
-            elf_header_dir="$elf_top_dir/include"
-            elf_lib_dir="$elf_top_dir/lib"
-            elf_headers="-I$elf_header_dir"
-            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
+	    exe_format=ELF
+	    exe_top_dir="`chompit $o`"
+            exe_header_dir="$exe_top_dir/include"
+            exe_lib_dir="$exe_top_dir/lib"
+            exe_headers="-I$exe_header_dir"
+	    # TODO: try to defer to per-compiler section
+            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
             ;;
 	--with-libelf-headers=*)
-	    elf_header_dir="`chompit $o`"
-            elf_headers="-I$elf_header_dir"
+	    exe_format=ELF
+	    exe_header_dir="`chompit $o`"
+            exe_headers="-I$exe_header_dir"
 	    ;;
 	--with-libelf-libs=*)
-	    elf_lib_dir="`chompit $o`"
-            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
+	    exe_format=ELF
+	    exe_lib_dir="`chompit $o`"
+	    # TODO: try to defer to per-compiler section
+            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
 	    ;;
 	--enable-debug)
-	    feature_debug=ENABLED
+	    feature_debug=enabled
 	    ;;
 	--disable-debug)
-	    feature_debug=DISABLED
+	    feature_debug=disabled
 	    ;;
 	--enable-trace)
-	    feature_trace=ENABLED
+	    feature_trace=enabled
 	    ;;
 	--disable-trace)
-	    feature_trace=DISABLED
+	    feature_trace=disabled
 	    ;;
 	--enable-pshmem)
-	    feature_pshmem=ENABLED
+	    feature_pshmem=enabled
 	    ;;
 	--disable-pshmem)
-	    feature_pshmem=DISABLED
+	    feature_pshmem=disabled
 	    ;;
 	--enable-experimental)
-	    feature_experimental=ENABLED
+	    feature_experimental=enabled
 	    ;;
 	--disable-experimental)
-	    feature_experimental=DISABLED
+	    feature_experimental=disabled
 	    ;;
 	--enable-putget-nb)
 	    deprecated "$o" "--enable-experimental"
-	    feature_experimental=ENABLED
+	    feature_experimental=enabled
 	    ;;
 	--disable-putget-nb)
 	    deprecated "$o" "--disable-experimental"
-	    feature_experimental=DISABLED
+	    feature_experimental=disabled
 	    ;;
 	--help)
 	    show_usage
@@ -489,7 +494,7 @@ fc_flags=${FCFLAGS-"$fc_flags"}
 ld_cmd=${LD-"$ld_cmd"}
 ld_flags=${LDFLAGS-"$ld_flags"}
 
-tell "C compiler is \"$cc_cmd\" ($cc_type)"
+tell "C compiler is \"$cc_cmd\" (looks like $cc_type)"
 
 # TODO: we're not actually using these during build, so don't really check
 #
@@ -510,32 +515,46 @@ tell "C compiler is \"$cc_cmd\" ($cc_type)"
 tell "Searching for compilers ... done"
 tell ""
 
-# -- ELF (TODO expand for other exe formats) --
+# -- ELF (TODO: expand for other exe formats) --
 
-tell "Looking for ELF library ... "
-gelf_h="$elf_header_dir/gelf.h"
-if [ ! -r "$gelf_h" ]
-then
-    tell "Can't find header <gelf.h> for ELF executable support"
-    tell "  in $elf_header_dir"
-    bailout
-fi
-elf_lib_so="$elf_lib_dir/libelf.so"
-if [ -r "$elf_lib_so" ]
-then
-    found_libelf="shared"
-else
-    elf_lib_a="$elf_lib_dir/libelf.a"
-    if [ -r "$elf_lib_a" ]
-    then
-	found_libelf="static"
-    else
-	tell "Can't find library -lelf for ELF executable support"
-	tell "  in $elf_lib_dir"
+tell "Looking for executable format library ... "
+
+exe_format=ELF
+
+case "$exe_format" in
+    ELF)
+	gelf_h="$exe_header_dir/gelf.h"
+	if [ ! -r "$gelf_h" ]
+	    then
+	    tell "Can't find header <gelf.h> for ELF executable support"
+	    tell "  in $exe_header_dir"
+	    bailout
+	fi
+	elf_lib_so="$exe_lib_dir/libelf.so"
+	if [ -r "$elf_lib_so" ]
+	    then
+	    found_libexe="shared"
+	else
+	    elf_lib_a="$exe_lib_dir/libelf.a"
+	    if [ -r "$elf_lib_a" ]
+		then
+		found_libexe="static"
+	    else
+		tell "Can't find library -lelf for ELF executable support"
+		tell "  in $exe_lib_dir"
+		bailout
+	    fi
+	fi
+	tell "Found ELF support"
+	;;
+    *)
+	tell "I don't know executable format \"$exe_format\""
+	tell "  I should not be here; please report this"
 	bailout
-    fi
-fi
-tell "Looking for ELF library ... done"
+	;;
+esac
+
+tell "Looking for executable format library ... done"
 tell ""
 
 # -- Comms. detection --
@@ -735,6 +754,7 @@ do
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
+        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
         -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
         -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \
@@ -745,9 +765,9 @@ do
         -e "s%@INCLUDE_DIR@%$incdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
-        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         $mfin > $mf
-    tell "created $mf from $mfin"
+    # This is a bit noisy I think:
+    # tell "created $mf from $mfin"
 done
 
 tell "Making build files from templates ... done"
@@ -776,8 +796,10 @@ tell "    Linker is                   $ld_cmd"
 tell "    Linker flags are            \"$ld_flags\""
 tell ""
 tell "Executable Format:"
-tell "  Headers in                    $elf_header_dir"
-tell "  Library in                    $elf_lib_dir ($found_libelf)"
+tell "  Format is                     $exe_format"
+tell ""
+tell "    Headers in                  $exe_header_dir"
+tell "    Library in                  $exe_lib_dir ($found_libexe)"
 tell ""
 
 tell "Communications Layer:"
@@ -791,10 +813,12 @@ case "$comms_layer" in
     uccs)
 	tell "  UCCS:"
 	tell "    Installed in                $uccs_root"
+	tell ""
+	tell "  No UCCS support, I should not be here; please report this"
 	;;
     *)
 	tell "I do not recognize communications layer \"$comms_layer\"."
-	tell "  I should not get here, please report this"
+	tell "  I should not be here; please report this"
 	bailout
 	;;
 esac
@@ -845,10 +869,10 @@ clean_tmp()
     rm -f $tmpcs
 }
 
-trap_list="1 2 3 19 20"
+signal_trap_list="1 2 3 19 20"
 
-trap clean_tmp 0 $trap_list
-trap clean_cfg   $trap_list
+trap clean_cfg   $signal_trap_list
+trap clean_tmp 0 $signal_trap_list
 
 cat > $tmpcs <<_EOT_
 #!/bin/sh
@@ -908,6 +932,8 @@ _EOT_
 cp $tmpcs $cs
 chmod +x $cs
 
+# cleanup of temporary file done by signal handler
+
 #
 # now create config.h
 #
@@ -921,12 +947,14 @@ setfeature()
     shift
     comment="$*"
 
-    echo "/* $comment */"
-    if [ "$predval" = "ENABLED" ]
+    echo "/*"
+    echo " * $comment"
+    echo " */"
+    if [ "$predval" = "enabled" ]
     then
-	echo "#define %$var 1"
+	echo "#define $var 1"
     else
-	echo ##undef $var"
+	echo "#undef $var"
     fi
     echo ""
 }
@@ -951,7 +979,17 @@ setfeature()
     setfeature pshmem       "PSHMEM profiling interface"
     setfeature experimental "Experimental (non-API) routines"
 
-    echo "/* Communications Layer */"
+    echo "/*"
+    echo " * Executable format"
+    echo " */"
+    echo "#define EXE_FORMAT    \"$exe_format\""
+    echo "#define EXE_HEADERS   \"$elf_header_dir\""
+    echo "#define EXE_LIBRARIES \"$elf_lib_dir\""
+    echo
+
+    echo "/*"
+    echo " * Communications Layer"
+    echo " */"
     echo         "#define COMMS_LAYER    \"$comms_layer\""
     case "$comms_layer" in
 	gasnet)
@@ -965,8 +1003,8 @@ setfeature()
 	    # and more, don't know what yet, though
 	    ;;
     esac
-
     echo
+
     echo "#endif /* CONFIG_H */"
 ) > $config_h
 
@@ -974,6 +1012,8 @@ tell ""
 tell "============================================================="
 tell ""
 tell "C header information in         $config_h"
+tell ""
 tell "Configuration in shell-script   $cs"
+tell ""
 tell "  (Execute $cs to re-configure library)"
 tell ""
