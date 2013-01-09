@@ -53,8 +53,8 @@
 
 #include "comms/comms.h"
 
-static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
-static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
+#define SHMEM_LOGLEVELS_ENVVAR "SHMEM_LOG_LEVELS"
+#define SHMEM_LOGFILE_ENVVAR   "SHMEM_LOG_FILE"
 
 /**
  * tracing states
@@ -226,7 +226,7 @@ logging_filestream_init (void)
 
   trace_log_stream = stderr;
 
-  shlf = __shmem_comms_getenv (shmem_logfile_envvar);
+  shlf = __shmem_comms_getenv (SHMEM_LOGFILE_ENVVAR);
   if (shlf == (char *) NULL)
     {
       return;
@@ -289,7 +289,7 @@ sgi_compat_environment_init (void)
 static void
 parse_log_levels (void)
 {
-  char *shll = __shmem_comms_getenv (shmem_loglevels_envvar);
+  char *shll = __shmem_comms_getenv (SHMEM_LOGLEVELS_ENVVAR);
   const char *delims = ",:;";
   char *opt = strtok (shll, delims);
 
@@ -427,8 +427,8 @@ __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
       vsnprintf (tmp2, TRACE_MSG_BUF_SIZE, fmt, ap);
       va_end (ap);
 
-      strncat (tmp1, tmp2, TRACE_MSG_BUF_SIZE);
-      strncat (tmp1, "\n", TRACE_MSG_BUF_SIZE);
+      strncat (tmp1, tmp2, strlen (tmp2));
+      strncat (tmp1, "\n", 1);
 
       fputs (tmp1, trace_log_stream);
       fflush (trace_log_stream);	/* make sure this all goes out in 1 burst */
