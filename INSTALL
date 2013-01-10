@@ -126,6 +126,43 @@ Optimized for SMP (no MPI involved):
 OpenSHMEM Installation Notes
 ============================
 
+Source Directory Layout
+=======================
+
+.                         } top-level config (here)
+|
+|-- doc                   } Documentation
+|-- examples
+|   |-- C                 }
+|   |-- C++               } Language-specific demos
+|   |-- Fortran           }
+`-- src
+    |-- atomic            } remote atomic memory ops
+    |
+    |-- barrier           }
+    |-- broadcast         } collectives
+    |-- collect           }
+    |-- fcollect          }
+    |
+    |-- comms
+    |   |-- gasnet        } different
+        ...               } communication
+    |   `-- uccs          } layers
+    |
+    |-- fortran           } The Fortran API
+    |
+    |-- globalvar         } variables outside the managed heap
+    |
+    |-- memory            } symmetric memory allocation
+    |
+    |-- modules           } collective routine providers
+    |
+    |-- mpp               } headers
+    |
+    |-- dlmalloc          } 3rd party
+    `-- uthash            } utilities
+
+
 The "configure" script
 ======================
 
@@ -133,16 +170,20 @@ This script will eventually be the GNU autotools setup, but for now
 it's just a basic shell script to give the same kind of look-and-feel.
 The script accepts a --help option.
 
-Configure now requires you to build in a separate directory outside
-the main source tree.  This helps with multiple configuration builds
-and keeps the source "sanitized".
+**************************************************************************
+N.B. Configure now requires you to build in a separate directory
+outside the main source tree.  This helps with multiple configuration
+builds and keeps the source "sanitized".
+**************************************************************************
 
 After configure has run successfully, it will leave a file
 "config.status" in the top-level build directory containing the
 information required to recreate the selected configuration.  The file
-is executable, so to re-run the same configure you can just say
+is executable, so you can just say
 
     ./config.status
+
+to re-run the same configure.
 
 The default layout of an installation is as follows:
 
@@ -244,7 +285,8 @@ libraries for linking.  Add
 
 to the PKG_CONFIG_PATH environment variable.
 
-This means you can compile/link programs as e.g. with Open64
+This means you can compile/link programs as e.g. with Open64 from a
+bash shell
 
     opencc $(pkg-config --cflags openshmem)     \
         program.c                               \
@@ -274,3 +316,24 @@ You can then
     module load <install>/modulefiles/openshmem
 
 to set up your environment for OpenSHMEM.
+
+Some Supporting Software
+========================
+
+1. GASNet   :: http://gasnet.cs.berkeley.edu/
+
+2. Open-MPI :: http://www.open-mpi.org/
+
+3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
+
+Testing Environments at the University of Houston
+=================================================
+
+1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
+   conduits, OpenMPI 1.4.3++
+
+2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
+   conduit, OpenMPI & MVAPICH2 with slurm integration
+
+3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
+   conduit, OpenMPI 1.4.3 with pbs ("tm") integration

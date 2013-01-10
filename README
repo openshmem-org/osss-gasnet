@@ -39,56 +39,10 @@ This project is hosted at
 
     http://www.openshmem.org/
 
-which is where you can find definitive information about OpenSHMEM.
+which is where you can find definitive information about the OpenSHMEM
+project, tutorials, presentations, papers, vendors, and other
+contributed documentation.
 
-Source Directory Layout
-=======================
-
-.
-|-- doc                   } Documentation
-|-- examples
-|   |-- C                 }
-|   |-- C++               } Language-specific demos
-|   |-- Fortran           }
-`-- src
-    |-- atomic
-    |-- barrier
-    |-- broadcast
-    |-- collect
-    |-- comms
-    |   |-- gasnet        } different
-        ...               } communication
-    |   `-- uccs          } layers
-    |-- fcollect
-    |-- fortran
-    |-- globalvar
-    |-- memory
-    |-- modules
-    |-- mpp
-    |-- dlmalloc          } 3rd party
-    `-- uthash            } utilities
-
-
-Testing Environments at the University of Houston
-=================================================
-
-1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
-   conduits, OpenMPI 1.4.3++
-
-2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
-   conduit, OpenMPI, MVAPICH2 with slurm integration
-
-3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
-   conduit, OpenMPI 1.4.3 with pbs ("tm") integration
-
-Some Supporting Software
-========================
-
-1. GASNet   :: http://gasnet.cs.berkeley.edu/
-
-2. Open-MPI :: http://www.open-mpi.org/
-
-3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
 
 Contact and Feedback
 ====================
