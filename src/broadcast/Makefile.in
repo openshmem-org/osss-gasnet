@@ -58,11 +58,11 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 

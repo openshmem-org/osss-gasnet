@@ -47,19 +47,19 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@HAVE_FEATURE_TRACE@" "ENABLED"
+ifeq "@HAVE_FEATURE_TRACE@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
