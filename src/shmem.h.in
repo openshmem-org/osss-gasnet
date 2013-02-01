@@ -1,4 +1,4 @@
-/* Emac: -*- mode: c -*- */
+/* Emacs: -*- mode: c -*- */
 /*
  *
  * Copyright (c) 2011 - 2013
@@ -60,14 +60,20 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif				/* __cplusplus */
+#endif	/* __cplusplus */
 
   /*
-   * OpenSHMEM release (Eugoogoly)
+   * OpenSHMEM release
    */
 
 #define SHMEM_MAJOR_VERSION 1
 #define SHMEM_MINOR_VERSION 0
+
+  /*
+   * This tracks maintenance/bugfix
+   * releases of Major.Minor versions
+   */
+#define SHMEM_BUGFIX_VERSION "e"
 
   /*
    * not all compilers support this annotation
@@ -76,7 +82,7 @@ extern "C"
    * No: Sun/Oracle Studio
    *
    */
-#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER) || defined(__OPEN64__)
+#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR
@@ -658,6 +664,6 @@ ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protos'))
 
 #ifdef __cplusplus
 }
-#endif				/* __cplusplus */
+#endif	/* __cplusplus */
 
-#endif				/* _SHMEM_H */
+#endif	/* _SHMEM_H */
