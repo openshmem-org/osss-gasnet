@@ -180,15 +180,15 @@ Usage: $progname [options]
     CC                           C compiler
                                      (default: gcc)
     CFLAGS                       User-supplied options for C compiler
-                                     (default: -g)
+                                     (default: none)
     CXX                          C++ compiler
-                                     (default: g++, but not used)
+                                     (default: g++, but not used for build)
     CXXFLAGS                     User-supplied options for C++ compiler
-                                     (default: -g, but not used)
+                                     (default: same as CC)
     FC                           Fortran 90 compiler
-                                     (default: gfortran, but not used)
+                                     (default: gfortran, but not used for build)
     FFLAGS                       User-supplied options for Fortran compiler
-                                     (default: -g, but not used)
+                                     (default: same as CC)
     LD                           To link the library
                                      (default: same as CC)
     LDFLAGS                      User-supplied options for linker
@@ -357,7 +357,7 @@ tell "Searching for compilers ..."
 
 # -- either gnu (guess) or from environment --
 
-cc_cmd=${CC-"$cc_cmd"}
+cc_cmd="${CC-gcc}"
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
