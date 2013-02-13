@@ -80,7 +80,7 @@ FCOLLECT_OBJ         = $(FCOLLECT_DIR)/fcollect.o
 
 # ---------------------------------------------------------
 #
-# different collect algorithms
+# different barrier algorithms
 #
 BARRIER_DIR          = ./barrier
 BARRIER_CPPFLAGS     = -I$(BARRIER_DIR)

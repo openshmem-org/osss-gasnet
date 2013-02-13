@@ -48,7 +48,7 @@
 #include "pshmem.h"
 
 /*
- * handlers for broadcast implementations
+ * handlers for barrier implementations
  *
  */
 
@@ -107,7 +107,7 @@ __shmem_barriers_dispatch_init (void)
   /*
    * report which implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST,
+  __shmem_trace (SHMEM_LOG_BARRIER,
 		 "using barrier_all \"%s\" & barrier \"%s\"",
 		 all_name, bar_name);
 

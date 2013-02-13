@@ -75,6 +75,8 @@ Name of implementation for broadcast (as above).
 Name of implementation for collects and fixed collects.
 .IP "SHMEM_BARRIER_ALGORITHM, SHMEM_BARRIER_ALL_ALGORITHM" 4
 Name of implementation for barrier and barrier_all.
+.IP "SHMEM_REDUCTION_ALGORITHM" 4
+Name of implementation for reductions.
 .IP "SHMEM_SYMMETRIC_HEAP_SIZE" 4
 Size of symmetric heap allocated on each PE.  Can use "K", "M", "G",
 "T" modifiers.

@@ -51,8 +51,9 @@ typedef enum
   SHMEM_LOG_AUTH,		/* something not authorized */
   SHMEM_LOG_BARRIER,		/* barrier ops */
   SHMEM_LOG_BROADCAST,		/* broadcast ops */
+  SHMEM_LOG_REDUCTION,		/* reduction ops */
   SHMEM_LOG_CACHE,		/* cache flushing ops */
-  SHMEM_LOG_COLLECT,		/* [f]collect ops */
+  SHMEM_LOG_COLLECT,		/* [f]collect/gather ops */
   SHMEM_LOG_DEBUG,		/* debugging information */
   SHMEM_LOG_FENCE,		/* fence calls */
   SHMEM_LOG_INFO,		/* informational */
