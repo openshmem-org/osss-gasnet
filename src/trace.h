@@ -55,14 +55,13 @@ typedef enum
   SHMEM_LOG_CACHE,		/* cache flushing ops */
   SHMEM_LOG_COLLECT,		/* [f]collect/gather ops */
   SHMEM_LOG_DEBUG,		/* debugging information */
+  SHMEM_LOG_QUIET,		/* quiet calls */
   SHMEM_LOG_FENCE,		/* fence calls */
   SHMEM_LOG_INFO,		/* informational */
   SHMEM_LOG_INIT,		/* during OpenSHMEM initialization */
   SHMEM_LOG_LOCK,		/* global locks */
   SHMEM_LOG_MEMORY,		/* symmetric memory operations */
   SHMEM_LOG_NOTICE,		/* serious, but non-fatal */
-  SHMEM_LOG_QUIET,		/* quiet calls */
-  SHMEM_LOG_REDUCE,		/* reduction ops */
   SHMEM_LOG_SERVICE,		/* network service thread */
   SHMEM_LOG_SYMBOLS,		/* dump global dymbol table */
   SHMEM_LOG_VERSION,		/* show library version */

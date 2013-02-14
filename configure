@@ -980,27 +980,45 @@ setfeature()
     setfeature experimental "Experimental (non-API) routines"
 
     echo "/*"
+    echo " * Compiler Suite"
+    echo " */"
+    echo "#define OPENSHMEM_COMPILER_SUITE         \"$cc_type\""
+    echo "#define OPENSHMEM_COMPILER_CC            \"$cc_cmd\""
+    echo "#define OPENSHMEM_COMPILER_CPPFLAGS      \"$cpp_flags\""
+    echo "#define OPENSHMEM_COMPILER_CFLAGS        \"$c_flags\""
+    echo "#define OPENSHMEM_COMPILER_CXX           \"$cxx_cmd\""
+    echo "#define OPENSHMEM_COMPILER_CXXFLAGS      \"$cxx_flags\""
+    echo "#define OPENSHMEM_COMPILER_FC            \"$fc_cmd\""
+    echo "#define OPENSHMEM_COMPILER_FCFLAGS       \"$fc_flags\""
+    echo "#define OPENSHMEM_COMPILER_LD            \"$ld_cmd\""
+    echo "#define OPENSHMEM_COMPILER_LDFLAGS       \"$ld_flags\""
+    echo
+
+    echo "/*"
     echo " * Executable format"
     echo " */"
-    echo "#define EXE_FORMAT    \"$exe_format\""
-    echo "#define EXE_HEADERS   \"$elf_header_dir\""
-    echo "#define EXE_LIBRARIES \"$elf_lib_dir\""
+    echo "#define OPENSHMEM_EXE_FORMAT    \"$exe_format\""
+    echo "#define OPENSHMEM_EXE_HEADERS   \"$exe_header_dir\""
+    echo "#define OPENSHMEM_EXE_LIBRARIES \"$exe_lib_dir\""
     echo
 
     echo "/*"
     echo " * Communications Layer"
     echo " */"
-    echo         "#define COMMS_LAYER    \"$comms_layer\""
+    echo         "#define OPENSHMEM_COMMS_LAYER    \"$comms_layer\""
     case "$comms_layer" in
 	gasnet)
-	    echo "#define HAVE_GASNET    1"
-	    echo "#define GASNET_ROOT    \"$gasnet_root\""
-	    echo "#define GASNET_CONDUIT \"$gasnet_conduit\""
+	    echo "#define OPENSHMEM_HAVE_GASNET    1"
+	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
+	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
 	    ;;
 	uccs)
-	    echo "#define HAVE_UCCS      1"
-	    echo "#define UCCS_ROOT      \"uccs_root\""
+	    echo "#define OPENSHMEM_HAVE_UCCS      1"
+	    echo "#define OPENSHMEM_UCCS_ROOT      \"uccs_root\""
 	    # and more, don't know what yet, though
+	    ;;
+	*)
+	    # going to leave this blank for now...
 	    ;;
     esac
     echo

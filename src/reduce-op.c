@@ -167,14 +167,14 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
 		      );						\
       }									\
       write_to = tmptrg;						\
-      __shmem_trace(SHMEM_LOG_REDUCE,					\
+      __shmem_trace(SHMEM_LOG_REDUCTION,				\
 		    "target (%p) and source (%p, size %ld) overlap, using temporary target", \
 		    target, source, snred				\
 		    );							\
     }									\
     else {								\
       write_to = target;						\
-      __shmem_trace(SHMEM_LOG_REDUCE,					\
+      __shmem_trace(SHMEM_LOG_REDUCTION,				\
 		    "target (%p) and source (%p, size %ld) do not overlap", \
 		    target, source, snred				\
 		    );							\
@@ -184,9 +184,6 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
       write_to[j] = source[j];						\
     }									\
     shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
-    __shmem_trace(SHMEM_LOG_REDUCE,					\
-		  "after first barrier"					\
-		  );							\
     /* now go through other PEs and get source */			\
     pe = PE_start;							\
     for (i = 0; i < PE_size; i+= 1) {					\
