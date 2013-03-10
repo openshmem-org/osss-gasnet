@@ -336,10 +336,10 @@ done
 # We do this here to allow people to run with --help even in source
 # tree
 
-if [ -f "INSTALL" ]
+if [ -f "$progname" ]
 then
     tell "Looks like we're in the source directory."
-    tell "  (There's a file called \"INSTALL\" here.)"
+    tell "  (There's a file with the same name, \"$progname\", here.)"
     tell ""
     tell "Please run $progname from a separate build directory."
     bailout

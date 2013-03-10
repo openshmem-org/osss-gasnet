@@ -1,4 +1,6 @@
-??? ??? ? 2013 -- Updates in Release 1.03:
+# Emacs: -*- mode: text; mode: auto-fill; -*-
+
+??? ??? ? 2013 -- Updates in Release 1.0e:
 ==========================================
 
 Configure
@@ -7,7 +9,6 @@ Configure
   * Separate build directory support
     * Attempts to build in source tree are detected
   * Improved checking of compiler suite used to build library
-  * Preliminary BG/P support ("dcmf" conduit)
   * Run configure with "--help" to see all
 
 Build
@@ -15,10 +16,11 @@ Build
 
   * Review of collectives with some fixes
   * Compiles with Clang
+  * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to
     GASNet
-  * Discovered some GASNet improvements from discussions at
-    SC12
+  * Discovered some GASNet improvements from discussions with Paul
+    Hargrove at SC12
 
 Ecosystem
 ---------
