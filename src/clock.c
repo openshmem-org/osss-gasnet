@@ -39,6 +39,10 @@
 
 #include <stdio.h>
 #include <sys/time.h>
+#include <string.h>
+#include <errno.h>
+
+#include "trace.h"
 
 /**
  * record start of program run
@@ -54,8 +58,17 @@ read_clock (void)
 {
   struct timeval tv;
   double t;
+  int s;
 
-  gettimeofday (&tv, (struct timezone *) NULL);
+  s = gettimeofday (&tv, (struct timezone *) NULL);
+  if (s != 0)
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: can't read system clock (%s)",
+		     strerror (errno)
+		     );
+      /* NOT REACHED */
+    }
 
   t = (double) tv.tv_sec;
   t += (double) tv.tv_usec / 1000000.0;
