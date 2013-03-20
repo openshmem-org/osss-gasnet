@@ -131,6 +131,10 @@ __shmem_place_init (void)
     }
 }
 
+//#if defined(HAVE_FEATURE_EXPERIMENTAL)
+#pragma weak shmem_init = start_pes
+#pragma weak shmem_init = start_pes
+//#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
