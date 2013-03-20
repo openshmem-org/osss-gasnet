@@ -59,18 +59,18 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
 CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
 CPPFLAGS        += $(COMMS_CPPFLAGS)

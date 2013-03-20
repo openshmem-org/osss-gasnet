@@ -53,8 +53,8 @@
 
 #include "comms/comms.h"
 
-static const char *shmem_loglevels_envvar = "SHMEM_LOG_LEVELS";
-static const char *shmem_logfile_envvar = "SHMEM_LOG_FILE";
+#define SHMEM_LOGLEVELS_ENVVAR "SHMEM_LOG_LEVELS"
+#define SHMEM_LOGFILE_ENVVAR   "SHMEM_LOG_FILE"
 
 /**
  * tracing states
@@ -79,31 +79,33 @@ typedef struct
 
 #ifdef HAVE_FEATURE_TRACE
 
-#define INIT_LEVEL(L, State) { SHMEM_LOG_##L , #L , State }
+#define INIT_STATE(L, State) { SHMEM_LOG_##L , #L , State }
 
 static trace_table_t tracers[] = {
-  INIT_LEVEL (FATAL, ON),
+  INIT_STATE (FATAL, ON),
 
-  INIT_LEVEL (ATOMIC, OFF),
-  INIT_LEVEL (AUTH, OFF),
-  INIT_LEVEL (BARRIER, OFF),
-  INIT_LEVEL (BROADCAST, OFF),
-  INIT_LEVEL (CACHE, OFF),
-  INIT_LEVEL (COLLECT, OFF),
-  INIT_LEVEL (DEBUG, OFF),
-  INIT_LEVEL (FENCE, OFF),
-  INIT_LEVEL (INFO, OFF),
-  INIT_LEVEL (INIT, OFF),
-  INIT_LEVEL (LOCK, OFF),
-  INIT_LEVEL (MEMORY, OFF),
-  INIT_LEVEL (NOTICE, OFF),
-  INIT_LEVEL (QUIET, OFF),
-  INIT_LEVEL (REDUCE, OFF),
-  INIT_LEVEL (SERVICE, OFF),
-  INIT_LEVEL (SYMBOLS, OFF),
-  INIT_LEVEL (VERSION, OFF),
-  INIT_LEVEL (PROFILING, OFF),
-  INIT_LEVEL (MODULES, OFF),
+  INIT_STATE (SYMBOLS, OFF),
+  INIT_STATE (DEBUG, OFF),
+  INIT_STATE (INFO, OFF),
+  INIT_STATE (VERSION, OFF),
+
+  INIT_STATE (INIT, OFF),
+  INIT_STATE (FINALIZE, OFF),
+  INIT_STATE (ATOMIC, OFF),
+  INIT_STATE (AUTH, OFF),
+  INIT_STATE (BARRIER, OFF),
+  INIT_STATE (BROADCAST, OFF),
+  INIT_STATE (REDUCTION, OFF),
+  INIT_STATE (CACHE, OFF),
+  INIT_STATE (COLLECT, OFF),
+  INIT_STATE (FENCE, OFF),
+  INIT_STATE (QUIET, OFF),
+  INIT_STATE (LOCK, OFF),
+  INIT_STATE (MEMORY, OFF),
+  INIT_STATE (NOTICE, OFF),
+  INIT_STATE (SERVICE, OFF),
+  INIT_STATE (PROFILING, OFF),
+  INIT_STATE (MODULES, OFF),
 };
 static const int n_tracers = TABLE_SIZE (tracers);
 
@@ -185,7 +187,7 @@ __level_to_string (shmem_trace_t level)
 /* -- end of private routines -- */
 
 /**
- * is the trace LEVEL currently enabled?
+ * is the trace STATE currently enabled?
  */
 
 int
@@ -226,7 +228,7 @@ logging_filestream_init (void)
 
   trace_log_stream = stderr;
 
-  shlf = __shmem_comms_getenv (shmem_logfile_envvar);
+  shlf = __shmem_comms_getenv (SHMEM_LOGFILE_ENVVAR);
   if (shlf == (char *) NULL)
     {
       return;
@@ -289,7 +291,7 @@ sgi_compat_environment_init (void)
 static void
 parse_log_levels (void)
 {
-  char *shll = __shmem_comms_getenv (shmem_loglevels_envvar);
+  char *shll = __shmem_comms_getenv (SHMEM_LOGLEVELS_ENVVAR);
   const char *delims = ",:;";
   char *opt = strtok (shll, delims);
 
@@ -427,8 +429,8 @@ __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
       vsnprintf (tmp2, TRACE_MSG_BUF_SIZE, fmt, ap);
       va_end (ap);
 
-      strncat (tmp1, tmp2, TRACE_MSG_BUF_SIZE);
-      strncat (tmp1, "\n", TRACE_MSG_BUF_SIZE);
+      strncat (tmp1, tmp2, strlen (tmp2));
+      strncat (tmp1, "\n", 1);
 
       fputs (tmp1, trace_log_stream);
       fflush (trace_log_stream);	/* make sure this all goes out in 1 burst */

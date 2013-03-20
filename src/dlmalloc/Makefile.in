@@ -40,7 +40,7 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 
 .PHONY: all default clean
 

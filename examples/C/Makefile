@@ -35,7 +35,7 @@
 
 
 SHMEM_CC       = oshcc
-SHMEM_CFLAGS   = -ggdb -O0
+SHMEM_CFLAGS   = -g -O0
 
 C_TESTS        = $(wildcard *.c)
 

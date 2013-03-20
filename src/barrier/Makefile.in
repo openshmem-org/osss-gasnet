@@ -64,16 +64,18 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
-ifeq "@DEBUG@" "ENABLED"
+ifeq "@DEBUG@" "enabled"
 CPPFLAGS        += -DDEBUG
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
+
+SOFLAGS          = @SOFLAGS@
 
 MODULES = $(wildcard barrier-*.c)
 OBJECTS = $(MODULES:.c=.o)
@@ -95,7 +97,7 @@ uninstall-lib:
 	- rmdir @MODULES_DIR@
 
 %.so:	%.o
-	$(LD) -shared $(LDFLAGS) $(CFLAGS) -o $@ $^
+	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
 
 clean:
 	rm -f $(OBJECTS) $(SHOBJECTS) barrier.o

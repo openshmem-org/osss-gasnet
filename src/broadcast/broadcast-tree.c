@@ -238,7 +238,6 @@ __shmem_broadcast32_tree (void *target, const void *source,
 	  pSync[0] = _SHMEM_SYNC_VALUE;
 	  __shmem_trace (SHMEM_LOG_BROADCAST, "inside else");
 	  memcpy (source_ptr, target_ptr, nlong * sizeof (int));
-	  /*LOAD_STORE_FENCE(); */
 	  if (child_l != -1)
 	    {
 	      shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);

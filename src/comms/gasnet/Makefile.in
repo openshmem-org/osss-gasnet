@@ -39,10 +39,11 @@
 #
 PREFIX           = @PREFIX@
 
-SHMEM_INC_DIR    = $(PREFIX)/include
+SHMEM_INC_DIR    = @INCLUDE_DIR@
+SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
-SHMEM_LDFLAGS    = -L$(PREFIX)/lib -Wl,-rpath,$(PREFIX)/lib
+SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 
 # ---------------------------------------------------------
 
@@ -88,11 +89,11 @@ LDFLAGS          = @LDFLAGS@
 
 CPPFLAGS        += -I../..
 
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
@@ -104,7 +105,7 @@ CPPFLAGS        += $(HASH_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 
 COMMON_FLAGS     = $(CFLAGS)
 

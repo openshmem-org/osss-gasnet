@@ -80,7 +80,7 @@
 \begin{document}
 
 \title{OpenSHMEM Reference Library Implementation}
-\author{Tony Curtis <arcurtis@mail.uh.edu>}
+\author{Tony Curtis <tonyc@uh.edu>}
 \maketitle
 \lyxrightaddress{Computer Science Department, University of Houston}
 
@@ -286,7 +286,7 @@ and Fortran program templates:
 \begin{minipage}{0.75\linewidth}
 \begin{lstlisting}[language=C,caption={Simple C ``hello world'' program}]
 #include <stdio.h>
-#include <mpp/shmem.h>
+#include <shmem.h>
 
 int
 main(int argc, char *argv[])
@@ -307,7 +307,7 @@ main(int argc, char *argv[])
 \begin{minipage}{0.75\linewidth}
 \begin{lstlisting}[language=Fortran,caption={Simple Fortran ``hello world'' program}]
 program hello
-  include 'mpp/shmem.fh'
+  include 'shmem.fh'
   integer :: me, npes
 
   call start_pes(0)
@@ -528,99 +528,127 @@ GNU setup and will do lots more feature tests. So the usual procedure
 applies:
 
 \begin{lstlisting}
-$ ./configure [--options ...]
+$ /path/to/source/configure [--options...]
 $ make
 $ make install
 \end{lstlisting}
+
+The \texttt{configure} script accepts a
+% make sure we get a real double-dash
+\texttt{-{}-help} option that lists all the various settings.  Note
+that you must run \texttt{configure} from a separate build directory,
+not the source tree.
 
 \section{Environment Variables\label{sec:Environment-Variables}}
 
 The behavior of the OpenSHMEM library can be controlled via a number
 of environment variables. For SGI compatibility reasons, we support
-the ``SMA'' variables and our own new ones:
+the ``SMA'' variables and our own new ones.
 
-\medskip{}
+\subsection{SGI Environment Variables}
 
-\begin{tabular}{|l|l|}
-\hline 
-Variable & Function\tabularnewline
-\hline
-\hline 
-\texttt{SMA\_VERSION} & print the library version at start-up\tabularnewline
-\hline 
-\texttt{SMA\_INFO} & print helpful text about all these environment variables\tabularnewline
-\hline 
-\texttt{SMA\_SYMMETRIC\_SIZE} & number of bytes to allocate for symmetric heap\tabularnewline
-\hline 
-\texttt{SMA\_DEBUG} & enable debugging messages\tabularnewline
-\hline
-\end{tabular}
+\subsubsection*{\texttt{SMA\_VERSION}}
 
-\medskip{}
- 
-\begin{lyxlist}{00.00.0000}
-\item [{\texttt{SHMEM\_LOG\_LEVELS}:}] a comma, space, or semi-colon separated
-list of logging/trace facilities to enable debugging messages. The
-facilities currently include the case-insensitive names:
-\item [{\medskip{}
-}]~
-\item [{\begin{tabular}{|l|l|}
-\hline 
-Facility & Meaning\tabularnewline
-\hline
-\hline 
-FATAL & something unrecoverable happened, abort\tabularnewline
-\hline 
-DEBUG & used for debugging purposes\tabularnewline
-\hline 
-INFO & something interesting happened\tabularnewline
-\hline 
-NOTICE & important event, but non-fatal (see below)\tabularnewline
-\hline 
-AUTH & when something is attempted but not allowed\tabularnewline
-\hline 
-INIT & set-up and tear-down of the program\tabularnewline
-\hline 
-MEMORY & symmetric memory information\tabularnewline
-\hline 
-CACHE & cache flushing operations\tabularnewline
-\hline 
-BARRIER & about barrier operations\tabularnewline
-\hline 
-BROADCAST & about broadcast operation\tabularnewline
-\hline 
-COLLECT & about collect and fcollect operation\tabularnewline
-\hline 
-REDUCE & about reduction operations\tabularnewline
-\hline 
-SYMBOLS & to inspect the symbol table information\tabularnewline
-\hline 
-LOCK & related to setting, testing and clearing locks\tabularnewline
-\hline 
-SERVICE & related to the network service thread\tabularnewline
-\hline 
-FENCE & tracing network fence events\tabularnewline
-\hline 
-QUIET & tracing network quiet events\tabularnewline
-\hline
-\end{tabular}}]~
-\item [{\texttt{SHMEM\_LOG\_FILE}:}] a filename to which to write log
-messages.  All PEs append to this file. The default is for all PEs to
-write to standard error. Per-PE log files might be an interesting
-addition.
-\item [{\texttt{SHMEM\_SYMMETRIC\_HEAP\_SIZE}:}] the number of bytes
-to allocate for the symmetric heap area. Can scale units with ``K'',
-``M'' etc. modifiers. The default is 2G.
-\item [{\texttt{SHMEM\_BARRIER\_ALGORITHM}:}] the version of the
-barrier to use. The default is ``naive''. Designed to allow people
-to plug other variants in easily and test.
-\item [{\texttt{SHMEM\_BARRIER\_ALL\_ALGORITHM}:}] as for
-\texttt{SHMEM\_BARRIER\_ALGORITHM}, but separating these two allows us
-to optimize if e.g.\ hardware has special support for global barriers.
-\item [{\texttt{SHMEM\_PE\_ACCESSIBLE\_TIMEOUT}:}] the number of
-seconds to wait for PEs to reply to accessiblity checks. The default
-is 1.0 (i.e\ may be fractional).
-\end{lyxlist}
+Print the library version at start-up.
+
+\subsubsection*{\texttt{SMA\_INFO}}
+
+Print helpful text about all these environment variables.
+
+\subsubsection*{\texttt{SMA\_SYMMETRIC\_SIZE}}
+
+Number of bytes to allocate for symmetric heap.
+
+\subsubsection*{\texttt{SMA\_DEBUG}}
+
+Enable debugging messages.
+
+\subsection{Reference Implementation Variables}
+
+\subsubsection*{\texttt{SHMEM\_LOG\_LEVELS}}
+
+A comma, space, or semi-colon separated list of logging/trace
+facilities to enable debugging messages. The facilities currently
+include the case-insensitive names:
+
+\begin{table}[h]
+  \begin{tabular}{|l|l|}
+    \hline
+    \texttt{FATAL} & something unrecoverable happened, abort \tabularnewline
+    \hline
+    \hline
+    \texttt{DEBUG} & used for debugging purposes \tabularnewline
+    \hline
+    \texttt{INFO} & something interesting happened \tabularnewline
+    \hline
+    \texttt{VERSION} & show this library version \tabularnewline
+    \hline
+    \texttt{SYMBOLS} & to inspect the symbol table information \tabularnewline
+    \hline
+    \hline
+    \texttt{INIT} & set-up of the program \tabularnewline
+    \hline
+    \texttt{FINALIZE} & tear-down of the program \tabularnewline
+    \hline
+    \texttt{ATOMIC} & remote atomic operations \tabularnewline
+    \hline
+    \texttt{AUTH} & when something is attempted but not allowed \tabularnewline
+    \hline
+    \texttt{BARRIER} & about barrier operations \tabularnewline
+    \hline
+    \texttt{BROADCAST} & about broadcast operation \tabularnewline
+    \hline
+    \texttt{REDUCTION} & about reduction operations \tabularnewline
+    \hline
+    \texttt{CACHE} & cache flushing operations \tabularnewline
+    \hline
+    \texttt{COLLECT} & about collect and fcollect operation \tabularnewline
+    \hline
+    \texttt{QUIET} & tracing network quiet events \tabularnewline
+    \hline
+    \texttt{FENCE} & tracing network fence events \tabularnewline
+    \hline
+    \texttt{LOCK} & related to setting, testing and clearing locks \tabularnewline
+    \hline
+    \texttt{MEMORY} & symmetric memory information \tabularnewline
+    \hline
+    \texttt{NOTICE} & important event, but non-fatal (see below) \tabularnewline
+    \hline
+    \texttt{SERVICE} & related to the network service thread \tabularnewline
+    \hline
+    \texttt{PROFILING} & for the PSHMEM profiling interface \tabularnewline
+    \hline
+    \texttt{MODULES} & loadable routines \tabularnewline
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsubsection*{\texttt{SHMEM\_LOG\_FILE}}
+
+A filename to which to write log messages.  All PEs append to this
+file. The default is for all PEs to write to standard error. (Per-PE
+log files might be an interesting addition.)
+
+\subsubsection*{\texttt{SHMEM\_SYMMETRIC\_HEAP\_SIZE}}
+
+The number of bytes to allocate for the symmetric heap area. Can scale
+units with ``K'', ``M'' etc. modifiers. The default is 2G.
+
+\subsubsection*{\texttt{SHMEM\_BARRIER\_ALGORITHM}}
+
+The version of the barrier to use. The default is ``naive''. Designed
+to allow people to plug other variants in easily and test.
+
+\subsubsection*{\texttt{SHMEM\_BARRIER\_ALL\_ALGORITHM}}
+
+As for \texttt{SHMEM\_BARRIER\_ALGORITHM}, but separating these two
+allows us to optimize if e.g.\ hardware has special support for global
+barriers.
+
+\subsubsection*{\texttt{SHMEM\_PE\_ACCESSIBLE\_TIMEOUT}}
+
+The number of seconds to wait for PEs to reply to accessiblity
+checks. The default is 1.0 (i.e\ may be fractional).
 
 \section{Alternate collective algorithms}
 
@@ -650,16 +678,75 @@ default = tree
 barrier-all = bruck
 \end{lstlisting}
 
+\subsection{Writing a New Collective Algorithm}
+
+To add a new implementation of a broadcast, barrier or collect, the
+following steps are required:
+
+\begin{enumerate}
+\item Add a source file to the appropriate directory
+\item write the 32- and 64-bit routines
+\item create the module information that points to these routines
+\end{enumerate}
+
+\noindent
+An outline file is:
+
+\vspace{0.1in}
+\begin{minipage}{0.75\linewidth}
+\begin{lstlisting}[language=C,caption={Outline of broadcast implementation}]
+#include <...>
+
+void
+__shmem_broadcast32_clever (...)
+{
+  ...
+}
+
+void
+__shmem_broadcast64_clever (...)
+{
+  ...
+}
+
+#include "module_info.h"
+module_info_t
+module_info = {
+  __shmem_broadcast32_clever,
+  __shmem_broadcast64_clever,
+};
+\end{lstlisting}
+\end{minipage}
+\vspace{0.1in}
+
+\noindent
+\texttt{module\_info\_t} is a structure that defines function pointers
+to the 2 sizes of routine:
+
+\vspace{0.1in}
+\begin{minipage}{0.75\linewidth}
+\begin{lstlisting}[language=C,caption={Definition of module structure}]
+typedef struct
+{
+  void (*func_32) ();
+  void (*func_64) ();
+} module_info_t;
+\end{lstlisting}
+\end{minipage}
+\vspace{0.1in}
+
+
 \section{Compiling and Running Programs}
 
 The SGI SHMEM is provided as part of the Message-Passing Toolkit (MPT)
 in the
 \href{http://www.sgi.com/products/software/propack.html}{ProPack}
 suite. Compilation uses a standard C, C++ or Fortran compiler
-(e.g.\  GNU, Intel) and links against the SMA and MPI libraries.
+(e.g.\ GNU, Intel) and links against the SMA and MPI libraries.
 
 In order to abstract the compilation and launching process for
-OpenSHMEM we have provided 4 wrapper programs:
+OpenSHMEM we have provided 4 wrapper programs.  There is no
+requirement to provide anything like this, it's merely a convenience.
 
 \begin{enumerate}
 \item \texttt{oshcc}: for compiling and linking C programs.
@@ -676,17 +763,15 @@ about link options being present, but unused). The compiler scripts
 are generated from a common template.
 
 The run wrapper currently detects which GASNet conduit is being used
-and sets up the environment accordingly to launch the program. Not
-sure if this is the best place to do this check, or if the build
-process should work this out in advance to streamline the installed
-code.
-
-There is no requirement in OpenSHMEM to provide anything like this,
-it's merely a convenience.
+and sets up the environment accordingly to launch the program
+\footnote{Not sure if this is the best place to do this check, or if
+  the build process should work this out in advance to streamline the
+  installed code.}.
 
 \subsection{pkg-config}
 
-An interface to pkg-config has also been added: the package name is ``openshmem''.  So you can compile and link separately e.g.\ with
+An interface to pkg-config has also been added: the package name is
+``openshmem''.  So you can compile and link separately e.g.\ with
 
 \begin{lstlisting}
 $ gcc $(pkg-config --cflags openshmem) program.c $(pkg-config --libs openshmem)

@@ -95,8 +95,9 @@ __shmem_exit (int status)
   /* update our state */
   SET_STATE (pe_status, PE_SHUTDOWN);
 
-  __shmem_trace (SHMEM_LOG_INIT,
-		 "finalizing shutdown, handing off to communications layer");
+  __shmem_trace (SHMEM_LOG_FINALIZE,
+		 "finalizing shutdown, handing off to communications layer"
+		 );
 
   /*
    * strictly speaking should free remaining alloc'ed things,
@@ -127,7 +128,9 @@ __shmem_place_init (void)
   s = uname (&GET_STATE (loc));
   if (s != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL, "can't find any node information");
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: can't find any node information"
+		     );
     }
 }
 
@@ -182,7 +185,8 @@ start_pes (int npes)
     {
       __shmem_trace (SHMEM_LOG_INFO,
 		     "shmem has already been initialized (%s)",
-		     __shmem_state_as_string (GET_STATE (pe_status)));
+		     __shmem_state_as_string (GET_STATE (pe_status))
+		     );
       return;
       /* NOT REACHED */
     }
@@ -227,7 +231,8 @@ start_pes (int npes)
   if (atexit (__shmem_exit_handler) != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: cannot register shutdown handler");
+		     "internal error: cannot register shutdown handler"
+		     );
       /* NOT REACHED */
     }
 
@@ -235,20 +240,23 @@ start_pes (int npes)
   if (npes != 0)
     {
       __shmem_trace (SHMEM_LOG_INFO,
-		     "start_pes() was passed %d, should be 0", npes);
+		     "start_pes() was passed %d, should be 0", npes
+		     );
     }
 
   SET_STATE (pe_status, PE_RUNNING);
 
   {
     int maj, min;
+    const int n = GET_STATE (numpes);
     if (shmem_version (&maj, &min) == 0)
       {
 	__shmem_trace (SHMEM_LOG_VERSION,
 		       "version %d.%d running on %d PE%s",
 		       maj, min,
-		       GET_STATE (numpes),
-		       GET_STATE (numpes) == 1 ? "" : "s");
+		       n,
+		       n == 1 ? "" : "s"
+		       );
       }
   }
 

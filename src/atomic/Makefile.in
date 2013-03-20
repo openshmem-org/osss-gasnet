@@ -53,15 +53,15 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@HAVE_FEATURE_DEBUG@" "ENABLED"
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "ENABLED"
+ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-ifeq "@FEATURE_EXPERIMENTAL@" "ENABLED"
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
@@ -71,7 +71,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 
-CFLAGS          += -fPIC
+CFLAGS          += @PICFLAGS@
 CFLAGS          += $(HASH_CFLAGS)
 CFLAGS          += @WARNFLAGS@
 

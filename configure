@@ -39,8 +39,6 @@
 # NB: this will turn into the GNU autotools setup at some point.
 #
 
-progname="`basename $0`"
-
 # -- defaults --
 prefix=/usr/local
 
@@ -49,19 +47,30 @@ gasnet_root=$prefix
 gasnet_conduit=
 uccs_root=$prefix
 
-elf_header_dir=/usr/include
-elf_lib_dir=/usr/lib64
+exe_header_dir=/usr/include
+exe_lib_dir=/usr/lib64
 
-feature_experimental=DISABLED
-feature_debug=DISABLED
-feature_trace=DISABLED
-feature_pshmem=DISABLED
-# -- end defaults --
+feature_experimental=disabled
+feature_debug=disabled
+feature_trace=disabled
+feature_pshmem=disabled
 
 libdir=
+incdir=
 bindir=
 modulesdir=
 modulefilesdir=
+# -- end defaults --
+
+# find out where things are
+progname="`basename -- $0`"
+
+# canonicalize where source is
+srctreedir="`dirname -- $0`"
+srctreedir="`cd $srctreedir && pwd`"
+
+# same for where we are
+buildtreedir="`pwd`"
 
 bailout()
 {
@@ -104,28 +113,35 @@ Usage: $progname [options]
     --with-libdir=DIR            Libraries installed to DIR
                                      (default: PREFIX/lib)
 
+    --with-includedir=DIR        Header files installed to DIR
+                                     (default: PREFIX/include)
+
     --with-modulesdir=DIR        Pluggable modules installed to DIR
                                      (default: LIBDIR/modules)
 
     --with-modulefilesdir=DIR    pkg-config file installed to DIR
                                      (default: PREFIX/modulefiles)
 
-  Communications:
+  Communications Layer:
 
     --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
                                      (currently just a stub)
 
-    --with-gasnet-root=G         Use the GASNet installed under directory "G"
-    --with-gasnet-conduit=C      Use GASNet conduit "C"
-                                     (if only 1 conduit configured, use it)
+  Per-layer options:
 
-    --with-uccs-root=U           Use the UCCS installed under directory "U"
-                                     (currently just a stub)
+      --with-gasnet-root=G       Use the GASNet installed under directory "G"
+      --with-gasnet-conduit=C    Use GASNet conduit "C"
+                                   (if only 1 conduit configured, use it)
+
+      --with-uccs-root=U         Use the UCCS installed under directory "U"
+                                   (currently just a stub)
+
+      (These imply --with-comms-layer=GASNet/UCCS as appropriate)
 
   Optional Support Libraries:
 
-    --with-libelf=E              Libelf header and library files under
-                                     directory "E" (.../include, .../lib)
+    --with-libelf=LE             Libelf header and library files under
+                                     directory "LE" (.../include, .../lib)
     --with-libelf-headers=H      Libelf header files in directory "H"
                                      (default: /usr/include)
     --with-libelf-libs=L         Libelf library files in directory "L"
@@ -148,7 +164,6 @@ Usage: $progname [options]
     --disable-experimental       No experimental features (default)
 
     --enable-pshmem              Build the PSHMEM profiling interface
-                                     (not considered stable yet)
     --disable-pshmem             No PSHMEM profiling interface (default)
 
   Deprecated:
@@ -165,15 +180,15 @@ Usage: $progname [options]
     CC                           C compiler
                                      (default: gcc)
     CFLAGS                       User-supplied options for C compiler
-                                     (default: -g)
+                                     (default: none)
     CXX                          C++ compiler
-                                     (default: g++, but not used)
+                                     (default: g++, but not used for build)
     CXXFLAGS                     User-supplied options for C++ compiler
-                                     (default: -g, but not used)
+                                     (default: same as CC)
     FC                           Fortran 90 compiler
-                                     (default: gfortran, but not used)
+                                     (default: gfortran, but not used for build)
     FFLAGS                       User-supplied options for Fortran compiler
-                                     (default: -g, but not used)
+                                     (default: same as CC)
     LD                           To link the library
                                      (default: same as CC)
     LDFLAGS                      User-supplied options for linker
@@ -183,9 +198,6 @@ __EOT__
 }
 
 # ------------------------------------------------------------------------------
-#
-# parse command line
-#
 
 # split out value from key=value
 chompit()
@@ -193,14 +205,29 @@ chompit()
     echo $@ | cut -d= -f2-
 }
 
+# lower/upper case things
+downcase()
+{
+    echo $* | tr '[:upper:]' '[:lower:]'
+}
+
+upcase()
+{
+    echo $* | tr '[:lower:]' '[:upper:]'
+}
+
 # lower case things to remember them canonically
-setlower()
+setcanonical()
 {
     var=$1
     shift
-    tmp="`echo $* | tr '[:upper:]' '[:lower:]'`"
+    tmp="`downcase $*`"
     eval "$var=\"$tmp\""
 }
+
+#
+# parse command line
+#
 
 for o in $@
 do
@@ -214,6 +241,9 @@ do
 	--with-libdir=*)
 	    libdir="`chompit $o`"
 	    ;;
+	--with-includedir=*)
+	    incdir="`chompit $o`"
+	    ;;
 	--with-modulesdir=*)
 	    modulesdir="`chompit $o`"
 	    ;;
@@ -221,66 +251,71 @@ do
 	    modulefilesdir="`chompit $o`"
 	    ;;
 	--with-comms-layer=*)
-	    setlower comms_layer "`chompit $o`"
+	    setcanonical comms_layer "`chompit $o`"
 	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
-	    setlower comms_layer GASNet
+	    setcanonical comms_layer GASNet
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
-	    setlower comms_layer GASNet
+	    setcanonical comms_layer GASNet
 	    ;;
 	--with-uccs-root=*)
 	    uccs_root="`chompit $o`"
-	    setlower comms_layer UCCS
+	    setcanonical comms_layer UCCS
 	    ;;
 	--with-libelf=*)
-	    elf_top_dir="`chompit $o`"
-            elf_header_dir="$elf_top_dir/include"
-            elf_lib_dir="$elf_top_dir/lib"
-            elf_headers="-I$elf_header_dir"
-            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
+	    exe_format=ELF
+	    exe_top_dir="`chompit $o`"
+            exe_header_dir="$exe_top_dir/include"
+            exe_lib_dir="$exe_top_dir/lib"
+            exe_headers="-I$exe_header_dir"
+	    # TODO: try to defer to per-compiler section
+            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
             ;;
 	--with-libelf-headers=*)
-	    elf_header_dir="`chompit $o`"
-            elf_headers="-I$elf_header_dir"
+	    exe_format=ELF
+	    exe_header_dir="`chompit $o`"
+            exe_headers="-I$exe_header_dir"
 	    ;;
 	--with-libelf-libs=*)
-	    elf_lib_dir="`chompit $o`"
-            elf_libs="-L$elf_lib_dir -Wl,-rpath,$elf_lib_dir"
+	    exe_format=ELF
+	    exe_lib_dir="`chompit $o`"
+	    # TODO: try to defer to per-compiler section
+            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
 	    ;;
 	--enable-debug)
-	    feature_debug=ENABLED
+	    feature_debug=enabled
 	    ;;
 	--disable-debug)
-	    feature_debug=DISABLED
+	    feature_debug=disabled
 	    ;;
 	--enable-trace)
-	    feature_trace=ENABLED
+	    feature_trace=enabled
 	    ;;
 	--disable-trace)
-	    feature_trace=DISABLED
+	    feature_trace=disabled
 	    ;;
 	--enable-pshmem)
-	    feature_pshmem=ENABLED
+	    feature_pshmem=enabled
 	    ;;
 	--disable-pshmem)
-	    feature_pshmem=DISABLED
+	    feature_pshmem=disabled
 	    ;;
 	--enable-experimental)
-	    feature_experimental=ENABLED
+	    feature_experimental=enabled
 	    ;;
 	--disable-experimental)
-	    feature_experimental=DISABLED
+	    feature_experimental=disabled
 	    ;;
 	--enable-putget-nb)
 	    deprecated "$o" "--enable-experimental"
-	    feature_experimental=ENABLED
+	    feature_experimental=enabled
 	    ;;
 	--disable-putget-nb)
 	    deprecated "$o" "--disable-experimental"
-	    feature_experimental=DISABLED
+	    feature_experimental=disabled
 	    ;;
 	--help)
 	    show_usage
@@ -293,25 +328,36 @@ do
     esac
 done
 
+# --------------------------------------------------------------------
+
+# bail out immediately if running from source directory (should be in
+# separate build directory)
+#
+# We do this here to allow people to run with --help even in source
+# tree
+
+if [ -f "$progname" ]
+then
+    tell "Looks like we're in the source directory."
+    tell "  (There's a file with the same name, \"$progname\", here.)"
+    tell ""
+    tell "Please run $progname from a separate build directory."
+    bailout
+fi
+
+# --------------------------------------------------------------------
+
 tell ""
 tell "Starting configuration"
 tell ""
 
-# -- check compilers, defaults to GNU --
-
-cpp_flags=${CPPFLAGS-""}
-cc_cmd=${CC-gcc}
-c_flags=${CFLAGS-"-g"}
-ld_cmd=${LD-$cc_cmd}
-ld_flags=${LDFLAGS-""}
-cxx_cmd=${CXX-g++}
-cxx_flags=${CXXFLAGS-"-g"}
-fc_cmd=${FC-gfortran}
-fc_flags=${FCFLAGS-"-g"}
-
 # -- make sure we can find compilers --
 
 tell "Searching for compilers ..."
+
+# -- either gnu (guess) or from environment --
+
+cc_cmd="${CC-gcc}"
 
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
@@ -335,51 +381,120 @@ case "$cc_ver" in
 	cc_type="GNU"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="gfortran"
 	cxx_cmd="g++"
+	ld_cmd="$cc_cmd"
 	;;
     *"Intel Corporation"*)
 	cc_type="Intel"
 	c99_flags="-std=c99"
+	warn_flags=""     # enabled by default
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="ifort"
 	cxx_cmd="icpc"
+	ld_cmd="$cc_cmd"
 	;;
     *"The Portland Group"*)
 	cc_type="PGI"
 	c99_flags="-c99"
+	warn_flags=""     # enabled by default
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="pgfortran"
 	cxx_cmd="pgCC"
+	ld_cmd="$cc_cmd"
 	;;
     *"Sun C"*)
 	cc_type="Oracle (formerly Sun Microsystems) Studio"
 	c99_flags="-xc99"
+	warn_flags=""     # enabled by default
+	pic_flags="-PIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="sunf90"
 	cxx_cmd="sunCC"
+	ld_cmd="$cc_cmd"
 	;;
     *OpenUH*)
 	cc_type="OpenUH (Open64)"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="uhf90"
 	cxx_cmd="uhCC"
+	ld_cmd="$cc_cmd"
 	;;
     *Open64*)
 	cc_type="Open64"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
 	fc_cmd="openf90"
 	cxx_cmd="openCC"
+	ld_cmd="$cc_cmd"
+	;;
+    *clang*)
+	cc_type="Clang"
+	c99_flags="-std=c99"
+	warn_flags="-Wall"
+	pic_flags="-fPIC"
+	thread_flags="-pthread"
+	so_flags="-shared"
+	fc_cmd="false"
+	cxx_cmd="false"
+	ld_cmd="$cc_cmd"
+	;;
+    *"IBM XL C/C++"*)
+	cc_type="IBM XL"
+	c99_flags="-qlanglvl=stdc99"
+	warn_flags=""
+	pic_flags="-qpic"
+	thread_flags="-qthreaded"
+	so_flags="-G"
+	cc_cmd="xlc"
+	fc_cmd="xlf"
+	cxx_cmd="xlc++"
+        # TODO: not sure if DCMF works with 64-bit
+	# c_flags="$c_flags -q64"
+	# fc_flags="$fc_flags -q64"
+	# cxx_flags="$cxx_flags -q64"
+	# ld_flags="$ld_flags -q64"
 	;;
     *)
-	cc_type="unknown"
+	cc_type="Not Sure"
 	c99_flags=""
 	warn_flags=""
+	pic_flags=""
+	thread_flags=""
+	so_flags=""
 	fc_cmd="false"
-	cxx_cmd="false"		# what else to do?
+	cxx_cmd="false"
+	ld_cmd="false"		# what else to do?
 	;;
 esac
 
-tell "C compiler is \"$cc_cmd\" ($cc_type)"
+# -- allow user to override from environment --
+
+cpp_flags=${CPPFLAGS-"$cpp_flags"}
+c_flags=${CFLAGS-"$c_flags"}
+cxx_cmd=${CXX-"$cxx_cmd"}
+cxx_flags=${CXXFLAGS-"$cxx_flags"}
+fc_cmd=${FC-"$fc_cmd"}
+fc_flags=${FCFLAGS-"$fc_flags"}
+ld_cmd=${LD-"$ld_cmd"}
+ld_flags=${LDFLAGS-"$ld_flags"}
+
+tell "C compiler is \"$cc_cmd\" (looks like $cc_type)"
 
 # TODO: we're not actually using these during build, so don't really check
 #
@@ -400,32 +515,46 @@ tell "C compiler is \"$cc_cmd\" ($cc_type)"
 tell "Searching for compilers ... done"
 tell ""
 
-# -- ELF (TODO expand for other exe formats) --
+# -- ELF (TODO: expand for other exe formats) --
 
-tell "Looking for ELF library ... "
-gelf_h="$elf_header_dir/gelf.h"
-if [ ! -r "$gelf_h" ]
-then
-    tell "Can't find header <gelf.h> for ELF executable support"
-    tell "  in $elf_header_dir"
-    bailout
-fi
-elf_lib_so="$elf_lib_dir/libelf.so"
-if [ -r "$elf_lib_so" ]
-then
-    found_libelf="shared"
-else
-    elf_lib_a="$elf_lib_dir/libelf.a"
-    if [ -r "$elf_lib_a" ]
-    then
-	found_libelf="static"
-    else
-	tell "Can't find library -lelf for ELF executable support"
-	tell "  in $elf_lib_dir"
+tell "Looking for executable format library ... "
+
+exe_format=ELF
+
+case "$exe_format" in
+    ELF)
+	gelf_h="$exe_header_dir/gelf.h"
+	if [ ! -r "$gelf_h" ]
+	    then
+	    tell "Can't find header <gelf.h> for ELF executable support"
+	    tell "  in $exe_header_dir"
+	    bailout
+	fi
+	elf_lib_so="$exe_lib_dir/libelf.so"
+	if [ -r "$elf_lib_so" ]
+	    then
+	    found_libexe="shared"
+	else
+	    elf_lib_a="$exe_lib_dir/libelf.a"
+	    if [ -r "$elf_lib_a" ]
+		then
+		found_libexe="static"
+	    else
+		tell "Can't find library -lelf for ELF executable support"
+		tell "  in $exe_lib_dir"
+		bailout
+	    fi
+	fi
+	tell "Found ELF support"
+	;;
+    *)
+	tell "I don't know executable format \"$exe_format\""
+	tell "  I should not be here; please report this"
 	bailout
-    fi
-fi
-tell "Looking for ELF library ... done"
+	;;
+esac
+
+tell "Looking for executable format library ... done"
 tell ""
 
 # -- Comms. detection --
@@ -533,6 +662,8 @@ case "$comms_layer" in
         tell "Conduit \"$gasnet_conduit\" looks OK"
 	;;  #  end of gasnet section
     uccs)
+	tell "UCCS support is just a stub for future use."
+	bailout
 	;;
     *)
 	tell "I don't know what to do with communications layer \"$comms_layer\""
@@ -547,8 +678,47 @@ tell ""
 
 [ -z "$bindir" ]         && bindir=$prefix/bin
 [ -z "$libdir" ]         && libdir=$prefix/lib
+[ -z "$incdir" ]         && incdir=$prefix/include
 [ -z "$modulesdir" ]     && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
+
+# -- create build directory tree --
+
+# from the source tree, pull in doc, src, and top-level input files
+
+tell "Populating build directory tree ... "
+
+build_me_dirs="
+doc
+src
+"
+
+top_levels="
+./Makefile.in
+./openshmem.module.in
+"
+
+for d in $build_me_dirs $top_levels
+do
+  find $srctreedir/$d \! -type d -print |
+  while read f
+  do
+    # tell "Found source file $f"
+    treepart="`dirname -- $f`"
+    treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
+    [ -z "$treepart" ] && treepart="."
+    mkdir -p $treepart
+    (
+	cd $treepart
+	thispart="`basename -- $f`"
+	rm -f $thispart
+	ln -s $f
+    )
+  done
+done
+
+tell "Populating build directory tree ... done"
+tell ""
 
 # -- generate build files from .in templates --
 #
@@ -558,8 +728,8 @@ tell ""
 tell "Making build files from templates ... "
 
 (
-    find . -name 'Makefile.in' -print
-    echo 'openshmem.module.in'
+    find $build_me_dirs -name 'Makefile.in' -print
+    echo $top_levels | tr '[:space:]' '\n'
 ) |
 while read mfin
 do
@@ -570,6 +740,9 @@ do
         -e "s%@CFLAGS@%$c_flags%g" \
         -e "s%@C99FLAGS@%$c99_flags%g" \
         -e "s%@WARNFLAGS@%$warn_flags%g" \
+        -e "s%@PICFLAGS@%$pic_flags%g" \
+        -e "s%@THREADFLAGS@%$thread_flags%g" \
+        -e "s%@SOFLAGS@%$so_flags%g" \
         -e "s%@CXX@%$cxx_cmd%g" \
         -e "s%@CXXFLAGS@%$cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \
@@ -581,6 +754,7 @@ do
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@ELF_HEADERS@%$elf_headers%g" \
         -e "s%@ELF_LIBS@%$elf_libs%g" \
+        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
         -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
         -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \
@@ -588,11 +762,12 @@ do
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
+        -e "s%@INCLUDE_DIR@%$incdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
-        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
         $mfin > $mf
-    tell "created $mf from $mfin"
+    # This is a bit noisy I think:
+    # tell "created $mf from $mfin"
 done
 
 tell "Making build files from templates ... done"
@@ -605,42 +780,49 @@ tell ""
 tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
-tell "  Suite is                      $cc_type"
+tell "  Suite appears to be           $cc_type"
 tell ""
 tell "    C compiler is               $cc_cmd"
-tell "    C pre-processor flags are   $cpp_flags"
-tell "    C flags are                 $c_flags"
+tell "    C pre-processor flags are   \"$cpp_flags\""
+tell "    C flags are                 \"$c_flags\""
 tell ""
 tell "    C++ compiler is             $cxx_cmd"
-tell "    C++ flags are               $cxx_flags"
+tell "    C++ flags are               \"$cxx_flags\""
 tell ""
 tell "    Fortran compiler is         $fc_cmd"
-tell "    Fortran flags are           $fc_flags"
+tell "    Fortran flags are           \"$fc_flags\""
 tell ""
 tell "    Linker is                   $ld_cmd"
-tell "    Linker flags are            $ld_flags"
+tell "    Linker flags are            \"$ld_flags\""
+tell ""
+tell "Executable Format:"
+tell "  Format is                     $exe_format"
+tell ""
+tell "    Headers in                  $exe_header_dir"
+tell "    Library in                  $exe_lib_dir ($found_libexe)"
 tell ""
 
 tell "Communications Layer:"
 case "$comms_layer" in
     gasnet)
 	tell "  GASNet:"
+	tell "    Version                     $gasnet_ver"
 	tell "    Installed in                $gasnet_root"
 	tell "    Using conduit               $gasnet_conduit $cdt_auto"
 	;;
     uccs)
 	tell "  UCCS:"
 	tell "    Installed in                $uccs_root"
+	tell ""
+	tell "  No UCCS support, I should not be here; please report this"
 	;;
     *)
-	# should never get here
+	tell "I do not recognize communications layer \"$comms_layer\"."
+	tell "  I should not be here; please report this"
+	bailout
 	;;
 esac
 
-tell ""
-tell "Executable Format:"
-tell "  Headers in                    $elf_header_dir"
-tell "  Library in                    $elf_lib_dir ($found_libelf)"
 tell ""
 tell "Options:"
 tell "  Debug is                      $feature_debug"
@@ -652,6 +834,7 @@ tell "Installation:"
 tell "  Main package to               $prefix"
 tell "  Executables to                $bindir"
 tell "  Libraries to                  $libdir"
+tell "  Headers to                    $incdir"
 tell "  OpensHMEM modules to          $modulesdir"
 tell "  pkg-config file to            $modulefilesdir"
 
@@ -686,35 +869,35 @@ clean_tmp()
     rm -f $tmpcs
 }
 
-trap_list="1 2 3 19 20"
+signal_trap_list="1 2 3 19 20"
 
-trap clean_tmp 0 $trap_list
-trap clean_cfg   $trap_list
+trap clean_cfg   $signal_trap_list
+trap clean_tmp 0 $signal_trap_list
 
 cat > $tmpcs <<_EOT_
 #!/bin/sh
 #
 # Copyright (c) 2011 - 2013
 #   University of Houston System and Oak Ridge National Laboratory.
-# 
+#
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 # o Redistributions of source code must retain the above copyright notice,
 #   this list of conditions and the following disclaimer.
-# 
+#
 # o Redistributions in binary form must reproduce the above copyright
 #   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
-# 
+#
 # o Neither the name of the University of Houston System, Oak Ridge
 #   National Laboratory nor the names of its contributors may be used to
 #   endorse or promote products derived from this software without specific
 #   prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #
@@ -749,9 +932,32 @@ _EOT_
 cp $tmpcs $cs
 chmod +x $cs
 
+# cleanup of temporary file done by signal handler
+
 #
 # now create config.h
 #
+
+setfeature()
+{
+    pred="feature_$1"
+    eval 'predval=$'$pred
+    PRED="`upcase $1`"
+    var="HAVE_FEATURE_$PRED"
+    shift
+    comment="$*"
+
+    echo "/*"
+    echo " * $comment"
+    echo " */"
+    if [ "$predval" = "enabled" ]
+    then
+	echo "#define $var 1"
+    else
+	echo "#undef $var"
+    fi
+    echo ""
+}
 
 (
     echo "#ifndef CONFIG_H"
@@ -768,58 +974,55 @@ chmod +x $cs
     echo " */"
     echo
 
-    echo "/* run-time debug and other sanity checks */"
-    if [ $feature_debug = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_DEBUG 1"
-    else
-	echo "#undef HAVE_FEATURE_DEBUG"
-    fi
+    setfeature debug        "run-time debug and other sanity checks"
+    setfeature trace        "run-time tracing calls"
+    setfeature pshmem       "PSHMEM profiling interface"
+    setfeature experimental "Experimental (non-API) routines"
+
+    echo "/*"
+    echo " * Compiler Suite"
+    echo " */"
+    echo "#define OPENSHMEM_COMPILER_SUITE         \"$cc_type\""
+    echo "#define OPENSHMEM_COMPILER_CC            \"$cc_cmd\""
+    echo "#define OPENSHMEM_COMPILER_CPPFLAGS      \"$cpp_flags\""
+    echo "#define OPENSHMEM_COMPILER_CFLAGS        \"$c_flags\""
+    echo "#define OPENSHMEM_COMPILER_CXX           \"$cxx_cmd\""
+    echo "#define OPENSHMEM_COMPILER_CXXFLAGS      \"$cxx_flags\""
+    echo "#define OPENSHMEM_COMPILER_FC            \"$fc_cmd\""
+    echo "#define OPENSHMEM_COMPILER_FCFLAGS       \"$fc_flags\""
+    echo "#define OPENSHMEM_COMPILER_LD            \"$ld_cmd\""
+    echo "#define OPENSHMEM_COMPILER_LDFLAGS       \"$ld_flags\""
     echo
 
-    echo "/* run-time tracing calls */"
-    if [ $feature_trace = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_TRACE 1"
-    else
-	echo "#undef HAVE_FEATURE_TRACE"
-    fi
+    echo "/*"
+    echo " * Executable format"
+    echo " */"
+    echo "#define OPENSHMEM_EXE_FORMAT    \"$exe_format\""
+    echo "#define OPENSHMEM_EXE_HEADERS   \"$exe_header_dir\""
+    echo "#define OPENSHMEM_EXE_LIBRARIES \"$exe_lib_dir\""
     echo
 
-    echo "/* PSHMEM profiling interface */"
-    if [ $feature_pshmem = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_PSHMEM 1"
-    else
-	echo "#undef HAVE_FEATURE_PSHMEM"
-    fi
-    echo
-
-    echo "/* Experimental (non-API) routines */"
-    if [ $feature_experimental = "ENABLED" ]
-    then
-	echo "#define HAVE_FEATURE_EXPERIMENTAL 1"
-    else
-	echo "#undef HAVE_FEATURE_EXPERIMENTAL"
-    fi
-    echo
-
-    echo "/* Communications Layer */"
-    echo         "#define COMMS_LAYER    \"$comms_layer\""
+    echo "/*"
+    echo " * Communications Layer"
+    echo " */"
+    echo         "#define OPENSHMEM_COMMS_LAYER    \"$comms_layer\""
     case "$comms_layer" in
 	gasnet)
-	    echo "#define HAVE_GASNET    1"
-	    echo "#define GASNET_ROOT    \"$gasnet_root\""
-	    echo "#define GASNET_CONDUIT \"$gasnet_conduit\""
+	    echo "#define OPENSHMEM_HAVE_GASNET    1"
+	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
+	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
 	    ;;
 	uccs)
-	    echo "#define HAVE_UCCS      1"
-	    echo "#define UCCS_ROOT      \"uccs_root\""
+	    echo "#define OPENSHMEM_HAVE_UCCS      1"
+	    echo "#define OPENSHMEM_UCCS_ROOT      \"uccs_root\""
 	    # and more, don't know what yet, though
 	    ;;
+	*)
+	    # going to leave this blank for now...
+	    ;;
     esac
-
     echo
+
     echo "#endif /* CONFIG_H */"
 ) > $config_h
 
@@ -827,5 +1030,8 @@ tell ""
 tell "============================================================="
 tell ""
 tell "C header information in         $config_h"
+tell ""
 tell "Configuration in shell-script   $cs"
+tell ""
+tell "  (Execute $cs to re-configure library)"
 tell ""

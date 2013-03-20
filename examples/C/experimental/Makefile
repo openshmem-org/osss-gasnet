@@ -34,52 +34,23 @@
 #
 
 
-# ---------------------------------------------------------
+SHMEM_CC       = oshcc
+SHMEM_CFLAGS   = -g -O0
 
-MEMORY_DIR       = ../memory
-MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
+C_TESTS        = $(wildcard *.c)
 
-# ---------------------------------------------------------
+C_EXES         = $(C_TESTS:.c=.x)
 
-CC               = @CC@
-CFLAGS           = @CFLAGS@
-CPPFLAGS         = @CPPFLAGS@
-LD               = @LD@
-LDFLAGS          = @LDFLAGS@
+EXES           = $(C_EXES)
 
-ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_DEBUG
-endif
+.PHONY: clean all default
 
-ifeq "@HAVE_FEATURE_TRACE@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_TRACE
-endif
+all default:	$(EXES)
 
-ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
-endif
+.SUFFIXES: .x
 
-ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
-endif
-
-CPPFLAGS        += -I..
-
-CPPFLAGS        += $(MEMORY_CPPFLAGS)
-CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
-
-CFLAGS          += @PICFLAGS@
-
-.PHONY: all default clean
-.PHONY: shmem-headers
-
-SOURCES  = $(wildcard *.c)
-OBJECTS  = $(SOURCES:.c=.o)
-
-all default:	shmem-headers	$(OBJECTS)
-
-shmem-headers:
-	$(MAKE) -C .. $@
+%.x:	%.c
+	$(SHMEM_CC) $(SHMEM_CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(EXES)

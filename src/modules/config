@@ -1,12 +1,13 @@
-# config file for modules
+#
+# Configuration file for modules
+#
 # syntax:    <MODULE> [=] <IMPLEMENTATION>
+#
+# Current operations with modules
+#
+# barrier-all, barrier, broadcast, reduction, fcollect, collect
 
-# chosen for all routines if not explicitly given
+#
+# Chosen for all routines if not explicitly given
+#
 # default     = linear
-
-# examples: override defaults
-# barrier-all = tree
-# barrier     = tree
-# broadcast   = tree
-# fcollect    = linear
-# collect     = linear
