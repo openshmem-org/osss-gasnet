@@ -84,7 +84,6 @@ static void
 build_tree (int PE_start, int step, int PE_root, int PE_size,
 	    int *parent, int *child_l, int *child_r, int my_pe)
 {
-  int inter;
   if (PE_root != 0)
     {
       int PE_root_abs;
@@ -105,7 +104,6 @@ build_tree (int PE_start, int step, int PE_root, int PE_size,
 	    }
 	  *child_l = other_child_l;
 	  *child_r = other_child_r;
-	  inter = PE_root_abs + 1;
 	}
       else if (GET_STATE (mype) == PE_root_abs)
 	{
@@ -171,7 +169,6 @@ __shmem_broadcast32_tree (void *target, const void *source,
   const int step = 1 << logPE_stride;
   int my_pe = GET_STATE (mype);
   int *target_ptr, *source_ptr;
-  int old_target;
   int no_children;
   long is_ready, lchild_ready, rchild_ready;
 
@@ -190,7 +187,6 @@ __shmem_broadcast32_tree (void *target, const void *source,
   source_ptr = (int *) source;
 
   set_2tree (PE_start, step, PE_size, &parent, &child_l, &child_r, my_pe);
-  old_target = *target_ptr;
   no_children = 0;
   build_tree (PE_start, step, PE_root, PE_size,
 	      &parent, &child_l, &child_r, my_pe);
