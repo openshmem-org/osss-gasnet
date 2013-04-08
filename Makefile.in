@@ -66,17 +66,17 @@ install-module:
 
 # -------------------------------------------------------------
 
-uninstall: uninstall-doc uninstall-src uninstall-module
+uninstall: uninstall-module	uninstall-doc uninstall-src
+
+uninstall-module:
+	rm -f @MODULEFILES_DIR@/openshmem
+	- rmdir @MODULEFILES_DIR@
 
 uninstall-doc:
 	$(MAKE) -C doc uninstall
 
 uninstall-src:
 	$(MAKE) -C src uninstall
-
-uninstall-module:
-	rm -f @MODULEFILES_DIR@/openshmem
-	- rmdir @MODULEFILES_DIR@
 
 # -------------------------------------------------------------
 

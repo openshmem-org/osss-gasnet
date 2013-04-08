@@ -765,7 +765,7 @@ do
         -e "s%@INCLUDE_DIR@%$incdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
-        $mfin > $mf
+        < $mfin > $mf
     # This is a bit noisy I think:
     # tell "created $mf from $mfin"
 done
