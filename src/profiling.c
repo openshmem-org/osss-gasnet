@@ -47,19 +47,19 @@
 void
 shmem_pcontrol (int level)
 {
-  char *msg;
+  char *msg = NULL;
 
-  if (level == 0)
+  switch (level)
     {
+    case 0:
       msg = "disabled";
-    }
-  else if (level == 1)
-    {
+      break;
+    case 1:
       msg = "enabled (default detail)";
-    }
-  else
-    {
+      break;
+    default:
       msg = "tool-specific";
+      break;
     }
 
   __shmem_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);

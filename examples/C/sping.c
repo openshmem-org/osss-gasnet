@@ -39,6 +39,8 @@
 
 /*
  * The ping-pong example from Quadrics
+ *
+ * plus hostname added to output for info purposes
  */
 
 #include <stdio.h>
@@ -48,6 +50,8 @@
 
 #include <unistd.h>
 #include <shmem.h>
+
+#include <sys/utsname.h>
 
 int
 getSize (char *str)
@@ -117,11 +121,14 @@ help (char *name)
   exit (0);
 }
 
+static struct utsname un;
+
 void
 printStats (int proc, int peer, int doprint, int now, double t)
 {
   if (doprint || (proc & 1))
-    printf ("%3d pinged %3d: %8d words %9.2f uSec %8.2f MB/s\n",
+    printf ("%-16s: %3d pinged %3d: %8d words %9.2f uSec %8.2f MB/s\n",
+	    un.nodename,
 	    proc, peer, now, t, sizeof (long) * now / (t));
 }
 
@@ -147,6 +154,8 @@ main (int argc, char *argv[])
   int i;
   long *rbuf;
   long *tbuf;
+
+  uname (&un);
 
   start_pes (0);
 

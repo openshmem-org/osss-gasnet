@@ -51,10 +51,9 @@ static
 inline int
 mype_helper (void)
 {
-  INIT_CHECK();
-  return GET_STATE(mype);
+  INIT_CHECK ();
+  return GET_STATE (mype);
 }
-
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak _my_pe = p_my_pe
@@ -108,8 +107,8 @@ shmem_my_pe (void)
 static int
 numpes_helper (void)
 {
-  INIT_CHECK();
-  return GET_STATE(numpes);
+  INIT_CHECK ();
+  return GET_STATE (numpes);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
