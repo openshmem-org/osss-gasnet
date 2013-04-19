@@ -255,6 +255,13 @@ environment variable, and
 
 to set the number of Infiniband queue-pairs.
 
+Update: the registered memory issues are at least partly due to
+hardware not allowing large registrations by default.  We (UH) were
+able to fix this on our development cluster by following the
+instructions at:
+
+  http://www.open-mpi.org/faq/?category=openfabrics#ib-low-reg-mem
+
 ELF Library
 -----------
 
