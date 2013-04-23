@@ -55,7 +55,6 @@
  */
 
 #define SHMEM_FCOLLECT(Bits, Bytes)					\
-  /* @api@ */								\
   void									\
   __shmem_fcollect##Bits##_linear(void *target, const void *source, size_t nelems, \
 				  int PE_start, int logPE_stride, int PE_size, \

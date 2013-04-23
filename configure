@@ -351,6 +351,50 @@ tell ""
 tell "Starting configuration"
 tell ""
 
+# -- ELF (TODO: expand for other exe formats) --
+
+tell "Looking for executable format library ... "
+
+exe_format=ELF
+
+case "$exe_format" in
+    ELF)
+	gelf_h="$exe_header_dir/gelf.h"
+	if [ ! -r "$gelf_h" ]
+	then
+	    tell "Can't find header <gelf.h> for ELF executable support"
+	    tell "  in $exe_header_dir"
+	    bailout
+	fi
+	elf_lib_so="$exe_lib_dir/libelf.so"
+	if [ -r "$elf_lib_so" ]
+	then
+	    found_libexe="shared"
+	else
+	    elf_lib_a="$exe_lib_dir/libelf.a"
+	    if [ -r "$elf_lib_a" ]
+	    then
+		found_libexe="static"
+	    else
+		tell "Can't find library -lelf for ELF executable support"
+		tell "  in $exe_lib_dir"
+		bailout
+	    fi
+	fi
+	tell "Found ELF support"
+	;;
+    *)
+	tell "I don't know executable format \"$exe_format\""
+	tell "  I should not be here; please report this"
+	bailout
+	;;
+esac
+
+exe_headers="-I$exe_header_dir"
+
+tell "Looking for executable format library ... done"
+tell ""
+
 # -- make sure we can find compilers --
 
 tell "Searching for compilers ..."
@@ -376,6 +420,9 @@ then
     cc_ver="`$cc_cmd --version 2>&1`"
 fi
 
+# 2013-04-23,tonyc: TODO I know some of the exe_libs flags below may
+#                   be wrong for specific compilers
+
 case "$cc_ver" in
     *"Free Software Foundation"*)
 	cc_type="GNU"
@@ -384,6 +431,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="gfortran"
 	cxx_cmd="g++"
 	ld_cmd="$cc_cmd"
@@ -395,6 +447,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="ifort"
 	cxx_cmd="icpc"
 	ld_cmd="$cc_cmd"
@@ -406,6 +463,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="pgfortran"
 	cxx_cmd="pgCC"
 	ld_cmd="$cc_cmd"
@@ -417,6 +479,11 @@ case "$cc_ver" in
 	pic_flags="-PIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="sunf90"
 	cxx_cmd="sunCC"
 	ld_cmd="$cc_cmd"
@@ -428,6 +495,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="uhf90"
 	cxx_cmd="uhCC"
 	ld_cmd="$cc_cmd"
@@ -439,6 +511,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="openf90"
 	cxx_cmd="openCC"
 	ld_cmd="$cc_cmd"
@@ -450,6 +527,11 @@ case "$cc_ver" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	fc_cmd="false"
 	cxx_cmd="false"
 	ld_cmd="$cc_cmd"
@@ -460,6 +542,11 @@ case "$cc_ver" in
 	warn_flags=""
 	pic_flags="-qpic"
 	thread_flags="-qthreaded"
+	exe_libs="-L$exe_lib_dir"
+	if  [ "$found_libexe" = "shared" ]
+	then
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	fi
 	so_flags="-G"
 	cc_cmd="xlc"
 	fc_cmd="xlf"
@@ -477,6 +564,8 @@ case "$cc_ver" in
 	pic_flags=""
 	thread_flags=""
 	so_flags=""
+	exe_headers=""
+	exe_libs=""
 	fc_cmd="false"
 	cxx_cmd="false"
 	ld_cmd="false"		# what else to do?
@@ -513,48 +602,6 @@ tell "C compiler is \"$cc_cmd\" (looks like $cc_type)"
 # fi
 
 tell "Searching for compilers ... done"
-tell ""
-
-# -- ELF (TODO: expand for other exe formats) --
-
-tell "Looking for executable format library ... "
-
-exe_format=ELF
-
-case "$exe_format" in
-    ELF)
-	gelf_h="$exe_header_dir/gelf.h"
-	if [ ! -r "$gelf_h" ]
-	    then
-	    tell "Can't find header <gelf.h> for ELF executable support"
-	    tell "  in $exe_header_dir"
-	    bailout
-	fi
-	elf_lib_so="$exe_lib_dir/libelf.so"
-	if [ -r "$elf_lib_so" ]
-	    then
-	    found_libexe="shared"
-	else
-	    elf_lib_a="$exe_lib_dir/libelf.a"
-	    if [ -r "$elf_lib_a" ]
-		then
-		found_libexe="static"
-	    else
-		tell "Can't find library -lelf for ELF executable support"
-		tell "  in $exe_lib_dir"
-		bailout
-	    fi
-	fi
-	tell "Found ELF support"
-	;;
-    *)
-	tell "I don't know executable format \"$exe_format\""
-	tell "  I should not be here; please report this"
-	bailout
-	;;
-esac
-
-tell "Looking for executable format library ... done"
 tell ""
 
 # -- Comms. detection --
@@ -752,9 +799,8 @@ do
         -e "s%@COMMS_LAYER@%$comms_layer%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
-        -e "s%@ELF_HEADERS@%$elf_headers%g" \
-        -e "s%@ELF_LIBS@%$elf_libs%g" \
-        -e "s%@ELF_GETSHDRSTRNDX@%$elf_getshdrstrndx%g" \
+        -e "s%@EXE_HEADERS@%$exe_headers%g" \
+        -e "s%@EXE_LIBS@%$exe_libs%g" \
         -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
         -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
         -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \

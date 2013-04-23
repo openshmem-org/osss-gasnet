@@ -53,7 +53,6 @@
  * only true if PE "pe" can be accessed through SHMEM
  */
 
-/* @api@ */
 int
 shmem_pe_accessible (int pe)
 {
@@ -66,7 +65,6 @@ shmem_pe_accessible (int pe)
  * only true if address can be accessed through SHMEM
  */
 
-/* @api@ */
 int
 shmem_addr_accessible (void *addr, int pe)
 {

@@ -104,7 +104,6 @@ __shmem_fcollect_dispatch_init (void)
 #define shmem_fcollect32 pshmem_fcollect32
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_fcollect32 (void *target, const void *source, size_t nelems,
 		  int PE_start, int logPE_stride, int PE_size, long *pSync)
@@ -120,7 +119,6 @@ shmem_fcollect32 (void *target, const void *source, size_t nelems,
 #define shmem_fcollect64 pshmem_fcollect64
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_fcollect64 (void *target, const void *source, size_t nelems,
 		  int PE_start, int logPE_stride, int PE_size, long *pSync)

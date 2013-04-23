@@ -55,7 +55,7 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CPPFLAGS        += @ELF_HEADERS@
+CPPFLAGS        += @EXE_HEADERS@
 
 CPPFLAGS        += -I..
 

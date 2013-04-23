@@ -1,3 +1,10 @@
+/*
+ * This was taken from the dlmalloc.c to act as a standalone header
+ * file for other parts of the OpenSHMEM library
+ *
+ * License as for dlmalloc.c
+ */
+
 #ifndef _DLMALLOC_H
 #define _DLMALLOC_H 1
 
@@ -12,7 +19,7 @@ extern mspace create_mspace_with_base(void* base, size_t capacity, int locked);
 
 extern size_t destroy_mspace(mspace msp);
 
-extern void * mspace_malloc(mspace msp, size_t bytes);
+extern void* mspace_malloc(mspace msp, size_t bytes);
 
 extern void* mspace_realloc(mspace msp, void* mem, size_t newsize);
 

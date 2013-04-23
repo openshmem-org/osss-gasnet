@@ -155,7 +155,6 @@ __shmalloc_no_check (size_t size)
  * Symmetrically allocate "size" byte of memory across all PEs
  */
 
-/* @api@ */
 void *
 shmalloc (size_t size)
 {
@@ -190,7 +189,6 @@ shmalloc (size_t size)
  * Symmetrically free previously allocated memory
  */
 
-/* @api@ */
 void
 shfree (void *addr)
 {
@@ -224,7 +222,6 @@ shfree (void *addr)
  * Resize previously allocated symmetric memory
  */
 
-/* @api@ */
 void *
 shrealloc (void *addr, size_t size)
 {
@@ -285,7 +282,6 @@ shrealloc (void *addr, size_t size)
  * has a byte alignment specified by the alignment argument.
  */
 
-/* @api@ */
 void *
 shmemalign (size_t alignment, size_t size)
 {
@@ -360,7 +356,6 @@ static const int nerrors = TABLE_SIZE (error_table);
  * Return human-readable error message
  */
 
-/* @api@ */
 char *
 sherror (void)
 {

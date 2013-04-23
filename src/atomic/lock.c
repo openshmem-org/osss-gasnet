@@ -261,7 +261,6 @@ mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 #define shmem_clear_lock pshmem_clear_lock
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_set_lock (long *lock)
 {
@@ -269,7 +268,6 @@ shmem_set_lock (long *lock)
 		    &((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
 
-/* @api@ */
 void
 shmem_clear_lock (long *lock)
 {
@@ -280,7 +278,6 @@ shmem_clear_lock (long *lock)
 		    &((SHMEM_LOCK *) lock)[0], _my_pe ());
 }
 
-/* @api@ */
 int
 shmem_test_lock (long *lock)
 {

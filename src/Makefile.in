@@ -221,8 +221,7 @@ SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_INC_DIR    = @INCLUDE_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h
 
-LDFLAGS         += @ELF_LIBS@
-LIBS             = -lelf -ldl
+LIBS             = @EXE_LIBS@ -lelf -ldl
 
 INSTALL          = install -c
 REMOVE           = rm -f

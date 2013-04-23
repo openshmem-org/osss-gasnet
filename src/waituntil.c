@@ -76,7 +76,6 @@
  */
 
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
-  /* @api@ */								\
   void									\
   shmem_##Name##_wait_until(Type *ivar, int cmp, Type cmp_value)	\
   {									\
@@ -116,6 +115,7 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
 /**
  * and a special case for the untyped call
  */
+
 void
 shmem_wait_until (long *ivar, int cmp, long cmp_value)
 {
@@ -139,7 +139,6 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
  * wait is just wait_until with equality test
  */
 #define SHMEM_TYPE_WAIT(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\

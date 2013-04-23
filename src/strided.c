@@ -85,7 +85,6 @@ extern complex float shmem_complexf_g (complex float *addr, int pe);
  */
 
 #define SHMEM_EMIT_IPUT(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_iput (Type *target, const Type *source,		\
 		       ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
@@ -167,7 +166,6 @@ shmem_iput128 (void *target, const void *source,
  */
 
 #define SHMEM_EMIT_IGET(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_iget (Type *target, const Type *source,		\
 		       ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \

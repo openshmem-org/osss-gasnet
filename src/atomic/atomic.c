@@ -148,7 +148,6 @@ SHMEM_TYPE_CSWAP (longlong, long long);
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
-  /* @api@ */								\
   Type									\
   shmem_##Name##_fadd (Type *target, Type value, int pe)		\
   {									\
@@ -179,7 +178,6 @@ SHMEM_TYPE_FADD (longlong, long long);
  */
 
 #define SHMEM_TYPE_FINC(Name, Type)					\
-  /* @api@ */								\
   Type									\
   shmem_##Name##_finc (Type *target, int pe)				\
   {									\
@@ -208,7 +206,6 @@ SHMEM_TYPE_FINC (longlong, long long);
  *
  */
 #define SHMEM_TYPE_ADD(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
@@ -232,7 +229,6 @@ SHMEM_TYPE_ADD (longlong, long long);
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_INC(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_inc (Type *target, int pe)				\
   {									\

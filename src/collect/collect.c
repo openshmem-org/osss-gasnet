@@ -107,7 +107,6 @@ __shmem_collect_dispatch_init (void)
  * into a target array on all those PEs
  */
 
-/* @api@ */
 void
 shmem_collect32 (void *target, const void *source, size_t nelems,
 		 int PE_start, int logPE_stride, int PE_size, long *pSync)
@@ -129,7 +128,6 @@ shmem_collect32 (void *target, const void *source, size_t nelems,
  * into a target array on all those PEs
  */
 
-/* @api@ */
 void
 shmem_collect64 (void *target, const void *source, size_t nelems,
 		 int PE_start, int logPE_stride, int PE_size, long *pSync)

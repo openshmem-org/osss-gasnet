@@ -333,7 +333,6 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
  */
 
 #define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
-  /* @api@ */								\
   void									\
   shmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
 				    int PE_start, int logPE_stride, int PE_size, \

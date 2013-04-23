@@ -101,7 +101,6 @@ __shmem_broadcast_dispatch_init (void)
 #define shmem_broadcast32 pshmem_broadcast32
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_broadcast32 (void *target, const void *source, size_t nelems,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
@@ -119,7 +118,6 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
 #define shmem_broadcast64 pshmem_broadcast64
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_broadcast64 (void *target, const void *source, size_t nelems,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
@@ -137,7 +135,6 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
 #define shmem_sync_init pshmem_sync_init
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_sync_init (long *pSync)
 {

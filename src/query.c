@@ -188,7 +188,6 @@ shmem_nodename (void)
  *
  */
 
-/* @api@ */
 int
 shmem_version (int *major, int *minor)
 {

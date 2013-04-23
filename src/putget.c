@@ -92,7 +92,6 @@
  */
 
 #define SHMEM_TYPE_PUT(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
@@ -139,7 +138,6 @@ shmem_put128 (void *dest, const void *src, size_t nelems, int pe)
   shmem_longdouble_put (dest, src, nelems, pe);
 }
 
-/* @api@ */
 void
 shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 {
@@ -191,7 +189,6 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET(Name, Type)					\
-  /* @api@ */								\
   void									\
   shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
@@ -238,7 +235,6 @@ shmem_get128 (void *dest, const void*src, size_t nelems, int pe)
   shmem_longdouble_get (dest, src, nelems, pe);
 }
 
-/* @api@ */
 void
 shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 {
@@ -281,7 +277,6 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
  * gasnet_(get|get)_val can't handle bigger types..
  */
 #define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
-  /* @api@ */								\
   void									\
   shmem_##Name##_p (Type *dest, Type value, int pe)			\
   {									\
@@ -320,7 +315,6 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
-  /* @api@ */								\
   Type									\
   shmem_##Name##_g (Type *addr, int pe)					\
   {									\

@@ -127,7 +127,6 @@ __shmem_barriers_dispatch_init (void)
 #define shmem_barrier_all pshmem_barrier_all
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_barrier_all (void)
 {
@@ -144,7 +143,6 @@ shmem_barrier_all (void)
 #define shmem_barrier pshmem_barrier
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void
 shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {

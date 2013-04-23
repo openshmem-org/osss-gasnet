@@ -15,6 +15,7 @@ Build
 -----
 
   * Review of collectives with some fixes
+  * Updated 3rd party utilities
   * Compiles with Clang
   * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to

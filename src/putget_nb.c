@@ -77,7 +77,6 @@
  */
 
 #define SHMEM_TYPE_PUT_NB(Name, Type)					\
-  /* @api@ */								\
   void *								\
   shmem_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
 			 int pe, void **hp)				\
@@ -136,7 +135,6 @@ shmem_put128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 #define shmem_put_nb pshmem_put_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void *
 shmem_putmem_nb (void *target, const void *source, size_t nelems,
 		 int pe, void **hp)
@@ -188,7 +186,6 @@ shmem_put_nb (long *target, const long *source, size_t nelems,
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET_NB(Name, Type)					\
-  /* @api@ */								\
   void *								\
   shmem_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
 			 int pe, void **hp)				\
@@ -248,7 +245,6 @@ shmem_get128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 #define shmem_get_nb pshmem_get_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/* @api@ */
 void *
 shmem_getmem_nb (void *target, const void *source, size_t nelems,
 		 int pe, void **hp)
@@ -284,7 +280,6 @@ shmem_get_nb (long *target, const long *source, size_t nelems, int pe, void **hp
  * Wait for handle to be completed
  */
 
-/* @api@ */
 void shmem_wait_nb (void *h)
 {
   __shmem_comms_wait_nb (h);
@@ -294,7 +289,6 @@ void shmem_wait_nb (void *h)
  * Test whether handle has been completed
  */
 
-/* @api@ */
 int
 shmem_test_nb (void *h)
 {
