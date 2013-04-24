@@ -49,7 +49,6 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <values.h>
 #include <dlfcn.h>
 
 #include "uthash.h"

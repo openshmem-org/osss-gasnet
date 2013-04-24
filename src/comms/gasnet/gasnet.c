@@ -56,7 +56,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <values.h>
+#include <limits.h>
 
 #include <gasnet.h>
 
@@ -854,7 +854,7 @@ static void
 maximize_gasnet_timeout (void)
 {
   char buf[32];
-  snprintf (buf, 32, "%d", MAXINT - 1);
+  snprintf (buf, 32, "%d", INT_MAX - 1);
   setenv ("GASNET_EXITTIMEOUT", buf, 1);
 }
 
