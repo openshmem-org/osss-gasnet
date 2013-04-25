@@ -72,6 +72,8 @@
 
 #include "service.h"
 
+#include "unitparse.h"
+
 #include "../comms.h"
 
 /**
@@ -177,6 +179,7 @@ __shmem_comms_get_segment_size (void)
   size_t bytes = 1L;
   char *p;
   char *mlss_str = __shmem_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
+  size_t retval;
 
   if (mlss_str == (char *) NULL)
     {
@@ -187,48 +190,17 @@ __shmem_comms_get_segment_size (void)
 #endif
     }
 
-  p = mlss_str;
-  while (*p != '\0')
+  retval = __shmem_parse_size (mlss_str);
+  if (retval == (size_t) -1)
     {
-      if (!isdigit (*p))
-	{
-	  unit = *p;
-	  *p = '\0';		/* get unit, chop */
-	  break;
-	}
-      p += 1;
+      /* don't know that unit! */
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "unknown data size unit \"%c\" in symmetric heap specification",
+		     unit);
+      /* NOT REACHED */
     }
 
-  /* if there's a unit, work out how much to scale */
-  if (unit != '\0')
-    {
-      int i;
-      int foundit = 0;
-      char *usp = units_string;
-
-      unit = tolower (unit);
-      while (*usp != '\0')
-	{
-	  bytes *= multiplier;
-	  if (*usp == unit)
-	    {
-	      foundit = 1;
-	      break;
-	    }
-	  usp += 1;
-	}
-
-      if (!foundit)
-	{
-	  /* don't know that unit! */
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "unknown data size unit \"%c\" in symmetric heap specification",
-			 unit);
-	  /* NOT REACHED */
-	}
-    }
-
-  return bytes * (size_t) strtol (mlss_str, (char **) NULL, 10);
+  return bytes * retval;
 }
 
 /**
