@@ -33,6 +33,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+SHELL                = /bin/sh
 
 #
 # installation root
@@ -204,20 +205,18 @@ SHMEM_SOURCES   += exe.c
 SHMEM_SOURCES   += unitparse.c
 
 # API
-SHMEM_SOURCES   +=	reduce-op.c
-#
-SHMEM_SOURCES   +=	accessible.c ptr.c
-#
-SHMEM_SOURCES   +=	cache.c fence.c
-#
-SHMEM_SOURCES   +=	putget.c strided.c
-SHMEM_SOURCES   +=	putget_nb.c
-#
-SHMEM_SOURCES   +=	query.c updown.c waituntil.c
-#
-SHMEM_SOURCES   +=	profiling.c
+SHMEM_SOURCES   += reduce-op.c
+SHMEM_SOURCES   += accessible.c ptr.c
+SHMEM_SOURCES   += cache.c
+SHMEM_SOURCES   += fence.c
+SHMEM_SOURCES   += putget.c strided.c
+SHMEM_SOURCES   += putget_nb.c
+SHMEM_SOURCES   += query.c
+SHMEM_SOURCES   += updown.c
+SHMEM_SOURCES   += waituntil.c
+SHMEM_SOURCES   += profiling.c
 
-
+# files to be generated in compile
 SHMEM_OBJECTS    = $(SHMEM_SOURCES:.c=.o)
 SHMEM_DEPFILES   = $(SHMEM_SOURCES:.c=.d)
 SHMEM_LIB_DIR    = @LIB_DIR@
@@ -231,12 +230,16 @@ LIBS             = @EXE_LIBS@ -lelf -ldl
 INSTALL          = install -c
 REMOVE           = rm -f
 
-OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
+OBJ_GEN          = \
+			comms-obj-gen \
+			globalvar-obj-gen \
 			broadcast-obj-gen \
-			collect-obj-gen fcollect-obj-gen \
+			collect-obj-gen \
+			fcollect-obj-gen \
 			barrier-obj-gen \
 			atomic-obj-gen \
-			malloc-obj-gen memory-obj-gen \
+			malloc-obj-gen \
+			memory-obj-gen \
 			modules-obj-gen \
 			fortran-obj-gen
 
@@ -247,7 +250,7 @@ OBJ_GEN          = comms-obj-gen globalvar-obj-gen \
 .PHONY:	shmem-headers
 .PHONY: install install-lib install-comms install-include
 .PHONY: uninstall uninstall-lib uninstall-comms uninstall-include
-.PHONY: clean distclean
+.PHONY: tidy clean distclean
 
 # ---------------------------------------------------------
 
@@ -267,7 +270,7 @@ install-lib:	all
 install-comms:	all
 	$(MAKE) -C $(COMMS_DIR) install
 
-install-include:	all
+install-include: all
 	mkdir -p $(SHMEM_INC_DIR)/mpp
 	( \
 		for h in $(SHMEM_HEADERS); \
@@ -399,7 +402,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 
 # ---------------------------------------------------------
 
-clean:
+tidy clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
 	$(MAKE) -C $(FORTRAN_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
