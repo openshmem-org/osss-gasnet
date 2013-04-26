@@ -36,16 +36,10 @@
  */
 
 
-
-/**
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/types.h>
-
-#include "trace.h"
 
 /**
  * define accepted size units in ascending order, which are
@@ -56,56 +50,75 @@
  */
 
 static char *units_string = "kmgtpezy";
+static const size_t multiplier = 1000;
 
-static const size_t multiplier = (size_t) 1000;
+/**
+ * Take a scaling unit and work out its numeric value.
+ *
+ * Return scale value if known, otherwise -1
+ *
+ */
+
+static size_t
+parse_unit (char u)
+{
+  int foundit = 0;
+  char *usp = units_string;
+  size_t bytes = 1;
+ 
+  u = tolower (u);
+  while (*usp != '\0')
+    {
+      bytes *= multiplier;
+      if (*usp == u)
+	{
+	  foundit = 1;
+	  break;
+	  /* NOT REACHED */
+	}
+      usp += 1;
+    }
+ 
+  return foundit ? bytes : -1;
+}
+
 
 /**
  * segment size can be expressed with scaling units.  Parse those.
+ *
+ * Return segemnt size, scaled where necessary by unit, or -1
+ * if we couldn't parse it.
  */
 
 size_t
 __shmem_parse_size (char *size_str)
 {
   char unit = '\0';
-  size_t bytes = (size_t) 1;
+  size_t ret = 0;
   char *p;
 
   p = size_str;
   while (*p != '\0')
     {
-      if (!isdigit (*p))
+      if (! isdigit (*p))
 	{
 	  unit = *p;
-	  *p = '\0';		/* get unit, terminate numeral */
 	  break;
+	  /* NOT REACHED */
 	}
+
+      ret = ret * 10 + (*p - '0'); /* works for ASCII/EBCDIC */
       p += 1;
     }
 
-  /* if there's a unit, work out how much to scale */
-  if (unit != '\0')
+  /* if no unit, we already have value.  Otherwise, do scaling */
+  if (unit == '\0')
     {
-      int foundit = 0;
-      char *usp = units_string;
-
-      unit = tolower (unit);
-      while (*usp != '\0')
-	{
-	  bytes *= multiplier;
-	  if (*usp == unit)
-	    {
-	      foundit = 1;
-	      break;
-	    }
-	  usp += 1;
-	}
-
-      if (!foundit)
-	{
-	  /* don't know that unit! */
-	  return (size_t) -1;
-	}
+      return ret;
     }
-
-  return bytes * (size_t) strtol (size_str, (char **) NULL, 10);
+  else
+    {
+      size_t bytes = parse_unit (unit);
+      return (bytes != -1) ? bytes * ret : -1;
+    }
 }
