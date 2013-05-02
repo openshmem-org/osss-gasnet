@@ -236,7 +236,8 @@ start_pes (int npes)
   if (npes != 0)
     {
       __shmem_trace (SHMEM_LOG_INFO,
-		     "start_pes() was passed %d, should be 0", npes
+		     "start_pes() was passed %d, should be 0",
+                     npes
 		     );
     }
 

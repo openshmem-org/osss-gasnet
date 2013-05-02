@@ -166,11 +166,6 @@ Usage: $progname [options]
     --enable-pshmem              Build the PSHMEM profiling interface
     --disable-pshmem             No PSHMEM profiling interface (default)
 
-  Deprecated:
-
-    --enable-putget-nb           Same as --enable-experimental
-    --disable-putget-nb          Same as --disable-experimental
-
   Informational:
 
     --help                       Show this summary and exit
@@ -283,7 +278,7 @@ do
 	    exe_format=ELF
 	    exe_lib_dir="`chompit $o`"
 	    # TODO: try to defer to per-compiler section
-            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
+            # exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
 	    ;;
 	--enable-debug)
 	    feature_debug=enabled
@@ -309,14 +304,14 @@ do
 	--disable-experimental)
 	    feature_experimental=disabled
 	    ;;
-	--enable-putget-nb)
-	    deprecated "$o" "--enable-experimental"
-	    feature_experimental=enabled
-	    ;;
-	--disable-putget-nb)
-	    deprecated "$o" "--disable-experimental"
-	    feature_experimental=disabled
-	    ;;
+#	--enable-putget-nb)
+#	    deprecated "$o" "--enable-experimental"
+#	    feature_experimental=enabled
+#	    ;;
+#	--disable-putget-nb)
+#	    deprecated "$o" "--disable-experimental"
+#	    feature_experimental=disabled
+#	    ;;
 	--help)
 	    show_usage
 	    bailout
@@ -612,7 +607,7 @@ case "$comms_layer" in
     gasnet)
 
 	if [ -z "$gasnet_root" ]
-	    then
+	then
 	    tell "I don't know where GASNet is installed"
 	    bailout
 	fi
@@ -622,20 +617,20 @@ case "$comms_layer" in
         gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
         if [ ! -r "$gasnet_path_h" ]
     	then
-    	tell "I can't find a GASNet installation in \"$gasnet_root\""
-    	tell "  (no $gasnet_h header file)"
-    	tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
-    	bailout
+    	    tell "I can't find a GASNet installation in \"$gasnet_root\""
+    	    tell "  (no $gasnet_h header file)"
+    	    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
+    	    bailout
         fi
 
         # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
 
         find_ver_macro()
         {
-    	var=$1
-    	file=$2
-    	cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
-    	eval $cmd
+    	    var=$1
+    	    file=$2
+    	    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    	    eval $cmd
         }
 
         gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
@@ -643,8 +638,9 @@ case "$comms_layer" in
         gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
         if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
     	then
-    	tell "Couldn't discover GASNet version in $gasnet_root"
-    	bailout
+    	    tell "Couldn't discover full GASNet version in $gasnet_root"
+    	    tell "  (should be major.minor.patch)"
+    	    bailout
         fi
 
         gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
@@ -668,7 +664,8 @@ case "$comms_layer" in
         cdt_auto=""
 
         #
-        # no conduit asked for on command-line
+        # if no conduit asked for on command-line, see if we can
+        # auto-detect
         #
 
         if [ -z "$gasnet_conduit" ]
