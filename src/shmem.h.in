@@ -41,6 +41,16 @@
 #ifndef _SHMEM_H
 #define _SHMEM_H 1
 
+/*
+ * for handling the "I" (upper-case eye) macro for complex numbers
+ *
+ * and see end of file for tidy-up
+ */
+#ifdef I
+# define __shmem_h_I_already_defined__
+#endif /* I */
+
+
 #include <sys/types.h>
 #include <stddef.h>               /* ptrdiff_t */
 
@@ -665,5 +675,15 @@ ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protos'))
 #ifdef __cplusplus
 }
 #endif	/* __cplusplus */
+
+/*
+ * tidy-up complex "I" macro detection.
+ *
+ */
+#ifdef  __shmem_h_I_already_defined__
+# undef  __shmem_h_I_already_defined__
+#else
+# undef I
+#endif /* __shmem_h_I_already_defined__ */
 
 #endif	/* _SHMEM_H */

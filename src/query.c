@@ -104,7 +104,8 @@ shmem_my_pe (void)
  *
  */
 
-static int
+static
+inline int
 numpes_helper (void)
 {
   INIT_CHECK ();
