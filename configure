@@ -60,6 +60,8 @@ incdir=
 bindir=
 modulesdir=
 modulefilesdir=
+
+show_progress=YES
 # -- end defaults --
 
 # find out where things are
@@ -72,16 +74,20 @@ srctreedir="`cd $srctreedir && pwd`"
 # same for where we are
 buildtreedir="`pwd`"
 
+
+tell()
+{
+    if [ "$show_progress" = "YES" ]
+    then
+	echo "$progname: $*"
+    fi
+}
+
 bailout()
 {
     tell ""
     tell "Bailing out..."
     exit 1
-}
-
-tell()
-{
-    echo "$progname: $*"
 }
 
 deprecated()
@@ -169,6 +175,8 @@ Usage: $progname [options]
   Informational:
 
     --help                       Show this summary and exit
+
+    --quiet                      Don't provide progress messages
 
   Environment Variables:
 
@@ -315,6 +323,9 @@ do
 	--help)
 	    show_usage
 	    bailout
+	    ;;
+	--quiet)
+	    show_progress=NO
 	    ;;
 	*)
 	    show_usage $o
@@ -612,6 +623,9 @@ case "$comms_layer" in
 	    bailout
 	fi
 
+	tell "Checking for GASNet under"
+	tell "  $gasnet_root"
+
         gasnet_h="gasnet_config.h"
         gasnet_inc_dir="$gasnet_root/include"
         gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
@@ -661,6 +675,8 @@ case "$comms_layer" in
             bailout
         fi
 
+	tell "Found conduits: $KNOWN_CONDUITS"
+
         cdt_auto=""
 
         #
@@ -671,11 +687,14 @@ case "$comms_layer" in
         if [ -z "$gasnet_conduit" ]
         then
             kc=`echo $KNOWN_CONDUITS | wc -w`
+
             if [ $kc -eq 0 ]
             then
                 tell "I couldn't find any GASNet conduits under $gasnet_root"
                 bailout
-            elif [ $kc -eq 1 ]
+            fi
+
+	    if [ $kc -eq 1 ]
             then
                 # only one there, just use it
                 gasnet_conduit="$KNOWN_CONDUITS"
@@ -703,7 +722,7 @@ case "$comms_layer" in
             bailout
         fi
 
-        tell "Conduit \"$gasnet_conduit\" looks OK"
+        tell "Chosen conduit \"$gasnet_conduit\" looks OK"
 	;;  #  end of gasnet section
     uccs)
 	tell "UCCS support is just a stub for future use."
@@ -824,23 +843,18 @@ tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
 tell "  Suite appears to be           $cc_type"
-tell ""
 tell "    C compiler is               $cc_cmd"
 tell "    C pre-processor flags are   \"$cpp_flags\""
 tell "    C flags are                 \"$c_flags\""
-tell ""
 tell "    C++ compiler is             $cxx_cmd"
 tell "    C++ flags are               \"$cxx_flags\""
-tell ""
 tell "    Fortran compiler is         $fc_cmd"
 tell "    Fortran flags are           \"$fc_flags\""
-tell ""
 tell "    Linker is                   $ld_cmd"
 tell "    Linker flags are            \"$ld_flags\""
 tell ""
 tell "Executable Format:"
 tell "  Format is                     $exe_format"
-tell ""
 tell "    Headers in                  $exe_header_dir"
 tell "    Library in                  $exe_lib_dir ($found_libexe)"
 tell ""
@@ -857,11 +871,11 @@ case "$comms_layer" in
 	tell "  UCCS:"
 	tell "    Installed in                $uccs_root"
 	tell ""
-	tell "  No UCCS support, I should not be here; please report this"
+	tell "  No UCCS support, I should not be here; please report this error"
 	;;
     *)
 	tell "I do not recognize communications layer \"$comms_layer\"."
-	tell "  I should not be here; please report this"
+	tell "  I should not be here; please report this error"
 	bailout
 	;;
 esac
@@ -878,7 +892,7 @@ tell "  Main package to               $prefix"
 tell "  Executables to                $bindir"
 tell "  Libraries to                  $libdir"
 tell "  Headers to                    $incdir"
-tell "  OpensHMEM modules to          $modulesdir"
+tell "  OpenSHMEM modules to          $modulesdir"
 tell "  pkg-config file to            $modulefilesdir"
 
 # -- save configure settings, makes it easy to re-run --
@@ -1061,9 +1075,24 @@ setfeature()
 	    # and more, don't know what yet, though
 	    ;;
 	*)
-	    # going to leave this blank for now...
+	    tell "I do not recognize communications layer \"$comms_layer\"."
+	    tell "  I should not be here; please report this error"
+	    bailout
 	    ;;
     esac
+    echo
+
+
+    echo "/*"
+    echo " * Installation directories"
+    echo " */"
+
+    echo "#define OPENSHMEM_INSTALL_PREFIX \"$prefix\""
+    echo "#define OPENSHMEM_INSTALL_BIN    \"$bindir\""
+    echo "#define OPENSHMEM_INSTALL_LIB    \"$libdir\""
+    echo "#define OPENSHMEM_INSTALL_HDR    \"$incdir\""
+    echo "#define OPENSHMEM_INSTALL_MOD    \"$modulesdir\""
+    echo "#define OPENSHMEM_INSTALL_PKG    \"$modulefilesdir\""
     echo
 
     echo "#endif /* CONFIG_H */"
@@ -1072,9 +1101,10 @@ setfeature()
 tell ""
 tell "============================================================="
 tell ""
-tell "C header information in         $config_h"
+tell "C configuration information in  $config_h"
 tell ""
 tell "Configuration in shell-script   $cs"
 tell ""
-tell "  (Execute $cs to re-configure library)"
+tell "  (Execute $cs to re-configure library"
+tell "   with identical settings)"
 tell ""
