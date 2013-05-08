@@ -46,8 +46,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <gelf.h>
-#include <libelf.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdio.h>
@@ -1316,8 +1314,18 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p));
+
+  /*
+   * TODO:
+   *
+   * This, as in all the atomic handlers, is where the opportunity gap
+   * is.  We could do useful things between firing off the request and
+   * waiting for the completion notification.  So split this out into
+   * a post and wait/poll pair, post returning a handle for the atomic
+   * op. in progress.
+   */
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1426,7 +1434,7 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
 
   LOAD_STORE_FENCE;
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp));
 
   WAIT_ON_COMPLETION (cp->completed);
@@ -1521,7 +1529,7 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
@@ -1614,7 +1622,7 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
@@ -1701,7 +1709,7 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
@@ -1785,7 +1793,7 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
@@ -1870,7 +1878,7 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
   p->completed = 0;
   p->completed_addr = &(p->completed);
 
-  /* send and wait for ack */
+  /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p));
 
   WAIT_ON_COMPLETION (p->completed);
@@ -1997,7 +2005,7 @@ __shmem_comms_ping_request (int pe)
   /* only ping if we're coming through the first time */
   if (sj_status == 0)
     {
-      /* send and wait for ack */
+      /* fire off request */
       gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_PING_OUT,
 			       p, sizeof (*p));
 
