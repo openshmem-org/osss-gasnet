@@ -136,8 +136,9 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
- * wait is just wait_until with equality test
+ * wait is just wait_until with inequality/change test
  */
+
 #define SHMEM_TYPE_WAIT(Name, Type)					\
   void									\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
@@ -153,6 +154,7 @@ SHMEM_TYPE_WAIT (longlong, long long);
 /**
  * and a special case for the untyped call
  */
+
 void
 shmem_wait (long *ivar, long cmp_value)
 {
