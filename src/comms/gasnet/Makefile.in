@@ -72,6 +72,11 @@ MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
+GLOBALVAR_DIR        =    ../../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
+
 INSTALL          = install -c
 REMOVE           = rm -f
 
@@ -104,6 +109,7 @@ CPPFLAGS        += $(DLMALLOC_CFLAGS)
 CPPFLAGS        += $(HASH_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 

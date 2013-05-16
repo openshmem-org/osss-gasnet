@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 /**
  * for hi-res timer
