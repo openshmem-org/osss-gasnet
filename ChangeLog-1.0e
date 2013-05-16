@@ -16,7 +16,7 @@ Build
 
   * Review of collectives with some fixes
   * Updated 3rd party utilities
-  * Compiles with Clang
+  * Compiles with Clang, PGI
   * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to
     GASNet

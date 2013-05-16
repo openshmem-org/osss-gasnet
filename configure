@@ -463,11 +463,11 @@ case "$cc_ver" in
 	ld_cmd="$cc_cmd"
 	;;
     *"The Portland Group"*)
-	cc_type="PGI"
+	cc_type="Portland Group"
 	c99_flags="-c99"
 	warn_flags=""     # enabled by default
 	pic_flags="-fPIC"
-	thread_flags="-pthread"
+	thread_flags=""
 	so_flags="-shared"
 	exe_libs="-L$exe_lib_dir"
 	if  [ "$found_libexe" = "shared" ]

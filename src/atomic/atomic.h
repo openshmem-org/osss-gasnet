@@ -72,6 +72,17 @@ extern void __shmem_atomic_finalize (void);
 # define LOAD_STORE_FENCE __machine_rw_barrier ()
 # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
 
+#elif defined(__PGI)
+/*
+ * Portland Group (PGI)
+ */
+# include <tmmintrin.h>
+# define LOAD_STORE_FENCE _mm_mfence ()
+/*
+ * found _mm_add_pd but not sure if this is what we want
+ */
+# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+
 #elif defined(__GNUC__)
 /*
  * GCC

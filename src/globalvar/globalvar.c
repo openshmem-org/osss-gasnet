@@ -250,9 +250,13 @@ table_init_helper (void)
 		  {
 		    goto bail;
 		  }
+		gv->name = strdup (name);
+		if (gv->name == NULL)
+		  {
+		    goto bail;
+		  }
 		gv->addr = (void *) es->st_value;
 		gv->size = es->st_size;
-		gv->name = strdup (name);
 		HASH_ADD_PTR (gvp, addr, gv);
 	      }
 	    }
@@ -265,7 +269,7 @@ table_init_helper (void)
       break;
     }
 
-bail:
+ bail:
 
   if (elf_end (e) != 0)
     {
