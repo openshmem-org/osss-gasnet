@@ -162,7 +162,12 @@ $(SERVICE_OBJ):	$(SERVICE_SRC)
 
 # -- command wrappers depend on gasnet settings ------------
 
-wrappers:	$(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT) $(SHMEM_FC) $(SHMEM_RUN)
+wrappers:	\
+		$(SHMEM_CC) \
+		$(SHMEM_CXX) \
+		$(SHMEM_CXX_ALT) \
+		$(SHMEM_FC) \
+		$(SHMEM_RUN)
 
 # 2012-10-27: TODO: this is really tricky.  GASNet only tells us
 # about the linker command for C (could be compiler, or MPI wrapper

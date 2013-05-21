@@ -81,14 +81,18 @@ __shmem_broadcast_dispatch_init (void)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "internal error: couldn't load broadcast module \"%s\"",
-		     name);
+		     name
+		     );
       /* NOT REACHED */
     }
 
   /*
    * report which broadcast implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST, "using broadcast \"%s\"", name);
+  __shmem_trace (SHMEM_LOG_BROADCAST,
+		 "using broadcast \"%s\"",
+		 name
+		 );
 }
 
 /*

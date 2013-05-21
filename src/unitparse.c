@@ -118,7 +118,7 @@ __shmem_parse_size (char *size_str)
     }
   else
     {
-      size_t bytes = parse_unit (unit);
+      const size_t bytes = parse_unit (unit);
       return (bytes != -1) ? bytes * ret : -1;
     }
 }

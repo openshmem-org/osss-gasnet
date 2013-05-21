@@ -137,15 +137,18 @@ static void *great_big_heap;
  * trap gasnet errors gracefully
  *
  */
-#define GASNET_SAFE(fncall) do {                                        \
-    int _retval;                                                        \
-    if ((_retval = fncall) != GASNET_OK) {                              \
-      __shmem_trace(SHMEM_LOG_FATAL,					\
-		   "error calling: %s at %s:%i, %s (%s)\n",		\
-		   #fncall, __FILE__, __LINE__,				\
-		   gasnet_ErrorName(_retval),				\
-		   gasnet_ErrorDesc(_retval));				\
-    }                                                                   \
+#define GASNET_SAFE(fncall) \
+  do {									\
+    const int _retval = fncall ;					\
+    if (_retval != GASNET_OK)						\
+      {									\
+	__shmem_trace (SHMEM_LOG_FATAL,					\
+		       "error calling: %s at %s:%i, %s (%s)\n",		\
+		       #fncall, __FILE__, __LINE__,			\
+		       gasnet_ErrorName (_retval),			\
+		       gasnet_ErrorDesc (_retval)			\
+		       );						\
+      }									\
   } while(0)
 
 /*
@@ -160,45 +163,33 @@ static void *great_big_heap;
 enum
   {
     GASNET_HANDLER_SETUP_OUT=128,
-    GASNET_HANDLER_SETUP_BAK=129,
-    GASNET_HANDLER_SWAP_OUT=130,
-    GASNET_HANDLER_SWAP_BAK=131,
-    GASNET_HANDLER_CSWAP_OUT=132,
-    GASNET_HANDLER_CSWAP_BAK=133,
-    GASNET_HANDLER_FADD_OUT=134,
-    GASNET_HANDLER_FADD_BAK=135,
-    GASNET_HANDLER_FINC_OUT=136,
-    GASNET_HANDLER_FINC_BAK=137,
-    GASNET_HANDLER_ADD_OUT=138,
-    GASNET_HANDLER_ADD_BAK=139,
-    GASNET_HANDLER_INC_OUT=140,
-    GASNET_HANDLER_INC_BAK=141,
-    GASNET_HANDLER_PING_OUT=142,
-    GASNET_HANDLER_PING_BAK=143,
-    GASNET_HANDLER_XOR_OUT=146,
-    GASNET_HANDLER_XOR_BAK=147,
-    GASNET_HANDLER_GLOBALVAR_PUT_OUT=148,
-    GASNET_HANDLER_GLOBALVAR_PUT_BAK=149,
-    GASNET_HANDLER_GLOBALVAR_GET_OUT=150,
-    GASNET_HANDLER_GLOBALVAR_GET_BAK=151,
+    GASNET_HANDLER_SETUP_BAK,
+    GASNET_HANDLER_SWAP_OUT,
+    GASNET_HANDLER_SWAP_BAK,
+    GASNET_HANDLER_CSWAP_OUT,
+    GASNET_HANDLER_CSWAP_BAK,
+    GASNET_HANDLER_FADD_OUT,
+    GASNET_HANDLER_FADD_BAK,
+    GASNET_HANDLER_FINC_OUT,
+    GASNET_HANDLER_FINC_BAK,
+    GASNET_HANDLER_ADD_OUT,
+    GASNET_HANDLER_ADD_BAK,
+    GASNET_HANDLER_INC_OUT,
+    GASNET_HANDLER_INC_BAK,
+    GASNET_HANDLER_PING_OUT,
+    GASNET_HANDLER_PING_BAK,
+    GASNET_HANDLER_XOR_OUT,
+    GASNET_HANDLER_XOR_BAK,
+    GASNET_HANDLER_GLOBALVAR_PUT_OUT,
+    GASNET_HANDLER_GLOBALVAR_PUT_BAK,
+    GASNET_HANDLER_GLOBALVAR_GET_OUT,
+    GASNET_HANDLER_GLOBALVAR_GET_BAK,
   };
 
 /**
  * --------------- real work starts here ---------------------
  *
  */
-
-/**
- * define accepted size units in ascending order, which are
- * S.I. compliant
- *
- * http://en.wikipedia.org/wiki/SI_Unit_Prefixes
- *
- */
-
-static char *units_string = "kmgtpezy";
-
-static const size_t multiplier = 1000L;
 
 /**
  * work out how big the symmetric segment areas should be.
@@ -209,9 +200,6 @@ static const size_t multiplier = 1000L;
 static size_t
 __shmem_comms_get_segment_size (void)
 {
-  char unit = '\0';
-  size_t bytes = 1L;
-  char *p;
   char *mlss_str = __shmem_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
   size_t retval;
 
@@ -229,12 +217,12 @@ __shmem_comms_get_segment_size (void)
     {
       /* don't know that unit! */
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "unknown data size unit \"%c\" in symmetric heap specification",
-		     unit);
+		     "unknown data size unit in symmetric heap specification"
+		     );
       /* NOT REACHED */
     }
 
-  return bytes * retval;
+  return retval;
 }
 
 /**
@@ -2398,6 +2386,8 @@ __shmem_comms_init (void)
 void
 __shmem_comms_exit (int status)
 {
+  __shmem_comms_barrier_all ();
+
   gasnet_exit (status);
 }
 
