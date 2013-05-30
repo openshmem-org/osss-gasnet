@@ -135,11 +135,11 @@ Usage: $progname [options]
 
   Per-layer options:
 
-      --with-gasnet-root=G       Use the GASNet installed under directory "G"
-      --with-gasnet-conduit=C    Use GASNet conduit "C"
+      --with-gasnet-root=G       Use the GASNet installed under directory G
+      --with-gasnet-conduit=C    Use GASNet conduit C
                                    (if only 1 conduit configured, use it)
 
-      --with-uccs-root=U         Use the UCCS installed under directory "U"
+      --with-uccs-root=U         Use the UCCS installed under directory U
                                    (currently just a stub)
 
       (These imply --with-comms-layer=GASNet/UCCS as appropriate)
@@ -147,10 +147,10 @@ Usage: $progname [options]
   Optional Support Libraries:
 
     --with-libelf=LE             Libelf header and library files under
-                                     directory "LE" (.../include, .../lib)
-    --with-libelf-headers=H      Libelf header files in directory "H"
+                                     directory LE (.../include, .../lib)
+    --with-libelf-headers=H      Libelf header files in directory H
                                      (default: /usr/include)
-    --with-libelf-libs=L         Libelf library files in directory "L"
+    --with-libelf-libs=L         Libelf library files in directory L
                                      (default: /usr/lib64)
 
   Optional features:
@@ -368,8 +368,8 @@ case "$exe_format" in
 	gelf_h="$exe_header_dir/gelf.h"
 	if [ ! -r "$gelf_h" ]
 	then
-	    tell "Can't find header <gelf.h> for ELF executable support"
-	    tell "  in $exe_header_dir"
+	    tell "  Can't find header <gelf.h> for ELF executable support"
+	    tell "    in $exe_header_dir"
 	    bailout
 	fi
 	elf_lib_so="$exe_lib_dir/libelf.so"
@@ -382,16 +382,16 @@ case "$exe_format" in
 	    then
 		found_libexe="static"
 	    else
-		tell "Can't find library -lelf for ELF executable support"
-		tell "  in $exe_lib_dir"
+		tell "  Can't find library -lelf for ELF executable support"
+		tell "    in $exe_lib_dir"
 		bailout
 	    fi
 	fi
-	tell "Found ELF support"
+	tell "  Found ELF support"
 	;;
     *)
-	tell "I don't know executable format \"$exe_format\""
-	tell "  I should not be here; please report this"
+	tell "  I don't know executable format \"$exe_format\""
+	tell "    I should not be here; please report this"
 	bailout
 	;;
 esac
@@ -412,7 +412,7 @@ cc_cmd="${CC-gcc}"
 which $cc_cmd >/dev/null 2>&1
 if [ $? -ne 0 ]
 then
-    tell "I couldn't find the C compiler \"$cc_cmd\""
+    tell "  I couldn't find the C compiler \"$cc_cmd\""
     bailout
 fi
 
@@ -479,7 +479,7 @@ case "$cc_ver" in
 	ld_cmd="$cc_cmd"
 	;;
     *"Sun C"*)
-	cc_type="Oracle (formerly Sun Microsystems) Studio"
+	cc_type="Oracle Studio"
 	c99_flags="-xc99"
 	warn_flags=""     # enabled by default
 	pic_flags="-PIC"
@@ -589,7 +589,7 @@ fc_flags=${FCFLAGS-"$fc_flags"}
 ld_cmd=${LD-"$ld_cmd"}
 ld_flags=${LDFLAGS-"$ld_flags"}
 
-tell "C compiler is \"$cc_cmd\" (looks like $cc_type)"
+tell "  C compiler is \"$cc_cmd\" (looks like $cc_type)"
 
 # TODO: we're not actually using these during build, so don't really check
 #
@@ -619,21 +619,21 @@ case "$comms_layer" in
 
 	if [ -z "$gasnet_root" ]
 	then
-	    tell "I don't know where GASNet is installed"
+	    tell "  I don't know where GASNet is installed"
 	    bailout
 	fi
 
-	tell "Checking for GASNet under"
-	tell "  $gasnet_root"
+	tell "  Checking for GASNet under"
+	tell "    $gasnet_root"
 
         gasnet_h="gasnet_config.h"
         gasnet_inc_dir="$gasnet_root/include"
         gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
         if [ ! -r "$gasnet_path_h" ]
     	then
-    	    tell "I can't find a GASNet installation in \"$gasnet_root\""
-    	    tell "  (no $gasnet_h header file)"
-    	    tell "Indicate where GASNet is installed with --with-gasnet-root=DIR"
+    	    tell "  I can't find a GASNet installation in \"$gasnet_root\""
+    	    tell "    (no $gasnet_h header file)"
+    	    tell "  Indicate where GASNet is installed with --with-gasnet-root=DIR"
     	    bailout
         fi
 
@@ -652,14 +652,14 @@ case "$comms_layer" in
         gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
         if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
     	then
-    	    tell "Couldn't discover full GASNet version in $gasnet_root"
-    	    tell "  (should be major.minor.patch)"
+    	    tell "  Couldn't discover full GASNet version in $gasnet_root"
+    	    tell "    (should be major.minor.patch)"
     	    bailout
         fi
 
         gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
 
-        tell "Found GASNet version $gasnet_ver"
+        tell "  Found GASNet version $gasnet_ver"
 
         #
         # see if we can autodetect which conduit to use.  if not, offer
@@ -675,7 +675,7 @@ case "$comms_layer" in
             bailout
         fi
 
-	tell "Found conduits: $KNOWN_CONDUITS"
+	tell "  Found conduits: $KNOWN_CONDUITS"
 
         cdt_auto=""
 
@@ -690,7 +690,7 @@ case "$comms_layer" in
 
             if [ $kc -eq 0 ]
             then
-                tell "I couldn't find any GASNet conduits under $gasnet_root"
+                tell "  I couldn't find any GASNet conduits under $gasnet_root"
                 bailout
             fi
 
@@ -700,12 +700,12 @@ case "$comms_layer" in
                 gasnet_conduit="$KNOWN_CONDUITS"
         	cdt_auto="(auto-detected)"
                 tell ""
-                tell "Only conduit \"$gasnet_conduit\" is configured, selecting it."
+                tell "  Only conduit \"$gasnet_conduit\" is configured, selecting it."
                 tell ""
             else
                 # multiple configured, let the user decide
-                tell "I found the following conduits: \"$KNOWN_CONDUITS\""
-                tell "Indicate which one to use via --with-gasnet-conduit=NAME"
+                tell "  I found the following conduits: \"$KNOWN_CONDUITS\""
+                tell "  Indicate which one to use via --with-gasnet-conduit=NAME"
                 bailout
             fi
         fi
@@ -717,19 +717,19 @@ case "$comms_layer" in
         gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
         if [ ! -r "$gasnet_path_core_h" ]
         then
-            tell "The $gasnet_cdt_dir directory doesn't look like a configured conduit"
-            tell "  (no $core_h header file)"
+            tell "  The $gasnet_cdt_dir directory doesn't look like a configured conduit"
+            tell "    (no $core_h header file)"
             bailout
         fi
 
-        tell "Chosen conduit \"$gasnet_conduit\" looks OK"
+        tell "  Chosen conduit \"$gasnet_conduit\" looks OK"
 	;;  #  end of gasnet section
     uccs)
-	tell "UCCS support is just a stub for future use."
+	tell "  UCCS support is just a stub for future use."
 	bailout
 	;;
     *)
-	tell "I don't know what to do with communications layer \"$comms_layer\""
+	tell "  I don't know what to do with communications layer \"$comms_layer\""
 	bailout
 	;;
 esac
@@ -843,14 +843,14 @@ tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
 tell "  Suite appears to be           $cc_type"
-tell "    C compiler is               $cc_cmd"
+tell "    C compiler is               \"$cc_cmd\""
 tell "    C pre-processor flags are   \"$cpp_flags\""
 tell "    C flags are                 \"$c_flags\""
-tell "    C++ compiler is             $cxx_cmd"
+tell "    C++ compiler is             \"$cxx_cmd\""
 tell "    C++ flags are               \"$cxx_flags\""
-tell "    Fortran compiler is         $fc_cmd"
+tell "    Fortran compiler is         \"$fc_cmd\""
 tell "    Fortran flags are           \"$fc_flags\""
-tell "    Linker is                   $ld_cmd"
+tell "    Linker is                   \"$ld_cmd\""
 tell "    Linker flags are            \"$ld_flags\""
 tell ""
 tell "Executable Format:"

@@ -137,8 +137,8 @@ __shmem_place_init (void)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak start_pes = pstart_pes
-#define start_pes pstart_pes
+# pragma weak start_pes = pstart_pes
+# define start_pes pstart_pes
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**

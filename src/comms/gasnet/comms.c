@@ -2251,6 +2251,9 @@ static const int nhandlers = TABLE_SIZE (handlers);
 static int argc;
 static char **argv;
 
+static const char *cmdline = "/proc/self/cmdline";
+static const char *cmdline_fmt = "/proc/%ld/cmdline";
+
 static void
 parse_cmdline(void)
 {
@@ -2262,16 +2265,26 @@ parse_cmdline(void)
 
   argc = 0;
 
-  fp = fopen("/proc/self/cmdline", "r");
+  /*
+   * try to find this process' command-line:
+   * either from short-cut, or from pid
+   */
+  fp = fopen(cmdline, "r");
   if (fp == NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "could not discover process' command-line (%s)",
-		     strerror (errno)
-		     );
-      /* NOT REACHED */
+      char buf[MAXPATHLEN];
+      snprintf (buf, MAXPATHLEN, cmdline_fmt, getpid ());
+      fp = fopen(buf, "r");
+      if (fp == NULL)
+	{
+	  __shmem_trace (SHMEM_LOG_FATAL,
+			 "could not discover process' command-line (%s)",
+			 strerror (errno)
+			 );
+	  /* NOT REACHED */
+	}
     }
-
+  
   /* first count the number of nuls in cmdline to see how many args */
   while ((c = fgetc(fp)) != EOF)
     {

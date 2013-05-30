@@ -56,10 +56,10 @@ mype_helper (void)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak _my_pe = p_my_pe
-#define _my_pe p_my_pe
-#pragma weak shmem_my_pe = pshmem_my_pe
-#define shmem_my_pe pshmem_my_pe
+# pragma weak _my_pe = p_my_pe
+# define _my_pe p_my_pe
+# pragma weak shmem_my_pe = pshmem_my_pe
+# define shmem_my_pe pshmem_my_pe
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -113,10 +113,10 @@ numpes_helper (void)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak _num_pes = p_num_pes
-#define _num_pes p_num_pes
-#pragma weak shmem_n_pes = pshmem_n_pes
-#define shmem_n_pes pshmem_n_pes
+# pragma weak _num_pes = p_num_pes
+# define _num_pes p_num_pes
+# pragma weak shmem_n_pes = pshmem_n_pes
+# define shmem_n_pes pshmem_n_pes
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -163,8 +163,8 @@ shmem_n_pes (void)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_nodename = pshmem_nodename
-#define shmem_nodename pshmem_nodename
+# pragma weak shmem_nodename = pshmem_nodename
+# define shmem_nodename pshmem_nodename
 #endif /* HAVE_FEATURE_PSHMEM */
 
 char *
@@ -179,8 +179,8 @@ shmem_nodename (void)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_version = pshmem_version
-#define shmem_version pshmem_version
+# pragma weak shmem_version = pshmem_version
+# define shmem_version pshmem_version
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**

@@ -51,28 +51,28 @@ extern complex float shmem_complexf_g (complex float *addr, int pe);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_short_iput = pshmem_short_iput
-#define shmem_short_iput pshmem_short_iput
-#pragma weak shmem_char_iput = pshmem_char_iput
-#define shmem_char_iput pshmem_char_iput
-#pragma weak shmem_int_iput = pshmem_int_iput
-#define shmem_int_iput pshmem_int_iput
-#pragma weak shmem_long_iput = pshmem_long_iput
-#define shmem_long_iput pshmem_long_iput
-#pragma weak shmem_double_iput = pshmem_double_iput
-#define shmem_double_iput pshmem_double_iput
-#pragma weak shmem_float_iput = pshmem_float_iput
-#define shmem_float_iput pshmem_float_iput
-#pragma weak shmem_longdouble_iput = pshmem_longdouble_iput
-#define shmem_longdouble_iput pshmem_longdouble_iput
-#pragma weak shmem_longlong_iput = pshmem_longlong_iput
-#define shmem_longlong_iput pshmem_longlong_iput
-#pragma weak shmem_iput32 = pshmem_iput32
-#define shmem_iput32 pshmem_iput32
-#pragma weak shmem_iput64 = pshmem_iput64
-#define shmem_iput64 pshmem_iput64
-#pragma weak shmem_iput128 = pshmem_iput128
-#define shmem_iput128 pshmem_iput128
+# pragma weak shmem_short_iput = pshmem_short_iput
+# define shmem_short_iput pshmem_short_iput
+# pragma weak shmem_char_iput = pshmem_char_iput
+# define shmem_char_iput pshmem_char_iput
+# pragma weak shmem_int_iput = pshmem_int_iput
+# define shmem_int_iput pshmem_int_iput
+# pragma weak shmem_long_iput = pshmem_long_iput
+# define shmem_long_iput pshmem_long_iput
+# pragma weak shmem_double_iput = pshmem_double_iput
+# define shmem_double_iput pshmem_double_iput
+# pragma weak shmem_float_iput = pshmem_float_iput
+# define shmem_float_iput pshmem_float_iput
+# pragma weak shmem_longdouble_iput = pshmem_longdouble_iput
+# define shmem_longdouble_iput pshmem_longdouble_iput
+# pragma weak shmem_longlong_iput = pshmem_longlong_iput
+# define shmem_longlong_iput pshmem_longlong_iput
+# pragma weak shmem_iput32 = pshmem_iput32
+# define shmem_iput32 pshmem_iput32
+# pragma weak shmem_iput64 = pshmem_iput64
+# define shmem_iput64 pshmem_iput64
+# pragma weak shmem_iput128 = pshmem_iput128
+# define shmem_iput128 pshmem_iput128
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -132,28 +132,28 @@ shmem_iput128 (void *target, const void *source,
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_char_iget = pshmem_char_iget
-#define shmem_char_iget pshmem_char_iget
-#pragma weak shmem_short_iget = pshmem_short_iget
-#define shmem_short_iget pshmem_short_iget
-#pragma weak shmem_int_iget = pshmem_int_iget
-#define shmem_int_iget pshmem_int_iget
-#pragma weak shmem_long_iget = pshmem_long_iget
-#define shmem_long_iget pshmem_long_iget
-#pragma weak shmem_double_iget = pshmem_double_iget
-#define shmem_double_iget pshmem_double_iget
-#pragma weak shmem_float_iget = pshmem_float_iget
-#define shmem_float_iget pshmem_float_iget
-#pragma weak shmem_longdouble_iget = pshmem_longdouble_iget
-#define shmem_longdouble_iget pshmem_longdouble_iget
-#pragma weak shmem_longlong_iget = pshmem_longlong_iget
-#define shmem_longlong_iget pshmem_longlong_iget
-#pragma weak shmem_iget32 = pshmem_iget32
-#define shmem_iget32 pshmem_iget32
-#pragma weak shmem_iget64 = pshmem_iget64
-#define shmem_iget64 pshmem_iget64
-#pragma weak shmem_iget128 = pshmem_iget128
-#define shmem_iget128 pshmem_iget128
+# pragma weak shmem_char_iget = pshmem_char_iget
+# define shmem_char_iget pshmem_char_iget
+# pragma weak shmem_short_iget = pshmem_short_iget
+# define shmem_short_iget pshmem_short_iget
+# pragma weak shmem_int_iget = pshmem_int_iget
+# define shmem_int_iget pshmem_int_iget
+# pragma weak shmem_long_iget = pshmem_long_iget
+# define shmem_long_iget pshmem_long_iget
+# pragma weak shmem_double_iget = pshmem_double_iget
+# define shmem_double_iget pshmem_double_iget
+# pragma weak shmem_float_iget = pshmem_float_iget
+# define shmem_float_iget pshmem_float_iget
+# pragma weak shmem_longdouble_iget = pshmem_longdouble_iget
+# define shmem_longdouble_iget pshmem_longdouble_iget
+# pragma weak shmem_longlong_iget = pshmem_longlong_iget
+# define shmem_longlong_iget pshmem_longlong_iget
+# pragma weak shmem_iget32 = pshmem_iget32
+# define shmem_iget32 pshmem_iget32
+# pragma weak shmem_iget64 = pshmem_iget64
+# define shmem_iget64 pshmem_iget64
+# pragma weak shmem_iget128 = pshmem_iget128
+# define shmem_iget128 pshmem_iget128
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**

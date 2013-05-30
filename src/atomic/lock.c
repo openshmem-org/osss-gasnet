@@ -96,7 +96,8 @@ typedef struct
 /* Macro to map lock virtual address to owning process vp */
 #define LOCK_OWNER(LOCK)	(((uintptr_t)(LOCK) >> 3) % (_num_pes()))
 
-static void
+static
+void
 mcs_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 {
   SHMEM_LOCK tmp;
@@ -152,7 +153,8 @@ mcs_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
     }
 }
 
-static void
+static
+void
 mcs_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 {
   /* Is there someone on the linked list ? */
@@ -221,7 +223,8 @@ mcs_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
  *
  * (addy 12.10.05)
  */
-static int
+static
+int
 mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
 {
   SHMEM_LOCK tmp;
@@ -253,12 +256,12 @@ mcs_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, long this_pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_set_lock = pshmem_set_lock
-#define shmem_set_lock pshmem_set_lock
-#pragma weak shmem_test_lock = pshmem_test_lock
-#define shmem_test_lock pshmem_test_lock
-#pragma weak shmem_clear_lock = pshmem_clear_lock
-#define shmem_clear_lock pshmem_clear_lock
+# pragma weak shmem_set_lock = pshmem_set_lock
+# define shmem_set_lock pshmem_set_lock
+# pragma weak shmem_test_lock = pshmem_test_lock
+# define shmem_test_lock pshmem_test_lock
+# pragma weak shmem_clear_lock = pshmem_clear_lock
+# define shmem_clear_lock pshmem_clear_lock
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void

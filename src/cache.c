@@ -38,9 +38,8 @@
 
 
 /*
- * so apparently these are compatibility routines
- * for older SGI architectures.  So probably fine
- * to let them all be empty
+ * These are compatibility routines for older SGI architectures.  They
+ * are now defined in OpenSHMEM to do nothing.
  */
 
 #include "utils.h"
@@ -51,28 +50,30 @@
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
-#define shmem_clear_cache_inv pshmem_clear_cache_inv
-#pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
-#define shmem_set_cache_inv pshmem_set_cache_inv
-#pragma weak shmem_set_cache_line_inv = pshmem_set_cache_line_inv
-#define shmem_set_cache_line_inv pshmem_set_cache_line_inv
-#pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
-#define shmem_clear_cache_line_inv pshmem_clear_cache_line_inv
-#pragma weak shmem_udcflush = pshmem_udcflush
-#define shmem_udcflush pshmem_udcflush
-#pragma weak shmem_udcflush_line = pshmem_udcflush_line
-#define shmem_udcflush_line pshmem_udcflush_line
+# pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
+# define shmem_clear_cache_inv pshmem_clear_cache_inv
+# pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
+# define shmem_set_cache_inv pshmem_set_cache_inv
+# pragma weak shmem_set_cache_line_inv = pshmem_set_cache_line_inv
+# define shmem_set_cache_line_inv pshmem_set_cache_line_inv
+# pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
+# define shmem_clear_cache_line_inv pshmem_clear_cache_line_inv
+# pragma weak shmem_udcflush = pshmem_udcflush
+# define shmem_udcflush pshmem_udcflush
+# pragma weak shmem_udcflush_line = pshmem_udcflush_line
+# define shmem_udcflush_line pshmem_udcflush_line
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static void
-cache_helper (char *name)
+static
+inline
+void
+cache_helper (const char *name)
 {
-  INIT_CHECK();
-  __shmem_trace(SHMEM_LOG_CACHE,
-		"operation \"%s\" is a no-op",
-		name
-		);
+  INIT_CHECK ();
+  __shmem_trace (SHMEM_LOG_CACHE,
+		 "operation \"%s\" is a no-op",
+		 name
+		 );
   return;
 }
 

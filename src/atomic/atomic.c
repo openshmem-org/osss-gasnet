@@ -61,18 +61,18 @@ __shmem_atomic_finalize (void)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_swap = pshmem_int_swap
-#define shmem_int_swap pshmem_int_swap
-#pragma weak shmem_long_swap = pshmem_long_swap
-#define shmem_long_swap pshmem_long_swap
-#pragma weak shmem_longlong_swap = pshmem_longlong_swap
-#define shmem_longlong_swap pshmem_longlong_swap
-#pragma weak shmem_float_swap = pshmem_float_swap
-#define shmem_float_swap pshmem_float_swap
-#pragma weak shmem_double_swap = pshmem_double_swap
-#define shmem_double_swap pshmem_double_swap
-#pragma weak shmem_swap = pshmem_swap
-#define shmem_swap pshmem_swap
+# pragma weak shmem_int_swap = pshmem_int_swap
+# define shmem_int_swap pshmem_int_swap
+# pragma weak shmem_long_swap = pshmem_long_swap
+# define shmem_long_swap pshmem_long_swap
+# pragma weak shmem_longlong_swap = pshmem_longlong_swap
+# define shmem_longlong_swap pshmem_longlong_swap
+# pragma weak shmem_float_swap = pshmem_float_swap
+# define shmem_float_swap pshmem_float_swap
+# pragma weak shmem_double_swap = pshmem_double_swap
+# define shmem_double_swap pshmem_double_swap
+# pragma weak shmem_swap = pshmem_swap
+# define shmem_swap pshmem_swap
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -109,12 +109,12 @@ shmem_swap (long *target, long value, int pe)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_cswap = pshmem_int_cswap
-#define shmem_int_cswap pshmem_int_cswap
-#pragma weak shmem_long_cswap = pshmem_long_cswap
-#define shmem_long_cswap pshmem_long_cswap
-#pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
-#define shmem_longlong_cswap pshmem_longlong_cswap
+# pragma weak shmem_int_cswap = pshmem_int_cswap
+# define shmem_int_cswap pshmem_int_cswap
+# pragma weak shmem_long_cswap = pshmem_long_cswap
+# define shmem_long_cswap pshmem_long_cswap
+# pragma weak shmem_longlong_cswap = pshmem_longlong_cswap
+# define shmem_longlong_cswap pshmem_longlong_cswap
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -139,12 +139,12 @@ SHMEM_TYPE_CSWAP (long, long);
 SHMEM_TYPE_CSWAP (longlong, long long);
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_fadd = pshmem_int_fadd
-#define shmem_int_fadd pshmem_int_fadd
-#pragma weak shmem_long_fadd = pshmem_long_fadd
-#define shmem_long_fadd pshmem_long_fadd
-#pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
-#define shmem_longlong_fadd pshmem_longlong_fadd
+# pragma weak shmem_int_fadd = pshmem_int_fadd
+# define shmem_int_fadd pshmem_int_fadd
+# pragma weak shmem_long_fadd = pshmem_long_fadd
+# define shmem_long_fadd pshmem_long_fadd
+# pragma weak shmem_longlong_fadd = pshmem_longlong_fadd
+# define shmem_longlong_fadd pshmem_longlong_fadd
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_FADD(Name, Type)					\
@@ -164,12 +164,12 @@ SHMEM_TYPE_FADD (longlong, long long);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_finc = pshmem_int_finc
-#define shmem_int_finc pshmem_int_finc
-#pragma weak shmem_long_finc = pshmem_long_finc
-#define shmem_long_finc pshmem_long_finc
-#pragma weak shmem_longlong_finc = pshmem_longlong_finc
-#define shmem_longlong_finc pshmem_longlong_finc
+# pragma weak shmem_int_finc = pshmem_int_finc
+# define shmem_int_finc pshmem_int_finc
+# pragma weak shmem_long_finc = pshmem_long_finc
+# define shmem_long_finc pshmem_long_finc
+# pragma weak shmem_longlong_finc = pshmem_longlong_finc
+# define shmem_longlong_finc pshmem_longlong_finc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -193,12 +193,12 @@ SHMEM_TYPE_FINC (long, long);
 SHMEM_TYPE_FINC (longlong, long long);
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_add = pshmem_int_add
-#define shmem_int_add pshmem_int_add
-#pragma weak shmem_long_add = pshmem_long_add
-#define shmem_long_add pshmem_long_add
-#pragma weak shmem_longlong_add = pshmem_longlong_add
-#define shmem_longlong_add pshmem_longlong_add
+# pragma weak shmem_int_add = pshmem_int_add
+# define shmem_int_add pshmem_int_add
+# pragma weak shmem_long_add = pshmem_long_add
+# define shmem_long_add pshmem_long_add
+# pragma weak shmem_longlong_add = pshmem_longlong_add
+# define shmem_longlong_add pshmem_longlong_add
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -220,12 +220,12 @@ SHMEM_TYPE_ADD (longlong, long long);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_inc = pshmem_int_inc
-#define shmem_int_inc pshmem_int_inc
-#pragma weak shmem_long_inc = pshmem_long_inc
-#define shmem_long_inc pshmem_long_inc
-#pragma weak shmem_longlong_inc = pshmem_longlong_inc
-#define shmem_longlong_inc pshmem_longlong_inc
+# pragma weak shmem_int_inc = pshmem_int_inc
+# define shmem_int_inc pshmem_int_inc
+# pragma weak shmem_long_inc = pshmem_long_inc
+# define shmem_long_inc pshmem_long_inc
+# pragma weak shmem_longlong_inc = pshmem_longlong_inc
+# define shmem_longlong_inc pshmem_longlong_inc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_INC(Name, Type)					\
@@ -246,12 +246,12 @@ SHMEM_TYPE_INC (longlong, long long);
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int_xor = pshmem_int_xor
-#define shmem_int_xor pshmem_int_xor
-#pragma weak shmem_long_xor = pshmem_long_xor
-#define shmem_long_xor pshmem_long_xor
-#pragma weak shmem_longlong_xor = pshmem_longlong_xor
-#define shmem_longlong_xor pshmem_longlong_xor
+# pragma weak shmem_int_xor = pshmem_int_xor
+# define shmem_int_xor pshmem_int_xor
+# pragma weak shmem_long_xor = pshmem_long_xor
+# define shmem_long_xor pshmem_long_xor
+# pragma weak shmem_longlong_xor = pshmem_longlong_xor
+# define shmem_longlong_xor pshmem_longlong_xor
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_XOR(Name, Type)					\
