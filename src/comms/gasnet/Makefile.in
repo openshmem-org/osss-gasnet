@@ -187,11 +187,10 @@ $(SHMEM_CC):	$(SHMEM_CC).in
 
 $(SHMEM_CXX):	$(SHMEM_CC)
 	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
-	dir=`dirname $$lnk`; \
 	lnk=`basename $$lnk`; \
 	if [ "$$lnk" = "mpicc" ]; then lnk=mpicxx; else lnk=$(CXX); fi; \
 	sed \
-		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
+		-e "s%^DRIVER=.*%DRIVER=$$lnk%" \
 		< $^ > $@
 
 $(SHMEM_CXX_ALT):	$(SHMEM_CXX)
@@ -199,11 +198,10 @@ $(SHMEM_CXX_ALT):	$(SHMEM_CXX)
 
 $(SHMEM_FC):	$(SHMEM_CC)
 	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
-	dir=`dirname $$lnk`; \
 	lnk=`basename $$lnk`; \
 	if [ "$$lnk" = "mpicc" ]; then lnk=mpif90; else lnk=$(FC); fi; \
 	sed \
-		-e "s%^DRIVER=.*%DRIVER=$$dir/$$lnk%" \
+		-e "s%^DRIVER=.*%DRIVER=$$lnk%" \
 		< $^ > $@
 
 
