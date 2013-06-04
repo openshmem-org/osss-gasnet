@@ -45,6 +45,7 @@
 #include "utils.h"
 #include "modules.h"
 
+#include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"

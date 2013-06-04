@@ -45,6 +45,8 @@
 
 #include "fortran-common.h"
 
+#include "shmem.h"
+
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
@@ -59,12 +61,12 @@ extern char *sherror (void);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shpalloc_ = pshpalloc_
-#define shpalloc_ pshpalloc_
-#pragma weak shpdeallc_ = pshpdeallc_
-#define shpdeallc_ pshpdeallc_
-#pragma weak shpclmove_ = pshpclmove_
-#define shpclmove_ pshpclmove_
+# pragma weak shpalloc_ = pshpalloc_
+# define shpalloc_ pshpalloc_
+# pragma weak shpdeallc_ = pshpdeallc_
+# define shpdeallc_ pshpdeallc_
+# pragma weak shpclmove_ = pshpclmove_
+# define shpclmove_ pshpclmove_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**

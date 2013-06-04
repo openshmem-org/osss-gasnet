@@ -47,6 +47,7 @@
 
 #include "fortran-common.h"
 
+#include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
@@ -58,26 +59,26 @@
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak start_pes_ = pstart_pes_
-#define start_pes_ pstart_pes_
+# pragma weak start_pes_ = pstart_pes_
+# define start_pes_ pstart_pes_
 
-#pragma weak my_pe_ = pmy_pe_
-#define my_pe_ pmy_pe_
+# pragma weak my_pe_ = pmy_pe_
+# define my_pe_ pmy_pe_
 
-#pragma weak num_pes_ = pnum_pes_
-#define num_pes_ pnum_pes_
+# pragma weak num_pes_ = pnum_pes_
+# define num_pes_ pnum_pes_
 
-#pragma weak _my_pe_ = p_my_pe_
-#define _my_pe_ p_my_pe_
+# pragma weak _my_pe_ = p_my_pe_
+# define _my_pe_ p_my_pe_
 
-#pragma weak _num_pes_ = p_num_pes_
-#define _num_pes_ p_num_pes_
+# pragma weak _num_pes_ = p_num_pes_
+# define _num_pes_ p_num_pes_
 
-#pragma weak shmem_my_pe_ = pshmem_my_pe_
-#define shmem_my_pe_ pshmem_my_pe_
+# pragma weak shmem_my_pe_ = pshmem_my_pe_
+# define shmem_my_pe_ pshmem_my_pe_
 
-#pragma weak shmem_n_pes_ = pshmem_n_pes_
-#define shmem_n_pes_ pshmem_n_pes_
+# pragma weak shmem_n_pes_ = pshmem_n_pes_
+# define shmem_n_pes_ pshmem_n_pes_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -107,30 +108,30 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_character_put_ = pshmem_character_put_
-#define shmem_character_put_ pshmem_character_put_
-#pragma weak shmem_double_put_ = pshmem_double_put_
-#define shmem_double_put_ pshmem_double_put_
-#pragma weak shmem_integer_put_ = pshmem_integer_put_
-#define shmem_integer_put_ pshmem_integer_put_
-#pragma weak shmem_logical_put_ = pshmem_logical_put_
-#define shmem_logical_put_ pshmem_logical_put_
-#pragma weak shmem_real_put_ = pshmem_real_put_
-#define shmem_real_put_ pshmem_real_put_
-#pragma weak shmem_complex_put_ = pshmem_complex_put_
-#define shmem_complex_put_ pshmem_complex_put_
-#pragma weak shmem_put4_ = pshmem_put4_
-#define shmem_put4_ pshmem_put4_
-#pragma weak shmem_put8_ = pshmem_put8_
-#define shmem_put8_ pshmem_put8_
-#pragma weak shmem_put32_ = pshmem_put32_
-#define shmem_put32_ pshmem_put32_
-#pragma weak shmem_put64_ = pshmem_put64_
-#define shmem_put64_ pshmem_put64_
-#pragma weak shmem_put128_ = pshmem_put128_
-#define shmem_put128_ pshmem_put128_
-#pragma weak shmem_putmem_ = pshmem_putmem_
-#define shmem_putmem_ pshmem_putmem_
+# pragma weak shmem_character_put_ = pshmem_character_put_
+# define shmem_character_put_ pshmem_character_put_
+# pragma weak shmem_double_put_ = pshmem_double_put_
+# define shmem_double_put_ pshmem_double_put_
+# pragma weak shmem_integer_put_ = pshmem_integer_put_
+# define shmem_integer_put_ pshmem_integer_put_
+# pragma weak shmem_logical_put_ = pshmem_logical_put_
+# define shmem_logical_put_ pshmem_logical_put_
+# pragma weak shmem_real_put_ = pshmem_real_put_
+# define shmem_real_put_ pshmem_real_put_
+# pragma weak shmem_complex_put_ = pshmem_complex_put_
+# define shmem_complex_put_ pshmem_complex_put_
+# pragma weak shmem_put4_ = pshmem_put4_
+# define shmem_put4_ pshmem_put4_
+# pragma weak shmem_put8_ = pshmem_put8_
+# define shmem_put8_ pshmem_put8_
+# pragma weak shmem_put32_ = pshmem_put32_
+# define shmem_put32_ pshmem_put32_
+# pragma weak shmem_put64_ = pshmem_put64_
+# define shmem_put64_ pshmem_put64_
+# pragma weak shmem_put128_ = pshmem_put128_
+# define shmem_put128_ pshmem_put128_
+# pragma weak shmem_putmem_ = pshmem_putmem_
+# define shmem_putmem_ pshmem_putmem_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
@@ -169,30 +170,30 @@ FORTRANIFY (shmem_putmem) (void *target, const void *src,
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_character_get_ = pshmem_character_get_
-#define shmem_character_get_ pshmem_character_get_
-#pragma weak shmem_double_get_ = pshmem_double_get_
-#define shmem_double_get_ pshmem_double_get_
-#pragma weak shmem_integer_get_ = pshmem_integer_get_
-#define shmem_integer_get_ pshmem_integer_get_
-#pragma weak shmem_logical_get_ = pshmem_logical_get_
-#define shmem_logical_get_ pshmem_logical_get_
-#pragma weak shmem_real_get_ = pshmem_real_get_
-#define shmem_real_get_ pshmem_real_get_
-#pragma weak shmem_complex_get_ = pshmem_complex_get_
-#define shmem_complex_get_ pshmem_complex_get_
-#pragma weak shmem_get4_ = pshmem_get4_
-#define shmem_get4_ pshmem_get4_
-#pragma weak shmem_get8_ = pshmem_get8_
-#define shmem_get8_ pshmem_get8_
-#pragma weak shmem_get32_ = pshmem_get32_
-#define shmem_get32_ pshmem_get32_
-#pragma weak shmem_get64_ = pshmem_get64_
-#define shmem_get64_ pshmem_get64_
-#pragma weak shmem_get128_ = pshmem_get128_
-#define shmem_get128_ pshmem_get128_
-#pragma weak shmem_getmem_ = pshmem_getmem_
-#define shmem_getmem_ pshmem_getmem_
+# pragma weak shmem_character_get_ = pshmem_character_get_
+# define shmem_character_get_ pshmem_character_get_
+# pragma weak shmem_double_get_ = pshmem_double_get_
+# define shmem_double_get_ pshmem_double_get_
+# pragma weak shmem_integer_get_ = pshmem_integer_get_
+# define shmem_integer_get_ pshmem_integer_get_
+# pragma weak shmem_logical_get_ = pshmem_logical_get_
+# define shmem_logical_get_ pshmem_logical_get_
+# pragma weak shmem_real_get_ = pshmem_real_get_
+# define shmem_real_get_ pshmem_real_get_
+# pragma weak shmem_complex_get_ = pshmem_complex_get_
+# define shmem_complex_get_ pshmem_complex_get_
+# pragma weak shmem_get4_ = pshmem_get4_
+# define shmem_get4_ pshmem_get4_
+# pragma weak shmem_get8_ = pshmem_get8_
+# define shmem_get8_ pshmem_get8_
+# pragma weak shmem_get32_ = pshmem_get32_
+# define shmem_get32_ pshmem_get32_
+# pragma weak shmem_get64_ = pshmem_get64_
+# define shmem_get64_ pshmem_get64_
+# pragma weak shmem_get128_ = pshmem_get128_
+# define shmem_get128_ pshmem_get128_
+# pragma weak shmem_getmem_ = pshmem_getmem_
+# define shmem_getmem_ pshmem_getmem_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_GET(FName, CName, CType)				\
@@ -235,28 +236,28 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_character_iput_ = pshmem_character_iput_
-#define shmem_character_iput_ pshmem_character_iput_
-#pragma weak shmem_double_iput_ = pshmem_double_iput_
-#define shmem_double_iput_ pshmem_double_iput_
-#pragma weak shmem_integer_iput_ = pshmem_integer_iput_
-#define shmem_integer_iput_ pshmem_integer_iput_
-#pragma weak shmem_logical_iput_ = pshmem_logical_iput_
-#define shmem_logical_iput_ pshmem_logical_iput_
-#pragma weak shmem_real_iput_ = pshmem_real_iput_
-#define shmem_real_iput_ pshmem_real_iput_
-#pragma weak shmem_iput4_ = pshmem_iput4_
-#define shmem_iput4_ pshmem_iput4_
-#pragma weak shmem_iput8_ = pshmem_iput8_
-#define shmem_iput8_ pshmem_iput8_
-#pragma weak shmem_iput32_ = pshmem_iput32_
-#define shmem_iput32_ pshmem_iput32_
-#pragma weak shmem_iput64_ = pshmem_iput64_
-#define shmem_iput64_ pshmem_iput64_
-#pragma weak shmem_iput128_ = pshmem_iput128_
-#define shmem_iput128_ pshmem_iput128_
-#pragma weak shmem_complex_iput_ = pshmem_complex_iput_
-#define shmem_complex_iput_ pshmem_complex_iput_
+# pragma weak shmem_character_iput_ = pshmem_character_iput_
+# define shmem_character_iput_ pshmem_character_iput_
+# pragma weak shmem_double_iput_ = pshmem_double_iput_
+# define shmem_double_iput_ pshmem_double_iput_
+# pragma weak shmem_integer_iput_ = pshmem_integer_iput_
+# define shmem_integer_iput_ pshmem_integer_iput_
+# pragma weak shmem_logical_iput_ = pshmem_logical_iput_
+# define shmem_logical_iput_ pshmem_logical_iput_
+# pragma weak shmem_real_iput_ = pshmem_real_iput_
+# define shmem_real_iput_ pshmem_real_iput_
+# pragma weak shmem_iput4_ = pshmem_iput4_
+# define shmem_iput4_ pshmem_iput4_
+# pragma weak shmem_iput8_ = pshmem_iput8_
+# define shmem_iput8_ pshmem_iput8_
+# pragma weak shmem_iput32_ = pshmem_iput32_
+# define shmem_iput32_ pshmem_iput32_
+# pragma weak shmem_iput64_ = pshmem_iput64_
+# define shmem_iput64_ pshmem_iput64_
+# pragma weak shmem_iput128_ = pshmem_iput128_
+# define shmem_iput128_ pshmem_iput128_
+# pragma weak shmem_complex_iput_ = pshmem_complex_iput_
+# define shmem_complex_iput_ pshmem_complex_iput_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_IPUT(Name, CName, CType)				\
@@ -297,28 +298,28 @@ SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_character_iget_ = pshmem_character_iget_
-#define shmem_character_iget_ pshmem_character_iget_
-#pragma weak shmem_double_iget_ = pshmem_double_iget_
-#define shmem_double_iget_ pshmem_double_iget_
-#pragma weak shmem_integer_iget_ = pshmem_integer_iget_
-#define shmem_integer_iget_ pshmem_integer_iget_
-#pragma weak shmem_logical_iget_ = pshmem_logical_iget_
-#define shmem_logical_iget_ pshmem_logical_iget_
-#pragma weak shmem_real_iget_ = pshmem_real_iget_
-#define shmem_real_iget_ pshmem_real_iget_
-#pragma weak shmem_iget4_ = pshmem_iget4_
-#define shmem_iget4_ pshmem_iget4_
-#pragma weak shmem_iget8_ = pshmem_iget8_
-#define shmem_iget8_ pshmem_iget8_
-#pragma weak shmem_iget32_ = pshmem_iget32_
-#define shmem_iget32_ pshmem_iget32_
-#pragma weak shmem_iget64_ = pshmem_iget64_
-#define shmem_iget64_ pshmem_iget64_
-#pragma weak shmem_iget128_ = pshmem_iget128_
-#define shmem_iget128_ pshmem_iget128_
-#pragma weak shmem_complex_iget_ = pshmem_complex_iget_
-#define shmem_complex_iget_ pshmem_complex_iget_
+# pragma weak shmem_character_iget_ = pshmem_character_iget_
+# define shmem_character_iget_ pshmem_character_iget_
+# pragma weak shmem_double_iget_ = pshmem_double_iget_
+# define shmem_double_iget_ pshmem_double_iget_
+# pragma weak shmem_integer_iget_ = pshmem_integer_iget_
+# define shmem_integer_iget_ pshmem_integer_iget_
+# pragma weak shmem_logical_iget_ = pshmem_logical_iget_
+# define shmem_logical_iget_ pshmem_logical_iget_
+# pragma weak shmem_real_iget_ = pshmem_real_iget_
+# define shmem_real_iget_ pshmem_real_iget_
+# pragma weak shmem_iget4_ = pshmem_iget4_
+# define shmem_iget4_ pshmem_iget4_
+# pragma weak shmem_iget8_ = pshmem_iget8_
+# define shmem_iget8_ pshmem_iget8_
+# pragma weak shmem_iget32_ = pshmem_iget32_
+# define shmem_iget32_ pshmem_iget32_
+# pragma weak shmem_iget64_ = pshmem_iget64_
+# define shmem_iget64_ pshmem_iget64_
+# pragma weak shmem_iget128_ = pshmem_iget128_
+# define shmem_iget128_ pshmem_iget128_
+# pragma weak shmem_complex_iget_ = pshmem_complex_iget_
+# define shmem_complex_iget_ pshmem_complex_iget_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_IGET(Name, CName, CType)				\
@@ -353,6 +354,7 @@ SHMEM_FORTRAN_IGET_SIZE (128, longdouble, long double);
 SHMEM_FORTRAN_IGET (complex, complexf, COMPLEXIFY (float));
 
 #if 0
+
 #pragma weak shmem_nodename_ = pshmem_nodename_
 #define shmem_nodename_ pshmem_nodename_
 #pragma weak shmem_version_ = pshmem_version_
@@ -370,7 +372,7 @@ FORTRANIFY (shmem_version) (int *major, int *minor)
   return shmem_version (major, minor);
 }
 
-#endif
+#endif /* 0: commented out */
 
 
 /*
@@ -378,10 +380,10 @@ FORTRANIFY (shmem_version) (int *major, int *minor)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_addr_accessible_ = pshmem_addr_accessible_
-#define shmem_addr_accessible_ pshmem_addr_accessible_
-#pragma weak shmem_pe_accessible_ = pshmem_pe_accessible_
-#define shmem_pe_accessible_ pshmem_pe_accessible_
+# pragma weak shmem_addr_accessible_ = pshmem_addr_accessible_
+# define shmem_addr_accessible_ pshmem_addr_accessible_
+# pragma weak shmem_pe_accessible_ = pshmem_pe_accessible_
+# define shmem_pe_accessible_ pshmem_pe_accessible_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -402,14 +404,14 @@ FORTRANIFY (shmem_pe_accessible) (int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_barrier_ = pshmem_barrier_
-#define shmem_barrier_ pshmem_barrier_
-#pragma weak shmem_barrier_all_ = pshmem_barrier_all_
-#define shmem_barrier_all_ pshmem_barrier_all_
-#pragma weak shmem_fence_ = pshmem_fence_
-#define shmem_fence_ pshmem_fence_
-#pragma weak shmem_quiet_ = pshmem_quiet_
-#define shmem_quiet_ pshmem_quiet_
+# pragma weak shmem_barrier_ = pshmem_barrier_
+# define shmem_barrier_ pshmem_barrier_
+# pragma weak shmem_barrier_all_ = pshmem_barrier_all_
+# define shmem_barrier_all_ pshmem_barrier_all_
+# pragma weak shmem_fence_ = pshmem_fence_
+# define shmem_fence_ pshmem_fence_
+# pragma weak shmem_quiet_ = pshmem_quiet_
+# define shmem_quiet_ pshmem_quiet_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -428,22 +430,22 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
-#define pshmem_wait_until_ pshmem_int4_wait_until_
-#pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
-#define shmem_wait_until_ pshmem_int4_wait_until_
-#pragma weak shmem_int4_wait_until_ = pshmem_int4_wait_until_
-#define shmem_int4_wait_until_ pshmem_int4_wait_until_
-#pragma weak shmem_int8_wait_until_ = pshmem_int8_wait_until_
-#define shmem_int8_wait_until_ pshmem_int8_wait_until_
-#pragma weak pshmem_wait_ = pshmem_int8_wait_
-#define pshmem_wait_ pshmem_int8_wait_
-#pragma weak shmem_wait_ = pshmem_int8_wait_
-#define shmem_wait_ pshmem_int8_wait_
-#pragma weak shmem_int4_wait_ = pshmem_int4_wait_
-#define shmem_int4_wait_ pshmem_int4_wait_
-#pragma weak shmem_int8_wait_ = pshmem_int8_wait_
-#define shmem_int8_wait_ pshmem_int8_wait_
+# pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
+# define pshmem_wait_until_ pshmem_int4_wait_until_
+# pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
+# define shmem_wait_until_ pshmem_int4_wait_until_
+# pragma weak shmem_int4_wait_until_ = pshmem_int4_wait_until_
+# define shmem_int4_wait_until_ pshmem_int4_wait_until_
+# pragma weak shmem_int8_wait_until_ = pshmem_int8_wait_until_
+# define shmem_int8_wait_until_ pshmem_int8_wait_until_
+# pragma weak pshmem_wait_ = pshmem_int8_wait_
+# define pshmem_wait_ pshmem_int8_wait_
+# pragma weak shmem_wait_ = pshmem_int8_wait_
+# define shmem_wait_ pshmem_int8_wait_
+# pragma weak shmem_int4_wait_ = pshmem_int4_wait_
+# define shmem_int4_wait_ pshmem_int4_wait_
+# pragma weak shmem_int8_wait_ = pshmem_int8_wait_
+# define shmem_int8_wait_ pshmem_int8_wait_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define FORTRANIFY_WAIT_UNTIL(Name, Type)				\
@@ -470,18 +472,18 @@ FORTRANIFY_WAIT (int8, long);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
-#define shmem_clear_cache_inv_ pshmem_clear_cache_inv_
-#pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
-#define shmem_clear_cache_line_inv_ pshmem_clear_cache_line_inv_
-#pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
-#define shmem_set_cache_inv_ pshmem_set_cache_inv_
-#pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
-#define shmem_set_cache_line_inv_ pshmem_set_cache_line_inv_
-#pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
-#define shmem_udcflush_line_ pshmem_udcflush_line_
-#pragma weak shmem_udcflush_ = pshmem_udcflush_
-#define shmem_udcflush_ pshmem_udcflush_
+# pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
+# define shmem_clear_cache_inv_ pshmem_clear_cache_inv_
+# pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
+# define shmem_clear_cache_line_inv_ pshmem_clear_cache_line_inv_
+# pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
+# define shmem_set_cache_inv_ pshmem_set_cache_inv_
+# pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
+# define shmem_set_cache_line_inv_ pshmem_set_cache_line_inv_
+# pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
+# define shmem_udcflush_line_ pshmem_udcflush_line_
+# pragma weak shmem_udcflush_ = pshmem_udcflush_
+# define shmem_udcflush_ pshmem_udcflush_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
@@ -510,10 +512,10 @@ FORTRANIFY_CACHE (shmem_udcflush_line);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_inc_ = pshmem_int4_inc_
-#define shmem_int4_inc_ pshmem_int4_inc_
-#pragma weak shmem_int8_inc_ = pshmem_int8_inc_
-#define shmem_int8_inc_ pshmem_int8_inc_
+# pragma weak shmem_int4_inc_ = pshmem_int4_inc_
+# define shmem_int4_inc_ pshmem_int4_inc_
+# pragma weak shmem_int8_inc_ = pshmem_int8_inc_
+# define shmem_int8_inc_ pshmem_int8_inc_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -533,10 +535,10 @@ FORTRANIFY (shmem_int8_inc) (long *target, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_finc_ = pshmem_int4_finc_
-#define shmem_int4_finc_ pshmem_int4_finc_
-#pragma weak shmem_int8_finc_ = pshmem_int8_finc_
-#define shmem_int8_finc_ pshmem_int8_finc_
+# pragma weak shmem_int4_finc_ = pshmem_int4_finc_
+# define shmem_int4_finc_ pshmem_int4_finc_
+# pragma weak shmem_int8_finc_ = pshmem_int8_finc_
+# define shmem_int8_finc_ pshmem_int8_finc_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -556,10 +558,10 @@ FORTRANIFY (shmem_int8_finc) (long *target, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_add_ = pshmem_int4_add_
-#define shmem_int4_add_ pshmem_int4_add_
-#pragma weak shmem_int8_add_ = pshmem_int8_add_
-#define shmem_int8_add_ pshmem_int8_add_
+# pragma weak shmem_int4_add_ = pshmem_int4_add_
+# define shmem_int4_add_ pshmem_int4_add_
+# pragma weak shmem_int8_add_ = pshmem_int8_add_
+# define shmem_int8_add_ pshmem_int8_add_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -579,10 +581,10 @@ FORTRANIFY (shmem_int8_add) (long *target, long *value, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_fadd_ = pshmem_int4_fadd_
-#define shmem_int4_fadd_ pshmem_int4_fadd_
-#pragma weak shmem_int8_fadd_ = pshmem_int8_fadd_
-#define shmem_int8_fadd_ pshmem_int8_fadd_
+# pragma weak shmem_int4_fadd_ = pshmem_int4_fadd_
+# define shmem_int4_fadd_ pshmem_int4_fadd_
+# pragma weak shmem_int8_fadd_ = pshmem_int8_fadd_
+# define shmem_int8_fadd_ pshmem_int8_fadd_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -603,16 +605,16 @@ FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_swap_ = pshmem_int4_swap_
-#define shmem_int4_swap_ pshmem_int4_swap_
-#pragma weak shmem_int8_swap_ = pshmem_int8_swap_
-#define shmem_int8_swap_ pshmem_int8_swap_
-#pragma weak shmem_real4_swap_ = pshmem_real4_swap_
-#define shmem_real4_swap_ pshmem_real4_swap_
-#pragma weak shmem_real8_swap_ = pshmem_real8_swap_
-#define shmem_real8_swap_ pshmem_real8_swap_
-#pragma weak shmem_swap_ = pshmem_swap_
-#define shmem_swap_ pshmem_swap_
+# pragma weak shmem_int4_swap_ = pshmem_int4_swap_
+# define shmem_int4_swap_ pshmem_int4_swap_
+# pragma weak shmem_int8_swap_ = pshmem_int8_swap_
+# define shmem_int8_swap_ pshmem_int8_swap_
+# pragma weak shmem_real4_swap_ = pshmem_real4_swap_
+# define shmem_real4_swap_ pshmem_real4_swap_
+# pragma weak shmem_real8_swap_ = pshmem_real8_swap_
+# define shmem_real8_swap_ pshmem_real8_swap_
+# pragma weak shmem_swap_ = pshmem_swap_
+# define shmem_swap_ pshmem_swap_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -650,10 +652,10 @@ FORTRANIFY (shmem_swap) (long *target, long *value, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_cswap_ = pshmem_int4_cswap_
-#define shmem_int4_cswap_ pshmem_int4_cswap_
-#pragma weak shmem_int8_cswap_ = pshmem_int8_cswap_
-#define shmem_int8_cswap_ pshmem_int8_cswap_
+# pragma weak shmem_int4_cswap_ = pshmem_int4_cswap_
+# define shmem_int4_cswap_ pshmem_int4_cswap_
+# pragma weak shmem_int8_cswap_ = pshmem_int8_cswap_
+# define shmem_int8_cswap_ pshmem_int8_cswap_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -679,10 +681,10 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int4_xor_ = pshmem_int4_xor_
-#define shmem_int4_xor_ pshmem_int4_xor_
-#pragma weak shmem_int8_xor_ = pshmem_int8_xor_
-#define shmem_int8_xor_ pshmem_int8_xor_
+# pragma weak shmem_int4_xor_ = pshmem_int4_xor_
+# define shmem_int4_xor_ pshmem_int4_xor_
+# pragma weak shmem_int8_xor_ = pshmem_int8_xor_
+# define shmem_int8_xor_ pshmem_int8_xor_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -704,14 +706,14 @@ FORTRANIFY (shmem_int8_xor) (long *target, long *value, int *pe)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_broadcast4_ = pshmem_broadcast4_
-#define shmem_broadcast4_ pshmem_broadcast4_
-#pragma weak shmem_broadcast8_ = pshmem_broadcast8_
-#define shmem_broadcast8_ pshmem_broadcast8_
-#pragma weak shmem_broadcast32_ = pshmem_broadcast32_
-#define shmem_broadcast32_ pshmem_broadcast32_
-#pragma weak shmem_broadcast64_ = pshmem_broadcast64_
-#define shmem_broadcast64_ pshmem_broadcast64_
+# pragma weak shmem_broadcast4_ = pshmem_broadcast4_
+# define shmem_broadcast4_ pshmem_broadcast4_
+# pragma weak shmem_broadcast8_ = pshmem_broadcast8_
+# define shmem_broadcast8_ pshmem_broadcast8_
+# pragma weak shmem_broadcast32_ = pshmem_broadcast32_
+# define shmem_broadcast32_ pshmem_broadcast32_
+# pragma weak shmem_broadcast64_ = pshmem_broadcast64_
+# define shmem_broadcast64_ pshmem_broadcast64_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -761,14 +763,14 @@ FORTRANIFY (shmem_broadcast64) (void *target, const void *source,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_fcollect4_ = pshmem_fcollect4_
-#define shmem_fcollect4_ pshmem_fcollect4_
-#pragma weak shmem_fcollect8_ = pshmem_fcollect8_
-#define shmem_fcollect8_ pshmem_fcollect8_
-#pragma weak shmem_fcollect32_ = pshmem_fcollect32_
-#define shmem_fcollect32_ pshmem_fcollect32_
-#pragma weak shmem_fcollect64_ = pshmem_fcollect64_
-#define shmem_fcollect64_ pshmem_fcollect64_
+# pragma weak shmem_fcollect4_ = pshmem_fcollect4_
+# define shmem_fcollect4_ pshmem_fcollect4_
+# pragma weak shmem_fcollect8_ = pshmem_fcollect8_
+# define shmem_fcollect8_ pshmem_fcollect8_
+# pragma weak shmem_fcollect32_ = pshmem_fcollect32_
+# define shmem_fcollect32_ pshmem_fcollect32_
+# pragma weak shmem_fcollect64_ = pshmem_fcollect64_
+# define shmem_fcollect64_ pshmem_fcollect64_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -817,14 +819,14 @@ FORTRANIFY (shmem_fcollect8) (void *target, const void *source, int *nelems,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_collect4_ = pshmem_collect4_
-#define shmem_collect4_ pshmem_collect4_
-#pragma weak shmem_collect8_ = pshmem_collect8_
-#define shmem_collect8_ pshmem_collect8_
-#pragma weak shmem_collect32_ = pshmem_collect32_
-#define shmem_collect32_ pshmem_collect32_
-#pragma weak shmem_collect64_ = pshmem_collect64_
-#define shmem_collect64_ pshmem_collect64_
+# pragma weak shmem_collect4_ = pshmem_collect4_
+# define shmem_collect4_ pshmem_collect4_
+# pragma weak shmem_collect8_ = pshmem_collect8_
+# define shmem_collect8_ pshmem_collect8_
+# pragma weak shmem_collect32_ = pshmem_collect32_
+# define shmem_collect32_ pshmem_collect32_
+# pragma weak shmem_collect64_ = pshmem_collect64_
+# define shmem_collect64_ pshmem_collect64_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -874,80 +876,80 @@ FORTRANIFY (shmem_collect8) (void *target, const void *source, int *nelems,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_int2_sum_to_all_ = pshmem_int2_sum_to_all_
-#define shmem_int2_sum_to_all_ pshmem_int2_sum_to_all_
-#pragma weak shmem_int4_sum_to_all_ = pshmem_int4_sum_to_all_
-#define shmem_int4_sum_to_all_ pshmem_int4_sum_to_all_
-#pragma weak shmem_int8_sum_to_all_ = pshmem_int8_sum_to_all_
-#define shmem_int8_sum_to_all_ pshmem_int8_sum_to_all_
-#pragma weak shmem_real4_sum_to_all_ = pshmem_real4_sum_to_all_
-#define shmem_real4_sum_to_all_ pshmem_real4_sum_to_all_
-#pragma weak shmem_real8_sum_to_all_ = pshmem_real8_sum_to_all_
-#define shmem_real8_sum_to_all_ pshmem_real8_sum_to_all_
-#pragma weak shmem_real16_sum_to_all_ = pshmem_real16_sum_to_all_
-#define shmem_real16_sum_to_all_ pshmem_real16_sum_to_all_
-#pragma weak shmem_int2_prod_to_all_ = pshmem_int2_prod_to_all_
-#define shmem_int2_prod_to_all_ pshmem_int2_prod_to_all_
-#pragma weak shmem_int4_prod_to_all_ = pshmem_int4_prod_to_all_
-#define shmem_int4_prod_to_all_ pshmem_int4_prod_to_all_
-#pragma weak shmem_int8_prod_to_all_ = pshmem_int8_prod_to_all_
-#define shmem_int8_prod_to_all_ pshmem_int8_prod_to_all_
-#pragma weak shmem_real4_prod_to_all_ = pshmem_real4_prod_to_all_
-#define shmem_real4_prod_to_all_ pshmem_real4_prod_to_all_
-#pragma weak shmem_real8_prod_to_all_ = pshmem_real8_prod_to_all_
-#define shmem_real8_prod_to_all_ pshmem_real8_prod_to_all_
-#pragma weak shmem_real16_prod_to_all_ = pshmem_real16_prod_to_all_
-#define shmem_real16_prod_to_all_ pshmem_real16_prod_to_all_
-#pragma weak shmem_int2_max_to_all_ = pshmem_int2_max_to_all_
-#define shmem_int2_max_to_all_ pshmem_int2_max_to_all_
-#pragma weak shmem_int4_max_to_all_ = pshmem_int4_max_to_all_
-#define shmem_int4_max_to_all_ pshmem_int4_max_to_all_
-#pragma weak shmem_int8_max_to_all_ = pshmem_int8_max_to_all_
-#define shmem_int8_max_to_all_ pshmem_int8_max_to_all_
-#pragma weak shmem_real4_max_to_all_ = pshmem_real4_max_to_all_
-#define shmem_real4_max_to_all_ pshmem_real4_max_to_all_
-#pragma weak shmem_real8_max_to_all_ = pshmem_real8_max_to_all_
-#define shmem_real8_max_to_all_ pshmem_real8_max_to_all_
-#pragma weak shmem_real16_max_to_all_ = pshmem_real16_max_to_all_
-#define shmem_real16_max_to_all_ pshmem_real16_max_to_all_
-#pragma weak shmem_int2_min_to_all_ = pshmem_int2_min_to_all_
-#define shmem_int2_min_to_all_ pshmem_int2_min_to_all_
-#pragma weak shmem_int4_min_to_all_ = pshmem_int4_min_to_all_
-#define shmem_int4_min_to_all_ pshmem_int4_min_to_all_
-#pragma weak shmem_int8_min_to_all_ = pshmem_int8_min_to_all_
-#define shmem_int8_min_to_all_ pshmem_int8_min_to_all_
-#pragma weak shmem_real4_min_to_all_ = pshmem_real4_min_to_all_
-#define shmem_real4_min_to_all_ pshmem_real4_min_to_all_
-#pragma weak shmem_real8_min_to_all_ = pshmem_real8_min_to_all_
-#define shmem_real8_min_to_all_ pshmem_real8_min_to_all_
-#pragma weak shmem_real16_min_to_all_ = pshmem_real16_min_to_all_
-#define shmem_real16_min_to_all_ pshmem_real16_min_to_all_
-#pragma weak shmem_int2_and_to_all_ = pshmem_int2_and_to_all_
-#define shmem_int2_and_to_all_ pshmem_int2_and_to_all_
-#pragma weak shmem_int4_and_to_all_ = pshmem_int4_and_to_all_
-#define shmem_int4_and_to_all_ pshmem_int4_and_to_all_
-#pragma weak shmem_int8_and_to_all_ = pshmem_int8_and_to_all_
-#define shmem_int8_and_to_all_ pshmem_int8_and_to_all_
-#pragma weak shmem_int4_or_to_all_ = pshmem_int4_or_to_all_
-#define shmem_int2_or_to_all_ pshmem_int2_or_to_all_
-#pragma weak shmem_int2_or_to_all_ = pshmem_int2_or_to_all_
-#define shmem_int4_or_to_all_ pshmem_int4_or_to_all_
-#pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
-#define shmem_int8_or_to_all_ pshmem_int8_or_to_all_
-#pragma weak shmem_int2_xor_to_all_ = pshmem_int2_xor_to_all_
-#define shmem_int2_xor_to_all_ pshmem_int2_xor_to_all_
-#pragma weak shmem_int4_xor_to_all_ = pshmem_int4_xor_to_all_
-#define shmem_int4_xor_to_all_ pshmem_int4_xor_to_all_
-#pragma weak shmem_int8_xor_to_all_ = pshmem_int8_xor_to_all_
-#define shmem_int8_xor_to_all_ pshmem_int8_xor_to_all_
-#pragma weak shmem_comp4_sum_to_all_ = pshmem_comp4_sum_to_all_
-#define shmem_comp4_sum_to_all_ pshmem_comp4_sum_to_all_
-#pragma weak shmem_comp8_sum_to_all_ = pshmem_comp8_sum_to_all_
-#define shmem_comp8_sum_to_all_ pshmem_comp8_sum_to_all_
-#pragma weak shmem_comp4_prod_to_all_ = pshmem_comp4_prod_to_all_
-#define shmem_comp4_prod_to_all_ pshmem_comp4_prod_to_all_
-#pragma weak shmem_comp8_prod_to_all_ = pshmem_comp8_prod_to_all_
-#define shmem_comp8_prod_to_all_ pshmem_comp8_prod_to_all_
+# pragma weak shmem_int2_sum_to_all_ = pshmem_int2_sum_to_all_
+# define shmem_int2_sum_to_all_ pshmem_int2_sum_to_all_
+# pragma weak shmem_int4_sum_to_all_ = pshmem_int4_sum_to_all_
+# define shmem_int4_sum_to_all_ pshmem_int4_sum_to_all_
+# pragma weak shmem_int8_sum_to_all_ = pshmem_int8_sum_to_all_
+# define shmem_int8_sum_to_all_ pshmem_int8_sum_to_all_
+# pragma weak shmem_real4_sum_to_all_ = pshmem_real4_sum_to_all_
+# define shmem_real4_sum_to_all_ pshmem_real4_sum_to_all_
+# pragma weak shmem_real8_sum_to_all_ = pshmem_real8_sum_to_all_
+# define shmem_real8_sum_to_all_ pshmem_real8_sum_to_all_
+# pragma weak shmem_real16_sum_to_all_ = pshmem_real16_sum_to_all_
+# define shmem_real16_sum_to_all_ pshmem_real16_sum_to_all_
+# pragma weak shmem_int2_prod_to_all_ = pshmem_int2_prod_to_all_
+# define shmem_int2_prod_to_all_ pshmem_int2_prod_to_all_
+# pragma weak shmem_int4_prod_to_all_ = pshmem_int4_prod_to_all_
+# define shmem_int4_prod_to_all_ pshmem_int4_prod_to_all_
+# pragma weak shmem_int8_prod_to_all_ = pshmem_int8_prod_to_all_
+# define shmem_int8_prod_to_all_ pshmem_int8_prod_to_all_
+# pragma weak shmem_real4_prod_to_all_ = pshmem_real4_prod_to_all_
+# define shmem_real4_prod_to_all_ pshmem_real4_prod_to_all_
+# pragma weak shmem_real8_prod_to_all_ = pshmem_real8_prod_to_all_
+# define shmem_real8_prod_to_all_ pshmem_real8_prod_to_all_
+# pragma weak shmem_real16_prod_to_all_ = pshmem_real16_prod_to_all_
+# define shmem_real16_prod_to_all_ pshmem_real16_prod_to_all_
+# pragma weak shmem_int2_max_to_all_ = pshmem_int2_max_to_all_
+# define shmem_int2_max_to_all_ pshmem_int2_max_to_all_
+# pragma weak shmem_int4_max_to_all_ = pshmem_int4_max_to_all_
+# define shmem_int4_max_to_all_ pshmem_int4_max_to_all_
+# pragma weak shmem_int8_max_to_all_ = pshmem_int8_max_to_all_
+# define shmem_int8_max_to_all_ pshmem_int8_max_to_all_
+# pragma weak shmem_real4_max_to_all_ = pshmem_real4_max_to_all_
+# define shmem_real4_max_to_all_ pshmem_real4_max_to_all_
+# pragma weak shmem_real8_max_to_all_ = pshmem_real8_max_to_all_
+# define shmem_real8_max_to_all_ pshmem_real8_max_to_all_
+# pragma weak shmem_real16_max_to_all_ = pshmem_real16_max_to_all_
+# define shmem_real16_max_to_all_ pshmem_real16_max_to_all_
+# pragma weak shmem_int2_min_to_all_ = pshmem_int2_min_to_all_
+# define shmem_int2_min_to_all_ pshmem_int2_min_to_all_
+# pragma weak shmem_int4_min_to_all_ = pshmem_int4_min_to_all_
+# define shmem_int4_min_to_all_ pshmem_int4_min_to_all_
+# pragma weak shmem_int8_min_to_all_ = pshmem_int8_min_to_all_
+# define shmem_int8_min_to_all_ pshmem_int8_min_to_all_
+# pragma weak shmem_real4_min_to_all_ = pshmem_real4_min_to_all_
+# define shmem_real4_min_to_all_ pshmem_real4_min_to_all_
+# pragma weak shmem_real8_min_to_all_ = pshmem_real8_min_to_all_
+# define shmem_real8_min_to_all_ pshmem_real8_min_to_all_
+# pragma weak shmem_real16_min_to_all_ = pshmem_real16_min_to_all_
+# define shmem_real16_min_to_all_ pshmem_real16_min_to_all_
+# pragma weak shmem_int2_and_to_all_ = pshmem_int2_and_to_all_
+# define shmem_int2_and_to_all_ pshmem_int2_and_to_all_
+# pragma weak shmem_int4_and_to_all_ = pshmem_int4_and_to_all_
+# define shmem_int4_and_to_all_ pshmem_int4_and_to_all_
+# pragma weak shmem_int8_and_to_all_ = pshmem_int8_and_to_all_
+# define shmem_int8_and_to_all_ pshmem_int8_and_to_all_
+# pragma weak shmem_int4_or_to_all_ = pshmem_int4_or_to_all_
+# define shmem_int2_or_to_all_ pshmem_int2_or_to_all_
+# pragma weak shmem_int2_or_to_all_ = pshmem_int2_or_to_all_
+# define shmem_int4_or_to_all_ pshmem_int4_or_to_all_
+# pragma weak shmem_int8_or_to_all_ = pshmem_int8_or_to_all_
+# define shmem_int8_or_to_all_ pshmem_int8_or_to_all_
+# pragma weak shmem_int2_xor_to_all_ = pshmem_int2_xor_to_all_
+# define shmem_int2_xor_to_all_ pshmem_int2_xor_to_all_
+# pragma weak shmem_int4_xor_to_all_ = pshmem_int4_xor_to_all_
+# define shmem_int4_xor_to_all_ pshmem_int4_xor_to_all_
+# pragma weak shmem_int8_xor_to_all_ = pshmem_int8_xor_to_all_
+# define shmem_int8_xor_to_all_ pshmem_int8_xor_to_all_
+# pragma weak shmem_comp4_sum_to_all_ = pshmem_comp4_sum_to_all_
+# define shmem_comp4_sum_to_all_ pshmem_comp4_sum_to_all_
+# pragma weak shmem_comp8_sum_to_all_ = pshmem_comp8_sum_to_all_
+# define shmem_comp8_sum_to_all_ pshmem_comp8_sum_to_all_
+# pragma weak shmem_comp4_prod_to_all_ = pshmem_comp4_prod_to_all_
+# define shmem_comp4_prod_to_all_ pshmem_comp4_prod_to_all_
+# pragma weak shmem_comp8_prod_to_all_ = pshmem_comp8_prod_to_all_
+# define shmem_comp8_prod_to_all_ pshmem_comp8_prod_to_all_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define REDUCIFY(Op, Fname, Cname, Ctype)				\
@@ -1008,12 +1010,12 @@ REDUCIFY (prod, comp8, complexd, double complex);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_clear_lock_ = pshmem_clear_lock_
-#define shmem_clear_lock_ pshmem_clear_lock_
-#pragma weak shmem_set_lock_ = pshmem_set_lock_
-#define shmem_set_lock_ pshmem_set_lock_
-#pragma weak shmem_test_lock_ = pshmem_test_lock_
-#define shmem_test_lock_ pshmem_test_lock_
+# pragma weak shmem_clear_lock_ = pshmem_clear_lock_
+# define shmem_clear_lock_ pshmem_clear_lock_
+# pragma weak shmem_set_lock_ = pshmem_set_lock_
+# define shmem_set_lock_ pshmem_set_lock_
+# pragma weak shmem_test_lock_ = pshmem_test_lock_
+# define shmem_test_lock_ pshmem_test_lock_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -1057,30 +1059,30 @@ FORTRANIFY (shmem_pcontrol) (int *level)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-/* #pragma weak shmem_character_put_nb_ = pshmem_character_put_nb_ */
-/* #define shmem_character_put_nb_ pshmem_character_put_nb_ */
-#pragma weak shmem_double_put_nb_ = pshmem_double_put_nb_
-#define shmem_double_put_nb_ pshmem_double_put_nb_
-#pragma weak shmem_integer_put_nb_ = pshmem_integer_put_nb_
-#define shmem_integer_put_nb_ pshmem_integer_put_nb_
-#pragma weak shmem_logical_put_nb_ = pshmem_logical_put_nb_
-#define shmem_logical_put_nb_ pshmem_logical_put_nb_
-#pragma weak shmem_real_put_nb_ = pshmem_real_put_nb_
-#define shmem_real_put_nb_ pshmem_real_put_nb_
-/* #pragma weak shmem_complex_put_nb_ = pshmem_complex_put_nb_*/
-/* #define shmem_complex_put_nb_ pshmem_complex_put_nb_*/
-#pragma weak shmem_put4_nb_ = pshmem_put4_nb_
-#define shmem_put4_nb_ pshmem_put4_nb_
-#pragma weak shmem_put8_nb_ = pshmem_put8_nb_
-#define shmem_put8_nb_ pshmem_put8_nb_
-#pragma weak shmem_put32_nb_ = pshmem_put32_nb_
-#define shmem_put32_nb_ pshmem_put32_nb_
-#pragma weak shmem_put64_nb_ = pshmem_put64_nb_
-#define shmem_put64_nb_ pshmem_put64_nb_
-#pragma weak shmem_put128_nb_ = pshmem_put128_nb_
-#define shmem_put128_nb_ pshmem_put128_nb_
-/* #pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
-/* #define shmem_putmem_nb_ pshmem_putmem_nb_ */
+/* # pragma weak shmem_character_put_nb_ = pshmem_character_put_nb_ */
+/* # define shmem_character_put_nb_ pshmem_character_put_nb_ */
+# pragma weak shmem_double_put_nb_ = pshmem_double_put_nb_
+# define shmem_double_put_nb_ pshmem_double_put_nb_
+# pragma weak shmem_integer_put_nb_ = pshmem_integer_put_nb_
+# define shmem_integer_put_nb_ pshmem_integer_put_nb_
+# pragma weak shmem_logical_put_nb_ = pshmem_logical_put_nb_
+# define shmem_logical_put_nb_ pshmem_logical_put_nb_
+# pragma weak shmem_real_put_nb_ = pshmem_real_put_nb_
+# define shmem_real_put_nb_ pshmem_real_put_nb_
+/* # pragma weak shmem_complex_put_nb_ = pshmem_complex_put_nb_*/
+/* # define shmem_complex_put_nb_ pshmem_complex_put_nb_*/
+# pragma weak shmem_put4_nb_ = pshmem_put4_nb_
+# define shmem_put4_nb_ pshmem_put4_nb_
+# pragma weak shmem_put8_nb_ = pshmem_put8_nb_
+# define shmem_put8_nb_ pshmem_put8_nb_
+# pragma weak shmem_put32_nb_ = pshmem_put32_nb_
+# define shmem_put32_nb_ pshmem_put32_nb_
+# pragma weak shmem_put64_nb_ = pshmem_put64_nb_
+# define shmem_put64_nb_ pshmem_put64_nb_
+# pragma weak shmem_put128_nb_ = pshmem_put128_nb_
+# define shmem_put128_nb_ pshmem_put128_nb_
+/* # pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
+/* # define shmem_putmem_nb_ pshmem_putmem_nb_ */
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_PUT_NB(FName, CName, CType)			\
@@ -1116,30 +1118,30 @@ SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-/* #pragma weak shmem_character_get_nb_ = pshmem_character_get_nb_ */
-/* #define shmem_character_get_nb_ pshmem_character_get_nb_ */
-#pragma weak shmem_double_get_nb_ = pshmem_double_get_nb_
-#define shmem_double_get_nb_ pshmem_double_get_nb_
-#pragma weak shmem_integer_get_nb_ = pshmem_integer_get_nb_
-#define shmem_integer_get_nb_ pshmem_integer_get_nb_
-#pragma weak shmem_logical_get_nb_ = pshmem_logical_get_nb_
-#define shmem_logical_get_nb_ pshmem_logical_get_nb_
-#pragma weak shmem_real_get_nb_ = pshmem_real_get_nb_
-#define shmem_real_get_nb_ pshmem_real_get_nb_
-/* #pragma weak shmem_complex_get_nb_ = pshmem_complex_get_nb_*/
-/* #define shmem_complex_get_nb_ pshmem_complex_get_nb_*/
-#pragma weak shmem_get4_nb_ = pshmem_get4_nb_
-#define shmem_get4_nb_ pshmem_get4_nb_
-#pragma weak shmem_get8_nb_ = pshmem_get8_nb_
-#define shmem_get8_nb_ pshmem_get8_nb_
-#pragma weak shmem_get32_nb_ = pshmem_get32_nb_
-#define shmem_get32_nb_ pshmem_get32_nb_
-#pragma weak shmem_get64_nb_ = pshmem_get64_nb_
-#define shmem_get64_nb_ pshmem_get64_nb_
-#pragma weak shmem_get128_nb_ = pshmem_get128_nb_
-#define shmem_get128_nb_ pshmem_get128_nb_
-/* #pragma weak shmem_getmem_nb_ = pshmem_getmem_nb_ */
-/* #define shmem_getmem_nb_ pshmem_getmem_nb_ */
+/* # pragma weak shmem_character_get_nb_ = pshmem_character_get_nb_ */
+/* # define shmem_character_get_nb_ pshmem_character_get_nb_ */
+# pragma weak shmem_double_get_nb_ = pshmem_double_get_nb_
+# define shmem_double_get_nb_ pshmem_double_get_nb_
+# pragma weak shmem_integer_get_nb_ = pshmem_integer_get_nb_
+# define shmem_integer_get_nb_ pshmem_integer_get_nb_
+# pragma weak shmem_logical_get_nb_ = pshmem_logical_get_nb_
+# define shmem_logical_get_nb_ pshmem_logical_get_nb_
+# pragma weak shmem_real_get_nb_ = pshmem_real_get_nb_
+# define shmem_real_get_nb_ pshmem_real_get_nb_
+/* # pragma weak shmem_complex_get_nb_ = pshmem_complex_get_nb_*/
+/* # define shmem_complex_get_nb_ pshmem_complex_get_nb_*/
+# pragma weak shmem_get4_nb_ = pshmem_get4_nb_
+# define shmem_get4_nb_ pshmem_get4_nb_
+# pragma weak shmem_get8_nb_ = pshmem_get8_nb_
+# define shmem_get8_nb_ pshmem_get8_nb_
+# pragma weak shmem_get32_nb_ = pshmem_get32_nb_
+# define shmem_get32_nb_ pshmem_get32_nb_
+# pragma weak shmem_get64_nb_ = pshmem_get64_nb_
+# define shmem_get64_nb_ pshmem_get64_nb_
+# pragma weak shmem_get128_nb_ = pshmem_get128_nb_
+# define shmem_get128_nb_ pshmem_get128_nb_
+/* # pragma weak shmem_getmem_nb_ = pshmem_getmem_nb_ */
+/* # define shmem_getmem_nb_ pshmem_getmem_nb_ */
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_GET_NB(FName, CName, CType)			\

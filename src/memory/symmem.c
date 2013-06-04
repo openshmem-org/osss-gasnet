@@ -47,6 +47,7 @@
 #include "memalloc.h"
 #include "utils.h"
 
+#include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
@@ -318,8 +319,6 @@ shmemalign (size_t alignment, size_t size)
   return addr;
 }
 
-#if defined(HAVE_FEATURE_EXPERIMENTAL)
-
 /**
  * readable error message for error code "e"
  */
@@ -330,26 +329,27 @@ typedef struct
   char *msg;
 } malloc_error_code_t;
 
-static malloc_error_code_t error_table[] = {
-  {SHMEM_MALLOC_OK,
-   "no symmetric memory allocation error"},
-  {SHMEM_MALLOC_FAIL,
-   "symmetric memory allocation failed"},
-  {SHMEM_MALLOC_ALREADY_FREE,
-   "attempt to free already null symmetric memory address"},
-  {SHMEM_MALLOC_MEMALIGN_FAILED,
-   "attempt to align symmetric memory address failed"},
-  {SHMEM_MALLOC_REALLOC_FAILED,
-   "attempt to reallocate symmetric memory address failed"},
-  {SHMEM_MALLOC_SYMMSIZE_FAILED,
-   "asymmetric sizes passed to symmetric memory allocator"},
-  {SHMEM_MALLOC_BAD_SIZE,
-   "size of data to allocate can not be negative"},
-  {SHMEM_MALLOC_NOT_ALIGNED,
-   "address is not block-aligned"},
-  {SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
-   "address falls outside of symmetric heap"},
-};
+static malloc_error_code_t error_table[] =
+  {
+    {SHMEM_MALLOC_OK,
+     "no symmetric memory allocation error"},
+    {SHMEM_MALLOC_FAIL,
+     "symmetric memory allocation failed"},
+    {SHMEM_MALLOC_ALREADY_FREE,
+     "attempt to free already null symmetric memory address"},
+    {SHMEM_MALLOC_MEMALIGN_FAILED,
+     "attempt to align symmetric memory address failed"},
+    {SHMEM_MALLOC_REALLOC_FAILED,
+     "attempt to reallocate symmetric memory address failed"},
+    {SHMEM_MALLOC_SYMMSIZE_FAILED,
+     "asymmetric sizes passed to symmetric memory allocator"},
+    {SHMEM_MALLOC_BAD_SIZE,
+     "size of data to allocate can not be negative"},
+    {SHMEM_MALLOC_NOT_ALIGNED,
+     "address is not block-aligned"},
+    {SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
+     "address falls outside of symmetric heap"},
+  };
 static const int nerrors = TABLE_SIZE (error_table);
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -382,5 +382,3 @@ sherror (void)
 
   return "unknown memory error";
 }
-
-#endif /* HAVE_FEATURE_EXPERIMENTAL */
