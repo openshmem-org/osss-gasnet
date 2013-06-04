@@ -45,7 +45,10 @@
 #include "utils.h"
 #include "modules.h"
 
-#include "pshmem.h"
+
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /*
  * handlers for barrier implementations
@@ -123,8 +126,8 @@ __shmem_barriers_dispatch_init (void)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_barrier_all = pshmem_barrier_all
-#define shmem_barrier_all pshmem_barrier_all
+# pragma weak shmem_barrier_all = pshmem_barrier_all
+# define shmem_barrier_all pshmem_barrier_all
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -139,8 +142,8 @@ shmem_barrier_all (void)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_barrier = pshmem_barrier
-#define shmem_barrier pshmem_barrier
+# pragma weak shmem_barrier = pshmem_barrier
+# define shmem_barrier pshmem_barrier
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void

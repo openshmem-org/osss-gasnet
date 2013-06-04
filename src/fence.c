@@ -41,6 +41,10 @@
 
 #include "comms/comms.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
 
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_fence = pshmem_fence

@@ -48,6 +48,11 @@
 
 #include "modules.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
 
 /*
  * handlers for implementations
@@ -100,8 +105,8 @@ __shmem_fcollect_dispatch_init (void)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_fcollect32 = pshmem_fcollect32
-#define shmem_fcollect32 pshmem_fcollect32
+# pragma weak shmem_fcollect32 = pshmem_fcollect32
+# define shmem_fcollect32 pshmem_fcollect32
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
@@ -115,8 +120,8 @@ shmem_fcollect32 (void *target, const void *source, size_t nelems,
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_fcollect64 = pshmem_fcollect64
-#define shmem_fcollect64 pshmem_fcollect64
+# pragma weak shmem_fcollect64 = pshmem_fcollect64
+# define shmem_fcollect64 pshmem_fcollect64
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void

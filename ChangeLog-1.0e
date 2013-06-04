@@ -16,12 +16,17 @@ Build
 
   * Review of collectives with some fixes
   * Updated 3rd party utilities
-  * Compiles with Clang (3.0), PGI (13.5)
+  * Compiles with
+    * GNU (various)
+    * Clang (3.0)
+    * PGI (various)
+    * Intel (13.x)
+    * Oracle Studio (12.3)
+    * Open64/UH (3.0.x)
   * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to
     GASNet
-  * Discovered some GASNet improvements from discussions with Paul
-    Hargrove at SC12
+  * Discovered some GASNet improvements from discussions at SC12
 
 Ecosystem
 ---------

@@ -45,10 +45,12 @@
  *
  */
 
-#include "pshmem.h"
-
 #include "fortran-common.h"
 
+
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  *

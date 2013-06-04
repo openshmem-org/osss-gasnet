@@ -495,7 +495,7 @@ case "$cc_ver" in
 	ld_cmd="$cc_cmd"
 	;;
     *OpenUH*)
-	cc_type="OpenUH (Open64)"
+	cc_type="Open64/UH"
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	pic_flags="-fPIC"

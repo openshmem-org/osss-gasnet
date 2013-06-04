@@ -34,20 +34,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Installation Instructions (preliminary) for OpenSHMEM
-=====================================================
+Installation Instructions for OpenSHMEM
+=======================================
 
-The library installs on top of GASNet and anything required by
-whichever conduit you want to use with GASNet, e.g. an MPI.  GASNet
-provides a portable communications layer for this implementation of
-OpenSHMEM to work on top of.
-
-The development versions of MPI are Open-MPI 1.4.x++ but I suspect any
-version that adheres to the "mpi" prefix for the command-line tools
-will slot right in, and if not, you don't have to use the wrapper
-programs provided by the library, rather using the MPI compilers and
-e.g. the pkg-config utility to locate headers and libraries (described
-below).  We've used MPICH2 and MVAPICH2 successfully too locally.
+The OpenSHMEM library currently installs on top of GASNet and anything
+required by whichever conduit you want to use with GASNet, e.g. an
+MPI.  GASNet provides a portable communications layer for this
+implementation of OpenSHMEM to work on top of.
 
 There's a relatively small number of changes that need to be made to
 use different compilers (default is GNU).  The configure (v.i.) script
@@ -63,8 +56,8 @@ GASNet Versions
 
 1.18.x: was the main version during most of the development work
 
-1.20.0: is the newest GASNet version (Nov 2012) and is the one in use
-     for development currently
+1.20.x: the newest GASNet versions (since Nov 2012) and is in use for
+     development currently
 
 Building GASNet
 ===============
@@ -92,7 +85,7 @@ This is for a general-purpose GNU/Linux system (or cluster):
     2: 	  "fast" (small messages) segment
     3: 	  address-space-randomization
     4: 	  throttled polling for SMP conduit
-    5:    don't bother building UDP support, don't want it
+    5:    don't bother building UDP support, don't want it here
     6: 	  where to install GASNet
 
 Configure Usage
@@ -322,7 +315,8 @@ You can then
 
     module load <install>/modulefiles/openshmem
 
-to set up your environment for OpenSHMEM.
+to set up your environment for OpenSHMEM.  See the modules
+documentation for more advanced usage.
 
 Some Supporting Software
 ========================
@@ -339,8 +333,8 @@ Testing Environments at the University of Houston
 1. SMP: 2 x 8 processor Nehalem, 32GB RAM, GASNet "mpi" & "smp"
    conduits, OpenMPI 1.4.3++
 
-2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv"
-   conduit, OpenMPI & MVAPICH2 with slurm integration
+2. Opteron cluster: ~ 30 nodes, 2-4 ppn, SDR IB interconnect, "ibv" &
+   "mpi" conduits, OpenMPI & MVAPICH2 with SLURM integration
 
 3. Opteron cluster: ~ 250 nodes, 2-8 ppn, Gigabit interconnect, "mpi"
    conduit, OpenMPI 1.4.3 with pbs ("tm") integration

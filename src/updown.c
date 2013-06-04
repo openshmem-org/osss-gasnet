@@ -65,6 +65,10 @@
 
 #include "comms/comms.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
 /* ----------------------------------------------------------------- */
 
 /**

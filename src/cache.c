@@ -50,6 +50,11 @@
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
+#ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
 # define shmem_clear_cache_inv pshmem_clear_cache_inv
 # pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
@@ -130,7 +135,7 @@ shmem_set_cache_inv (void)
  */
 
 void
-shmem_clear_cache_inv (void *target)
+shmem_clear_cache_inv (void)
 {
   cache_helper ("shmem_clear_cache_inv");
 }

@@ -42,6 +42,11 @@
 
 #include "shmem.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
 /*
  * these two are needed for propagating complex number routines into Fortran,
  * but aren't actually part of the API

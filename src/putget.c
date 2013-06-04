@@ -55,6 +55,10 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_short_put = pshmem_short_put
 # define shmem_short_put pshmem_short_put
 # pragma weak shmem_int_put = pshmem_int_put

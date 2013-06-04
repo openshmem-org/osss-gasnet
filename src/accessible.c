@@ -43,6 +43,10 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_pe_accessible = pshmem_pe_accessible
 #define shmem_pe_accessible pshmem_pe_accessible
 #pragma weak shmem_addr_accessible = pshmem_addr_accessible

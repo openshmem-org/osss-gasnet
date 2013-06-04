@@ -46,6 +46,11 @@
 
 #include "comms/comms.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
 /**
  * this waits for the variable to change but also dispatches
  * other put/get traffic in the meantime

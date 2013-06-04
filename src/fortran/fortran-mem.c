@@ -43,9 +43,11 @@
 #include "utils.h"
 #include "trace.h"
 
-#include "pshmem.h"
-
 #include "fortran-common.h"
+
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /*
  * used by Fortran routines, but not part of API

@@ -54,6 +54,11 @@
 
 #include "shmem.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
 /**
  * Implement the CRAY SHMEM locking API using MCS locks
  * 

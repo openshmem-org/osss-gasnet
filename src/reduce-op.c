@@ -46,6 +46,11 @@
 
 #include "shmem.h"
 
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
 /**
  * pre-defined reductions in SHMEM 1.0
  *

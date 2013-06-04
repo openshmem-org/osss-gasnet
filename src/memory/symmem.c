@@ -47,7 +47,10 @@
 #include "memalloc.h"
 #include "utils.h"
 
-#include "pshmem.h"
+
+#ifdef HAVE_FEATURE_PSHMEM
+# include "pshmem.h"
+#endif /* HAVE_FEATURE_PSHMEM */
 
 /*
  * Not present in SGI any more.
@@ -147,8 +150,8 @@ __shmalloc_no_check (size_t size)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmalloc = pshmalloc
-#define shmalloc pshmalloc
+# pragma weak shmalloc = pshmalloc
+# define shmalloc pshmalloc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -181,8 +184,8 @@ shmalloc (size_t size)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shfree = pshfree
-#define shfree pshfree
+# pragma weak shfree = pshfree
+# define shfree pshfree
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -214,8 +217,8 @@ shfree (void *addr)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shrealloc = pshrealloc
-#define shrealloc pshrealloc
+# pragma weak shrealloc = pshrealloc
+# define shrealloc pshrealloc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -273,8 +276,8 @@ shrealloc (void *addr, size_t size)
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmemalign = pshmemalign
-#define shmemalign pshmemalign
+# pragma weak shmemalign = pshmemalign
+# define shmemalign pshmemalign
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -315,6 +318,8 @@ shmemalign (size_t alignment, size_t size)
   return addr;
 }
 
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
 /**
  * readable error message for error code "e"
  */
@@ -348,8 +353,9 @@ static malloc_error_code_t error_table[] = {
 static const int nerrors = TABLE_SIZE (error_table);
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak sherror = psherror
-#define sherror psherror
+extern char *sherror (void);
+# pragma weak sherror = psherror
+# define sherror psherror
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -376,3 +382,5 @@ sherror (void)
 
   return "unknown memory error";
 }
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

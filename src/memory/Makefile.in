@@ -67,6 +67,10 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
+ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+endif
+
 CPPFLAGS        += -I.
 CPPFLAGS        += -I..
 
