@@ -48,11 +48,16 @@
 
 
 /*
- * these two are needed for propagating complex number routines into Fortran,
+ * these are needed for propagating into Fortran,
  * but aren't actually part of the API
  */
 extern void shmem_complexf_p (complex float *addr, complex float value, int pe);
 extern complex float shmem_complexf_g (complex float *addr, int pe);
+
+extern void shmem_char_iput (char *target, const char *source, ptrdiff_t tst,
+			     ptrdiff_t sst, size_t nelems, int pe);
+extern void shmem_char_iget (char *target, const char *source, ptrdiff_t tst,
+			     ptrdiff_t sst, size_t nelems, int pe);
 
 
 #ifdef HAVE_FEATURE_PSHMEM

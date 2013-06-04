@@ -139,6 +139,7 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern void shmem_sync_init (long *pSync);
 #pragma weak shmem_sync_init = pshmem_sync_init
 #define shmem_sync_init pshmem_sync_init
 #endif /* HAVE_FEATURE_PSHMEM */

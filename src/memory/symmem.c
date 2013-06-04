@@ -353,7 +353,7 @@ static malloc_error_code_t error_table[] =
 static const int nerrors = TABLE_SIZE (error_table);
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern char *sherror (void);
+extern char *sherror (void); /* ! API */
 # pragma weak sherror = psherror
 # define sherror psherror
 #endif /* HAVE_FEATURE_PSHMEM */

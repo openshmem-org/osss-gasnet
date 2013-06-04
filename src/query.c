@@ -167,6 +167,7 @@ shmem_n_pes (void)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern char *shmem_nodename (void); /* ! API */
 # pragma weak shmem_nodename = pshmem_nodename
 # define shmem_nodename pshmem_nodename
 #endif /* HAVE_FEATURE_PSHMEM */

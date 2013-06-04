@@ -85,11 +85,6 @@ extern "C"
 				     int pe);
   extern void pshmem_double_put (double *dest, const double *src,
 				 size_t nelems, int pe);
-#if 0
-  extern void pshmem_complexd_put (COMPLEXIFY (double) * dest,
-				   const COMPLEXIFY (double) * src,
-				   size_t nelems, int pe);
-#endif
   extern void pshmem_float_put (float *dest, const float *src, size_t nelems,
 				int pe);
   extern void pshmem_putmem (void *dest, const void *src, size_t nelems,

@@ -59,6 +59,12 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern void shmem_complexf_put (COMPLEXIFY (float) * dest,
+				const COMPLEXIFY (float) * src,
+				size_t nelems, int pe); /* ! API */
+extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
+				const COMPLEXIFY (double) * src,
+				size_t nelems, int pe); /* ! API */
 # pragma weak shmem_short_put = pshmem_short_put
 # define shmem_short_put pshmem_short_put
 # pragma weak shmem_int_put = pshmem_int_put
@@ -162,6 +168,12 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern void shmem_complexf_get (COMPLEXIFY (float) * dest,
+				const COMPLEXIFY (float) * src,
+				size_t nelems, int pe); /* ! API */
+extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
+				const COMPLEXIFY (double) * src,
+				size_t nelems, int pe); /* ! API */
 # pragma weak shmem_short_get = pshmem_short_get
 # define shmem_short_get pshmem_short_get
 # pragma weak shmem_int_get = pshmem_int_get

@@ -53,6 +53,10 @@
 
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern void *shmem_put16_nb (void *dest, const void *src, size_t nelems,
+			     int pe, void **hp) _WUR; /* ! API */
+extern void *shmem_put_nb (long *dest, const long *src, size_t nelems,
+			   int pe, void **hp) _WUR; /* ! API */
 # pragma weak shmem_short_put_nb = pshmem_short_put_nb
 # define shmem_short_put_nb pshmem_short_put_nb
 # pragma weak shmem_int_put_nb = pshmem_int_put_nb
@@ -166,6 +170,10 @@ shmem_put_nb (long *target, const long *source, size_t nelems,
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
+extern void *shmem_get16_nb (void *dest, const void *src, size_t nelems,
+			     int pe, void **hp) _WUR; /* ! API */
+extern void *shmem_get_nb (long *dest, const long *src, size_t nelems,
+			   int pe, void **hp) _WUR; /* ! API */
 # pragma weak shmem_short_get_nb = pshmem_short_get_nb
 # define shmem_short_get_nb pshmem_short_get_nb
 # pragma weak shmem_int_get_nb = pshmem_int_get_nb
