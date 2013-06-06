@@ -56,8 +56,9 @@
 #ifndef _POSIX_C_SOURCE
 # define _POSIX_C_SOURCE 199309
 #endif /* _POSIX_C_SOURCE */
-
 #include <time.h>
+
+#include <gasnet.h>
 
 #include "../comms.h"
 #include "trace.h"
@@ -100,29 +101,78 @@ start_service (void *unused)
 }
 
 /**
+ * assume initially we need to manage progress ourselves
+ */
+static int handling_own_thread = 1;
+
+/**
  * start the servicer
  */
 
 void
 __shmem_service_init (void)
 {
-  int s;
 
-  delayspec.tv_sec = (time_t) 0;
-  delayspec.tv_nsec = delay;
 
-  s = pthread_create (&thr, NULL, start_service, (void *) 0);
-  if (s != 0)
+#ifdef GASNETC_IB_RCV_THREAD
+  /*
+   * if we have an IBV progress thread configured, then check env for
+   * GASNET_RCV_THREAD.  If set to 1 (true), the conduit handles
+   * progress.  If unset, or set to 0 (false), we start our own
+   * progress thread
+   */
+  char *rt = __shmem_comms_getenv ("GASNET_RCV_THREAD");
+  if (rt == NULL)
     {
-       __shmem_trace (SHMEM_LOG_FATAL,
-                      "internal error: service thread creation failed (%s)",
-		      strerror (s)
-		      );
-       /* NOT REACHED */
+      handling_own_thread = 1;
     }
-  __shmem_trace (SHMEM_LOG_SERVICE,
-		 "started progress thread"
-		 );
+  else
+    {
+      switch (*rt)
+	{
+	case '0':
+	case 'f':
+	case 'F':
+	  handling_own_thread = 1;
+	  break;
+	case '1':
+	case 't':
+	case 'T':
+	  handling_own_thread = 0;
+	  break;
+	default:		/* should log this as not 0|1 */
+	  handling_own_thread = 0;
+	  break;
+	}
+    }
+#endif /* GASNETC_IB_RCV_THREAD */
+
+  if (handling_own_thread)
+    {
+      int s;
+
+      delayspec.tv_sec = (time_t) 0;
+      delayspec.tv_nsec = delay;
+
+      s = pthread_create (&thr, NULL, start_service, (void *) 0);
+      if (s != 0)
+        {
+	  __shmem_trace (SHMEM_LOG_FATAL,
+			 "internal error: progress thread creation failed (%s)",
+			 strerror (s)
+			 );
+	  /* NOT REACHED */
+        }
+      __shmem_trace (SHMEM_LOG_SERVICE,
+		     "started progress thread"
+		     );
+     }
+  else
+    {
+      __shmem_trace (SHMEM_LOG_SERVICE,
+		     "conduit handles its own progress thread"
+		     );
+    }
 }
 
 /**
@@ -132,20 +182,23 @@ __shmem_service_init (void)
 void
 __shmem_service_finalize (void)
 {
-  int s;
-
-  done = 1;
-
-  s = pthread_join (thr, NULL);
-  if (s != 0)
+  if (handling_own_thread)
     {
-       __shmem_trace (SHMEM_LOG_FATAL,
-                      "internal error: service thread termination failed (%s)",
-		      strerror (s)
-                     );
-       /* NOT REACHED */
+      int s;
+
+      done = 1;
+
+      s = pthread_join (thr, NULL);
+      if (s != 0)
+	{
+	  __shmem_trace (SHMEM_LOG_FATAL,
+			 "internal error: progress thread termination failed (%s)",
+			 strerror (s)
+			 );
+	  /* NOT REACHED */
+	}
+      __shmem_trace (SHMEM_LOG_SERVICE,
+		     "stopped progress thread"
+		     );
     }
-  __shmem_trace (SHMEM_LOG_SERVICE,
-		 "stopped progress thread"
-		 );
 }
