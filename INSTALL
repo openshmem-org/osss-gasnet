@@ -240,13 +240,14 @@ on setting these can be found here:
 Other GASNet environment variables that may help include
 
   GASNET_PHYSMEM_NOPROBE
-
-in conjunction with this library's SHMEM_SYMMETRIC_HEAP_SIZE
-environment variable, and
-
+  GASNET_PHYSMEM_MAX
   GASNET_NUM_QPS
 
-to set the number of Infiniband queue-pairs.
+See the GASNet documentation for details:
+
+  http://gasnet.cs.berkeley.edu/dist/vapi-conduit/README
+
+(vapi and ibv are the same).
 
 Update: the registered memory issues are at least partly due to
 hardware not allowing large registrations by default.  We (UH) were

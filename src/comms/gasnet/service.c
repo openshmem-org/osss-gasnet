@@ -117,31 +117,42 @@ __shmem_service_init (void)
 #ifdef GASNETC_IB_RCV_THREAD
   /*
    * if we have an IBV progress thread configured, then check env for
-   * GASNET_RCV_THREAD.  If set to 1 (true), the conduit handles
-   * progress.  If unset, or set to 0 (false), we start our own
-   * progress thread
+   * GASNET_RCV_THREAD.
+   *
+   * If unset, we start our own progress thread
+   * If set to [0nN] (false), we start our own progress thread
+   * If set to [1yY] (true), the conduit handles progress
+   *
+   * Any other value, assume true but make a note.  NB with 1.20.2,
+   * GASNet itself traps other values and aborts.
+   *
    */
-  char *rt = __shmem_comms_getenv ("GASNET_RCV_THREAD");
-  if (rt == NULL)
+
+  const char *grt_str = "GASNET_RCV_THREAD";
+  char *rtv = __shmem_comms_getenv (grt_str);
+  if (rtv == NULL)
     {
       handling_own_thread = 1;
     }
   else
     {
-      switch (*rt)
+      switch (tolower (*rtv))
 	{
 	case '0':
-	case 'f':
-	case 'F':
+	case 'n':
 	  handling_own_thread = 1;
 	  break;
 	case '1':
-	case 't':
-	case 'T':
+	case 'y':
 	  handling_own_thread = 0;
 	  break;
-	default:		/* should log this as not 0|1 */
+	default:
 	  handling_own_thread = 0;
+	  __shmem_trace (SHMEM_LOG_SERVICE,
+			 "%s is \"%s\", but should be [01] (using 1)",
+			 grt_str,
+			 rtv
+			 );
 	  break;
 	}
     }
@@ -170,7 +181,7 @@ __shmem_service_init (void)
   else
     {
       __shmem_trace (SHMEM_LOG_SERVICE,
-		     "conduit handles its own progress thread"
+		     "conduit starts its own progress thread"
 		     );
     }
 }
@@ -199,6 +210,12 @@ __shmem_service_finalize (void)
 	}
       __shmem_trace (SHMEM_LOG_SERVICE,
 		     "stopped progress thread"
+		     );
+    }
+  else
+    {
+      __shmem_trace (SHMEM_LOG_SERVICE,
+		     "conduit stops its own progress thread"
 		     );
     }
 }
