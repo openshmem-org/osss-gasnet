@@ -242,16 +242,17 @@ a macro you can test against).
 
 \subsubsection{Segment Models}
 
-The library currently has best support for the ``everything''
-model. This model allows the entire process space to be addressed
-remotely. Communication with dynamically allocated data and with
-global data is equally easy.
+GASNet supports 3 segment models: ``fast'', ``large'' and
+``everything''.  ``fast'' and ``large'' allow a certain region of
+process memory to be registered.  ``everything'' maps the entire
+process memory, but is not supported by all interconnect conduits, and
+often shows very poor performance in the instances where the author
+has tried to use it.
 
-For the ``fast'' and ``large'' models, only a specified area of
-the process memory is exposed for remote access. This means extra
-support has to be added to handle communication with global variables,
-because only the symmetric heap is exposed by GASNet. Currently this
-is done via Active Messages.
+For the ``fast'' and ``large'' models, extra support has to be added
+to handle communication with global variables, because only the
+symmetric heap is exposed by GASNet. Currently this is done via Active
+Messages.
 
 For the SMP conduit, PSHM support is required to run parallel threaded
 programs with OpenSHMEM. This excludes the ``everything'' model (at
@@ -405,17 +406,17 @@ of OpenSHMEM primitives, so there are no Elan dependencies.
 \subsection{Barrier and broadcast}
 
 The initial version is naive, making the root of the broadcast a
-bottleneck.  This is partly intentional, to allow Swaroop (PhD student
-at UH) to explore better algorithms and work out how to demonstrate
-and document the improvements. We would like to collect some locality
-information inside the library to help decide communication order
-inside these algorithms: PEs that differ in rank by large amounts are
-likely to be further away topologically too, so by sending to more
-distant PEs first, we can stagger the network traffic and balance the
-latencies better. A proper measurement of ``distance'' is needed
-here. ``hwloc'' provides a per-system distance metric in NUMA
-terms. A simple extension could e.g.\ just multiply the distance
-by some constant when moving off-node to penalize network traffic.
+bottleneck.  This is partly intentional, to allow a student at UH to
+explore better algorithms and work out how to demonstrate and document
+the improvements. We would like to collect some locality information
+inside the library to help decide communication order inside these
+algorithms: PEs that differ in rank by large amounts are likely to be
+further away topologically too, so by sending to more distant PEs
+first, we can stagger the network traffic and balance the latencies
+better. A proper measurement of ``distance'' is needed here. ``hwloc''
+provides a per-system distance metric in NUMA terms. A simple
+extension could e.g.\ just multiply the distance by some constant when
+moving off-node to penalize network traffic.
 
 \subsection{Collects}
 
@@ -468,9 +469,8 @@ what was intended.
 
 \subsection{Tracing Facility}
 
-This library contains \textquotedblleft{}trace
-points\textquotedblright{} with categorized messages. These are listed
-in section \ref{sec:Environment-Variables}
+This library contains \textbf{trace points} with categorized
+messages. These are listed in section \ref{sec:Environment-Variables}
 
 A high-resolution clock is maintained to timestamp such messages.
 Numerically sorting the output on the first field can thus help
