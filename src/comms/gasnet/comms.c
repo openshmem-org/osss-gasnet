@@ -83,7 +83,7 @@
 
 #define USING_IMPLICIT_HANDLES 1
 
-#ifdef USING_IMPLICIT_HANDLES
+#if USING_IMPLICIT_HANDLES
 # define GASNET_PUT(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
 # define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
 # define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_nbi_val (pe, dst, src, len)
@@ -105,12 +105,14 @@
  *
  */
 
-#if defined(GASNET_SEGMENT_FAST) || defined(GASNET_SEGMENT_LARGE)
-#  define HAVE_MANAGED_SEGMENTS 1
+#if defined(GASNET_SEGMENT_FAST)
+# define HAVE_MANAGED_SEGMENTS 1
+#elif defined(GASNET_SEGMENT_LARGE)
+# define HAVE_MANAGED_SEGMENTS 1
 #elif defined(GASNET_SEGMENT_EVERYTHING)
-#  undef HAVE_MANAGED_SEGMENTS
+# undef HAVE_MANAGED_SEGMENTS
 #else
-#  error "I don't know what kind of GASNet segment model you're trying to use"
+# error "I don't know what kind of GASNet segment model you're trying to use"
 #endif
 
 /**
@@ -162,7 +164,7 @@ static void *great_big_heap;
 
 enum
   {
-    GASNET_HANDLER_SETUP_OUT=128,
+    GASNET_HANDLER_SETUP_OUT = 128,
     GASNET_HANDLER_SETUP_BAK,
     GASNET_HANDLER_SWAP_OUT,
     GASNET_HANDLER_SWAP_BAK,
@@ -2203,7 +2205,8 @@ __shmem_comms_fence_request (void)
  * start of handlers
  */
 
-static gasnet_handlerentry_t handlers[] =
+static gasnet_handlerentry_t
+handlers[] =
   {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
     {GASNET_HANDLER_SETUP_OUT,          handler_segsetup_out},
@@ -2374,7 +2377,8 @@ __shmem_comms_init (void)
 
   __shmem_trace (SHMEM_LOG_INIT,
 		 "gasnet attached, %d handlers registered, heap = %ld bytes",
-		 nhandlers, GET_STATE (heapsize)
+		 nhandlers,
+		 GET_STATE (heapsize)
 		 );
 
   __shmem_comms_set_waitmode (SHMEM_COMMS_SPINBLOCK);
@@ -2388,7 +2392,8 @@ __shmem_comms_init (void)
   __shmem_comms_barrier_all ();
 
   __shmem_trace (SHMEM_LOG_INIT,
-		 "communication layer initialization complete");
+		 "communication layer initialization complete"
+		 );
 
   /* Up and running! */
 }
