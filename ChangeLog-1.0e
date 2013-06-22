@@ -20,9 +20,11 @@ Build
     * GNU (various)
     * Clang (3.0)
     * PGI (various)
-    * Intel (13.x)
     * Oracle Studio (12.3)
-    * Open64/UH (3.0.x)
+    * Intel (13.x)       +
+    * OpenUH (3.0.x)     +
+    *                    + = have problems with pshmem support
+    *
   * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to
     GASNet

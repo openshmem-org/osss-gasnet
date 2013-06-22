@@ -96,27 +96,19 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /*
- * short-circuit local puts/gets, otherwise translate between
- * local/remote addresses
- * (should probably ifdef for aligned segments case)
+ * do typed puts.  NB any short-circuits or address translations are
+ * now deferred to the comms layer
  */
 
 #define SHMEM_TYPE_PUT(Name, Type)					\
   void									\
   shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_nelems = sizeof(Type) * nelems;				\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(dest, 1, "shmem_" #Name "_put");			\
-    if (GET_STATE(mype) == pe) {					\
-      memmove(dest, src, typed_nelems);					\
-      LOAD_STORE_FENCE;							\
-    }									\
-    else {								\
-      void *rdest = __shmem_symmetric_addr_lookup(dest, pe);		\
-      __shmem_comms_put(rdest, (Type *) src, typed_nelems, pe);		\
-    }									\
+    int typed_nelems = sizeof (Type) * nelems;				\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");			\
+    __shmem_comms_put (dest, (Type *) src, typed_nelems, pe);		\
   }
 
 SHMEM_TYPE_PUT (char, char);
@@ -154,16 +146,7 @@ shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
   SYMMETRY_CHECK (dest, 1, "shmem_putmem");
-  if (GET_STATE (mype) == pe)
-    {
-      memmove (dest, src, nelems);
-      LOAD_STORE_FENCE;
-    }
-  else
-    {
-      void *rdest = __shmem_symmetric_addr_lookup (dest, pe);
-      __shmem_comms_put_bulk (rdest, (void *) src, nelems, pe);
-    }
+  __shmem_comms_put_bulk (dest, (void *) src, nelems, pe);
 }
 
 
@@ -208,18 +191,11 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
   void									\
   shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_nelems = sizeof(Type) * nelems;				\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    SYMMETRY_CHECK(src, 2, "shmem_" #Name "_get");			\
-    if (GET_STATE(mype) == pe) {					\
-      memmove(dest, src, typed_nelems);					\
-      LOAD_STORE_FENCE;							\
-    }									\
-    else {								\
-      void *their_src = __shmem_symmetric_addr_lookup((void *) src, pe); \
-      __shmem_comms_get(dest, their_src, typed_nelems, pe);		\
-    }									\
+    int typed_nelems = sizeof (Type) * nelems;				\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");			\
+    __shmem_comms_get(dest, (void *) src, typed_nelems, pe);		\
   }
 
 SHMEM_TYPE_GET (char, char);
@@ -246,7 +222,7 @@ shmem_get64 (void *dest, const void *src, size_t nelems, int pe)
 }
 
 void
-shmem_get128 (void *dest, const void*src, size_t nelems, int pe)
+shmem_get128 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_longdouble_get (dest, src, nelems, pe);
 }
@@ -257,16 +233,7 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
   SYMMETRY_CHECK (src, 2, "shmem_getmem");
-  if (GET_STATE (mype) == pe)
-    {
-      memmove (dest, src, nelems);
-      LOAD_STORE_FENCE;
-    }
-  else
-    {
-      void *their_src = __shmem_symmetric_addr_lookup ((void*) src, pe);
-      __shmem_comms_get_bulk (dest, their_src, nelems, pe);
-    }
+  __shmem_comms_get_bulk (dest, (void *) src, nelems, pe);
 }
 
 

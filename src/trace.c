@@ -332,7 +332,7 @@ __shmem_maybe_tracers_show_info (void)
       return;
     }
 
-  if (!__shmem_trace_is_enabled (SHMEM_LOG_INFO))
+  if (! __shmem_trace_is_enabled (SHMEM_LOG_INFO))
     {
       return;
     }

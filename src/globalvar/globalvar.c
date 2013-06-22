@@ -298,7 +298,7 @@ print_global_var_table (shmem_trace_t msgtype)
   globalvar_t *g;
   globalvar_t *tmp;
 
-  if (!__shmem_trace_is_enabled (msgtype))
+  if (! __shmem_trace_is_enabled (msgtype))
     {
       return;
     }
