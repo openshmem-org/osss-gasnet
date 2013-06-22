@@ -1857,18 +1857,18 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 void
 __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 {
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_dst))
+  if (__shmem_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (their_dst, src, len, pe);
+      __shmem_comms_globalvar_put_request (dst, src, len, pe);
     }
   else
     {
+      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
       GASNET_PUT (pe, their_dst, src, len);
     }
 #else
+  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
   GASNET_PUT (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1876,18 +1876,18 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 void
 __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 {
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_dst))
+  if (__shmem_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (their_dst, src, len, pe);
+      __shmem_comms_globalvar_put_request (dst, src, len, pe);
     }
   else
     {
+      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
       GASNET_PUT_BULK (pe, their_dst, src, len);
     }
 #else
+  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
   GASNET_PUT_BULK (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1895,18 +1895,18 @@ __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 void
 __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 {
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_src))
+  if (__shmem_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, their_src, len, pe);
+      __shmem_comms_globalvar_get_request (dst, src, len, pe);
     }
   else
     {
+      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
       GASNET_GET (dst, pe, their_src, len);
     }
 #else
+  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
   GASNET_GET (dst, pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1914,18 +1914,18 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 void
 __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 {
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_src))
+  if (__shmem_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, their_src, len, pe);
+      __shmem_comms_globalvar_get_request (dst, src, len, pe);
     }
   else
     {
+      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
       GASNET_GET_BULK (dst, pe, their_src, len);
     }
 #else
+  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
   GASNET_GET_BULK (dst, pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1938,18 +1938,18 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 void
 __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 {
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_dst))
+  if (__shmem_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (their_dst, &src, len, pe);
+      __shmem_comms_globalvar_put_request (dst, &src, len, pe);
     }
   else
     {
+      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
       GASNET_PUT_VAL (pe, their_dst, src, len);
     }
 #else
+  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
   GASNET_PUT_VAL (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1958,18 +1958,18 @@ long
 __shmem_comms_get_val (void *src, size_t len, int pe)
 {
   long retval;
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_src))
+  if (__shmem_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (&retval, their_src, len, pe);
+      __shmem_comms_globalvar_get_request (&retval, src, len, pe);
     }
   else
     {
+      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
       retval = gasnet_get_val (pe, their_src, len);
     }
 #else
+  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
   retval = gasnet_get_val (pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 
@@ -2078,20 +2078,20 @@ void *
 __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe)
 {
   void *h;
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);    
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_dst))
+  if (__shmem_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (their_dst, src, len, pe);
+      __shmem_comms_globalvar_put_request (dst, src, len, pe);
       h = NULL;			/* masquerade as _nb for now */
     }
   else
     {
+      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);    
       h = put_nb_helper (their_dst, src, len, pe);
     }
 #else
-      h = put_nb_helper (their_dst, src, len, pe);
+  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);    
+  h = put_nb_helper (their_dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
   return h;
 }
@@ -2113,19 +2113,19 @@ void *
 __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
 {
   void *h;
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (their_src))
+  if (__shmem_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, their_src, len, pe);
+      __shmem_comms_globalvar_get_request (dst, src, len, pe);
       h = NULL;			/* masquerade for now */
     }
   else
     {
+      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
       h = get_nb_helper (dst, their_src, len, pe);
     }
 #else
+  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
   h = get_nb_helper (dst, their_src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
   return h;
