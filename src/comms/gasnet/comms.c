@@ -2061,7 +2061,8 @@ nb_table_wait (void)
     }
 }
 
-static void *
+static
+void *
 put_nb_helper (void *dst, void *src, size_t len, int pe)
 {
   void *n;
@@ -2077,24 +2078,26 @@ void *
 __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe)
 {
   void *h;
+  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);    
 
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (dst))
+  if (__shmem_symmetric_is_globalvar (their_dst))
     {
-      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+      __shmem_comms_globalvar_put_request (their_dst, src, len, pe);
       h = NULL;			/* masquerade as _nb for now */
     }
   else
     {
-      h = put_nb_helper (dst, src, len, pe);
+      h = put_nb_helper (their_dst, src, len, pe);
     }
 #else
-      h = put_nb_helper (dst, src, len, pe);
+      h = put_nb_helper (their_dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
   return h;
 }
 
-static void *
+static
+void *
 get_nb_helper (void *dst, void *src, size_t len, int pe)
 {
   void *n;
@@ -2110,19 +2113,20 @@ void *
 __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
 {
   void *h;
+  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
 
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (src))
+  if (__shmem_symmetric_is_globalvar (their_src))
     {
-      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+      __shmem_comms_globalvar_get_request (dst, their_src, len, pe);
       h = NULL;			/* masquerade for now */
     }
   else
     {
-      h = get_nb_helper (dst, src, len, pe);
+      h = get_nb_helper (dst, their_src, len, pe);
     }
 #else
-  h = get_nb_helper (dst, src, len, pe);
+  h = get_nb_helper (dst, their_src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
   return h;
 }
