@@ -5,7 +5,11 @@
 #
 # Current operations with modules
 #
-# barrier-all, barrier, broadcast, reduction, fcollect, collect
+# barrier-all = linear
+# barrier = linear | tree
+# broadcast = linear | tree
+# fcollect = linear
+# collect = linear
 
 #
 # Chosen for all routines if not explicitly given
