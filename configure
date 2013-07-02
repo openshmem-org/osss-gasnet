@@ -64,6 +64,7 @@ modulefilesdir=
 show_progress=YES
 
 cc_type=
+known_compilers="GNU, Intel, PGI, Oracle, OpenUH, Open64, Clang, IBMXL"
 # -- end defaults --
 
 # find out where things are
@@ -90,6 +91,13 @@ bailout()
     tell ""
     tell "Bailing out..."
     exit 1
+}
+
+bail_unknown_compiler()
+{
+    tell "Choose one of the following compiler suites:"
+    tell "  $known_compilers"
+    bailout
 }
 
 deprecated()
@@ -137,9 +145,8 @@ Usage: $progname [options]
 
   Compiler Suite:
 
-    --with-compiler=C            Use compiler suite "C", from:
-                                     GNU, Intel, PGI, Oracle,
-                                     OpenUH, Open64, Clang, IBMXL
+    --with-compiler=S            Use compiler suite "S", from:
+                                     $known_compilers
                                      (default: CC from environment, or detect)
 
   Per-layer options:
@@ -278,7 +285,12 @@ do
 	    setcanonical comms_layer UCCS
 	    ;;
 	--with-compiler=*)
-            setcanonical cc_type "`chompit $o`"
+	    ct="`chompit $o`"
+	    [ -z "$ct" ] && bail_unknown_compiler
+            setcanonical cc_type "$ct"
+	    ;;
+	--with-compiler)
+	    bail_unknown_compiler
 	    ;;
 	--with-libelf=*)
 	    exe_format=ELF

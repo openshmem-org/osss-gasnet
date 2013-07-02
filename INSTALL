@@ -95,26 +95,38 @@ Here is how configure might be called on a cluster using Infiniband,
 with debugging support (e.g. argument and PE range checking) and
 operation tracing:
 
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=ibv     \
-                --with-gasnet-root=/usr	      \
-		--enable-debug --enable-trace
+    .../configure --prefix=$HOME/SHMEM          \
+                  --with-gasnet-conduit=ibv     \
+                  --with-gasnet-root=/usr       \
+	          --enable-debug --enable-trace
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
 
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=mpi     \
-                --with-gasnet-root=/opt/gasnet/large
+    .../configure --prefix=$HOME/SHMEM          \
+                  --with-gasnet-conduit=mpi     \
+                  --with-gasnet-root=/opt/gasnet/large
 
 Optimized for SMP (no MPI involved):
 
-    ./configure --prefix=$HOME/SHMEM          \
-                --with-gasnet-conduit=smp     \
-                --with-gasnet-root=/usr       \
-                --enable-debug
+    .../configure --prefix=$HOME/SHMEM          \
+                  --with-gasnet-conduit=smp     \
+                  --with-gasnet-root=/usr       \
+                  --enable-debug
 
     (GASNet built with fast/large model)
+
+Compilers and flags can be selected via environment variables, e.g.
+
+    CC="gcc" CFLAGS="-g -O2" .../configure ...options...
+
+The compiler suite can also be selected at one go via
+
+    .../configure ... --with-compiler=SUITE
+
+where SUITE is a name such as GNU, Intel, ... (case-insensitive).
+Omitting the SUITE will list known compilers.
+
 
 OpenSHMEM Installation Notes
 ============================
