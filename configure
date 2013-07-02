@@ -62,6 +62,8 @@ modulesdir=
 modulefilesdir=
 
 show_progress=YES
+
+cc_type=
 # -- end defaults --
 
 # find out where things are
@@ -132,6 +134,13 @@ Usage: $progname [options]
 
     --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
                                      (currently just a stub)
+
+  Compiler Suite:
+
+    --with-compiler=C            Use compiler suite "C", from:
+                                     GNU, Intel, PGI, Oracle,
+                                     OpenUH, Open64, Clang, IBMXL
+                                     (default: CC from environment, or detect)
 
   Per-layer options:
 
@@ -267,6 +276,9 @@ do
 	--with-uccs-root=*)
 	    uccs_root="`chompit $o`"
 	    setcanonical comms_layer UCCS
+	    ;;
+	--with-compiler=*)
+            setcanonical cc_type "`chompit $o`"
 	    ;;
 	--with-libelf=*)
 	    exe_format=ELF
@@ -405,33 +417,65 @@ tell ""
 
 tell "Searching for compilers ..."
 
-# -- either gnu (guess) or from environment --
+# if not told by user, work out which compiler
 
-cc_cmd="${CC-gcc}"
-
-which $cc_cmd >/dev/null 2>&1
-if [ $? -ne 0 ]
+if [ -z "$cc_type" ]
 then
-    tell "  I couldn't find the C compiler \"$cc_cmd\""
-    bailout
-fi
 
-# now see if we can work out how to do C99 compliance and warnings
-# where needed
+    # -- either gnu (guess) or from environment --
 
-# try to work out the compiler family by querying the C command
-cc_ver="`$cc_cmd -V 2>&1`"
-if [ $? -ne 0 ]
-then
-    cc_ver="`$cc_cmd --version 2>&1`"
+    cc_cmd="${CC-gcc}"
+
+    which $cc_cmd >/dev/null 2>&1
+    if [ $? -ne 0 ]
+    then
+	tell "  I couldn't find the C compiler \"$cc_cmd\""
+	bailout
+    fi
+
+    # try to work out the compiler family by querying the C command
+    cc_ver="`$cc_cmd -V 2>&1`"
+    if [ $? -ne 0 ]
+    then
+	cc_ver="`$cc_cmd --version 2>&1`"
+    fi
+
+    case "$cc_ver" in
+	*"Free Software Foundation"*)
+	    cc_type="gnu"
+	    ;;
+	*"Intel Corporation"*)
+	    cc_type="intel"
+	    ;;
+	*"The Portland Group"*)
+	    cc_type="pgi"
+	    ;;
+	*"Sun C"*)
+	    cc_type="oracle"
+	    ;;
+	*OpenUH*)
+	    cc_type="openuh"
+	    ;;
+	*Open64*)
+	    cc_type="open64"
+	    ;;
+	*clang*)
+	    cc_type="clang"
+	    ;;
+	*"IBM XL C/C++"*)
+	    cc_type="ibmxl"
+	    ;;
+	*)
+	    cc_type="not sure"
+	    ;;
+    esac
 fi
 
 # 2013-04-23,tonyc: TODO I know some of the exe_libs flags below may
 #                   be wrong for specific compilers
 
-case "$cc_ver" in
-    *"Free Software Foundation"*)
-	cc_type="GNU"
+case "$cc_type" in
+    "gnu")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	pic_flags="-fPIC"
@@ -442,12 +486,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="gcc"
 	fc_cmd="gfortran"
 	cxx_cmd="g++"
 	ld_cmd="$cc_cmd"
 	;;
-    *"Intel Corporation"*)
-	cc_type="Intel"
+    "intel")
 	c99_flags="-std=c99"
 	warn_flags=""     # enabled by default
 	pic_flags="-fPIC"
@@ -458,12 +502,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="icc"
 	fc_cmd="ifort"
 	cxx_cmd="icpc"
 	ld_cmd="$cc_cmd"
 	;;
-    *"The Portland Group"*)
-	cc_type="Portland Group"
+    "pgi")
 	c99_flags="-c99"
 	warn_flags=""     # enabled by default
 	pic_flags="-fPIC"
@@ -474,12 +518,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="pgcc"
 	fc_cmd="pgfortran"
 	cxx_cmd="pgCC"
 	ld_cmd="$cc_cmd"
 	;;
-    *"Sun C"*)
-	cc_type="Oracle Studio"
+    "oracle")
 	c99_flags="-xc99"
 	warn_flags=""     # enabled by default
 	pic_flags="-PIC"
@@ -490,12 +534,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="suncc"
 	fc_cmd="sunf90"
 	cxx_cmd="sunCC"
 	ld_cmd="$cc_cmd"
 	;;
-    *OpenUH*)
-	cc_type="Open64/UH"
+    "openuh")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	pic_flags="-fPIC"
@@ -506,12 +550,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="uhcc"
 	fc_cmd="uhf90"
 	cxx_cmd="uhCC"
 	ld_cmd="$cc_cmd"
 	;;
-    *Open64*)
-	cc_type="Open64"
+    "open64")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	pic_flags="-fPIC"
@@ -522,12 +566,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="opencc"
 	fc_cmd="openf90"
 	cxx_cmd="openCC"
 	ld_cmd="$cc_cmd"
 	;;
-    *clang*)
-	cc_type="Clang"
+    "clang")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
 	pic_flags="-fPIC"
@@ -538,12 +582,12 @@ case "$cc_ver" in
 	then
 	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
 	fi
+	cc_cmd="clang"
 	fc_cmd="false"
 	cxx_cmd="false"
 	ld_cmd="$cc_cmd"
 	;;
-    *"IBM XL C/C++"*)
-	cc_type="IBM XL"
+    "ibmxl")
 	c99_flags="-qlanglvl=stdc99"
 	warn_flags=""
 	pic_flags="-qpic"
@@ -564,7 +608,6 @@ case "$cc_ver" in
 	# ld_flags="$ld_flags -q64"
 	;;
     *)
-	cc_type="Not Sure"
 	c99_flags=""
 	warn_flags=""
 	pic_flags=""
@@ -589,7 +632,7 @@ fc_flags=${FCFLAGS-"$fc_flags"}
 ld_cmd=${LD-"$ld_cmd"}
 ld_flags=${LDFLAGS-"$ld_flags"}
 
-tell "  C compiler is \"$cc_cmd\" (looks like $cc_type)"
+tell "  Compiler suite set to $cc_type"
 
 # TODO: we're not actually using these during build, so don't really check
 #
