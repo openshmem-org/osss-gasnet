@@ -1,1 +1,2 @@
-NPB3.2-SHMEM/ export-ignore
+NPB3.2-SHMEM* export-ignore
+.gitattributes export-ignore
