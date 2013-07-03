@@ -152,7 +152,7 @@ Source Directory Layout
     |-- comms
     |   |-- gasnet        } different
         ...               } communication
-    |   `-- uccs          } layers
+    |   `-- ...           } layers
     |
     |-- fortran           } The Fortran API
     |

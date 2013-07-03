@@ -45,7 +45,6 @@ prefix=/usr/local
 comms_layer=
 gasnet_root=$prefix
 gasnet_conduit=
-uccs_root=$prefix
 
 exe_header_dir=/usr/include
 exe_lib_dir=/usr/lib64
@@ -140,7 +139,7 @@ Usage: $progname [options]
 
   Communications Layer:
 
-    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, UCCS
+    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, ...
                                      (currently just a stub)
 
   Compiler Suite:
@@ -155,10 +154,7 @@ Usage: $progname [options]
       --with-gasnet-conduit=C    Use GASNet conduit C
                                    (if only 1 conduit configured, use it)
 
-      --with-uccs-root=U         Use the UCCS installed under directory U
-                                   (currently just a stub)
-
-      (These imply --with-comms-layer=GASNet/UCCS as appropriate)
+      (These imply --with-comms-layer=... as appropriate)
 
   Optional Support Libraries:
 
@@ -279,10 +275,6 @@ do
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
 	    setcanonical comms_layer GASNet
-	    ;;
-	--with-uccs-root=*)
-	    uccs_root="`chompit $o`"
-	    setcanonical comms_layer UCCS
 	    ;;
 	--with-compiler=*)
 	    ct="`chompit $o`"
@@ -779,10 +771,6 @@ case "$comms_layer" in
 
         tell "  Chosen conduit \"$gasnet_conduit\" looks OK"
 	;;  #  end of gasnet section
-    uccs)
-	tell "  UCCS support is just a stub for future use."
-	bailout
-	;;
     *)
 	tell "  I don't know what to do with communications layer \"$comms_layer\""
 	bailout
@@ -921,12 +909,6 @@ case "$comms_layer" in
 	tell "    Version                     $gasnet_ver"
 	tell "    Installed in                $gasnet_root"
 	tell "    Using conduit               $gasnet_conduit $cdt_auto"
-	;;
-    uccs)
-	tell "  UCCS:"
-	tell "    Installed in                $uccs_root"
-	tell ""
-	tell "  No UCCS support, I should not be here; please report this error"
 	;;
     *)
 	tell "I do not recognize communications layer \"$comms_layer\"."
@@ -1123,11 +1105,6 @@ setfeature()
 	    echo "#define OPENSHMEM_HAVE_GASNET    1"
 	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
 	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
-	    ;;
-	uccs)
-	    echo "#define OPENSHMEM_HAVE_UCCS      1"
-	    echo "#define OPENSHMEM_UCCS_ROOT      \"uccs_root\""
-	    # and more, don't know what yet, though
 	    ;;
 	*)
 	    tell "I do not recognize communications layer \"$comms_layer\"."
