@@ -42,11 +42,6 @@ required by whichever conduit you want to use with GASNet, e.g. an
 MPI.  GASNet provides a portable communications layer for this
 implementation of OpenSHMEM to work on top of.
 
-There's a relatively small number of changes that need to be made to
-use different compilers (default is GNU).  The configure (v.i.) script
-tries to detect which suite is being used and sets up flags
-accordingly.
-
 GASNet Versions
 ===============
 
@@ -56,8 +51,8 @@ GASNet Versions
 
 1.18.x: was the main version during most of the development work
 
-1.20.x: the newest GASNet versions (since Nov 2012) and is in use for
-     development currently
+1.20.x: the current GASNet versions (since Nov 2012) and the newest
+     one is in use for development currently
 
 Building GASNet
 ===============
@@ -67,10 +62,8 @@ you're working in a very particular environment, it is probably
 easiest to allow GASNet to auto-detect network support and configure
 discovered conduits.
 
-This library's configure script will list the conduits for you and
-prompt for a choice if you do not choose one explicitly; if there is
-exactly 1 conduit available, it will be used automatically.  A sample
-configuration that the OpenSHMEM library's author has used is:
+A sample configuration that the OpenSHMEM library's author has used
+is:
 
     1: 	  /path/to/gasnet-source-directory/configure \
     2: 	      --enable-segment-fast                  \
@@ -126,6 +119,10 @@ The compiler suite can also be selected at one go via
 
 where SUITE is a name such as GNU, Intel, ... (case-insensitive).
 Omitting the SUITE will list known compilers.
+
+This library's configure script will list the discovered conduits for
+you and prompt for a choice if you do not choose one explicitly; if
+there is exactly 1 conduit available, it will be used automatically.
 
 
 OpenSHMEM Installation Notes

@@ -470,13 +470,15 @@ then
 	    cc_type="ibmxl"
 	    ;;
 	*)
-	    cc_type="not sure"
+	    cc_type="UNKNOWN"
 	    ;;
     esac
 fi
 
 # 2013-04-23,tonyc: TODO I know some of the exe_libs flags below may
 #                   be wrong for specific compilers
+#
+# Might be nicer with bash arrays, but coding down to sh
 
 case "$cc_type" in
     "gnu")
@@ -612,16 +614,18 @@ case "$cc_type" in
 	# ld_flags="$ld_flags -q64"
 	;;
     *)
-	c99_flags=""
-	warn_flags=""
-	pic_flags=""
-	thread_flags=""
-	so_flags=""
-	exe_headers=""
-	exe_libs=""
-	fc_cmd="false"
-	cxx_cmd="false"
-	ld_cmd="false"		# what else to do?
+	tell "  Unknown compiler suite \"$cc_type\""
+	bailout
+#	c99_flags=""
+#	warn_flags=""
+#	pic_flags=""
+#	thread_flags=""
+#	so_flags=""
+#	exe_headers=""
+#	exe_libs=""
+#	fc_cmd="false"
+#	cxx_cmd="false"
+#	ld_cmd="false"		# what else to do?
 	;;
 esac
 
@@ -889,12 +893,14 @@ tell "  Suite appears to be           $cc_type"
 tell "    C compiler is               \"$cc_cmd\""
 tell "    C pre-processor flags are   \"$cpp_flags\""
 tell "    C flags are                 \"$c_flags\""
+tell "    Linker is                   \"$ld_cmd\""
+tell "    Linker flags are            \"$ld_flags\""
+tell ""
+tell "  For completeness, but not currently used:"
 tell "    C++ compiler is             \"$cxx_cmd\""
 tell "    C++ flags are               \"$cxx_flags\""
 tell "    Fortran compiler is         \"$fc_cmd\""
 tell "    Fortran flags are           \"$fc_flags\""
-tell "    Linker is                   \"$ld_cmd\""
-tell "    Linker flags are            \"$ld_flags\""
 tell ""
 tell "Executable Format:"
 tell "  Format is                     $exe_format"
