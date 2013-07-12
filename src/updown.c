@@ -114,8 +114,9 @@ __shmem_exit (int status)
  * registered by start_pes() to trigger shutdown at exit
  *
  */
-static void
-__shmem_exit_handler (void)
+static
+void
+exit_handler (void)
 {
   __shmem_exit (0);
 }
@@ -124,12 +125,11 @@ __shmem_exit_handler (void)
  * find the short & (potentially) long host/node name
  *
  */
-static void
-__shmem_place_init (void)
+static
+void
+place_init (void)
 {
-  int s;
-
-  s = uname (&GET_STATE (loc));
+  const int s = uname (& GET_STATE (loc));
   if (s != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
@@ -138,7 +138,38 @@ __shmem_place_init (void)
     }
 }
 
+/**
+ * I shouldn't really initialize more than once
+ */
+static
+int
+check_pe_status (void)
+{
+  int yn = 1;
+  const int s = GET_STATE (pe_status);
 
+  switch (s)
+    {
+    case PE_UNINITIALIZED:	/* this is what it should be */
+      yn = 1;
+      break;
+    case PE_UNKNOWN:
+    case PE_RUNNING:
+    case PE_SHUTDOWN:
+    case PE_FAILED:
+      __shmem_trace (SHMEM_LOG_INFO,
+		     "OpenSHMEM has already been initialized (%s)",
+		     __shmem_state_as_string (s)
+		     );
+      yn = 0;
+      break;
+    default:			/* shouldn't be here */
+      yn = 0;
+      break;
+    }
+
+  return yn;
+}
 
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak start_pes = pstart_pes
@@ -177,18 +208,12 @@ void
 start_pes (int npes)
 {
   /* these have to happen first to enable messages */
-  __shmem_elapsed_clock_init ();	/* start the tracking clock */
-  __shmem_tracers_init ();	/* messages set up */
+  __shmem_elapsed_clock_init ();
+  __shmem_tracers_init ();
 
-  /* I shouldn't really call this more than once */
-  if (GET_STATE (pe_status) != PE_UNINITIALIZED)
+  if ( ! check_pe_status ())
     {
-      __shmem_trace (SHMEM_LOG_INFO,
-		     "shmem has already been initialized (%s)",
-		     __shmem_state_as_string (GET_STATE (pe_status))
-		     );
       return;
-      /* NOT REACHED */
     }
 
   /* set up communications layer as early as possible */
@@ -225,10 +250,10 @@ start_pes (int npes)
   __shmem_fcollect_dispatch_init ();
 
   /* set up any locality information */
-  __shmem_place_init ();
+  place_init ();
 
   /* register shutdown handler */
-  if (atexit (__shmem_exit_handler) != 0)
+  if (atexit (exit_handler) != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "internal error: cannot register shutdown handler"
