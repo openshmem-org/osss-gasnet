@@ -42,7 +42,6 @@
 #include <sys/types.h>		/* size_t                         */
 
 #include "state.h"
-#include "symmem.h"
 #include "globalvar.h"
 #include "updown.h"
 #include "trace.h"

@@ -36,8 +36,13 @@
 
 # ---------------------------------------------------------
 
-HASH_DIR         = ../uthash
-HASH_CPPFLAGS    = -I$(HASH_DIR)
+HASH_DIR          =    ../uthash
+HASH_CPPFLAGS     =    -I$(HASH_DIR)
+
+# ---------------------------------------------------------
+
+UTILS_DIR         =    ../utils
+UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
@@ -57,9 +62,10 @@ endif
 
 CPPFLAGS        += @EXE_HEADERS@
 
-CPPFLAGS        += -I..
+# CPPFLAGS        += -I..
 
 CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

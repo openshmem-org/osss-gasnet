@@ -79,7 +79,6 @@
  */
 
 #include "trace.h"
-#include "query.h"
 
 #define PE_RANGE_CHECK(p)						\
   IF_DEBUGGING(								\
@@ -87,10 +86,10 @@
 		 const int bot_pe = 0;					\
 		 const int top_pe = GET_STATE(numpes) - 1;		\
 		 if (pe < bot_pe || pe > top_pe) {			\
-		   __shmem_trace(SHMEM_LOG_FATAL,			\
-				 "Target PE %d not within allocated range %d .. %d", \
-				 pe, bot_pe, top_pe			\
-				 );					\
+		   __shmem_trace (SHMEM_LOG_FATAL,			\
+				  "Target PE %d not within allocated range %d .. %d", \
+				  pe, bot_pe, top_pe			\
+				  );					\
 		   /* NOT REACHED */					\
 		 }							\
 	       }							\
@@ -105,13 +104,13 @@
 
 #define SYMMETRY_CHECK(addr, argpos, subrname)				\
   IF_DEBUGGING(								\
-	       if (! __shmem_is_symmetric( (void *) (addr))) {		\
-		 __shmem_trace(SHMEM_LOG_FATAL,				\
-			       "%s(), argument #%d at %p is not symmetric", \
-			       subrname,				\
-			       argpos,					\
-			       addr					\
-			       );					\
+	       if (! __shmem_is_symmetric ( (void *) (addr))) {		\
+		 __shmem_trace (SHMEM_LOG_FATAL,			\
+				"%s(), argument #%d at %p is not symmetric", \
+				subrname,				\
+				argpos,					\
+				addr					\
+				);					\
 		 /* NOT REACHED */					\
 	       }							\
 	       )

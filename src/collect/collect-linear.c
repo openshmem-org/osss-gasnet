@@ -42,10 +42,7 @@
 #include "state.h"
 #include "putget.h"
 #include "trace.h"
-#include "symmem.h"
-/* #include "globalvar.h" */
 #include "utils.h"
-/* #include "atomic.h" */
 
 #include "shmem.h"
 

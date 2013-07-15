@@ -54,9 +54,8 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /*
- * Not present in SGI any more.
- * I'm going to leave it in the code, but we'll ignore it
- * and it's removed from shmem.h
+ * Not present in SGI API any more.  I'm going to leave it in the
+ * code, because Fortran needs it.  Removed from shmem.h.
  *
  */
 long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
@@ -68,6 +67,7 @@ long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
  * correct symmetry (no offending PE)
  */
 
+static
 int
 __shmalloc_symmetry_check (size_t size)
 {
@@ -127,6 +127,7 @@ __shmalloc_symmetry_check (size_t size)
  *
  */
 
+static
 void *
 __shmalloc_no_check (size_t size)
 {

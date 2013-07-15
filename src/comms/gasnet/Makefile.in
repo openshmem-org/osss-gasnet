@@ -92,7 +92,7 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CPPFLAGS        += -I../..
+CPPFLAGS        += -I../.. -I../../utils
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG

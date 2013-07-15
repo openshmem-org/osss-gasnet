@@ -47,7 +47,6 @@
 
 #include "state.h"
 #include "trace.h"
-#include "updown.h"
 #include "clock.h"
 #include "utils.h"
 
@@ -81,32 +80,35 @@ typedef struct
 
 #define INIT_STATE(L, State) { SHMEM_LOG_##L , #L , State }
 
-static trace_table_t tracers[] = {
-  INIT_STATE (FATAL, ON),
+static
+trace_table_t
+tracers[] =
+  {
+    INIT_STATE (FATAL, ON),
 
-  INIT_STATE (SYMBOLS, OFF),
-  INIT_STATE (DEBUG, OFF),
-  INIT_STATE (INFO, OFF),
-  INIT_STATE (VERSION, OFF),
+    INIT_STATE (SYMBOLS, OFF),
+    INIT_STATE (DEBUG, OFF),
+    INIT_STATE (INFO, OFF),
+    INIT_STATE (VERSION, OFF),
 
-  INIT_STATE (INIT, OFF),
-  INIT_STATE (FINALIZE, OFF),
-  INIT_STATE (ATOMIC, OFF),
-  INIT_STATE (AUTH, OFF),
-  INIT_STATE (BARRIER, OFF),
-  INIT_STATE (BROADCAST, OFF),
-  INIT_STATE (REDUCTION, OFF),
-  INIT_STATE (CACHE, OFF),
-  INIT_STATE (COLLECT, OFF),
-  INIT_STATE (FENCE, OFF),
-  INIT_STATE (QUIET, OFF),
-  INIT_STATE (LOCK, OFF),
-  INIT_STATE (MEMORY, OFF),
-  INIT_STATE (NOTICE, OFF),
-  INIT_STATE (SERVICE, OFF),
-  INIT_STATE (PROFILING, OFF),
-  INIT_STATE (MODULES, OFF),
-};
+    INIT_STATE (INIT, OFF),
+    INIT_STATE (FINALIZE, OFF),
+    INIT_STATE (ATOMIC, OFF),
+    INIT_STATE (AUTH, OFF),
+    INIT_STATE (BARRIER, OFF),
+    INIT_STATE (BROADCAST, OFF),
+    INIT_STATE (REDUCTION, OFF),
+    INIT_STATE (CACHE, OFF),
+    INIT_STATE (COLLECT, OFF),
+    INIT_STATE (FENCE, OFF),
+    INIT_STATE (QUIET, OFF),
+    INIT_STATE (LOCK, OFF),
+    INIT_STATE (MEMORY, OFF),
+    INIT_STATE (NOTICE, OFF),
+    INIT_STATE (SERVICE, OFF),
+    INIT_STATE (PROFILING, OFF),
+    INIT_STATE (MODULES, OFF),
+  };
 static const int n_tracers = TABLE_SIZE (tracers);
 
 /**
@@ -125,7 +127,8 @@ static const int n_tracers = TABLE_SIZE (tracers);
  *
  */
 
-static int
+static
+int
 __shmem_trace_enable_text (char *trace)
 {
   int i;
@@ -148,7 +151,8 @@ __shmem_trace_enable_text (char *trace)
  * enable all message categories
  */
 
-static void
+static
+void
 __shmem_trace_enable_all (void)
 {
   int i;
@@ -166,7 +170,8 @@ __shmem_trace_enable_all (void)
  *
  */
 
-static const char *
+static
+const char *
 __level_to_string (shmem_trace_t level)
 {
   int i;
@@ -288,7 +293,8 @@ sgi_compat_environment_init (void)
  * check environment for settings, and enable listed levels
  */
 
-static void
+static
+void
 parse_log_levels (void)
 {
   char *shll = __shmem_comms_getenv (SHMEM_LOGLEVELS_ENVVAR);
@@ -317,11 +323,11 @@ parse_log_levels (void)
  */
 
 #define INFO_MSG(Var, Text)			\
-  __shmem_trace(SHMEM_LOG_INFO,			\
-		"%-28s %s",			\
-		Var,				\
-		Text				\
-		);
+  __shmem_trace (SHMEM_LOG_INFO,		\
+		 "%-28s %s",			\
+		 Var,				\
+		 Text				\
+		 );
 
 void
 __shmem_maybe_tracers_show_info (void)

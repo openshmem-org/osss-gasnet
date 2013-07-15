@@ -33,73 +33,57 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+SHELL                = /bin/sh
 
 # ---------------------------------------------------------
+
+MEMORY_DIR        =    ../memory
+MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
+
+# ---------------------------------------------------------
+
 #
-# the malloc library
+# this is where the C compiler gets chosen along with the various
+# flags that do PIC, dependency, debug/optimize and C99 compliance
 #
-MALLOC_DIR           =    ../dlmalloc
-MALLOC_CPPFLAGS      =    -I$(MALLOC_DIR)
-
-# ---------------------------------------------------------
-
-COMMS_DIR            =    ../comms
-COMMS_CPPFLAGS       =    -I$(COMMS_DIR)
-
-# ---------------------------------------------------------
-
-GLOBALVAR_DIR        =    ../globalvar
-GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
-
-# ---------------------------------------------------------
-
-UTILS_DIR         =    ../utils
-UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
 
 CC               = @CC@
+CXX              = @CXX@
+FC               = @FC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_DEBUG
-endif
-
-ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
-endif
-
-ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
-endif
-
-CPPFLAGS        += -I.
-CPPFLAGS        += -I..
-
-CFLAGS          += @PICFLAGS@
+CFLAGS          += @C99FLAGS@
 CFLAGS          += @WARNFLAGS@
 
-CPPFLAGS        += $(COMMS_CPPFLAGS)
-CPPFLAGS        += $(MALLOC_CPPFLAGS)
-CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
-CPPFLAGS        += $(UTILS_CPPFLAGS)
+# for "so" libraries
+CFLAGS          += @PICFLAGS@
+LDFLAGS         += @PICFLAGS@
+
+CPPFLAGS        += -I..
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+
+# ---------------------------------------------------------
+
+# internal
+SOURCES          = $(wildcard *.c)
+OBJECTS          = $(SOURCES:.c=.o)
+
+# ---------------------------------------------------------
 
 .PHONY: all default
-.PHONY: clean
-.PHONY: shmem-headers
+.PHONY: tidy clean
 
-SOURCES  = $(wildcard *.c)
-OBJECTS  = $(SOURCES:.c=.o)
+# ---------------------------------------------------------
 
-# ----------------------------------------------------------
+all default:	$(OBJECTS)
 
-all default:	shmem-headers $(OBJECTS)
+# ---------------------------------------------------------
 
-shmem-headers:
-	$(MAKE) -C .. $@
+tidy clean:
+	$(REMOVE) $(OBJECTS)
 
-clean:
-	rm -f $(OBJECTS)
+distclean: clean
+	$(REMOVE) Makefile

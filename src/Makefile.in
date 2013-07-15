@@ -128,6 +128,14 @@ FORTRAN_CPPFLAGS      = -I$(FORTRAN_DIR)
 FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
 
 # ---------------------------------------------------------
+#
+# internal utilities
+#
+UTILS_DIR             = ./utils
+UTILS_CPPFLAGS        = -I$(UTILS_DIR)
+UTILS_OBJ             = $(UTILS_DIR)/*.o
+
+# ---------------------------------------------------------
 
 #
 # this is where the C compiler gets chosen along with the various
@@ -156,8 +164,7 @@ CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(MODULES_CPPFLAGS)
-
-CPPFLAGS        += -I./include
+CPPFLAGS        += $(UTILS_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -197,12 +204,12 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 SHMEM_SOURCES    =
 
 # internal
-SHMEM_SOURCES   += state.c
-SHMEM_SOURCES   += trace.c
-SHMEM_SOURCES   += clock.c
-SHMEM_SOURCES   += ping.c
-SHMEM_SOURCES   += exe.c
-SHMEM_SOURCES   += unitparse.c
+# SHMEM_SOURCES   += state.c
+# SHMEM_SOURCES   += trace.c
+# SHMEM_SOURCES   += clock.c
+# SHMEM_SOURCES   += ping.c
+# SHMEM_SOURCES   += exe.c
+# SHMEM_SOURCES   += unitparse.c
 
 # API
 SHMEM_SOURCES   += reduce-op.c
@@ -231,6 +238,7 @@ INSTALL          = install -c
 REMOVE           = rm -f
 
 OBJ_GEN          = \
+			utils-obj-gen \
 			comms-obj-gen \
 			globalvar-obj-gen \
 			broadcast-obj-gen \
@@ -321,6 +329,11 @@ pshmem.h:	pshmem.h.in
 shmem.fh:	shmem.fh.in
 	$(M4) $(M4FLAGS) < $^ > $@
 
+# -- internal utilities -----------------------------------
+
+utils-obj-gen:
+	$(MAKE) -C $(UTILS_DIR) all
+
 # -- comms layer -------------------------------------------
 
 comms-obj-gen:
@@ -386,6 +399,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(LDFLAGS) \
 		$(SOFLAGS) \
 		-o $@ \
+		$(UTILS_OBJ) \
 		$(COMMS_OBJ) \
 		$(GLOBALVAR_OBJ) \
 		$(BROADCAST_OBJ) \
@@ -415,6 +429,7 @@ tidy clean:
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(ATOMIC_DIR) $@
+	$(MAKE) -C $(UTILS_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 	$(REMOVE) $(SHMEM_HEADERS)
 

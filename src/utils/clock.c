@@ -53,7 +53,8 @@ static double epoch;
  * return number of (fractional) seconds
  * since program started
  */
-static double
+static
+double
 read_clock (void)
 {
   struct timeval tv;

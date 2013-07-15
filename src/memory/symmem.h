@@ -40,9 +40,19 @@
 #ifndef _SYMMEM_H
 #define _SYMMEM_H 1
 
+/*
+ * These aren't used outside of their source unit, and therefore this
+ * header isn't used at all.  Leaving them here as comments though, as
+ * a reminder in case we need them in the future.
+ */
+
+#if 0
+
 #include <sys/types.h>
 
 extern void *__shmalloc_no_check (size_t size);
 extern int __shmalloc_symmetry_check (size_t size);
+
+#endif
 
 #endif /* _SYMMEM_H */

@@ -39,7 +39,6 @@
 
 #include <sys/types.h>
 
-#include "symmem.h"
 #include "utils.h"
 #include "trace.h"
 

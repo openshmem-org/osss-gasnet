@@ -41,6 +41,11 @@ MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
+UTILS_DIR        =    ../utils
+UTILS_CPPFLAGS   =    -I$(UTILS_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -66,6 +71,7 @@ endif
 CPPFLAGS        += -I..
 
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
 
 CFLAGS          += @PICFLAGS@
