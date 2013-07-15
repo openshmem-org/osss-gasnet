@@ -203,14 +203,6 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 # init.
 SHMEM_SOURCES    =
 
-# internal
-# SHMEM_SOURCES   += state.c
-# SHMEM_SOURCES   += trace.c
-# SHMEM_SOURCES   += clock.c
-# SHMEM_SOURCES   += ping.c
-# SHMEM_SOURCES   += exe.c
-# SHMEM_SOURCES   += unitparse.c
-
 # API
 SHMEM_SOURCES   += reduce-op.c
 SHMEM_SOURCES   += accessible.c ptr.c
