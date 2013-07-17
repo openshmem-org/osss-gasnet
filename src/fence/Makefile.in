@@ -33,7 +33,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-SHELL                = /bin/sh
 
 # ---------------------------------------------------------
 
@@ -42,25 +41,16 @@ MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
-#
-# this is where the C compiler gets chosen along with the various
-# flags that do PIC, dependency, debug/optimize and C99 compliance
-#
+UTILS_DIR         =    ../utils
+UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
+
+# ---------------------------------------------------------
 
 CC               = @CC@
-CXX              = @CXX@
-FC               = @FC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
-
-CFLAGS          += @C99FLAGS@
-CFLAGS          += @WARNFLAGS@
-
-# for "so" libraries
-CFLAGS          += @PICFLAGS@
-LDFLAGS         += @PICFLAGS@
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -80,28 +70,17 @@ endif
 
 CPPFLAGS        += -I..
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
 
-REMOVE           = rm -f
+CFLAGS          += @PICFLAGS@
+CFLAGS          += @WARNFLAGS@
 
-# ---------------------------------------------------------
+.PHONY: all default clean
 
-# internal
-SOURCES          = $(wildcard *.c)
-OBJECTS          = $(SOURCES:.c=.o)
-
-# ---------------------------------------------------------
-
-.PHONY: all default
-.PHONY: tidy clean
-
-# ---------------------------------------------------------
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
 
 all default:	$(OBJECTS)
 
-# ---------------------------------------------------------
-
-tidy clean:
-	$(REMOVE) $(OBJECTS)
-
-distclean: clean
-	$(REMOVE) Makefile
+clean:
+	rm -f $(OBJECTS)

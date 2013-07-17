@@ -53,6 +53,14 @@ COMMS_OBJ            = $(COMMS_DIR)/*.o
 
 # ---------------------------------------------------------
 #
+# internal utilities
+#
+UTILS_DIR             = ./utils
+UTILS_CPPFLAGS        = -I$(UTILS_DIR)
+UTILS_OBJ             = $(UTILS_DIR)/*.o
+
+# ---------------------------------------------------------
+#
 # atomic operations
 #
 ATOMIC_DIR           = ./atomic
@@ -129,11 +137,19 @@ FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
 
 # ---------------------------------------------------------
 #
-# internal utilities
+# cache routines
 #
-UTILS_DIR             = ./utils
-UTILS_CPPFLAGS        = -I$(UTILS_DIR)
-UTILS_OBJ             = $(UTILS_DIR)/*.o
+CACHE_DIR             = ./cache
+CACHE_CPPFLAGS        = -I$(CACHE_DIR)
+CACHE_OBJ             = $(CACHE_DIR)/*.o
+
+# ---------------------------------------------------------
+#
+# PTP synch
+#
+FENCE_DIR             = ./fence
+FENCE_CPPFLAGS        = -I$(FENCE_DIR)
+FENCE_OBJ             = $(FENCE_DIR)/*.o
 
 # ---------------------------------------------------------
 
@@ -206,10 +222,7 @@ SHMEM_SOURCES    =
 # API
 SHMEM_SOURCES   += reduce-op.c
 SHMEM_SOURCES   += accessible.c ptr.c
-SHMEM_SOURCES   += cache.c
-SHMEM_SOURCES   += fence.c
-SHMEM_SOURCES   += putget.c strided.c
-SHMEM_SOURCES   += putget_nb.c
+SHMEM_SOURCES   += putget.c strided.c putget_nb.c
 SHMEM_SOURCES   += query.c
 SHMEM_SOURCES   += updown.c
 SHMEM_SOURCES   += waituntil.c
@@ -229,9 +242,9 @@ LIBS             = @EXE_LIBS@ -lelf -ldl
 INSTALL          = install -c
 REMOVE           = rm -f
 
-OBJ_GEN          = \
-			utils-obj-gen \
-			comms-obj-gen \
+OBJ_GEN          = comms-obj-gen
+OBJ_GEN         += utils-obj-gen
+OBJ_GEN         += \
 			globalvar-obj-gen \
 			broadcast-obj-gen \
 			collect-obj-gen \
@@ -241,7 +254,9 @@ OBJ_GEN          = \
 			malloc-obj-gen \
 			memory-obj-gen \
 			modules-obj-gen \
-			fortran-obj-gen
+			fortran-obj-gen \
+			cache-obj-gen \
+			fence-obj-gen
 
 # ---------------------------------------------------------
 
@@ -379,6 +394,16 @@ modules-obj-gen:
 fortran-obj-gen:
 	$(MAKE) -C $(FORTRAN_DIR) all
 
+# -- cache routines ---------------------------------------
+
+cache-obj-gen:
+	$(MAKE) -C $(CACHE_DIR) all
+
+# -- PTP synch routines -----------------------------------
+
+fence-obj-gen:
+	$(MAKE) -C $(FENCE_DIR) all
+
 # -- otherwise, compile everything else like this ---------
 
 %.o:	%.c
@@ -403,6 +428,8 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(MEMORY_OBJ) \
 		$(MODULES_OBJ) \
 		$(FORTRAN_OBJ) \
+		$(CACHE_OBJ) \
+		$(FENCE_OBJ) \
 		$(SHMEM_OBJECTS) \
 		$(LIBS)
 
@@ -410,6 +437,8 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 
 tidy clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
+	$(MAKE) -C $(FENCE_DIR) $@
+	$(MAKE) -C $(CACHE_DIR) $@
 	$(MAKE) -C $(FORTRAN_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(MEMORY_DIR) $@

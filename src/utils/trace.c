@@ -49,6 +49,7 @@
 #include "trace.h"
 #include "clock.h"
 #include "utils.h"
+#include "updown.h"
 
 #include "comms/comms.h"
 
