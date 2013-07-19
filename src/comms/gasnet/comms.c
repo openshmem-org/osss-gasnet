@@ -62,18 +62,19 @@
 
 #include "state.h"
 #include "memalloc.h"
-#include "trace.h"
 #include "atomic.h"
 #include "ping.h"
-#include "utils.h"
 #include "exe.h"
 #include "globalvar.h"
 
 #include "service.h"
 
+#include "utils.h"
 #include "unitparse.h"
 
 #include "../comms.h"
+
+#include "bail.h"
 
 /**
  * gasnet put model: this is just for testing different put
@@ -144,8 +145,7 @@ static void *great_big_heap;
     const int _retval = fncall ;					\
     if (_retval != GASNET_OK)						\
       {									\
-	__shmem_trace (SHMEM_LOG_FATAL,					\
-		       "error calling: %s at %s:%i, %s (%s)\n",		\
+	comms_bailout ("error calling: %s at %s:%i, %s (%s)\n",		\
 		       #fncall, __FILE__, __LINE__,			\
 		       gasnet_ErrorName (_retval),			\
 		       gasnet_ErrorDesc (_retval)			\
@@ -218,9 +218,7 @@ __shmem_comms_get_segment_size (void)
   if (retval == (size_t) -1)
     {
       /* don't know that unit! */
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "unknown data size unit in symmetric heap specification"
-		     );
+      comms_bailout ("unknown data size unit in symmetric heap specification");
       /* NOT REACHED */
     }
 
@@ -252,15 +250,12 @@ __shmem_comms_set_waitmode (comms_spinmode_t mode)
       mstr = "block";
       break;
     default:
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "tried to set unknown wait mode %d", (int) mode);
+      comms_bailout ("tried to set unknown wait mode %d", (int) mode);
       /* NOT REACHED */
       break;
     }
 
   GASNET_SAFE (gasnet_set_waitmode (gm));
-
-  __shmem_trace (SHMEM_LOG_DEBUG, "set waitmode to %s", mstr);
 }
 
 /**
@@ -410,8 +405,7 @@ __shmem_symmetric_memory_init (void)
     (gasnet_seginfo_t *) calloc (npes, sizeof (gasnet_seginfo_t));
   if (seginfo_table == (gasnet_seginfo_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "could not allocate GASNet segments (%s)",
+      comms_bailout ("could not allocate GASNet segments (%s)",
 		     strerror (errno)
 		     );
       /* NOT REACHED */
@@ -433,8 +427,7 @@ __shmem_symmetric_memory_init (void)
   pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
   if (pm_r != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "unable to allocate symmetric heap (%s)",
+      comms_bailout ("unable to allocate symmetric heap (%s)",
 		     strerror (pm_r)
 		     );
       /* NOT REACHED */
@@ -442,11 +435,6 @@ __shmem_symmetric_memory_init (void)
 
   /* everyone has their local info before exchanging messages */
   __shmem_comms_barrier_all ();
-
-  __shmem_trace (SHMEM_LOG_MEMORY,
-		 "symmetric heap @ %p, size is %ld bytes",
-		 great_big_heap, heapsize
-		 );
 
   /* store my own heap entry */
   seginfo_table[me].addr = great_big_heap;
@@ -472,11 +460,6 @@ __shmem_symmetric_memory_init (void)
 
     /* now wait on the AM replies (0-based AND don't count myself) */
     GASNET_BLOCKUNTIL (seg_setup_replies_received == npes - 1);
-
-    __shmem_trace (SHMEM_LOG_MEMORY,
-		   "received all replies (%d)", seg_setup_replies_received
-		   );
-
   }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
@@ -487,21 +470,6 @@ __shmem_symmetric_memory_init (void)
   /* and make sure everyone is up-to-speed */
   __shmem_comms_barrier_all ();
 
-  /*
-   * spit out the seginfo table (but check first that the loop is
-   * warranted)
-   */
-  if (__shmem_trace_is_enabled (SHMEM_LOG_INIT))
-    {
-      int pe;
-      for (pe = 0; pe < npes; pe += 1)
-	{
-	  __shmem_trace (SHMEM_LOG_INIT,
-			 "cross-check: segment[%d] = { .addr = %p, .size = %ld }",
-			 pe, seginfo_table[pe].addr, seginfo_table[pe].size
-			 );
-	}
-    }
 }
 
 /**
@@ -535,17 +503,10 @@ __shmem_symmetric_var_in_range (void *addr, int pe)
 
   if (addr < seginfo_table[pe].addr)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
-		     "addr %p < seginfo %p", addr, seginfo_table[pe].addr
-		     );
       retval = 0;
     }
   else if (addr > (seginfo_table[pe].addr + seginfo_table[pe].size))
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
-		     "addr %p > seginfo + size %p",
-		     addr, seginfo_table[pe].addr + seginfo_table[pe].size
-		     );
       retval = 0;
     }
   else
@@ -618,17 +579,16 @@ get_lock_for (void *addr)
 
       if (L == (gasnet_hsl_t *) NULL)
 	{
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "internal error: unable to allocate lock for address %p",
-			 addr);
+	  comms_bailout ("internal error: unable to allocate lock for address %p",
+			 addr
+			 );
 	  /* NOT REACHED */
 	}
 
       try = (lock_table_t *) malloc (sizeof (*try));
       if (try == (lock_table_t *) NULL)
 	{
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "internal error: unable to allocate lock table entry for address %p",
+	  comms_bailout ("internal error: unable to allocate lock table entry for address %p",
 			 addr
 			 );
 	  /* NOT REACHED */
@@ -640,18 +600,6 @@ get_lock_for (void *addr)
       try->lock = L;
 
       HASH_ADD_PTR (lock_table, addr, try);
-
-      __shmem_trace (SHMEM_LOG_LOCK,
-		     "created new lock for address %p",
-		     addr
-		     );
-    }
-  else
-    {
-      __shmem_trace (SHMEM_LOG_LOCK,
-		     "already have a lock for address %p",
-		     addr
-		     );
     }
 
   return try->lock;
@@ -735,9 +683,7 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
   swap_payload_t *p = (swap_payload_t *) malloc (sizeof (*p));
   if (p == (swap_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate swap payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate swap payload memory");
     }
   /* build payload to send */
   p->local_store = retval;
@@ -793,9 +739,7 @@ handler_cswap_out (gasnet_token_t token,
   old = malloc (pp->nbytes);
   if (old == NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate cswap save space"
-		     );
+      comms_bailout ("internal error: unable to allocate cswap save space");
     }
 
   /* save current target */
@@ -853,9 +797,7 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
   cswap_payload_t *cp = (cswap_payload_t *) malloc (sizeof (*cp));
   if (cp == (cswap_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate conditional swap payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate conditional swap payload memory");
     }
   /* build payload to send */
   cp->local_store = retval;
@@ -953,9 +895,7 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   fadd_payload_t *p = (fadd_payload_t *) malloc (sizeof (*p));
   if (p == (fadd_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate fetch-and-add payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate fetch-and-add payload memory");
     }
   /* build payload to send */
   p->local_store = retval;
@@ -1048,9 +988,7 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   finc_payload_t *p = (finc_payload_t *) malloc (sizeof (*p));
   if (p == (finc_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate fetch-and-increment payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate fetch-and-increment payload memory");
     }
   /* build payload to send */
   p->local_store = retval;
@@ -1136,9 +1074,7 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   add_payload_t *p = (add_payload_t *) malloc (sizeof (*p));
   if (p == (add_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate remote add payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate remote add payload memory");
     }
   /* build payload to send */
   p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
@@ -1222,9 +1158,7 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   inc_payload_t *p = (inc_payload_t *) malloc (sizeof (*p));
   if (p == (inc_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate remote increment payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate remote increment payload memory");
     }
   /* build payload to send */
   p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
@@ -1307,9 +1241,7 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
   xor_payload_t *p = (xor_payload_t *) malloc (sizeof (*p));
   if (p == (xor_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate remote exclusive-or payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate remote exclusive-or payload memory");
     }
   /* build payload to send */
   p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
@@ -1418,9 +1350,7 @@ __shmem_comms_ping_request (int pe)
   ping_payload_t *p = (ping_payload_t *) malloc (sizeof (*p));
   if (p == (ping_payload_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate remote accessibility payload memory"
-		     );
+      comms_bailout ("internal error: unable to allocate remote accessibility payload memory");
     }
   /* build payload to send */
   p->completed = 0;
@@ -1460,9 +1390,7 @@ __shmem_comms_ping_request (int pe)
   sig = signal (SIGALRM, sig);
   if (sig == SIG_ERR)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: release of ping timeout handler failed"
-		     );
+      comms_bailout ("internal error: release of ping timeout handler failed");
       /* NOT REACHED */
     }
 
@@ -1570,20 +1498,15 @@ allocate_buffer_and_check (void **buf, size_t siz)
       /* all ok, return */
       break;
     case EINVAL:
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: global variable payload not aligned correctly"
-		     );
+      comms_bailout ("internal error: global variable payload not aligned correctly");
       /* NOT REACHED */
       break;
     case ENOMEM:
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: no memory to allocate global variable payload"
-		     );
+      comms_bailout ("internal error: no memory to allocate global variable payload");
       /* NOT REACHED */
       break;
     default:
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unknown error with global variable payload (posix_memalign returned %d)",
+      comms_bailout ("internal error: unknown error with global variable payload (posix_memalign returned %d)",
 		     r
 		     );
       /* NOT REACHED */
@@ -2014,9 +1937,7 @@ nb_table_add (gasnet_handle_t h)
   nb_table_t *n = malloc (sizeof (*n));
   if (n == (nb_table_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to alloate memory for non-blocking table"
-		     );
+      comms_bailout ("internal error: unable to alloate memory for non-blocking table");
       /* NOT REACHED */
     }
   memset (n, 0, sizeof (*n));
@@ -2050,10 +1971,6 @@ nb_table_wait (void)
     }
   else
     {
-      __shmem_trace (SHMEM_LOG_INFO,
-		     "unable to malloc temporary handle storage for"
-		     " non-blocking wait, using linearized method"
-		     );
       HASH_ITER (hh, nb_table, current, tmp)
 	{
 	  gasnet_wait_syncnb (current->handle);
@@ -2290,8 +2207,7 @@ parse_cmdline(void)
       fp = fopen(buf, "r");
       if (fp == NULL)
 	{
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "could not discover process' command-line (%s)",
+	  comms_bailout ("could not discover process' command-line (%s)",
 			 strerror (errno)
 			 );
 	  /* NOT REACHED */
@@ -2311,9 +2227,7 @@ parse_cmdline(void)
   argv = (char **) malloc ((argc + 1) * sizeof (*argv));
   if (argv == (char **) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: unable to allocate memory for faked command-line arguments"
-		     );
+      comms_bailout ("internal error: unable to allocate memory for faked command-line arguments");
       /* NOT REACHED */
     }
 
@@ -2385,12 +2299,6 @@ __shmem_comms_init (void)
    */
   GASNET_SAFE (gasnet_attach (handlers, nhandlers, GET_STATE (heapsize), 0));
 
-  __shmem_trace (SHMEM_LOG_INIT,
-		 "gasnet attached, %d handlers registered, heap = %ld bytes",
-		 nhandlers,
-		 GET_STATE (heapsize)
-		 );
-
   __shmem_comms_set_waitmode (SHMEM_COMMS_SPINBLOCK);
 
   __shmem_service_init ();
@@ -2400,10 +2308,6 @@ __shmem_comms_init (void)
    * initialization done
    */
   __shmem_comms_barrier_all ();
-
-  __shmem_trace (SHMEM_LOG_INIT,
-		 "communication layer initialization complete"
-		 );
 
   /* Up and running! */
 }

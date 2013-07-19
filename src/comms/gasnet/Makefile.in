@@ -57,6 +57,13 @@ SERVICE_OBJ      = $(SERVICE_SRC:.c=.o)
 
 # ---------------------------------------------------------
 
+BAIL_SRC         = bail.c
+BAIL_OBJ         = $(BAIL_SRC:.c=.o)
+
+
+
+# ---------------------------------------------------------
+
 HASH_DIR         = ../../uthash
 HASH_CPPFLAGS    = -I$(HASH_DIR)
 
@@ -133,7 +140,7 @@ SHMEM_RUN        = oshrun
 
 # -- start GASNet ------------------------------------------
 
-all:	$(COMMS_OBJ) $(SERVICE_OBJ) wrappers openshmem.pc
+all:	$(COMMS_OBJ) $(SERVICE_OBJ) $(BAIL_OBJ) wrappers openshmem.pc
 
 #
 # GASNet installation root, and setup
@@ -257,7 +264,7 @@ uninstall-bin:
 # -------------------------------------------------------
 
 clean:
-	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ)
+	$(REMOVE) $(COMMS_OBJ) $(SERVICE_OBJ) $(BAIL_OBJ)
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
 	$(REMOVE) $(SHMEM_FC)
 	$(REMOVE) $(SHMEM_RUN)

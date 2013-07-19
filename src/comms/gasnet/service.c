@@ -61,7 +61,8 @@
 #include <gasnet.h>
 
 #include "../comms.h"
-#include "trace.h"
+
+#include "bail.h"
 
 /**
  * for refractory back-off
@@ -112,8 +113,6 @@ static int handling_own_thread = 1;
 void
 __shmem_service_init (void)
 {
-
-
 #ifdef GASNETC_IB_RCV_THREAD
   /*
    * if we have an IBV progress thread configured, then check env for
@@ -148,11 +147,6 @@ __shmem_service_init (void)
 	  break;
 	default:
 	  handling_own_thread = 0;
-	  __shmem_trace (SHMEM_LOG_SERVICE,
-			 "%s is \"%s\", but should be [01] (using 1)",
-			 grt_str,
-			 rtv
-			 );
 	  break;
 	}
     }
@@ -168,21 +162,11 @@ __shmem_service_init (void)
       s = pthread_create (&thr, NULL, start_service, (void *) 0);
       if (s != 0)
         {
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "internal error: progress thread creation failed (%s)",
+	  comms_bailout ("internal error: progress thread creation failed (%s)",
 			 strerror (s)
 			 );
 	  /* NOT REACHED */
         }
-      __shmem_trace (SHMEM_LOG_SERVICE,
-		     "started progress thread"
-		     );
-     }
-  else
-    {
-      __shmem_trace (SHMEM_LOG_SERVICE,
-		     "conduit starts its own progress thread"
-		     );
     }
 }
 
@@ -202,20 +186,10 @@ __shmem_service_finalize (void)
       s = pthread_join (thr, NULL);
       if (s != 0)
 	{
-	  __shmem_trace (SHMEM_LOG_FATAL,
-			 "internal error: progress thread termination failed (%s)",
+	  comms_bailout ("internal error: progress thread termination failed (%s)",
 			 strerror (s)
 			 );
 	  /* NOT REACHED */
 	}
-      __shmem_trace (SHMEM_LOG_SERVICE,
-		     "stopped progress thread"
-		     );
-    }
-  else
-    {
-      __shmem_trace (SHMEM_LOG_SERVICE,
-		     "conduit stops its own progress thread"
-		     );
     }
 }
