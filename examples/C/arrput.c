@@ -43,6 +43,8 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
+#include <sys/utsname.h>
 
 #include <shmem.h>
 
@@ -56,6 +58,11 @@ main (int argc, char **argv)
   int me, npes;
   long src[N];
   long *dest;
+  struct utsname u;
+  int su;
+
+  su = uname (&u);
+  assert (su == 0);
 
   start_pes (0);
   me = _my_pe ();
@@ -76,7 +83,7 @@ main (int argc, char **argv)
 
   for (i = 0; i < N; i += 1)
     {
-      printf ("%d @ %s: dest[%d] = %ld\n", me, shmem_nodename (), i, dest[i]);
+      printf ("%d @ %s: dest[%d] = %ld\n", me, u.nodename, i, dest[i]);
     }
 
   shfree (dest);

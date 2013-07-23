@@ -43,6 +43,8 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
+#include <sys/utsname.h>
 
 #include <shmem.h>
 
@@ -52,6 +54,11 @@ main (int argc, char **argv)
   long src;
   long *dest;
   int me, npes;
+  struct utsname u;
+  int su;
+
+  su = uname (&u);
+  assert (su == 0);
 
   start_pes (0);
 
@@ -79,7 +86,7 @@ main (int argc, char **argv)
 
   shmem_barrier_all ();
 
-  printf ("Result: %d @ %s: %ld\n", me, shmem_nodename (), *dest);
+  printf ("Result: %d @ %s: %ld\n", me, u.nodename, *dest);
 
   return 0;
 }

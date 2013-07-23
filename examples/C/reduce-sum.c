@@ -44,12 +44,22 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include <shmem.h>
 
-int pWrk[_SHMEM_REDUCE_SYNC_SIZE];
-long pSync[_SHMEM_BCAST_SYNC_SIZE];
+#ifndef MAX
+# define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
 
+/*
+ * reduce 1 element across the PEs
+ */
+static const int nred = 1;
+
+/*
+ * symmetric source and destination
+ */
 int src;
 int dst;
 
@@ -57,22 +67,36 @@ int
 main ()
 {
   int i;
+  long *pSync;
+  int *pWrk;
+  int pWrk_size;
 
-  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1)
+  start_pes (0);
+
+  pWrk_size = MAX (nred/2 + 1, _SHMEM_REDUCE_MIN_WRKDATA_SIZE);
+  pWrk = (int *) shmalloc (pWrk_size);
+  assert (pWrk != NULL);
+
+  pSync = (long *) shmalloc (SHMEM_REDUCE_SYNC_SIZE);
+  assert (pSync != NULL);
+
+  for (i = 0; i < SHMEM_REDUCE_SYNC_SIZE; i += 1)
     {
       pSync[i] = _SHMEM_SYNC_VALUE;
     }
 
-  start_pes (0);
-
   src = _my_pe () + 1;
   shmem_barrier_all ();
 
-  shmem_int_sum_to_all (&dst, &src, 1, 0, 0, 4, pWrk, pSync);
+  shmem_int_sum_to_all (&dst, &src, nred, 0, 0, 4, pWrk, pSync);
 
   printf ("%d/%d   dst =", _my_pe (), _num_pes ());
   printf (" %d", dst);
   printf ("\n");
+
+  shmem_barrier_all ();
+  shfree (pSync);
+  shfree (pWrk);
 
   return 0;
 }
