@@ -59,8 +59,6 @@
 
 #include "modules.h"
 
-#include "query.h"
-
 #include "shmem.h"
 
 #include "comms/comms.h"
@@ -68,6 +66,8 @@
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
+
+#include "version.h"
 
 /* ----------------------------------------------------------------- */
 
@@ -275,7 +275,7 @@ start_pes (int npes)
   {
     int maj, min;
     const int n = GET_STATE (numpes);
-    if (shmem_version (&maj, &min) == 0)
+    if (__shmem_version (&maj, &min) == 0)
       {
 	__shmem_trace (SHMEM_LOG_VERSION,
 		       "version %d.%d running on %d PE%s",

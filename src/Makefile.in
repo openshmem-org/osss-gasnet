@@ -152,6 +152,14 @@ FENCE_CPPFLAGS        = -I$(FENCE_DIR)
 FENCE_OBJ             = $(FENCE_DIR)/*.o
 
 # ---------------------------------------------------------
+#
+# query state/test objects
+#
+QUERY_DIR             = ./querying
+QUERY_CPPFLAGS        = -I$(QUERY_DIR)
+QUERY_OBJ             = $(QUERY_DIR)/*.o
+
+# ---------------------------------------------------------
 
 #
 # this is where the C compiler gets chosen along with the various
@@ -170,6 +178,7 @@ M4               = m4
 M4FLAGS          =
 
 # CPPFLAGS        += -MMD
+CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
@@ -180,7 +189,7 @@ CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(MODULES_CPPFLAGS)
-CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(QUERY_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -216,16 +225,10 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # ---------------------------------------------------------
 
-# init.
-SHMEM_SOURCES    =
-
 # API
-SHMEM_SOURCES   += reduce-op.c
-SHMEM_SOURCES   += accessible.c ptr.c
+SHMEM_SOURCES    = reduce-op.c
 SHMEM_SOURCES   += putget.c strided.c putget_nb.c
-SHMEM_SOURCES   += query.c
 SHMEM_SOURCES   += updown.c
-SHMEM_SOURCES   += waituntil.c
 SHMEM_SOURCES   += profiling.c
 
 # files to be generated in compile
@@ -256,7 +259,8 @@ OBJ_GEN         += \
 			modules-obj-gen \
 			fortran-obj-gen \
 			cache-obj-gen \
-			fence-obj-gen
+			fence-obj-gen \
+			query-obj-gen
 
 # ---------------------------------------------------------
 
@@ -404,6 +408,11 @@ cache-obj-gen:
 fence-obj-gen:
 	$(MAKE) -C $(FENCE_DIR) all
 
+# -- query routines ---------------------------------------
+
+query-obj-gen:
+	$(MAKE) -C $(QUERY_DIR) all
+
 # -- otherwise, compile everything else like this ---------
 
 %.o:	%.c
@@ -430,6 +439,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		$(FORTRAN_OBJ) \
 		$(CACHE_OBJ) \
 		$(FENCE_OBJ) \
+		$(QUERY_OBJ) \
 		$(SHMEM_OBJECTS) \
 		$(LIBS)
 
@@ -437,6 +447,7 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 
 tidy clean:
 	$(REMOVE) $(SHMEM_OBJECTS)
+	$(MAKE) -C $(QUERY_DIR) $@
 	$(MAKE) -C $(FENCE_DIR) $@
 	$(MAKE) -C $(CACHE_DIR) $@
 	$(MAKE) -C $(FORTRAN_DIR) $@

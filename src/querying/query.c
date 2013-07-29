@@ -52,7 +52,8 @@
  */
 
 static
-inline int
+inline
+int
 mype_helper (void)
 {
   INIT_CHECK ();
@@ -109,7 +110,8 @@ shmem_my_pe (void)
  */
 
 static
-inline int
+inline
+int
 numpes_helper (void)
 {
   INIT_CHECK ();
@@ -162,6 +164,8 @@ shmem_n_pes (void)
   return numpes_helper ();
 }
 
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
 /*
  *
  */
@@ -188,6 +192,8 @@ shmem_nodename (void)
 # define shmem_version pshmem_version
 #endif /* HAVE_FEATURE_PSHMEM */
 
+extern int __shmem_version (int *major, int *minor);
+
 /**
  * OpenSHMEM has a major.minor release number.  Return 0 if
  * successful, -1 otherwise
@@ -197,10 +203,8 @@ shmem_nodename (void)
 int
 shmem_version (int *major, int *minor)
 {
-#if ! defined(SHMEM_MAJOR_VERSION) && ! defined(SHMEM_MINOR_VERSION)
-  return -1;
-#endif /* ! SHMEM_MAJOR_VERSION && ! SHMEM_MINOR_VERSION */
-  *major = SHMEM_MAJOR_VERSION;
-  *minor = SHMEM_MINOR_VERSION;
-  return 0;
+  INIT_CHECK ();
+  return __shmem_version (major, minor);
 }
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
