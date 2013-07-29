@@ -1,7 +1,7 @@
 # Emacs: -*- mode: text; mode: auto-fill; -*-
 
-@DATE@ -- Updates in Release 1.0e:
-==========================================
+Updates in Release 1.0e:
+========================
 
 Configure
 ---------
@@ -21,9 +21,9 @@ Build
     * Clang (3.0)
     * PGI (various)
     * Oracle Studio (12.3)
-    * Intel (13.x)       +
-    * OpenUH (3.0.x)     +
-    *                    + = have problems with pshmem support
+    * Intel (13.x)       |
+    * OpenUH (3.0.x)     |
+    *                    | = have problems with pshmem support
     *
   * Preliminary BG/P support ("dcmf" conduit)
   * Rearranged comms structure to anticipate alternatives to

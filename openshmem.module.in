@@ -36,8 +36,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-
 set		shmem_root	@PREFIX@
+
+
 set		shmem_info	"OpenSHMEM Library"
 
 prepend-path	PATH		$shmem_root/bin
@@ -55,11 +56,10 @@ module-whatis	$shmem_info
 #
 # Customize run tracing
 #
-# setenv		SHMEM_LOG_LEVELS	debug,info,notice
+# setenv	SHMEM_LOG_LEVELS	debug,info,notice
 
 #
-# Examples for tuning Infiniband environment
+# Examples for tuning Infiniband environment.  See INSTALL file.
 #
-# setenv		SHMEM_SYMMETRIC_HEAP_SIZE	256M
-# setenv		GASNET_PHYSMEM_NOPROBE		1
-# setenv		MV2_NUM_HCAS			2
+# setenv	GASNET_PHYSMEM_NOPROBE		1
+# setenv	MV2_NUM_HCAS			2

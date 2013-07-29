@@ -2184,7 +2184,8 @@ static char **argv;
 static const char *cmdline = "/proc/self/cmdline";
 static const char *cmdline_fmt = "/proc/%ld/cmdline";
 
-static void
+static
+void
 parse_cmdline(void)
 {
   FILE *fp;
@@ -2259,7 +2260,8 @@ parse_cmdline(void)
  * (e.g. barrier) go idle, so make this as long as possible
  */
 
-static void
+static
+void
 maximize_gasnet_timeout (void)
 {
   char buf[32];

@@ -88,24 +88,24 @@ Here is how configure might be called on a cluster using Infiniband,
 with debugging support (e.g. argument and PE range checking) and
 operation tracing:
 
-    .../configure --prefix=$HOME/SHMEM          \
-                  --with-gasnet-conduit=ibv     \
-                  --with-gasnet-root=/usr       \
-	          --enable-debug --enable-trace
+    1:    .../configure --prefix=$HOME/SHMEM          \
+    2:                  --with-gasnet-conduit=ibv     \
+    3:                  --with-gasnet-root=/usr       \
+    4:                  --enable-debug --enable-trace
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
 
-    .../configure --prefix=$HOME/SHMEM          \
-                  --with-gasnet-conduit=mpi     \
-                  --with-gasnet-root=/opt/gasnet/large
+    1:    .../configure --prefix=$HOME/SHMEM          \
+    2:                  --with-gasnet-conduit=mpi     \
+    3:                  --with-gasnet-root=/opt/gasnet/large
 
 Optimized for SMP (no MPI involved):
 
-    .../configure --prefix=$HOME/SHMEM          \
-                  --with-gasnet-conduit=smp     \
-                  --with-gasnet-root=/usr       \
-                  --enable-debug
+    1:    .../configure --prefix=$HOME/SHMEM          \
+    2:                  --with-gasnet-conduit=smp     \
+    3:                  --with-gasnet-root=/usr       \
+    4:                  --enable-debug
 
     (GASNet built with fast/large model)
 
@@ -156,14 +156,16 @@ Source Directory Layout
     |-- globalvar         } variables outside the managed heap
     |
     |-- memory            } symmetric memory allocation
-    |
+    |-- cache             } depcrecated cache routines
+    |-- fence             } point-to-point synchronizations
     |-- modules           } collective routine providers
     |
     |-- mpp               } headers
     |
     |-- dlmalloc          } 3rd party
-    `-- uthash            } utilities
-
+    |-- uthash            }
+    |
+    `-- utils             } internal utilities
 
 The "configure" script
 ======================
