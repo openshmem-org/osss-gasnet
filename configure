@@ -425,6 +425,7 @@ tell "Searching for compilers ..."
 
 if [ -z "$cc_type" ]
 then
+    told_compiler=0
 
     # -- either gnu (guess) or from environment --
 
@@ -473,6 +474,8 @@ then
 	    cc_type="UNKNOWN"
 	    ;;
     esac
+else
+    told_compiler=1
 fi
 
 # 2013-04-23,tonyc: TODO I know some of the exe_libs flags below may
@@ -887,7 +890,12 @@ tell ""
 tell "-- Configuration Summary --"
 tell ""
 tell "Compilers:"
+if [ "$told_compiler" = "1" ]
+then
+tell "  Suite is                      $cc_type"
+else
 tell "  Suite appears to be           $cc_type"
+fi
 tell "    C compiler is               \"$cc_cmd\""
 tell "    C pre-processor flags are   \"$cpp_flags\""
 tell "    C flags are                 \"$c_flags\""
