@@ -26,7 +26,7 @@ Build
     *                    | = have problems with pshmem support
     *
   * Preliminary BG/P support ("dcmf" conduit)
-  * Rearranged comms structure to anticipate alternatives to
+  * Rearranged internal structure to anticipate alternatives to
     GASNet
   * Discovered some GASNet improvements from discussions at SC12
 
