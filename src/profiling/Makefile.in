@@ -36,18 +36,8 @@
 
 # ---------------------------------------------------------
 
-HASH_DIR          =    ../uthash
-HASH_CPPFLAGS     =    -I$(HASH_DIR)
-
-# ---------------------------------------------------------
-
 UTILS_DIR         =    ../utils
 UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
-
-INITFIN_DIR       =    ../initfin
-INITFIN_CPPFLAGS  =    -I$(INITFIN_DIR)
 
 # ---------------------------------------------------------
 
@@ -57,21 +47,24 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "enabled"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_TRACE@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CPPFLAGS        += @EXE_HEADERS@
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+endif
 
-# CPPFLAGS        += -I..
-
-CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += -I..
 CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += $(INITFIN_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

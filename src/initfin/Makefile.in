@@ -36,8 +36,8 @@
 
 # ---------------------------------------------------------
 
-HASH_DIR          =    ../uthash
-HASH_CPPFLAGS     =    -I$(HASH_DIR)
+MEMORY_DIR        =    ../memory
+MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
@@ -46,8 +46,38 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
-INITFIN_DIR       =    ../initfin
-INITFIN_CPPFLAGS  =    -I$(INITFIN_DIR)
+GLOBALVAR_DIR         =    ../globalvar
+GLOBALVAR_CPPFLAGS    =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
+
+ATOMIC_DIR         =    ../atomic
+ATOMIC_CPPFLAGS    =    -I$(ATOMIC_DIR)
+
+# ---------------------------------------------------------
+
+BARRIER_DIR       =    ../barrier
+BARRIER_CPPFLAGS  =    -I$(BARRIER_DIR)
+
+# ---------------------------------------------------------
+
+MODULES_DIR       =    ../modules
+MODULES_CPPFLAGS  =    -I$(MODULES_DIR)
+
+# ---------------------------------------------------------
+
+COLLECT_DIR       =    ../collect
+COLLECT_CPPFLAGS  =    -I$(COLLECT_DIR)
+
+# ---------------------------------------------------------
+
+FCOLLECT_DIR       =    ../fcollect
+FCOLLECT_CPPFLAGS  =    -I$(FCOLLECT_DIR)
+
+# ---------------------------------------------------------
+
+BROADCAST_DIR      =    ../broadcast
+BROADCAST_CPPFLAGS =    -I$(BROADCAST_DIR)
 
 # ---------------------------------------------------------
 
@@ -57,21 +87,32 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@DEBUG@" "enabled"
-CPPFLAGS        += -DDEBUG
+ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_TRACE@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-CPPFLAGS        += @EXE_HEADERS@
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+endif
 
-# CPPFLAGS        += -I..
-
-CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += -I..
 CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += $(INITFIN_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(BARRIER_CPPFLAGS)
+CPPFLAGS        += $(MODULES_CPPFLAGS)
+CPPFLAGS        += $(COLLECT_CPPFLAGS)
+CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
+CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

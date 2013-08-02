@@ -42,6 +42,11 @@ MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
+INITFIN_DIR       =    ../initfin
+INITFIN_CPPFLAGS  =    -I$(INITFIN_DIR)
+
+# ---------------------------------------------------------
+
 #
 # this is where the C compiler gets chosen along with the various
 # flags that do PIC, dependency, debug/optimize and C99 compliance
@@ -80,6 +85,7 @@ endif
 
 CPPFLAGS        += -I..
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(INITFIN_CPPFLAGS)
 
 REMOVE           = rm -f
 
