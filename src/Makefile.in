@@ -160,6 +160,14 @@ QUERY_CPPFLAGS        = -I$(QUERY_DIR)
 QUERY_OBJ             = $(QUERY_DIR)/*.o
 
 # ---------------------------------------------------------
+#
+# point-to-point: puts 'n' gets
+#
+PTP_DIR               = ./ptp
+PTP_CPPFLAGS          = -I$(PTP_DIR)
+PTP_OBJ               = $(PTP_DIR)/*.o
+
+# ---------------------------------------------------------
 
 #
 # this is where the C compiler gets chosen along with the various
@@ -190,6 +198,7 @@ CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(MODULES_CPPFLAGS)
 CPPFLAGS        += $(QUERY_CPPFLAGS)
+CPPFLAGS        += $(PTP_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -225,9 +234,8 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 # ---------------------------------------------------------
 
-# API
+# these should eventually all move to sub-directories
 SHMEM_SOURCES    = reduce-op.c
-SHMEM_SOURCES   += putget.c strided.c putget_nb.c
 SHMEM_SOURCES   += updown.c
 SHMEM_SOURCES   += profiling.c
 
@@ -245,22 +253,29 @@ LIBS             = @EXE_LIBS@ -lelf -ldl
 INSTALL          = install -c
 REMOVE           = rm -f
 
-OBJ_GEN          = comms-obj-gen
+#
+# sub-API
+#
+OBJ_GEN          =
 OBJ_GEN         += utils-obj-gen
-OBJ_GEN         += \
-			globalvar-obj-gen \
-			broadcast-obj-gen \
-			collect-obj-gen \
-			fcollect-obj-gen \
-			barrier-obj-gen \
-			atomic-obj-gen \
-			malloc-obj-gen \
-			memory-obj-gen \
-			modules-obj-gen \
-			fortran-obj-gen \
-			cache-obj-gen \
-			fence-obj-gen \
-			query-obj-gen
+OBJ_GEN         += comms-obj-gen
+OBJ_GEN         += globalvar-obj-gen
+#
+# API
+#
+OBJ_GEN         += malloc-obj-gen
+OBJ_GEN         += memory-obj-gen
+OBJ_GEN         += atomic-obj-gen
+OBJ_GEN         += fence-obj-gen
+OBJ_GEN         += cache-obj-gen
+OBJ_GEN         += ptp-obj-gen
+OBJ_GEN         += query-obj-gen
+OBJ_GEN         += broadcast-obj-gen
+OBJ_GEN         += collect-obj-gen
+OBJ_GEN         += fcollect-obj-gen
+OBJ_GEN         += barrier-obj-gen
+OBJ_GEN         += modules-obj-gen
+OBJ_GEN         += fortran-obj-gen
 
 # ---------------------------------------------------------
 
@@ -413,6 +428,11 @@ fence-obj-gen:
 query-obj-gen:
 	$(MAKE) -C $(QUERY_DIR) all
 
+# -- point-to-point (put/get) -----------------------------
+
+ptp-obj-gen:
+	$(MAKE) -C $(PTP_DIR) all
+
 # -- otherwise, compile everything else like this ---------
 
 %.o:	%.c
@@ -427,15 +447,16 @@ $(SHMEM_LIBRARY):	$(OBJ_GEN) $(SHMEM_OBJECTS)
 		-o $@ \
 		$(UTILS_OBJ) \
 		$(COMMS_OBJ) \
+		$(MODULES_OBJ) \
+		$(ATOMIC_OBJ) \
+		$(PTP_OBJ) \
 		$(GLOBALVAR_OBJ) \
 		$(BROADCAST_OBJ) \
 		$(BARRIER_OBJ) \
 		$(FCOLLECT_OBJ) \
 		$(COLLECT_OBJ) \
-		$(ATOMIC_OBJ) \
 		$(MALLOC_OBJ) \
 		$(MEMORY_OBJ) \
-		$(MODULES_OBJ) \
 		$(FORTRAN_OBJ) \
 		$(CACHE_OBJ) \
 		$(FENCE_OBJ) \
@@ -451,16 +472,17 @@ tidy clean:
 	$(MAKE) -C $(FENCE_DIR) $@
 	$(MAKE) -C $(CACHE_DIR) $@
 	$(MAKE) -C $(FORTRAN_DIR) $@
-	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(MEMORY_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
-	$(MAKE) -C $(COMMS_DIR) $@
-	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
+	$(MAKE) -C $(PTP_DIR) $@
+	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(MAKE) -C $(ATOMIC_DIR) $@
+	$(MAKE) -C $(MODULES_DIR) $@
+	$(MAKE) -C $(COMMS_DIR) $@
 	$(MAKE) -C $(UTILS_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 	$(REMOVE) $(SHMEM_HEADERS)

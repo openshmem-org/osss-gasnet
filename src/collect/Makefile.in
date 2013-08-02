@@ -51,6 +51,11 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
+PTP_DIR           =    ../ptp
+PTP_CPPFLAGS      =    -I$(PTP_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -62,6 +67,7 @@ CPPFLAGS        += -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += -I../modules
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"

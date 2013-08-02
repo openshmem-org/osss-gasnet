@@ -36,11 +36,6 @@
 
 # ---------------------------------------------------------
 
-COMMS_DIR        =    ../comms
-COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
-
-# ---------------------------------------------------------
-
 MEMORY_DIR        =    ../memory
 MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
@@ -51,8 +46,8 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
-PTP_DIR           =    ../ptp
-PTP_CPPFLAGS      =    -I$(PTP_DIR)
+GLOBALVAR_DIR        =    ../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
 
 # ---------------------------------------------------------
 
@@ -62,45 +57,36 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CPPFLAGS        += -I..
-
-CPPFLAGS        += $(COMMS_CPPFLAGS)
-CPPFLAGS        += $(MEMORY_CPPFLAGS)
-CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += $(PTP_CPPFLAGS)
-CPPFLAGS        += -I../modules
-
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+endif
+
+ifeq "@HAVE_FEATURE_TRACE@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+endif
+
+CPPFLAGS        += -I..
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
-SOFLAGS          = @SOFLAGS@
+.PHONY: all default clean
 
-MODULES = $(wildcard fcollect-*.c)
-OBJECTS = $(MODULES:.c=.o)
-SHOBJECTS = $(MODULES:.c=.so)
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
 
-.PHONY: all default install-lib uninstall-lib clean
-
-all default:	$(SHOBJECTS) fcollect.o
-
-install-lib:	all default
-	mkdir -p @MODULES_DIR@
-	cp $(SHOBJECTS) @MODULES_DIR@
-
-uninstall-lib:
-	for f in $(SHOBJECTS); do rm -f @MODULES_DIR@/$$f; done
-	- rmdir @MODULES_DIR@
-
-%.so:	%.o
-	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
+all default:	$(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) $(SHOBJECTS) fcollect.o
+	rm -f $(OBJECTS)

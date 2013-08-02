@@ -45,7 +45,6 @@
 #include "globalvar.h"
 #include "updown.h"
 #include "trace.h"
-#include "atomic.h"
 #include "utils.h"
 #include "symmtest.h"
 
