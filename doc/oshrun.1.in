@@ -45,9 +45,11 @@ program
 .SH DESCRIPTION
 \fBoshrun\fP runs an OpenSHMEM program on the given number of
 processing elements.
-.SH OPTIONS
+.SH NUMBER OF PROCESSING ELEMENTS
 .IP "-np N" 4
 Run the program on N processing elements (processors).
+.LP
+Required.
 .SH EXAMPLES
 The command
 .LP
