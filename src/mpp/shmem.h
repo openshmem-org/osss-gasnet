@@ -44,4 +44,4 @@
 
 #include <shmem.h>
 
-#endif				/* _MPP_SHMEM_H */
+#endif	/* _MPP_SHMEM_H */

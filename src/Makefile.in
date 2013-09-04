@@ -312,7 +312,7 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
 # ---------------------------------------------------------
 
-all default:	$(SHMEM_HEADERS) $(SHMEM_LIBRARY)
+all default:	shmem-headers $(SHMEM_LIBRARY)
 
 install:	install-lib install-comms install-include
 
@@ -446,31 +446,15 @@ profiling-obj-gen:
 
 # -- generate the shared object library -------------------
 
+#
+# 2013-09-04,tonyc:
+#
+# Yuck.  This is a little unpleasant, but it's the only way I can find
+# right now of stopping the library relinking during install.
+#
+
 $(SHMEM_LIBRARY):	$(OBJ_GEN)
-	$(LD) \
-		$(LDFLAGS) \
-		$(SOFLAGS) \
-		-o $@ \
-		$(UTILS_OBJ) \
-		$(COMMS_OBJ) \
-		$(GLOBALVAR_OBJ) \
-		$(MODULES_OBJ) \
-		$(MALLOC_OBJ) \
-		$(INITFIN_OBJ) \
-		$(QUERY_OBJ) \
-		$(BARRIER_OBJ) \
-		$(MEMORY_OBJ) \
-		$(ATOMIC_OBJ) \
-		$(FENCE_OBJ) \
-		$(CACHE_OBJ) \
-		$(PTP_OBJ) \
-		$(BROADCAST_OBJ) \
-		$(COLLECT_OBJ) \
-		$(FCOLLECT_OBJ) \
-		$(FORTRAN_OBJ) \
-		$(REDUCE_OBJ) \
-		$(PROFILING_OBJ) \
-		$(LIBS)
+	if [ ! -f have-built-$(SHMEM_LIBRARY) ]; then $(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(INITFIN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS); touch have-built-$(SHMEM_LIBRARY) ; fi
 
 # ---------------------------------------------------------
 
@@ -496,6 +480,7 @@ tidy clean:
 	$(MAKE) -C $(UTILS_DIR) $@
 	$(REMOVE) $(SHMEM_LIBRARY)
 	$(REMOVE) $(SHMEM_HEADERS)
+	$(REMOVE) have-built-$(SHMEM_LIBRARY)
 
 distclean: clean
 	$(REMOVE) Makefile
