@@ -38,10 +38,10 @@
 
 
 /*
- * expected output on 2 PEs:
+ * expected output on 2 PEs (lines can appear in any order):
  *
- * 0: old = 22, dst = 22
- * 1: old = -1, dst = 66
+ * 1: old = 22, dst = 22
+ * 0: old = -1, dst = 66
  *
  */
 
