@@ -214,7 +214,7 @@ and why certain implementation strategies were chosen.
 GASNet provides access to the symmetric memory areas. A memory
 management library marshals accesses to these areas during allocation
 and freeing of symmetric variables in user code, usually through a
-call like \texttt{shmalloc()} or \texttt{shmfree()}.
+call like \texttt{shmalloc()} or \texttt{shfree()}.
 
 When you \texttt{gasnet\_attach()} and ask for segment information,
 each PE has access to an array of segments, 1 segment per PE. Each PE
@@ -260,7 +260,7 @@ least for the architectures to hand).
 
 \subsection{Initialization}
 
-In \texttt{src/updown.c} we handle setting up the OpenSHMEM runtime,
+In \texttt{src/initfin/} we handle setting up the OpenSHMEM runtime,
 and eventual shutdown. Shutdown is implicit in user code, there is no
 call to do this in SGI SHMEM, so we register a handler to be called
 when \texttt{main()} exits. (Cray SHMEM has an explicit finalize call,
@@ -274,14 +274,17 @@ initialization and hierarchical or directory-based lookups.
 \subsection{Incorporating SHMEM into Programs}
 
 For C, the appropriate header file must be included:
-\texttt{<mpp/shmem.h>}.  The first SHMEM call in any program must be
-\texttt{start\_pes(npes)}.  \texttt{start\_pes} just ignores its argument
-(consistent with SGI behavior. SGI indicates ``npes'' \emph{should} be
-set to zero but we don't enforce that, merely note it). The number of
-PEs is taken from the invoking environment. Currently this number is
-assumed to be fixed throughout the lifetime of the program, but fault
-tolerance extensions could generalize this notion. Below are simple C
-and Fortran program templates:
+\texttt{<shmem.h>}~\footnote{The locaton \texttt{<mpp/shmem.h} is also
+  accepted, but is now considered deprecated and the preprocessor can
+  generate a warning if desired}.  The first SHMEM call in any program
+must be \texttt{start\_pes(npes)}.  \texttt{start\_pes} just ignores
+its argument (consistent with SGI behavior. SGI indicates ``npes''
+\emph{should} be set to zero but we don't enforce that, merely note
+it). The number of PEs is taken from the invoking
+environment. Currently this number is assumed to be fixed throughout
+the lifetime of the program, but fault tolerance extensions could
+generalize this notion. Below are simple C and Fortran program
+templates:
 
 \vspace{0.1in}
 \begin{minipage}{0.75\linewidth}
@@ -323,10 +326,10 @@ end program hello
 
 The OpenSHMEM library has been written to sit on top of any
 communications library that can provide the required
-functionality. Initially we have targetted GASNet. The
-directory \texttt{src/comms} provides implementations of the
-internal API. All subsequent references to GASNet should be read with
-an eye on the abstraction process.
+functionality. Initially we have targetted GASNet. The directory
+\texttt{src/comms/gasnet} provides implementations of the internal
+API. All subsequent references to GASNet should be read with an eye on
+the abstraction process.
 
 \subsection{Servicing Communications}
 
