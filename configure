@@ -639,7 +639,7 @@ c_flags=${CFLAGS-"$c_flags"}
 cxx_cmd=${CXX-"$cxx_cmd"}
 cxx_flags=${CXXFLAGS-"$cxx_flags"}
 fc_cmd=${FC-"$fc_cmd"}
-fc_flags=${FCFLAGS-"$fc_flags"}
+fc_flags=${FFLAGS-"$fc_flags"}
 ld_cmd=${LD-"$ld_cmd"}
 ld_flags=${LDFLAGS-"$ld_flags"}
 
@@ -859,7 +859,7 @@ do
         -e "s%@CXX@%$cxx_cmd%g" \
         -e "s%@CXXFLAGS@%$cxx_flags%g" \
         -e "s%@FC@%$fc_cmd%g" \
-        -e "s%@FCFLAGS@%$fc_flags%g" \
+        -e "s%@FFLAGS@%$fc_flags%g" \
         -e "s%@LD@%$ld_cmd%g" \
         -e "s%@LDFLAGS@%$ld_flags%g" \
         -e "s%@COMMS_LAYER@%$comms_layer%g" \
@@ -1019,7 +1019,7 @@ CFLAGS="$c_flags"
 CXX="$cxx_cmd"
 CXXFLAGS="$cxx_flags"
 FC="$fc_cmd"
-FCFLAGS="$fc_flags"
+FFLAGS="$fc_flags"
 LD="$ld_cmd"
 LDFLAGS="$ld_flags"
 
@@ -1029,7 +1029,7 @@ export FC
 export CPPFLAGS
 export CFLAGS
 export CXXFLAGS
-export FCFLAGS
+export FFLAGS
 export LD
 export LDFLAGS
 
@@ -1095,7 +1095,7 @@ setfeature()
     echo "#define OPENSHMEM_COMPILER_CXX           \"$cxx_cmd\""
     echo "#define OPENSHMEM_COMPILER_CXXFLAGS      \"$cxx_flags\""
     echo "#define OPENSHMEM_COMPILER_FC            \"$fc_cmd\""
-    echo "#define OPENSHMEM_COMPILER_FCFLAGS       \"$fc_flags\""
+    echo "#define OPENSHMEM_COMPILER_FFLAGS        \"$fc_flags\""
     echo "#define OPENSHMEM_COMPILER_LD            \"$ld_cmd\""
     echo "#define OPENSHMEM_COMPILER_LDFLAGS       \"$ld_flags\""
     echo
