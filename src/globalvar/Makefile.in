@@ -46,8 +46,8 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
-INITFIN_DIR       =    ../initfin
-INITFIN_CPPFLAGS  =    -I$(INITFIN_DIR)
+UPDOWN_DIR        =    ../updown
+UPDOWN_CPPFLAGS   =    -I$(UPDOWN_DIR)
 
 # ---------------------------------------------------------
 
@@ -71,7 +71,7 @@ CPPFLAGS        += @EXE_HEADERS@
 
 CPPFLAGS        += $(HASH_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += $(INITFIN_CPPFLAGS)
+CPPFLAGS        += $(UPDOWN_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

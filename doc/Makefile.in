@@ -137,7 +137,7 @@ uninstall-man5:
 clean:
 	$(REMOVE) *.aux *.log *.out *.toc
 	$(REMOVE) $(MAN_PAGES)
+	$(REMOVE) $(IMPL_PDF)
 
 distclean: clean
-	$(REMOVE) $(IMPL_PDF)
 	$(REMOVE) Makefile

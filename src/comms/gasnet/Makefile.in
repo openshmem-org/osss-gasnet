@@ -193,22 +193,22 @@ $(SHMEM_CC):	$(SHMEM_CC).in
 		< $^ > $@
 
 $(SHMEM_CXX):	$(SHMEM_CC)
-	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	lnk=`sed -n -e 's%^driver="\\(.*\\)"%\\1%p' < $^`; \
 	lnk=`basename $$lnk`; \
-	if [ "$$lnk" = "mpicc" ]; then lnk=mpicxx; else lnk=$(CXX); fi; \
+	if [ "$$lnk" = "mpicc" ]; then lnk="mpicxx"; else lnk="$(CXX)"; fi; \
 	sed \
-		-e "s%^DRIVER=.*%DRIVER=$$lnk%" \
+		-e "s%^driver=.*%driver=\"$$lnk\"%" \
 		< $^ > $@
 
 $(SHMEM_CXX_ALT):	$(SHMEM_CXX)
 	cp $^ $@
 
 $(SHMEM_FC):	$(SHMEM_CC)
-	lnk=`sed -n -e 's%^DRIVER=\\(.*\\)%\\1%p' < $^`; \
+	lnk=`sed -n -e 's%^driver="\\(.*\\)"%\\1%p' < $^`; \
 	lnk=`basename $$lnk`; \
-	if [ "$$lnk" = "mpicc" ]; then lnk=mpif90; else lnk=$(FC); fi; \
-	sed \
-		-e "s%^DRIVER=.*%DRIVER=$$lnk%" \
+	if [ "$$lnk" = "mpicc" ]; then lnk="mpif90"; else lnk="$(FC)"; fi; \
+        sed \
+		-e "s%^driver=.*%driver=\"$$lnk\"%" \
 		< $^ > $@
 
 

@@ -105,17 +105,16 @@ Foundation.
 \section{Introduction}
 
 This document is an overview of the implementation strategy for the
-initial, reference version of what will become OpenSMHEM. We will
-discuss the concept of a partitioned global address space for
-completeness.
+initial, reference version of OpenSMHEM. We will discuss the concept
+of a partitioned global address space for completeness.
 
 \section{Terminology}
 
-A SHMEM program consists of a number of processors executing separate
-processes. A processor is referred to as a ``processing element'',
-or PE. All PEs run the same program in the SPMD model, although they
-can discover which position, or rank, they occupy within the program
-and diverge in behavior.
+An OpenSHMEM program consists of a number of processors executing
+separate processes. A processor is referred to as a ``processing
+element'', or PE. All PEs run the same program in the SPMD model,
+although they can discover which position, or rank, they occupy within
+the program and diverge in behavior.
 
 The number of PEs participating in the program is set at launch-time
 (although not all PEs need to do work). PEs are numbered monotonically
@@ -123,12 +122,12 @@ increasing from 0 up to $N-1$, where N is the total number of PEs.
 PEs are assumed to be equidistant from each other for communication
 purposes, no topological information is currently exposed.
 
-Communication occurs through point-to-point one-sided routines and
-collective operations. A one-sided operation is a communication in
-which one PE transfers data to another PE, but the ``other'' PE does
-not participate: the data transfer does not cause the other PE to be
-interrupted to acknowledge the transfer (assuming the hardware
-underneath SHMEM allows this).
+Communication occurs through point-to-point one-sided routines,
+point-to-point remote atomic operations, and collective operations. A
+one-sided operation is a communication in which one PE transfers data
+to another PE, but the ``other'' PE does not participate: the data
+transfer does not cause the other PE to be interrupted to acknowledge
+the transfer (assuming the hardware underneath OpenSHMEM allows this).
 
 \section{Partitioned Global Address Space}
 
@@ -260,7 +259,7 @@ least for the architectures to hand).
 
 \subsection{Initialization}
 
-In \texttt{src/initfin/} we handle setting up the OpenSHMEM runtime,
+In \texttt{src/updown/} we handle setting up the OpenSHMEM runtime,
 and eventual shutdown. Shutdown is implicit in user code, there is no
 call to do this in SGI SHMEM, so we register a handler to be called
 when \texttt{main()} exits. (Cray SHMEM has an explicit finalize call,
@@ -271,16 +270,16 @@ burdensome due to the large number of address/size
 communications. Strategies for avoiding this include lazy
 initialization and hierarchical or directory-based lookups.
 
-\subsection{Incorporating SHMEM into Programs}
+\subsection{Incorporating OpenSHMEM into Programs}
 
 For C, the appropriate header file must be included:
-\texttt{<shmem.h>}~\footnote{The locaton \texttt{<mpp/shmem.h} is also
-  accepted, but is now considered deprecated and the preprocessor can
-  generate a warning if desired}.  The first SHMEM call in any program
-must be \texttt{start\_pes(npes)}.  \texttt{start\_pes} just ignores
-its argument (consistent with SGI behavior. SGI indicates ``npes''
-\emph{should} be set to zero but we don't enforce that, merely note
-it). The number of PEs is taken from the invoking
+\texttt{<shmem.h>}~\footnote{The location \texttt{<mpp/shmem.h} is
+  also accepted, but is now considered deprecated and the preprocessor
+  can generate a warning if desired}.  The first OpenSHMEM call in any
+program must be \texttt{start\_pes(npes)}.  \texttt{start\_pes} just
+ignores its argument (consistent with SGI behavior. SGI indicates
+``npes'' \emph{should} be set to zero but we don't enforce that,
+merely note it). The number of PEs is taken from the invoking
 environment. Currently this number is assumed to be fixed throughout
 the lifetime of the program, but fault tolerance extensions could
 generalize this notion. Below are simple C and Fortran program
@@ -455,7 +454,7 @@ reduction operation should be more scalable. However, the code is
 rather compact and all ops use the same template. A future version of
 OpenSHMEM may add user-defined reductions, and in fact the framework
 for this is already in place: all that is needed is a specification of
-the SHMEM API.
+the OpenSHMEM API.
 
 \subsection{Address and PE Accessibility}
 

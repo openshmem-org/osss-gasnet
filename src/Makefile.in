@@ -171,9 +171,9 @@ PTP_OBJ               = $(PTP_DIR)/*.o
 #
 # initialize and finalize
 #
-INITFIN_DIR           = ./initfin
-INITFIN_CPPFLAGS      = -I$(INITIFIN_DIR)
-INITFIN_OBJ           = $(INITFIN_DIR)/*.o
+UPDOWN_DIR            = ./updown
+UPDOWN_CPPFLAGS       = -I$(UPDOWN_DIR)
+UPDOWN_OBJ            = $(UPDOWN_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -223,7 +223,7 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(MODULES_CPPFLAGS)
 CPPFLAGS        += $(QUERY_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
-CPPFLAGS        += $(INITFIN_CPPFLAGS)
+CPPFLAGS        += $(UPDOWN_CPPFLAGS)
 CPPFLAGS        += $(REDUCE_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
@@ -284,7 +284,7 @@ INT_OBJ_GEN     += malloc-obj-gen
 # API
 #
 API_OBJ_GEN      =
-API_OBJ_GEN     += initfin-obj-gen
+API_OBJ_GEN     += updown-obj-gen
 API_OBJ_GEN     += query-obj-gen
 API_OBJ_GEN     += barrier-obj-gen
 API_OBJ_GEN     += memory-obj-gen
@@ -397,8 +397,8 @@ malloc-obj-gen:
 	$(MAKE) -C $(MALLOC_DIR) all
 
 
-initfin-obj-gen:
-	$(MAKE) -C $(INITFIN_DIR) all
+updown-obj-gen:
+	$(MAKE) -C $(UPDOWN_DIR) all
 
 query-obj-gen:
 	$(MAKE) -C $(QUERY_DIR) all
@@ -455,11 +455,11 @@ profiling-obj-gen:
 # And...it no work... :(
 #
 # $(SHMEM_LIBRARY):	$(OBJ_GEN)
-# 	if [ ! -f have-built-$(SHMEM_LIBRARY) ]; then $(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(INITFIN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS); touch have-built-$(SHMEM_LIBRARY) ; fi
+# 	if [ ! -f have-built-$(SHMEM_LIBRARY) ]; then $(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(UPDOWN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS); touch have-built-$(SHMEM_LIBRARY) ; fi
 
 
 $(SHMEM_LIBRARY):	$(OBJ_GEN)
-	$(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(INITFIN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS)
+	$(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(UPDOWN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS)
 
 # ---------------------------------------------------------
 
@@ -477,7 +477,7 @@ tidy clean:
 	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(QUERY_DIR) $@
-	$(MAKE) -C $(INITFIN_DIR) $@
+	$(MAKE) -C $(UPDOWN_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(GLOBALVAR_DIR) $@
