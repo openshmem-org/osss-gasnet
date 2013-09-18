@@ -26,6 +26,10 @@ Build
     *                    | = have problems with pshmem support
     *
   * Preliminary BG/P support ("dcmf" conduit)
+  * Experimental (not yet in specification) features include
+    * proposed atomic xor routines
+    * put/get_nb
+    * shmem_version routine
   * Rearranged internal structure to anticipate alternatives to
     GASNet
   * Discovered some GASNet improvements from discussions at SC12
