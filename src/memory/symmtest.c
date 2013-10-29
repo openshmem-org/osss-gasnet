@@ -44,6 +44,8 @@
 #include "comms.h"
 #include "state.h"
 
+#include "debug_alloc.h"
+
 /*
  * Deprecated
  *
