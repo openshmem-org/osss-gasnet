@@ -99,8 +99,10 @@ __shmem_is_symmetric (void *addr)
 #ifdef HAVE_FEATURE_DEBUG
       /*
        * peek into memory hash table in debugging mode.
+       *
+       * TODO: check within bounds of allocation
        */
-      if (debug_alloc_find (addr) == NULL)
+      if (! debug_alloc_check (addr))
 	{
 	  return 0;
 	}
