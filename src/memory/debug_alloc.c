@@ -72,6 +72,11 @@ debug_alloc_find (void *a)
   return at;
 }
 
+/**
+ * walk through all allocations.  if we find one that contains the
+ * address A then we're good.
+ */
+
 int
 debug_alloc_check (void *a)
 {
@@ -79,12 +84,12 @@ debug_alloc_check (void *a)
   alloc_table_t *s;
 
   HASH_ITER (hh, atp, s, tmp) {
-    void *lo = s->addr;
-    void *hi = lo + s->size - 1;
+    const size_t off = a - s->addr;
 
-    if ( (lo <= a) && (a <= hi) )
+    if ( (0 <= off) && (off < s->size) )
       {
 	return 1;
+	/* NOT REACHED */
       }
   }
   return 0;
