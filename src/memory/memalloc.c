@@ -42,9 +42,10 @@
  * This is PE-local and sits just below SHMEM itself.
  */
 
-#include <sys/types.h>
+#include "debug_alloc.h"
 
 #include "dlmalloc.h"
+
 
 /**
  * the memory area we manage in this unit.  Not visible to anyone else
@@ -87,7 +88,13 @@ __shmem_mem_base (void)
 void *
 __shmem_mem_alloc (size_t size)
 {
-  return mspace_malloc (myspace, size);
+  void *addr = mspace_malloc (myspace, size);
+
+#ifdef HAVE_FEATURE_DEBUG
+  debug_alloc_add (addr, size);
+#endif /* HAVE_FEATURE_DEBUG */
+
+  return addr;
 }
 
 /**
@@ -97,15 +104,25 @@ void
 __shmem_mem_free (void *addr)
 {
   mspace_free (myspace, addr);
+
+#ifdef HAVE_FEATURE_DEBUG
+  debug_alloc_del (addr);
+#endif /* HAVE_FEATURE_DEBUG */
 }
 
 /**
- * resize ADDR to SIZE bytes
+ * resize ADDR to NEW_SIZE bytes
  */
 void *
-__shmem_mem_realloc (void *addr, size_t size)
+__shmem_mem_realloc (void *addr, size_t new_size)
 {
-  return mspace_realloc (myspace, addr, size);
+  void *new_addr = mspace_realloc (myspace, addr, new_size);
+
+#ifdef HAVE_FEATURE_DEBUG
+  debug_alloc_replace (addr, new_size);
+#endif /* HAVE_FEATURE_DEBUG */
+
+  return new_addr;
 }
 
 /**
@@ -114,5 +131,11 @@ __shmem_mem_realloc (void *addr, size_t size)
 void *
 __shmem_mem_align (size_t alignment, size_t size)
 {
-  return mspace_memalign (myspace, alignment, size);
+  void *aligned_addr = mspace_memalign (myspace, alignment, size);
+
+#ifdef HAVE_FEATURE_DEBUG
+  debug_alloc_add (aligned_addr, size);
+#endif /* HAVE_FEATURE_DEBUG */
+
+  return aligned_addr;
 }

@@ -102,7 +102,7 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
   void									\
   shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_nelems = sizeof (Type) * nelems;				\
+    const int typed_nelems = sizeof (Type) * nelems;			\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
     SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");			\
@@ -189,7 +189,7 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
   void									\
   shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
   {									\
-    int typed_nelems = sizeof (Type) * nelems;				\
+    const int typed_nelems = sizeof (Type) * nelems;			\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
     SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");			\

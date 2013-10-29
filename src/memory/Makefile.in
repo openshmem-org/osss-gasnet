@@ -53,8 +53,13 @@ GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
 
 # ---------------------------------------------------------
 
-UTILS_DIR         =    ../utils
-UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
+UTILS_DIR            =    ../utils
+UTILS_CPPFLAGS       =    -I$(UTILS_DIR)
+
+# ---------------------------------------------------------
+
+UTHASH_DIR           =    ../uthash
+UTHASH_CPPFLAGS      =    -I$(UTHASH_DIR)
 
 # ---------------------------------------------------------
 
@@ -86,6 +91,7 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
 
 .PHONY: all default
 .PHONY: clean

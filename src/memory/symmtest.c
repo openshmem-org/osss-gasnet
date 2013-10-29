@@ -73,10 +73,41 @@ __shmem_symmetric_addr_accessible (void *addr, int pe)
   return (__shmem_symmetric_addr_lookup (addr, pe) != NULL);
 }
 
+/**
+ * is the address one that can be accessed remotely?
+ * 
+ */
+
 int
 __shmem_is_symmetric (void *addr)
 {
-  return
-    __shmem_symmetric_is_globalvar (addr)
-    || __shmem_symmetric_var_in_range (addr, GET_STATE (mype));
+  /*
+   * global variables are symmetrical
+   */
+  if (__shmem_symmetric_is_globalvar (addr))
+    {
+      return 1;
+    }
+
+  /*
+   * things in the heap *should be* symmetrical
+   */
+  if (__shmem_symmetric_var_in_range (addr, GET_STATE (mype)))
+    {
+#ifdef HAVE_FEATURE_DEBUG
+      /*
+       * peek into memory hash table in debugging mode.
+       */
+      if (debug_alloc_find (addr) == NULL)
+	{
+	  return 0;
+	}
+#endif /* HAVE_FEATURE_DEBUG */
+      return 1;
+    }
+
+  /*
+   * anything else, ain't symmetrical
+   */
+  return 0;
 }
