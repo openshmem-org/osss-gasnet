@@ -46,6 +46,11 @@
 
 static alloc_table_t *atp = NULL; /* our allocation hash table */
 
+/**
+ * create a new hash entry with address A and size S
+ */
+
+static
 alloc_table_t *
 debug_alloc_new (void *a, size_t s)
 {
@@ -63,6 +68,10 @@ debug_alloc_new (void *a, size_t s)
   return at;
 }
 
+/**
+ * locate hash table entry for address A
+ */
+
 void *
 debug_alloc_find (void *a)
 {
@@ -73,8 +82,13 @@ debug_alloc_find (void *a)
 }
 
 /**
- * walk through all allocations.  if we find one that contains the
- * address A then we're good.
+ * does address A lie within a known allocation in the symmetric heap?
+ *
+ * TODO: is there a better-than-linear way of discovering this?  Some
+ * tree-based or inverted-map approach?
+ *
+ * TODO: we can also take the put/get parameters and do a full check
+ * on the extent of the call.  Strided could be a weirdness.
  */
 
 int
@@ -83,17 +97,23 @@ debug_alloc_check (void *a)
   alloc_table_t *tmp;
   alloc_table_t *s;
 
-  HASH_ITER (hh, atp, s, tmp) {
-    const size_t off = a - s->addr;
+  HASH_ITER (hh, atp, s, tmp)
+    {
+      const size_t off = a - s->addr;
 
-    if ( (0 <= off) && (off < s->size) )
-      {
-	return 1;
-	/* NOT REACHED */
-      }
-  }
+      if ( (0 <= off) && (off < s->size) )
+	{
+	  return 1;
+	  /* NOT REACHED */
+	}
+    }
   return 0;
 }
+
+/**
+ * when we allocate anew, add entry for address A and size S to the
+ * table
+ */
 
 void
 debug_alloc_add (void *a, size_t s)
@@ -102,6 +122,10 @@ debug_alloc_add (void *a, size_t s)
 
   HASH_ADD_PTR (atp, addr, at);
 }
+
+/**
+ * when data is freed, remove from hash table
+ */
 
 void
 debug_alloc_del (void *a)
@@ -121,17 +145,29 @@ debug_alloc_del (void *a)
   free (at);
 }
 
+/**
+ * when data realigned, replace existing hash table entry
+ */
+
 void
 debug_alloc_replace (void *a, size_t s)
 {
 #if 0
+  /*
+   * TODO: could be a typo in HASH_REPLACE_PTR
+   */
   alloc_table_t *at = debug_alloc_new (a, s);
-  HASH_REPLACE_PTR (atp, a, at);
+  alloc_table_t *replaced_stub;
+  HASH_REPLACE_PTR (atp, addr, at, replaced_stub);
 #else
   debug_alloc_del (a);
   debug_alloc_add (a, s);
 #endif
 }
+
+/**
+ * simple utility to help debugging of this code
+ */
 
 void
 debug_alloc_dump (void)
@@ -139,11 +175,12 @@ debug_alloc_dump (void)
   alloc_table_t *tmp;
   alloc_table_t *s;
 
-  HASH_ITER (hh, atp, s, tmp) {
-    __shmem_trace (SHMEM_LOG_MEMORY,
-		   "addr = %p, size = %ld", s->addr, s->size
-		   );
-  }
+  HASH_ITER (hh, atp, s, tmp)
+    {
+      __shmem_trace (SHMEM_LOG_MEMORY,
+		     "addr = %p, size = %ld", s->addr, s->size
+		     );
+    }
 }
 
 #endif /* HAVE_FEATURE_DEBUG */

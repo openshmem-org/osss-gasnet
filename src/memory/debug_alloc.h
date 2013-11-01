@@ -52,7 +52,6 @@ typedef struct
   UT_hash_handle hh;	 /* structure is hashable */
 } alloc_table_t;
 
-extern alloc_table_t *debug_alloc_new (void *a, size_t s);
 
 extern void *debug_alloc_find (void *a);
 
