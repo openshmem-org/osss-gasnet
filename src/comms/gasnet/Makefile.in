@@ -39,7 +39,7 @@
 #
 PREFIX           = @PREFIX@
 
-SHMEM_INC_DIR    = @INCLUDE_DIR@
+SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
@@ -221,10 +221,11 @@ $(SHMEM_RUN):	$(SHMEM_RUN).in
 
 # -- pkg-config --------------------------------------------
 
-openshmem.pc:   openshmem.pc.in
+openshmem.pc:   openshmem-template.pc
 	sed \
 		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
+		-e "s%@SHMEM_LIB_DIR@%$(SHMEM_LIB_DIR)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
 		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \

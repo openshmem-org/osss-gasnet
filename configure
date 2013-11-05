@@ -841,7 +841,7 @@ tell ""
 tell "Making build files from templates ... "
 
 (
-    find $build_me_dirs -name 'Makefile.in' -print
+    find $build_me_dirs \( -name 'Makefile.in' -o -name 'openshmem-template.pc.in' \) -print
     echo $top_levels | tr '[:space:]' '\n'
 ) |
 while read mfin
@@ -874,7 +874,7 @@ do
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
-        -e "s%@INCLUDE_DIR@%$incdir%g" \
+        -e "s%@INC_DIR@%$incdir%g" \
         -e "s%@MODULES_DIR@%$modulesdir%g" \
         -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
         < $mfin > $mf

@@ -83,6 +83,7 @@ debug_alloc_find (void *a)
 
 /**
  * does address A lie within a known allocation in the symmetric heap?
+ * Return 1 if so, 0 if not.
  *
  * TODO: is there a better-than-linear way of discovering this?  Some
  * tree-based or inverted-map approach?
@@ -107,6 +108,11 @@ debug_alloc_check (void *a)
 	  /* NOT REACHED */
 	}
     }
+
+  __shmem_trace (SHMEM_LOG_MEMORY,
+		 "address %p is not in a known symmetric allocation",
+		 a
+		 );
   return 0;
 }
 

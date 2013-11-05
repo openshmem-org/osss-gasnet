@@ -41,10 +41,10 @@ URL: http://www.openshmem.org/
 #
 prefix=@PREFIX@
 exec_prefix=${prefix}
-includedir=${prefix}/include
-libdir=${exec_prefix}/lib
+includedir=@INC_DIR@
+libdir=@LIB_DIR@
 #
 Libs: @SHMEM_LDFLAGS@ @SHMEM_LIBS@ @GASNET_LIBS@
-Cflags: -I@SHMEM_INC_DIR@
+Cflags: -I@INC_DIR@
 #
 Provides: openshmem

@@ -263,7 +263,7 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
-SHMEM_INC_DIR    = @INCLUDE_DIR@
+SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h
 
 LIBS             = @EXE_LIBS@ -lelf -ldl
