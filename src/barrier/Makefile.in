@@ -83,6 +83,8 @@ CFLAGS          += @WARNFLAGS@
 
 SOFLAGS          = @SOFLAGS@
 
+MODDIR           = @MODULES_DIR@
+
 MODULES = $(wildcard barrier-*.c)
 OBJECTS = $(MODULES:.c=.o)
 SHOBJECTS = $(MODULES:.c=.so)
@@ -95,12 +97,12 @@ shmem-headers:
 	$(MAKE) -C .. $@
 
 install-lib:	all default
-	mkdir -p @MODULES_DIR@
-	cp $(SHOBJECTS) @MODULES_DIR@
+	mkdir -p $(DESTDIR)$(MODDIR)
+	cp $(SHOBJECTS) $(DESTDIR)$(MODDIR)
 
 uninstall-lib:
-	for f in $(SHOBJECTS); do rm -f @MODULES_DIR@/$$f; done
-	- rmdir @MODULES_DIR@
+	for f in $(SHOBJECTS); do rm -f $(DESTDIR)$(MODDIR)/$$f; done
+	- rmdir $(DESTDIR)$(MODDIR)
 
 %.so:	%.o
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^

@@ -266,6 +266,7 @@ SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h
 
+# NOTE: elf and dl are hardwired for now
 LIBS             = @EXE_LIBS@ -lelf -ldl
 
 INSTALL          = install -c
@@ -317,8 +318,8 @@ all default:	shmem-headers $(SHMEM_LIBRARY)
 install:	install-lib install-comms install-include
 
 install-lib:	all
-	mkdir -p $(SHMEM_LIB_DIR)
-	$(INSTALL) $(SHMEM_LIBRARY) $(SHMEM_LIB_DIR)
+	mkdir -p $(DESTDIR)$(SHMEM_LIB_DIR)
+	$(INSTALL) $(SHMEM_LIBRARY) $(DESTDIR)$(SHMEM_LIB_DIR)
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(FCOLLECT_DIR) $@
@@ -329,12 +330,12 @@ install-comms:	all
 	$(MAKE) -C $(COMMS_DIR) install
 
 install-include: all
-	mkdir -p $(SHMEM_INC_DIR)/mpp
+	mkdir -p $(DESTDIR)$(SHMEM_INC_DIR)/mpp
 	( \
 		for h in $(SHMEM_HEADERS); \
 		do \
-			$(INSTALL) -m 644 $$h $(SHMEM_INC_DIR); \
-			$(INSTALL) -m 644 mpp/$$h $(SHMEM_INC_DIR)/mpp; \
+			$(INSTALL) -m 644 $$h $(DESTDIR)$(SHMEM_INC_DIR); \
+			$(INSTALL) -m 644 mpp/$$h $(DESTDIR)$(SHMEM_INC_DIR)/mpp; \
 		done \
 	)
 
@@ -343,7 +344,7 @@ install-include: all
 # there gracefully.
 
 uninstall:	uninstall-include uninstall-comms uninstall-lib
-	- rmdir $(PREFIX)
+	- rmdir $(DESTDIR)$(PREFIX)
 
 uninstall-lib:
 	$(MAKE) -C $(MODULES_DIR) $@
@@ -351,8 +352,8 @@ uninstall-lib:
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(COLLECT_DIR) $@
 	$(MAKE) -C $(BROADCAST_DIR) $@
-	$(REMOVE) $(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY)
-	- rmdir $(SHMEM_LIB_DIR)
+	$(REMOVE) $(DESTDIR)$(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY)
+	- rmdir $(DESTDIR)$(SHMEM_LIB_DIR)
 
 uninstall-comms:
 	$(MAKE) -C $(COMMS_DIR) uninstall
@@ -360,11 +361,11 @@ uninstall-comms:
 uninstall-include:
 	for h in $(SHMEM_HEADERS); \
 	do \
-		$(REMOVE) $(SHMEM_INC_DIR)/mpp/$$h; \
-		$(REMOVE) $(SHMEM_INC_DIR)/$$h; \
+		$(REMOVE) $(DESTDIR)$(SHMEM_INC_DIR)/mpp/$$h; \
+		$(REMOVE) $(DESTDIR)$(SHMEM_INC_DIR)/$$h; \
 	done
-	- rmdir $(SHMEM_INC_DIR)/mpp
-	- rmdir $(SHMEM_INC_DIR)
+	- rmdir $(DESTDIR)$(SHMEM_INC_DIR)/mpp
+	- rmdir $(DESTDIR)$(SHMEM_INC_DIR)
 
 # -- header files ------------------------------------------
 

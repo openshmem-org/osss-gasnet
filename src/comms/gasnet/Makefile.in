@@ -237,30 +237,30 @@ openshmem.pc:   openshmem-template.pc
 install:	install-bin install-lib
 
 install-bin:	all
-	mkdir -p $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CC)      $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CXX)     $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_CXX_ALT) $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_FC)      $(PREFIX)/bin
-	$(INSTALL) -m 755 $(SHMEM_RUN)     $(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CC)      $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX)     $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_CXX_ALT) $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_FC)      $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(SHMEM_RUN)     $(DESTDIR)$(PREFIX)/bin
 
 install-lib:	all
-	mkdir -p $(PREFIX)/lib/pkgconfig
-	$(INSTALL) -m 644 openshmem.pc $(PREFIX)/lib/pkgconfig
+	mkdir -p $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	$(INSTALL) -m 644 openshmem.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
 
 uninstall:	uninstall-lib uninstall-bin
 
 uninstall-lib:
-	$(REMOVE) $(PREFIX)/lib/pkgconfig/openshmem.pc
-	- rmdir $(PREFIX)/lib/pkgconfig
+	$(REMOVE) $(DESTDIR)$(PREFIX)/lib/pkgconfig/openshmem.pc
+	- rmdir $(DESTDIR)$(PREFIX)/lib/pkgconfig
 
 uninstall-bin:
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CC)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_CXX_ALT)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_FC)
-	$(REMOVE) $(PREFIX)/bin/$(SHMEM_RUN)
-	- rmdir $(PREFIX)/bin
+	$(REMOVE) $(DESTDIR)$(PREFIX)/bin/$(SHMEM_CC)
+	$(REMOVE) $(DESTDIR)$(PREFIX)/bin/$(SHMEM_CXX)
+	$(REMOVE) $(DESTDIR)$(PREFIX)/bin/$(SHMEM_CXX_ALT)
+	$(REMOVE) $(DESTDIR)$(PREFIX)/bin/$(SHMEM_FC)
+	$(REMOVE) $(DESTDIR)$(PREFIX)/bin/$(SHMEM_RUN)
+	- rmdir $(DESTDIR)$(PREFIX)/bin
 
 # -------------------------------------------------------
 

@@ -81,10 +81,10 @@ OBJECTS  = $(SOURCES:.c=.o)
 all default:	$(OBJECTS)
 
 install-lib:
-	cp config $(MODDIR)
+	cp config $(DESTDIR)$(MODDIR)
 
 uninstall-lib:
-	rm -f $(MODDIR)/config
+	rm -f $(DESTDIR)$(MODDIR)/config
 
 clean:
 	rm -f $(OBJECTS)

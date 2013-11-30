@@ -93,11 +93,11 @@ all default:	$(SHOBJECTS) fcollect.o
 
 install-lib:	all default
 	mkdir -p @MODULES_DIR@
-	cp $(SHOBJECTS) @MODULES_DIR@
+	cp $(SHOBJECTS) $(DESTDIR)@MODULES_DIR@
 
 uninstall-lib:
-	for f in $(SHOBJECTS); do rm -f @MODULES_DIR@/$$f; done
-	- rmdir @MODULES_DIR@
+	for f in $(SHOBJECTS); do rm -f $(DESTDIR)@MODULES_DIR@/$$f; done
+	- rmdir $(DESTDIR)@MODULES_DIR@
 
 %.so:	%.o
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
