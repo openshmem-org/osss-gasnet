@@ -38,6 +38,7 @@
 PREFIX = @PREFIX@
 
 MANDIR = $(PREFIX)/share/man
+
 MODULES_DIR = @MODULES_DIR@
 
 MANPAGES_1_IN = $(wildcard *.1.in)
@@ -89,48 +90,48 @@ install:	install-man
 install-man:	install-man1	install-man3	install-man5
 
 install-man1:	all
-	mkdir -p $(MANDIR)/man1
+	mkdir -p $(DESTDIR)$(MANDIR)/man1
 	for p in $(MANPAGES_1); do \
-		install -c -m 644 $$p $(MANDIR)/man1; \
+		install -c -m 644 $$p $(DESTDIR)$(MANDIR)/man1; \
 	done
 
 install-man3:	all
-	mkdir -p $(MANDIR)/man3
+	mkdir -p $(DESTDIR)$(MANDIR)/man3
 	for p in $(MANPAGES_3); do \
-		install -c -m 644 $$p $(MANDIR)/man3; \
+		install -c -m 644 $$p $(DESTDIR)$(MANDIR)/man3; \
 	done
 
 install-man5:	all
-	mkdir -p $(MANDIR)/man5
+	mkdir -p $(DESTDIR)$(MANDIR)/man5
 	for p in $(MANPAGES_5); do \
-		install -c -m 644 $$p $(MANDIR)/man5; \
+		install -c -m 644 $$p $(DESTDIR)$(MANDIR)/man5; \
 	done
 
 # -------------------------------------------------------------------
 
 uninstall:	uninstall-man
-	-rmdir $(MANDIR)
-	-rmdir $(PREFIX)/share
+	-rmdir $(DESTDIR)$(MANDIR)
+	-rmdir $(DESTDIR)$(PREFIX)/share
 
 uninstall-man:	uninstall-man1	uninstall-man3 uninstall-man5
 
 uninstall-man1:
 	for p in $(MANPAGES_1); do \
-		$(REMOVE) $(MANDIR)/man1/$$p; \
+		$(REMOVE) $(DESTDIR)$(MANDIR)/man1/$$p; \
 	done
-	-rmdir $(MANDIR)/man1
+	-rmdir $(DESTDIR)$(MANDIR)/man1
 
 uninstall-man3:
 	for p in $(MANPAGES_3); do \
-		$(REMOVE) $(MANDIR)/man3/$$p; \
+		$(REMOVE) $(DESTDIR)$(MANDIR)/man3/$$p; \
 	done
-	-rmdir $(MANDIR)/man3
+	-rmdir $(DESTDIR)$(MANDIR)/man3
 
 uninstall-man5:
 	for p in $(MANPAGES_5); do \
-		$(REMOVE) $(MANDIR)/man5/$$p; \
+		$(REMOVE) $(DESTDIR)$(MANDIR)/man5/$$p; \
 	done
-	-rmdir $(MANDIR)/man5
+	-rmdir $(DESTDIR)$(MANDIR)/man5
 
 # -------------------------------------------------------------------
 
