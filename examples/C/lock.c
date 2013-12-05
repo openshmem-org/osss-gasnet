@@ -38,8 +38,9 @@
 
 
 #include <stdio.h>
+#include <unistd.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 long L = 0;
 

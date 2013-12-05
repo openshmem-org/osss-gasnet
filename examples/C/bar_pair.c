@@ -38,7 +38,8 @@
 /* Program to illustrate the usage of shmem_barrier between a pair of PE's*/
 
 #include <stdio.h>
-#include <shmem.h>
+#include <unistd.h>
+#include <mpp/shmem.h>
 
 #define NPES 4
 

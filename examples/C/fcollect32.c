@@ -42,7 +42,7 @@
 
 #include <assert.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 static long pSync[_SHMEM_BCAST_SYNC_SIZE];
 
@@ -55,7 +55,18 @@ static int dst[DST_SIZE];
 int npes;
 int me;
 
-volatile int x = 1;
+static
+void
+show_dst (char *tag)
+{
+  int i;
+  printf ("%8s: dst[%d/%d] = ", tag, me, npes);
+  for (i = 0; i < DST_SIZE; i += 1)
+    {
+      printf ("%d ", dst[i]);
+    }
+  printf ("\n");
+}
 
 int
 main (void)
@@ -83,15 +94,4 @@ main (void)
   show_dst ("AFTER");
 
   return 0;
-}
-
-show_dst (char *tag)
-{
-  int i;
-  printf ("%8s: dst[%d/%d] = ", tag, me, npes);
-  for (i = 0; i < DST_SIZE; i += 1)
-    {
-      printf ("%d ", dst[i]);
-    }
-  printf ("\n");
 }

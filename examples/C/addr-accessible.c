@@ -46,7 +46,7 @@
  */
 
 #include <stdio.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 static int
 check_it (void *addr)

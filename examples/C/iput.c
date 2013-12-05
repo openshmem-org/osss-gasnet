@@ -45,7 +45,7 @@
  */
 
 #include <stdio.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main ()

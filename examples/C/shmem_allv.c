@@ -43,7 +43,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 /* globals */
 int numnodes,myid,mpi_err;

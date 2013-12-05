@@ -55,7 +55,7 @@
 
 using namespace std;
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int main ( int argc, char *argv[] );
 int buffon_laplace_simulate ( double a, double b, double l, int trial_num );

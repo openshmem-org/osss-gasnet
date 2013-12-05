@@ -40,7 +40,7 @@
  */
 
 //#include "mpi.h"
-#include <shmem.h>
+#include <mpp/shmem.h>
 #include <stdio.h>
 int numtasks, rank;
 

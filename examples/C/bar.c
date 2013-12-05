@@ -39,7 +39,7 @@
 
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #define NPES 4
 

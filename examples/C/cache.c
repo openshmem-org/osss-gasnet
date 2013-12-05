@@ -44,7 +44,7 @@
 
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 long var;
 

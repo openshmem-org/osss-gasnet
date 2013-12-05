@@ -46,7 +46,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #ifndef MAX
 # define MAX(a,b) (((a) > (b)) ? (a) : (b))

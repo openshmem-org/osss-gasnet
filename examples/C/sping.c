@@ -49,7 +49,7 @@
 #include <sys/time.h>
 
 #include <unistd.h>
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #include <sys/utsname.h>
 

@@ -43,7 +43,10 @@
  */
 
 #include <stdio.h>
-#include <shmem.h>
+#include <time.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <mpp/shmem.h>
 
 int
 main (void)

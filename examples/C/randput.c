@@ -43,10 +43,12 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <assert.h>
 #include <sys/utsname.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int
 main (int argc, char **argv)

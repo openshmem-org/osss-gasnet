@@ -46,7 +46,7 @@
 #include <assert.h>
 #include <sys/utsname.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #define N 7
 

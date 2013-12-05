@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 #define N 7
 

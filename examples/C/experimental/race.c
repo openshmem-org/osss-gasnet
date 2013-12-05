@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <shmem.h>
+#include <mpp/shmem.h>
 
 int src = 42;
 
