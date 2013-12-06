@@ -45,15 +45,11 @@ implementation of OpenSHMEM to work on top of.
 GASNet Versions
 ===============
 
-1.14.x:
-1.16.x: were used to test backward compatibility of older
-     GASNets
+Release versions 1.14.x up to the latest, currently 1.22.0, have all
+been used successfully.
 
-1.18.x: was the main version during most of the early development
-     work
-
-1.20.x: the current GASNet versions (since Nov 2012) and the newest
-     one is in use for development currently
+GASNet is now also available from its source repository, which has
+also been used for testing.
 
 Building GASNet
 ===============
@@ -77,7 +73,7 @@ This is for a general-purpose GNU/Linux system (or cluster):
 
     1:    path to configure script (build in separate directory)
     2: 	  "fast" (small messages) segment
-    3: 	  address-space-randomization
+    3: 	  address-space-randomization, heap addresses can be different
     4: 	  throttled polling for SMP conduit
     5:    don't bother building UDP support, don't want it here
     6: 	  where to install GASNet
@@ -107,7 +103,8 @@ Optimized for SMP (no MPI involved):
     1:    .../configure --prefix=$HOME/SHMEM          \
     2:                  --with-gasnet-conduit=smp     \
     3:                  --with-gasnet-root=/usr       \
-    4:                  --enable-debug
+    4: 	                --enable-throttle-poll        \
+    5:                  --enable-debug
 
     (GASNet built with fast/large model)
 
@@ -335,7 +332,8 @@ documentation for more advanced usage.
 Some Supporting Software
 ========================
 
-1. GASNet   :: http://gasnet.cs.berkeley.edu/
+1. GASNet   :: http://gasnet.lbl.gov/
+            :: https://bitbucket.org/berkeleylab/gasnet
 
 2. Open-MPI :: http://www.open-mpi.org/
 
