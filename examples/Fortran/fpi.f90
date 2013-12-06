@@ -31,7 +31,7 @@ end function
 
 program main
 
-  include 'shmem.fh'
+  include 'mpp/shmem.fh'
 
   double precision  PI25DT
   parameter        (PI25DT = 3.141592653589793238462643d0)

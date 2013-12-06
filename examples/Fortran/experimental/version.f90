@@ -10,7 +10,7 @@ program version
   integer me
   integer maj, min
 
-  include 'shmem.fh'
+  include 'mpp/shmem.fh'
 
   call start_pes(0)
   me = my_pe()

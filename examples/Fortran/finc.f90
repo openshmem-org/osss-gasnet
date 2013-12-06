@@ -13,7 +13,7 @@ program finc
   integer me
   integer old
 
-  include 'shmem.fh'
+  include 'mpp/shmem.fh'
 
   call start_pes(0)
   me = my_pe()

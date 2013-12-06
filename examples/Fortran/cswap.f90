@@ -3,7 +3,7 @@
 
 program cswap
 
-  include 'shmem.fh'
+  include 'mpp/shmem.fh'
 
   integer, save :: race_winner
   integer oldval
