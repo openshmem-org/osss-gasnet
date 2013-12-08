@@ -92,7 +92,7 @@ SHOBJECTS = $(MODULES:.c=.so)
 all default:	$(SHOBJECTS) fcollect.o
 
 install-lib:	all default
-	mkdir -p @MODULES_DIR@
+	mkdir -p $(DESTDIR)@MODULES_DIR@
 	cp $(SHOBJECTS) $(DESTDIR)@MODULES_DIR@
 
 uninstall-lib:
