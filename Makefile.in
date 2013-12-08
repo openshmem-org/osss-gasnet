@@ -61,16 +61,16 @@ install-src:
 	$(MAKE) -C src install
 
 install-module:
-	mkdir -p @MODULEFILES_DIR@
-	install -c -m 644 openshmem.module @MODULEFILES_DIR@/openshmem
+	mkdir -p $(DESTDIR)@MODULEFILES_DIR@
+	install -c -m 644 openshmem.module $(DESTDIR)@MODULEFILES_DIR@/openshmem
 
 # -------------------------------------------------------------
 
 uninstall: uninstall-module	uninstall-doc uninstall-src
 
 uninstall-module:
-	rm -f @MODULEFILES_DIR@/openshmem
-	- rmdir @MODULEFILES_DIR@
+	rm -f $(DESTDIR)@MODULEFILES_DIR@/openshmem
+	- rmdir $(DESTDIR)@MODULEFILES_DIR@
 
 uninstall-doc:
 	$(MAKE) -C doc uninstall
