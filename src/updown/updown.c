@@ -207,17 +207,17 @@ check_pe_status (void)
 void
 start_pes (int npes)
 {
+  if ( ! check_pe_status ())
+    {
+      return;
+    }
+
   /* set up communications layer as early as possible */
   __shmem_comms_init ();
 
   /* these have to happen first to enable messages */
   __shmem_elapsed_clock_init ();
   __shmem_tracers_init ();
-
-  if ( ! check_pe_status ())
-    {
-      return;
-    }
 
   /* find out what this executable image is */
   __shmem_executable_init ();
