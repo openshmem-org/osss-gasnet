@@ -41,8 +41,11 @@ program main
   integer, save          :: n
   integer                :: myid, numprocs, i, rc
 
-  integer psync(SHMEM_REDUCE_SYNC_SIZE)
-  data psync /SHMEM_REDUCE_SYNC_SIZE*SHMEM_SYNC_VALUE/
+  integer, save, dimension(SHMEM_BCAST_SYNC_SIZE) :: psync_bcast
+  data psync_bcast /SHMEM_BCAST_SYNC_SIZE*SHMEM_SYNC_VALUE/
+
+  integer, save, dimension(SHMEM_REDUCE_SYNC_SIZE) :: psync_reduce
+  data psync_reduce /SHMEM_REDUCE_SYNC_SIZE*SHMEM_SYNC_VALUE/
 
   real, dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE), save :: pwrk
 
@@ -60,7 +63,7 @@ program main
 99   format(i10)
   endif
 
-  call shmem_broadcast4(n, n, 1, 0, 0, 0, numprocs, psync)
+  call shmem_broadcast4(n, n, 1, 0, 0, 0, numprocs, psync_bcast)
 
   !                                 check for quit signal
   if ( n .le. 0 ) goto 30
@@ -77,7 +80,7 @@ program main
 
   !                                 collect all the partial sums
   call shmem_barrier_all
-  call shmem_real8_sum_to_all(pi, mypi, 1, 0, 0, numprocs, pwrk, psync)
+  call shmem_real8_sum_to_all(pi, mypi, 1, 0, 0, numprocs, pwrk, psync_reduce)
 
   !                                 node 0 prints the answer.
   if (myid .eq. 0) then
