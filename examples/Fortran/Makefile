@@ -34,7 +34,10 @@
 #
 
 SHMEM_FC = oshfort
-FFLAGS = -g -O2
+FFLAGS   = -g -O2
+# programs using dynamic memory management need to use pointers.
+# Doesn't hurt other programs so just add support here.
+FFLAGS  +=  -fcray-pointer
 
 TESTS = $(wildcard *.f90)
 
@@ -48,6 +51,12 @@ all default:	$(EXES)
 
 %.x:	%.f90
 	$(SHMEM_FC) $(FFLAGS) -o $@ $^
+
+# simple-mem.x:	simple-mem.f90
+# 	$(SHMEM_FC) $(FFLAGS) -fcray-pointer -o $@ $^
+# 
+# cray-mem-example.x:	cray-mem-example.f90
+# 	$(SHMEM_FC) $(FFLAGS) -fcray-pointer -o $@ $^
 
 clean:
 	rm -f $(EXES)

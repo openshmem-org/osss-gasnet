@@ -34,24 +34,32 @@
 ! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-
-!
-! the ubiquitous hello world program
-!
-
-program whoami
+program lock
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
+  integer, save :: L
+  integer :: me
+  integer :: slp
 
-  call start_pes (0)
+  L = 0
+  slp = 1
 
-  npes = num_pes ()
-  me = my_pe ()
-  call hostnm (h)
+  call start_pes(0)
+  me = my_pe()
 
-  print *, h, 'I am ', me, ' of ', npes
+  call shmem_barrier_all()
 
-end program whoami
+  if (me == 1) then
+    call sleep (3)
+  end if
+
+  call shmem_set_lock(L)
+
+  print *, me, ': sleeping' , slp, 'seconds'
+  call sleep(slp)
+  print *, me, ': sleeping ... done'
+
+  call shmem_clear_lock(L)
+
+end program

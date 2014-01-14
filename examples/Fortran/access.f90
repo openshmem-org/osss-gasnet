@@ -34,24 +34,52 @@
 ! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-
-!
-! the ubiquitous hello world program
-!
-
-program whoami
+program a
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
+  integer :: me
 
-  call start_pes (0)
+  integer, save :: x   ! symmetric
+  integer :: y         ! not symmetric
 
-  npes = num_pes ()
-  me = my_pe ()
-  call hostnm (h)
+  pointer (p, pat)
 
-  print *, h, 'I am ', me, ' of ', npes
 
-end program whoami
+  x = 99
+  y = 42
+
+  call start_pes(0)
+  me = shmem_my_pe()
+
+  call shmem_barrier_all()
+
+  if (shmem_pe_accessible(1)) then
+    print *, me, ': PE 1 reachable: yes'
+  else
+    print *, me, ': PE 1 reachable: no'
+  end if
+
+  call sleep(1)
+
+  if (shmem_addr_accessible(x, 1)) then
+    print *, me, ': Var x reachable: yes'
+  else
+    print *, me, ': Var x reachable: no'
+  end if
+
+  call sleep(1)
+
+  if (shmem_addr_accessible(y, 1)) then
+    print *, me, ': Var y reachable: yes'
+  else
+    print *, me, ': Var y reachable: no'
+  end if
+
+  call sleep(1)
+
+  p = shmem_ptr(x, 1)
+
+  print *, me, ': shmem_ptr returned', p
+
+end program

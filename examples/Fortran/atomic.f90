@@ -34,24 +34,39 @@
 ! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-
-!
-! the ubiquitous hello world program
-!
-
-program whoami
+program a
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
+  integer :: me
 
-  call start_pes (0)
+  integer, save :: x   ! symmetric
+  integer :: y         ! not symmetric
 
-  npes = num_pes ()
-  me = my_pe ()
-  call hostnm (h)
+  x = 99
+  y = 42
 
-  print *, h, 'I am ', me, ' of ', npes
+  call start_pes(0)
+  me = my_pe()
 
-end program whoami
+  call shmem_barrier_all()
+
+  if (me == 0) then
+    call shmem_int4_add(x, 1, 1)
+  end if
+
+  call shmem_barrier_all()
+
+  print *, me, ': Var x is', x
+
+  call sleep(1)
+
+  if (me == 0) then
+    y = shmem_int4_swap(x, 1, 1)
+  end if
+
+  call shmem_barrier_all()
+
+  print *, me, ': Var x is', x, 'and y is', y
+
+end program

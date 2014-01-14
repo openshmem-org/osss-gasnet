@@ -384,6 +384,8 @@ FORTRANIFY (shmem_version) (int *major, int *minor)
 # define shmem_addr_accessible_ pshmem_addr_accessible_
 # pragma weak shmem_pe_accessible_ = pshmem_pe_accessible_
 # define shmem_pe_accessible_ pshmem_pe_accessible_
+# pragma weak shmem_ptr_ = pshmem_ptr_
+# define shmem_ptr_ pshmem_ptr_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
@@ -396,6 +398,12 @@ int
 FORTRANIFY (shmem_pe_accessible) (int *pe)
 {
   return shmem_pe_accessible (*pe);
+}
+
+void *
+FORTRANIFY (shmem_ptr) (void *target, int *pe)
+{
+  return shmem_ptr (target, *pe);
 }
 
 

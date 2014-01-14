@@ -34,24 +34,29 @@
 ! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-
 !
-! the ubiquitous hello world program
+! This should do nothing at all, just checking the cache routines
+! are available in the Fortran API
 !
 
-program whoami
+program cachetest
+
+  integer, save :: var
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
-
   call start_pes (0)
 
-  npes = num_pes ()
-  me = my_pe ()
-  call hostnm (h)
+  call shmem_clear_cache_inv ()
 
-  print *, h, 'I am ', me, ' of ', npes
+  call shmem_set_cache_inv ()
 
-end program whoami
+  call shmem_clear_cache_line_inv (var)
+
+  call shmem_set_cache_line_inv (var)
+
+  call shmem_udcflush ()
+
+  call shmem_udcflush_line (var)
+
+end program cachetest

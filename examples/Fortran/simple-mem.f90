@@ -34,24 +34,27 @@
 ! SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
-
 !
-! the ubiquitous hello world program
+! very simple demo of how to call OpenSHMEM's symmetric
+! memory routines in Fortran.  See also cray-memory-example.f90
 !
 
-program whoami
+
+program mem
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
+  integer :: A(16)
 
-  call start_pes (0)
+  pointer (addr, A)
+  integer len, errcode, abort
 
-  npes = num_pes ()
-  me = my_pe ()
-  call hostnm (h)
+  len = 64    ! size of A
 
-  print *, h, 'I am ', me, ' of ', npes
+  call start_pes(0)
 
-end program whoami
+  call shpalloc(addr, len, errcode, abort)
+
+  call shpdeallc(addr, errcode, abort)
+
+end program mem
