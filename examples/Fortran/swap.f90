@@ -45,22 +45,24 @@ program swap
 
   include 'mpp/shmem.fh'
 
+  integer :: shmem_int4_swap
+
   integer :: me, npes
-  integer, save :: target
+  integer, save :: targ
   integer :: swapped_val, new_val
 
   call start_pes(0)
   me = my_pe()
   npes = num_pes()
 
-  target = me
+  targ = me
   call shmem_barrier_all()
 
   new_val = me
 
   if (mod(me, 2) == 1) then
-    swapped_val = shmem_swap(target, new_val, mod((me + 1), npes))
-    print *, me, ': target = ', target, ' swapped = ' , swapped_val
+    swapped_val = shmem_int4_swap(targ, new_val, mod(me + 1, npes))
+    print *, me, ': target = ', targ, ' swapped = ' , swapped_val
   end if
 
 end program swap

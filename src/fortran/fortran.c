@@ -637,13 +637,13 @@ FORTRANIFY (shmem_int8_swap) (long *target, long *value, int *pe)
   return shmem_long_swap (target, *value, *pe);
 }
 
-int
+float
 FORTRANIFY (shmem_real4_swap) (float *target, float *value, int *pe)
 {
   return shmem_float_swap (target, *value, *pe);
 }
 
-long
+double
 FORTRANIFY (shmem_real8_swap) (double *target, double *value, int *pe)
 {
   return shmem_double_swap (target, *value, *pe);
