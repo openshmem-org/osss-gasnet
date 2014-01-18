@@ -42,15 +42,14 @@
 #include <sys/types.h>
 
 /**
- * define accepted size units in ascending order, which are
- * S.I. compliant
+ * define accepted size units in ascending order
  *
- * http://en.wikipedia.org/wiki/SI_Unit_Prefixes
+ * See section 3.1 in http://physics.nist.gov/Pubs/SP330/sp330.pdf
  *
  */
 
 static char *units_string = "kmgtpezy";
-static const size_t multiplier = 1000;
+static const size_t multiplier = 1024;
 
 /**
  * Take a scaling unit and work out its numeric value.
