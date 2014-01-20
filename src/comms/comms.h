@@ -118,30 +118,22 @@ extern void __shmem_comms_barrier (int PE_start, int logPE_stride,
 /*
  * swaps, other atomics
  */
-extern void __shmem_comms_swap_request (void *target, void *value,
-					size_t nbytes, int pe, void *retval);
 
-extern void __shmem_comms_cswap_request (void *target,
-					 void *cond, void *value,
-					 size_t nbytes, int pe, void *retval);
+typedef enum
+  {
+    AMO_SWAP=0,
+    AMO_CSWAP,
+    AMO_FADD,
+    AMO_FINC,
+    AMO_ADD,
+    AMO_INC,
+    AMO_XOR,
+  } atomic_op_t;
 
-extern void __shmem_comms_fadd_request (void *target, void *value,
-					size_t nbytes, int pe, void *retval);
-
-extern void __shmem_comms_finc_request (void *target, size_t nbytes,
-					int pe, void *retval);
-
-extern void __shmem_comms_add_request (void *target, void *value,
-				       size_t nbytes, int pe);
-
-extern void __shmem_comms_inc_request (void *target, size_t nbytes, int pe);
-
-/*
- * Proposed by IBM Zurich
- *
- */
-extern void __shmem_comms_xor_request (void *target, void *value,
-				       size_t nbytes, int pe);
+extern void __shmem_comms_amo_request (atomic_op_t op,
+				       void *target, void *cond, void *value,
+				       size_t nbytes,
+				       int pe, void *retval);
 
 /*
  * fence and quiet initiators

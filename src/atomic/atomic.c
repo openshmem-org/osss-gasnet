@@ -40,11 +40,12 @@
 #include <sys/types.h>
 
 #include "state.h"
-#include "comms.h"
 #include "utils.h"
 #include "atomic.h"
 
 #include "shmem.h"
+
+#include "comms/comms.h"
 
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -92,9 +93,12 @@ __shmem_atomic_finalize (void)
   shmem_##Name##_swap (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_swap_request(target, &value, sizeof(Type), pe, &retval); \
+    Type cond = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_SWAP,				\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
     return retval;							\
   }
 
@@ -134,9 +138,11 @@ shmem_swap (long *target, long value, int pe)
   shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)	\
   {									\
     Type retval;							\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_cswap_request(target, &cond, &value, sizeof(Type), pe, &retval); \
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_CSWAP,				\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
     return retval;							\
   }
 
@@ -158,9 +164,12 @@ SHMEM_TYPE_CSWAP (longlong, long long);
   shmem_##Name##_fadd (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_fadd_request(target, &value, sizeof(Type), pe, &retval); \
+    Type cond = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_FADD,				\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
     return retval;							\
   }
 
@@ -188,9 +197,13 @@ SHMEM_TYPE_FADD (longlong, long long);
   shmem_##Name##_finc (Type *target, int pe)				\
   {									\
     Type retval;							\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_finc_request(target, sizeof(Type), pe, &retval);	\
+    Type cond = 0;							\
+    Type value = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_FINC,				\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
     return retval;							\
   }
 
@@ -215,9 +228,13 @@ SHMEM_TYPE_FINC (longlong, long long);
   void									\
   shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_add_request(target, &value, sizeof(Type), pe);	\
+    Type retval;							\
+    Type cond = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_ADD,					\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
   }
 
 SHMEM_TYPE_ADD (int, int);
@@ -238,9 +255,14 @@ SHMEM_TYPE_ADD (longlong, long long);
   void									\
   shmem_##Name##_inc (Type *target, int pe)				\
   {									\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_inc_request(target, sizeof(Type), pe);		\
+    Type retval;							\
+    Type cond = 0;							\
+    Type value = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_INC,					\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
   }
 
 SHMEM_TYPE_INC (int, int);
@@ -264,9 +286,13 @@ SHMEM_TYPE_INC (longlong, long long);
   void									\
   shmem_##Name##_xor(Type *target, Type value, int pe)			\
   {									\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
-    __shmem_comms_xor_request (target, &value, sizeof(Type), pe);	\
+    Type retval;							\
+    Type cond = 0;							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe);						\
+    __shmem_comms_amo_request (AMO_XOR,					\
+			       target, &cond, &value, sizeof(Type),	\
+			       pe, &retval);				\
   }
 
 /**
