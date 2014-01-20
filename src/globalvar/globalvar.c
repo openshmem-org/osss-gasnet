@@ -108,7 +108,7 @@ table_init_helper (void)
   GElf_Shdr shdr;
   Elf_Data *data = NULL;
   int ret = -1;
-  int (*getsi)();
+  int (*getsi)();		/* look up name of elf_get... routine */
 
   /* unrecognized format */
   if (elf_version (EV_CURRENT) == EV_NONE)
@@ -136,21 +136,25 @@ table_init_helper (void)
     {
       goto bail;
     }
+
   /* Try to handle deprecated interface from older libelf on CentOS */
-  getsi = (int (*) ()) dlsym(NULL, "elf_getshdrstrndx");
+  getsi = (int (*) ()) dlsym (NULL, "elf_getshdrstrndx");
   if (getsi == NULL)
     {
-      getsi = (int (*) ()) dlsym(NULL, "elf_getshstrndx");
+      getsi = (int (*) ()) dlsym (NULL, "elf_getshstrndx");
       if (getsi == NULL)
         {
           goto bail;
         }
     }
 
-  if (getsi (e, &shstrndx) != 0)
-    {
-      goto bail;
-    }
+  /*
+   * There are various elf_get* routines with different return values
+   * in differnt libraries/versions - name of routine does not tell us
+   * all we ned to know.  So let it go here, and we'll mop up any
+   * problems later on.
+   */
+  (void) getsi (e, &shstrndx);
 
   /* walk sections, look for BSS/DATA and symbol table */
   scn = NULL;
