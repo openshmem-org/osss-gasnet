@@ -39,17 +39,21 @@
 ! float value put to shmalloc'ed variable
 !
 program fip
+
+  include 'mpp/shmem.fh'
+
+  integer :: shmem_n_pes, shmem_my_pe
+
   real e
   parameter ( e = 2.71828182 )
   real epsilon
   parameter ( epsilon = 0.00000001 )
-  real, save :: f
-  integer me
 
-  include 'mpp/shmem.fh'
+  real, save :: f
+  integer :: me
 
   call start_pes(0)
-  me = my_pe()
+  me = shmem_my_pe()
 
   f = 3.1415927
 

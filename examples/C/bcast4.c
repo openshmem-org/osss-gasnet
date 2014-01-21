@@ -58,7 +58,7 @@ main (void)
   int me;
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   target = (long *) shmalloc (8 * sizeof (*target));
 

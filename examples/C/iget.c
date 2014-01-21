@@ -43,9 +43,11 @@
 int
 main ()
 {
-  static short source[10] = { 1, 2, 3, 4, 5,
-    6, 7, 8, 9, 10
-  };
+  static short source[10] =
+    {
+      1, 2, 3, 4, 5,
+      6, 7, 8, 9, 10
+    };
   short target[10];
   int i;
   int me;
@@ -56,13 +58,15 @@ main ()
     }
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   if (me == 1)
     {
       shmem_short_iget (target, source, 2, 1, 4, 0);
     }
+
   shmem_barrier_all ();		/* sync sender and receiver */
+
   if (me == 1)
     {
       for (i = 0; i < 10; i += 1)
@@ -71,6 +75,7 @@ main ()
 		  me, i, target[i], i, source[i]);
 	}
     }
+
   shmem_barrier_all ();		/* sync before exiting */
 
   return 0;

@@ -50,14 +50,16 @@
 int
 main ()
 {
-  short source[10] = { 1, 2, 3, 4, 5,
-    6, 7, 8, 9, 10
-  };
+  short source[10] =
+    {
+      1, 2, 3, 4, 5,
+      6, 7, 8, 9, 10
+    };
   static short target[10];
   int me;
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   if (me == 0)
     {

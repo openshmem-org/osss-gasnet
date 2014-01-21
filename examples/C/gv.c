@@ -50,8 +50,8 @@ main ()
   long y = -1;
 
   start_pes (0);
-  me = _my_pe ();
-  npes = _num_pes ();
+  me = shmem_my_pe ();
+  npes = shmem_n_pes ();
 
   if (me == 0)
     {

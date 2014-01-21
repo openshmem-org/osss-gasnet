@@ -42,12 +42,14 @@ program comm
 
   include 'mpp/shmem.fh'
 
+  integer :: shmem_n_pes, shmem_my_pe
+
   integer :: re, im
   common /complex/ re, im
   integer, save :: x, y
 
   call start_pes(0)
-  me = my_pe()
+  me = shmem_my_pe()
 
   if (me == 0) then
      call shmem_integer_put(re, im, 1, 1)

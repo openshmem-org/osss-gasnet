@@ -21,8 +21,8 @@ main (int argc, char **argv)
   void *handle;
 
   start_pes (0);
-  me = _my_pe ();
-  npes = _num_pes ();
+  me = shmem_my_pe ();
+  npes = shmem_n_pes ();
 
   for (i = 0; i < N; i += 1)
     {
@@ -34,7 +34,8 @@ main (int argc, char **argv)
   nextpe = (me + 1) % npes;
 
   handle = shmem_long_put_nb (dest, src, N, nextpe, &handle);
-  shmem_wait_nb(handle);
+
+  shmem_wait_nb (handle);
 
   shmem_barrier_all ();
 

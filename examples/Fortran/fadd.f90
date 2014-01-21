@@ -46,11 +46,13 @@ program fadd
 
   include 'mpp/shmem.fh'
 
+  integer :: shmem_n_pes, shmem_my_pe
+
   integer, save :: dst
   integer me, old
 
   call start_pes(0)
-  me = my_pe()
+  me = shmem_my_pe()
 
   old = -1;
   dst = 22;

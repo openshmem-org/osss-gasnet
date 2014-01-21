@@ -43,13 +43,15 @@ program whoami
 
   include 'mpp/shmem.fh'
 
-  integer npes, me
-  character*32 h
+  integer :: shmem_n_pes, shmem_my_pe
+
+  integer :: npes, me
+  character*32 :: h
 
   call start_pes (0)
 
-  npes = num_pes ()
-  me = my_pe ()
+  npes = shmem_n_pes ()
+  me = shmem_my_pe ()
   call hostnm (h)
 
   print *, h, 'I am ', me, ' of ', npes

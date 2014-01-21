@@ -56,7 +56,7 @@ main ()
     }
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   if (me == 0)
     {

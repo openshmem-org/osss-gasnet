@@ -38,6 +38,8 @@ program a
 
   include 'mpp/shmem.fh'
 
+  integer :: shmem_my_pe
+
   integer :: me
 
   integer, save :: x   ! symmetric
@@ -47,7 +49,7 @@ program a
   y = 42
 
   call start_pes(0)
-  me = my_pe()
+  me = shmem_my_pe()
 
   call shmem_barrier_all()
 
