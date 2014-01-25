@@ -130,41 +130,41 @@ OpenSHMEM Installation Notes
 Source Directory Layout
 =======================
 
-.                         } top-level config (here)
-|
-|-- doc                   } Documentation
-|-- examples
-|   |-- C                 }
-|   |-- C++               } Language-specific demos
-|   |-- Fortran           }
-`-- src
-    |-- atomic            } remote atomic memory ops
+    .                         } top-level config (here)
     |
-    |-- barrier           }
-    |-- broadcast         } collectives
-    |-- collect           }
-    |-- fcollect          }
-    |
-    |-- comms
-    |   |-- gasnet        } different
-        ...               } communication
-    |   `-- ...           } layers
-    |
-    |-- fortran           } The Fortran API
-    |
-    |-- globalvar         } variables outside the managed heap
-    |
-    |-- memory            } symmetric memory allocation
-    |-- cache             } depcrecated cache routines
-    |-- fence             } point-to-point synchronizations
-    |-- modules           } collective routine providers
-    |
-    |-- mpp               } headers
-    |
-    |-- dlmalloc          } 3rd party
-    |-- uthash            }
-    |
-    `-- utils             } internal utilities
+    |-- doc                   } Documentation
+    |-- examples
+    |   |-- C                 }
+    |   |-- C++               } Language-specific demos
+    |   |-- Fortran           }
+    `-- src
+        |-- atomic            } remote atomic memory ops
+        |
+        |-- barrier           }
+        |-- broadcast         } collectives
+        |-- collect           }
+        |-- fcollect          }
+        |
+        |-- comms
+        |   |-- gasnet        } different
+            ...               } communication
+        |   `-- ...           } layers
+        |
+        |-- fortran           } The Fortran API
+        |
+        |-- globalvar         } variables outside the managed heap
+        |
+        |-- memory            } symmetric memory allocation
+        |-- cache             } depcrecated cache routines
+        |-- fence             } point-to-point synchronizations
+        |-- modules           } collective routine providers
+        |
+        |-- mpp               } old headers
+        |
+        |-- dlmalloc          } 3rd party
+        |-- uthash            }
+        |
+        `-- utils             } internal utilities
 
 The "configure" script
 ======================

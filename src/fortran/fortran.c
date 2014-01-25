@@ -132,6 +132,9 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 # define shmem_put128_ pshmem_put128_
 # pragma weak shmem_putmem_ = pshmem_putmem_
 # define shmem_putmem_ pshmem_putmem_
+
+# define shmem_put_ pshmem_put_
+# pragma weak shmem_put_ = pshmem_put_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
@@ -169,6 +172,13 @@ FORTRANIFY (shmem_putmem) (void *target, const void *src,
   shmem_putmem (target, src, *size, *pe);
 }
 
+void
+FORTRANIFY (shmem_put) (long *target, const long *src,
+			int *size, int *pe)
+{
+  shmem_long_put (target, src, *size, *pe);
+}
+
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_character_get_ = pshmem_character_get_
 # define shmem_character_get_ pshmem_character_get_
@@ -194,6 +204,9 @@ FORTRANIFY (shmem_putmem) (void *target, const void *src,
 # define shmem_get128_ pshmem_get128_
 # pragma weak shmem_getmem_ = pshmem_getmem_
 # define shmem_getmem_ pshmem_getmem_
+
+# pragma weak shmem_get_ = pshmem_get_
+# define shmem_get_ pshmem_get_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_FORTRAN_GET(FName, CName, CType)				\
@@ -229,6 +242,13 @@ FORTRANIFY (shmem_getmem) (void *target, const void *src,
 			   int *size, int *pe)
 {
   shmem_getmem (target, src, *size, *pe);
+}
+
+void
+FORTRANIFY (shmem_get) (long *target, const long *src,
+			int *size, int *pe)
+{
+  shmem_long_get (target, src, *size, *pe);
 }
 
 /*
@@ -474,6 +494,12 @@ FORTRANIFY_WAIT_UNTIL (int4, int);
 FORTRANIFY_WAIT_UNTIL (int8, long);
 FORTRANIFY_WAIT (int4, int);
 FORTRANIFY_WAIT (int8, long);
+
+void
+FORTRANIFY (shmem_wait) (long *ivar, long *cmp_value)
+{
+  shmem_long_wait (ivar, *cmp_value);
+}
 
 /*
  * cache flushing
