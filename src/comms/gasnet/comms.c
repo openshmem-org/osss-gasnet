@@ -698,7 +698,7 @@ handler_amo_out (gasnet_token_t token,
 }
 
 /**
- * called by swap invoker when old value returned by remote PE
+ * called by invoker when reply received from remote PE
  */
 static
 void
