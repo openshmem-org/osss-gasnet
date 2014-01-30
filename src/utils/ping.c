@@ -47,11 +47,14 @@
 
 #include "comms/comms.h"
 
+#if 0
 static const char *ping_timeout_envvar = "SHMEM_PE_ACCESSIBLE_TIMEOUT";
 static const double DEFAULT_PE_ACCESSIBLE_TIMEOUT = 1.0;
 
 static struct itimerval zero;
+#endif
 
+#if 0
 /**
  * Set the timer (we're not using the interval)
  * 
@@ -65,7 +68,9 @@ assign_timer (long sec, long usec, struct itimerval *ivp)
   ivp->it_interval.tv_sec = 0;
   ivp->it_interval.tv_usec = 0;
 }
+#endif
 
+#if 0
 /**
  * split human-readable time into timer struct
  *
@@ -80,6 +85,7 @@ parse_alarm_time (double ts, struct itimerval *ivp)
 
   assign_timer ((long) s, 1000000L * f, ivp);
 }
+#endif
 
 /**
  * set the time out.  Can also be used to tune library behavior
