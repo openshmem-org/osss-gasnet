@@ -1115,6 +1115,7 @@ setfeature()
     case "$comms_layer" in
 	gasnet)
 	    echo "#define OPENSHMEM_HAVE_GASNET    1"
+	    echo "#define OPENSHMEM_GASNET_VERSION \"$gasnet_ver\""
 	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
 	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
 	    ;;

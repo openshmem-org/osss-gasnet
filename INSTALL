@@ -48,8 +48,8 @@ GASNet Versions
 Release versions 1.14.x up to the latest, currently 1.22.0, have all
 been used successfully.
 
-GASNet is now also available from its source repository, which has
-also been used for testing.
+GASNet is now available from its source repository, which has also
+been used for testing.
 
 Building GASNet
 ===============
