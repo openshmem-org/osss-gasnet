@@ -45,6 +45,17 @@ SHMEM_LIBNAME    = openshmem
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
 SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 
+#
+# GASNet installation root, and setup
+#
+GASNET_ROOT      = @GASNET_ROOT@
+GASNET_CONDUIT   = @GASNET_CONDUIT@
+
+include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+
+# tony: remove GASNET_CFLAGS for now, makes compiler
+#       interoperability easier
+
 # ---------------------------------------------------------
 
 COMMS_SRC        = comms.c
@@ -59,8 +70,6 @@ SERVICE_OBJ      = $(SERVICE_SRC:.c=.o)
 
 BAIL_SRC         = bail.c
 BAIL_OBJ         = $(BAIL_SRC:.c=.o)
-
-
 
 # ---------------------------------------------------------
 
@@ -138,20 +147,9 @@ SHMEM_RUN        = oshrun
 .PHONY: uninstall uninstall-bin uninstall-lib
 .PHONY: clean
 
-# -- start GASNet ------------------------------------------
+# -- start comms interface ---------------------------------
 
 all:	$(COMMS_OBJ) $(SERVICE_OBJ) $(BAIL_OBJ) wrappers openshmem.pc
-
-#
-# GASNet installation root, and setup
-#
-GASNET_ROOT      = @GASNET_ROOT@
-GASNET_CONDUIT   = @GASNET_CONDUIT@
-
-include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
-
-# tony: remove GASNET_CFLAGS for now, makes compiler
-#       interoperability easier
 
 $(COMMS_OBJ):	$(COMMS_SRC)
 	$(CC) \
@@ -159,7 +157,7 @@ $(COMMS_OBJ):	$(COMMS_SRC)
 		$(COMMON_FLAGS) \
 		-c -o $@ $<
 
-# -- end GASNet --------------------------------------------
+# -- end comms interface -----------------------------------
 
 $(SERVICE_OBJ):	$(SERVICE_SRC)
 	$(CC) \
@@ -167,7 +165,7 @@ $(SERVICE_OBJ):	$(SERVICE_SRC)
 		$(COMMON_FLAGS) \
 		-c -o $@ $<
 
-# -- command wrappers depend on gasnet settings ------------
+# -- command wrappers depend on comms settings -------------
 
 wrappers:	\
 		$(SHMEM_CC) \
