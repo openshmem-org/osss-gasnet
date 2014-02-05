@@ -38,7 +38,8 @@
 
 
 /*
- * double value put to shmalloc'ed variable
+ * double value put from PE 0 to PE 1 to shmalloc'ed variable
+ * (Intended for runinng on 2 PEs)
  *
  */
 
@@ -47,7 +48,8 @@
 
 #include <mpp/shmem.h>
 
-static const double e = 2.71828182;
+static const double E  = 2.71828182;
+static const double PI = 3.14159265;
 
 static const double epsilon = 0.00000001;
 
@@ -62,12 +64,12 @@ main (void)
 
   f = (double *) shmalloc (sizeof (*f));
 
-  *f = 3.1415927;
+  *f = PI;
   shmem_barrier_all ();
 
   if (me == 0)
     {
-      shmem_double_p (f, e, 1);
+      shmem_double_p (f, E, 1);
     }
 
   shmem_barrier_all ();
@@ -75,8 +77,13 @@ main (void)
 
   if (me == 1)
     {
-      printf ("%s\n", (fabs (*f - e) < epsilon) ? "OK" : "FAIL");
+      printf ("PE %d: %f, %s\n",
+	      me,
+	      *f,
+	      (fabs (*f - E) < epsilon) ? "OK" : "FAIL");
     }
 
+  shfree (f);
+  
   return 0;
 }

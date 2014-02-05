@@ -38,7 +38,8 @@
 
 
 /*
- * integer value put to global
+ * integer value put from PE 0 to PE 1 to change value of global
+ * (intended for running on 2 PEs)
  *
  */
 
@@ -71,7 +72,7 @@ main (void)
 
   if (me == 1)
     {
-      printf ("%s\n", (n == 42) ? "OK" : "FAIL");
+      printf ("PE %d: n = %d, %s\n", me, n, (n == 42) ? "OK" : "FAIL");
     }
 
   return 0;

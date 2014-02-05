@@ -38,7 +38,8 @@
 
 
 /*
- * long put using symmetric heap
+ * long put from PE 0 to PE 1 using symmetric heap
+ * (intended for running on 2 PEs)
  */
 
 #include <stdio.h>
@@ -59,7 +60,7 @@ main (void)
   *f = 3;
   shmem_barrier_all ();
 
-  printf ("%d: before put, f = %d\n", me, *f);
+  printf ("PE %d: before put, f = %d\n", me, *f);
 
   if (me == 0)
     {
@@ -68,5 +69,8 @@ main (void)
 
   shmem_barrier_all ();
 
-  printf ("%d:  after put, f = %d\n", me, *f);
+  if (me == 1)
+    {
+      printf ("PE %d:  after put, f = %d, %s\n", me, *f, (*f == 42) ? "OK" : "FAIL");
+    }
 }

@@ -47,7 +47,9 @@
 
 #include <mpp/shmem.h>
 
-static const float e = 2.71828182;
+
+static const float E  = 2.71828182;
+static const float PI = 3.14159265;
 
 static const float epsilon = 0.00000001;
 
@@ -62,19 +64,22 @@ main (void)
 
   f = (float *) shmalloc (sizeof (*f));
 
-  *f = 3.1415927;
+  *f = PI;
   shmem_barrier_all ();
 
   if (me == 0)
     {
-      shmem_float_p (f, e, 1);
+      shmem_float_p (f, E, 1);
     }
 
   shmem_barrier_all ();
 
   if (me == 1)
     {
-      printf ("%s\n", (fabsf (*f - e) < epsilon) ? "OK" : "FAIL");
+      printf ("PE %d: %f, %s\n",
+	      me,
+	      *f,
+	      (fabsf (*f - E) < epsilon) ? "OK" : "FAIL");
     }
 
   shfree (f);
