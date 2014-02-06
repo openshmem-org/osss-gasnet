@@ -35,35 +35,53 @@
  *
  */
 
-#if defined(HAVE_FEATURE_PSHMEM)
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
 
-#include "trace.h"
+#ifdef HAVE_FEATURE_PSHMEM
+# pragma weak shmem_wtime = pshmem_wtime
+# define shmem_wtime pshmem_wtime
+#endif /* HAVE_FEATURE_PSHMEM */
+
 
 /**
- * stub for the proposed UFL profiling (PSHMEM) interface
+ * \brief shmem_wtime returns the number of seconds since the program
+ * started running
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   double shmem_wtime (void);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   double precision shmem_wtime()
+ * \endcode
+ *
+ * \return Returns the number of seconds since the program started (epoch).
+ *
+ * \b Note: shmem_wtime does not indicate any error code; if it is
+ * unable to detect the elapsed time, the return value is undefined.
+ * The time may be different on each PE, but the epoch from which the
+ * time is measured will not change while OpenSHMEM is active.
  *
  */
 
-void
-shmem_pcontrol (int level)
-{
-  char *msg = NULL;
+#include <stdio.h>
+#include <sys/time.h>
 
-  switch (level)
+double
+shmem_wtime (void)
+{
+  struct timeval t;
+
+  if (gettimeofday (&t, NULL) != 0)
     {
-    case 0:
-      msg = "disabled";
-      break;
-    case 1:
-      msg = "enabled (default detail)";
-      break;
-    default:
-      msg = "tool-specific";
-      break;
+      return 0.0;
     }
 
-  __shmem_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
-  return;
+  return ((t.tv_sec * 1e6) + t.tv_usec) / 1e6;
 }
 
-#endif /* HAVE_FEATURE_PSHMEM */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

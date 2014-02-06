@@ -60,7 +60,7 @@ extern void __shmem_atomic_finalize (void);
  */
 
 # define LOAD_STORE_FENCE __memory_barrier
-# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+/* # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v) */
 
 #elif defined(__SUNPRO_C)
 /*
@@ -70,7 +70,7 @@ extern void __shmem_atomic_finalize (void);
 # include <mbarrier.h>
 
 # define LOAD_STORE_FENCE __machine_rw_barrier
-# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+/* # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v) */
 
 #elif defined(__PGI)
 /*
@@ -81,7 +81,7 @@ extern void __shmem_atomic_finalize (void);
 /*
  * found _mm_add_pd but not sure if this is what we want
  */
-# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+/* # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v) */
 
 #elif defined(__GNUC__)
 /*
@@ -89,7 +89,7 @@ extern void __shmem_atomic_finalize (void);
  */
 
 # define LOAD_STORE_FENCE __sync_synchronize
-# define SYNC_FETCH_AND_ADD(t, v) __sync_fetch_and_add(t, v)
+/* # define SYNC_FETCH_AND_ADD(t, v) __sync_fetch_and_add(t, v) */
 
 #elif defined(__xlc__)
 /*
@@ -97,7 +97,7 @@ extern void __shmem_atomic_finalize (void);
  */
 
 # define LOAD_STORE_FENCE __lwsync
-# define SYNC_FETCH_AND_ADD(t, v)  (t) += (v)
+/* # define SYNC_FETCH_AND_ADD(t, v)  (t) += (v) */
 
 #else
 

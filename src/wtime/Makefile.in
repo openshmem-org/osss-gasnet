@@ -34,18 +34,6 @@
 #
 
 
-# ---------------------------------------------------------
-
-MEMORY_DIR       = ../memory
-MEMORY_CPPFLAGS  = -I$(MEMORY_DIR)
-
-# ---------------------------------------------------------
-
-UTILS_DIR        = ../utils
-UTILS_CPPFLAGS   = -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
-
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -68,24 +56,15 @@ ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CPPFLAGS        += -I..
-
-CPPFLAGS        += $(MEMORY_CPPFLAGS)
-CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += -DFORTRAN_SINGLE_UNDERSCORE
-
 CFLAGS          += @PICFLAGS@
+CFLAGS          += @WARNFLAGS@
 
 .PHONY: all default clean
-.PHONY: shmem-headers
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	shmem-headers	$(OBJECTS)
-
-shmem-headers:
-	$(MAKE) -C .. $@
+all default:	$(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS)

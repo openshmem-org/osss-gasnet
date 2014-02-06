@@ -1070,6 +1070,8 @@ FORTRANIFY (shmem_test_lock) (long *lock)
   return shmem_test_lock (lock);
 }
 
+#if defined(HAVE_FEATURE_PSHMEM)
+
 /*
  * proposed profiling interface (note: no pshmem equiv)
  *
@@ -1081,6 +1083,7 @@ FORTRANIFY (shmem_pcontrol) (int *level)
   shmem_pcontrol (*level);
 }
 
+#endif /* HAVE_FEATURE_PSHMEM */
 
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
@@ -1205,5 +1208,20 @@ SHMEM_FORTRAN_GET_SIZE_NB (8, long, long);
 SHMEM_FORTRAN_GET_SIZE_NB (32, int, int);
 SHMEM_FORTRAN_GET_SIZE_NB (64, long, long);
 SHMEM_FORTRAN_GET_SIZE_NB (128, longlong, long long);
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+# pragma weak shmem_wtime_ = pshmem_wtime_
+# define shmem_wtime_ pshmem_wtime_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+double
+FORTRANIFY (shmem_wtime) (void)
+{
+  return shmem_wtime ();
+}
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

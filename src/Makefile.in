@@ -192,6 +192,14 @@ PROFILING_CPPFLAGS    = -I$(PROFILING_DIR)
 PROFILING_OBJ         = $(PROFILING_DIR)/*.o
 
 # ---------------------------------------------------------
+#
+# wallclock time
+#
+WTIME_DIR             = ./wtime
+WTIME_CPPFLAGS        = -I$(WTIME_DIR)
+WTIME_OBJ             = $(WTIME_DIR)/*.o
+
+# ---------------------------------------------------------
 
 #
 # this is where the C compiler gets chosen along with the various
@@ -225,6 +233,7 @@ CPPFLAGS        += $(QUERY_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += $(UPDOWN_CPPFLAGS)
 CPPFLAGS        += $(REDUCE_CPPFLAGS)
+CPPFLAGS        += $(WTIME_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -299,6 +308,7 @@ API_OBJ_GEN     += fcollect-obj-gen
 API_OBJ_GEN     += reduce-obj-gen
 API_OBJ_GEN     += fortran-obj-gen
 API_OBJ_GEN     += profiling-obj-gen
+API_OBJ_GEN     += wtime-obj-gen
 
 OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
@@ -443,6 +453,9 @@ fortran-obj-gen:
 profiling-obj-gen:
 	$(MAKE) -C $(PROFILING_DIR) all
 
+wtime-obj-gen:
+	$(MAKE) -C $(WTIME_DIR) all
+
 # -- otherwise, compile everything else like this ---------
 
 %.o:	%.c
@@ -450,24 +463,13 @@ profiling-obj-gen:
 
 # -- generate the shared object library -------------------
 
-#
-# 2013-09-04,tonyc:
-#
-# Yuck.  This is a little unpleasant, but it's the only way I can find
-# right now of stopping the library relinking during install.
-#
-# And...it no work... :(
-#
-# $(SHMEM_LIBRARY):	$(OBJ_GEN)
-# 	if [ ! -f have-built-$(SHMEM_LIBRARY) ]; then $(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(UPDOWN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS); touch have-built-$(SHMEM_LIBRARY) ; fi
-
-
 $(SHMEM_LIBRARY):	$(OBJ_GEN)
-	$(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(UPDOWN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(LIBS)
+	$(LD) $(LDFLAGS) $(SOFLAGS) -o $(SHMEM_LIBRARY) $(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) $(MALLOC_OBJ) $(UPDOWN_OBJ) 	$(QUERY_OBJ) $(BARRIER_OBJ) $(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) $(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) $(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(WTIME_OBJ) $(LIBS)
 
 # ---------------------------------------------------------
 
 tidy clean:
+	$(MAKE) -C $(WTIME_DIR) $@
 	$(MAKE) -C $(PROFILING_DIR) $@
 	$(MAKE) -C $(REDUCE_DIR) $@
 	$(MAKE) -C $(FORTRAN_DIR) $@
