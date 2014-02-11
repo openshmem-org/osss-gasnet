@@ -470,10 +470,6 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
 # define pshmem_wait_ pshmem_int8_wait_
 # pragma weak shmem_wait_ = pshmem_int8_wait_
 # define shmem_wait_ pshmem_int8_wait_
-# pragma weak shmem_int4_wait_ = pshmem_int4_wait_
-# define shmem_int4_wait_ pshmem_int4_wait_
-# pragma weak shmem_int8_wait_ = pshmem_int8_wait_
-# define shmem_int8_wait_ pshmem_int8_wait_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define FORTRANIFY_WAIT_UNTIL(Name, Type)				\
@@ -487,7 +483,7 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
   void								\
   FORTRANIFY(shmem_##Name##_wait) (Type *ivar, Type *cmp_value)	\
   {								\
-    shmem_##Type##_wait(ivar, *cmp_value);			\
+    shmem_##Type##_wait (ivar, *cmp_value);			\
   }
 
 FORTRANIFY_WAIT_UNTIL (int4, int);
