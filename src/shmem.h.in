@@ -75,15 +75,14 @@ extern "C"
   /*
    * OpenSHMEM release
    */
-
-#define SHMEM_MAJOR_VERSION 1
-#define SHMEM_MINOR_VERSION 0
+#define SHMEM_VERSION_MAJOR 1
+#define SHMEM_VERSION_MINOR 0
 
   /*
    * This tracks maintenance/bugfix
    * releases of Major.Minor versions
    */
-#define SHMEM_BUGFIX_VERSION "e"
+#define SHMEM_VERSION_BUGFIX "f"
 
   /*
    * not all compilers support this annotation

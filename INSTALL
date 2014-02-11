@@ -67,7 +67,8 @@ is:
     3: 	      --disable-aligned-segments             \
     4: 	      --enable-throttle-poll                 \
     5:        --disable-udp                          \
-    6: 	      --prefix=/path/to/install
+    6:        --with-pmi=/path/to/pmi                \
+    7: 	      --prefix=/path/to/install
 
 This is for a general-purpose GNU/Linux system (or cluster):
 
@@ -76,7 +77,9 @@ This is for a general-purpose GNU/Linux system (or cluster):
     3: 	  address-space-randomization, heap addresses can be different
     4: 	  throttled polling for SMP conduit
     5:    don't bother building UDP support, don't want it here
-    6: 	  where to install GASNet
+    6:    integrate with the PMI infrastructure
+          (e.g. "srun" in a SLURM installation or via "aprun")
+    7: 	  where to install GASNet
 
 Building OpenSHMEM
 ==================
@@ -86,23 +89,23 @@ with debugging support (e.g. argument and PE range checking) and
 operation tracing:
 
     1:    .../configure --prefix=$HOME/SHMEM          \
-    2:                  --with-gasnet-conduit=ibv     \
-    3:                  --with-gasnet-root=/usr       \
+    2:                  --with-gasnet-root=/usr       \
+    3:                  --with-gasnet-conduit=ibv     \
     4:                  --enable-debug		      \
     5:                  --enable-trace
 
 On a cluster using gigabit as interconnect, or on a single SMP
 machine:
 
-    1:    .../configure --prefix=$HOME/SHMEM          \
-    2:                  --with-gasnet-conduit=mpi     \
-    3:                  --with-gasnet-root=/opt/gasnet/large
+    1:    .../configure --prefix=$HOME/SHMEM                 \
+    2:                  --with-gasnet-root=/opt/gasnet/large \
+    3:                  --with-gasnet-conduit=mpi
 
 Optimized for SMP (no MPI involved):
 
     1:    .../configure --prefix=$HOME/SHMEM          \
-    2:                  --with-gasnet-conduit=smp     \
-    3:                  --with-gasnet-root=/usr       \
+    2:                  --with-gasnet-root=/usr       \
+    3:                  --with-gasnet-conduit=smp     \
     4: 	                --enable-throttle-poll        \
     5:                  --enable-debug
 

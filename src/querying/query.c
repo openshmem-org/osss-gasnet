@@ -91,6 +91,10 @@ mype_helper (void)
  *
  * \return Rank of calling PE
  *
+ * \b Deprecation:
+ *
+ * _my_pes() and MY_PES() are deprecated as of OpenSHMEM 1.1.
+ *
  */
 
 int
@@ -149,6 +153,10 @@ numpes_helper (void)
  * None.
  *
  * \return Number of PEs in program
+ *
+ * \b Deprecation:
+ *
+ * _num_pes() and NUM_PES() are deprecated as of OpenSHMEM 1.1.
  *
  */
 
