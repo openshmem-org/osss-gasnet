@@ -42,7 +42,7 @@ program fip
 
   include 'mpp/shmem.fh'
 
-  integer :: shmem_n_pes, shmem_my_pe
+  integer :: num_pes, my_pe
 
   real e
   parameter ( e = 2.71828182 )
@@ -53,7 +53,7 @@ program fip
   integer :: me
 
   call start_pes(0)
-  me = shmem_my_pe()
+  me = my_pe()
 
   f = 3.1415927
 

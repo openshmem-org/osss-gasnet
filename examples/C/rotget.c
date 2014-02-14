@@ -53,8 +53,8 @@ main (int argc, char **argv)
   int me, npes;
 
   start_pes (0);
-  me = shmem_my_pe ();
-  npes = shmem_n_pes ();
+  me = _my_pe ();
+  npes = _num_pes ();
 
   src = (long *) shmalloc (sizeof (*src));
 

@@ -66,7 +66,7 @@ main (int argc, char *argv[])
   int me;
 
   start_pes (0);
-  me = shmem_my_pe ();
+  me = _my_pe ();
 
   shm_target = (int *) shmalloc (sizeof (int));
 

@@ -50,7 +50,7 @@ program a
   y = 42
 
   call start_pes(0)
-  me = shmem_my_pe()
+  me = my_pe()
 
   call shmem_barrier_all()
 

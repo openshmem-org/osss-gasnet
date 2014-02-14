@@ -15,12 +15,12 @@
 program shpalloc_example
   implicit none
   include "mpp/shmem.fh"
-  integer :: shmem_n_pes    ! not declared in SGI header
+  integer :: num_pes    ! not declared in SGI header
 
   integer :: n_pes
   integer :: imax, jmax
   call start_pes(0)
-  n_pes = shmem_n_pes()
+  n_pes = num_pes()
   imax  = n_pes
   jmax  = n_pes
   call sub(imax,jmax)
@@ -29,15 +29,15 @@ end program shpalloc_example
 subroutine sub(imax,jmax)
   implicit none
   include "mpp/shmem.fh"
-  integer :: shmem_my_pe, shmem_n_pes    ! not declared in SGI header
+  integer :: my_pe, num_pes    ! not declared in SGI header
 
   integer imax, jmax
   integer :: mype, n_pes
   integer :: pe, err, idefault, ibytes
   pointer (pA,A)
   integer(kind=8) A(imax,jmax)
-  mype = shmem_my_pe()
-  n_pes = shmem_n_pes()
+  mype = my_pe()
+  n_pes = num_pes()
   pe = n_pes - mype - 1
   ibytes=kind(idefault)
   !          want to create matrix of size A(imax,jmax)

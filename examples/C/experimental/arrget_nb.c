@@ -21,8 +21,8 @@ main (int argc, char **argv)
   void *handle;
 
   start_pes (0);
-  me = shmem_my_pe ();
-  npes = shmem_n_pes ();
+  me = _my_pe ();
+  npes = _num_pes ();
 
   for (i = 0; i < N; i += 1)
     {

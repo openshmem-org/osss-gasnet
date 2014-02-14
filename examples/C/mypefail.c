@@ -46,7 +46,7 @@ main (int argc, char **argv)
 {
   int me, npes;
 
-  me = shmem_my_pe ();
+  me = _my_pe ();
 
   printf ("Hello from node %d\n", me);
 

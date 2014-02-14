@@ -51,7 +51,7 @@ main (int argc, char **argv)
   int slp;
 
   start_pes (0);
-  me = shmem_my_pe ();
+  me = _my_pe ();
   slp = 1;
 
   shmem_barrier_all ();

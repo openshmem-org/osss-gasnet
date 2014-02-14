@@ -9,13 +9,13 @@ program version
 
   include 'mpp/shmem.fh'
 
-  integer :: shmem_my_pe, shmem_n_pes
+  integer :: my_pe, num_pes
 
   integer :: me
   integer :: maj, min
 
   call start_pes(0)
-  me = shmem_my_pe()
+  me = my_pe()
 
   if (me == 0) then
      call shmem_version(maj, min)

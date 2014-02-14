@@ -48,8 +48,8 @@ main (int argc, char **argv)
 
   start_pes (0);
 
-  me = shmem_my_pe ();
-  npes = shmem_n_pes ();
+  me = _my_pe ();
+  npes = _num_pes ();
 
   printf ("Hello from node %4d of %4d\n", me, npes);
 

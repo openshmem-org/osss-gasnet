@@ -67,7 +67,7 @@ program main
 
   include 'mpp/shmem.fh'
 
-  integer :: shmem_n_pes, shmem_my_pe
+  integer :: num_pes, my_pe
 
   double precision  PI25DT
   parameter        (PI25DT = 3.141592653589793238462643d0)
@@ -86,8 +86,8 @@ program main
   real(kind=8), dimension(SHMEM_REDUCE_MIN_WRKDATA_SIZE), save :: pwrk
 
   call start_pes(0)
-  myid = shmem_my_pe()
-  numprocs = shmem_n_pes()
+  myid = my_pe()
+  numprocs = num_pes()
 ! print *, "Process ", myid, " of ", numprocs, " is alive"
 
   call shmem_barrier_all
