@@ -566,7 +566,6 @@ ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protosp'))
   extern void pshmem_init (void);
   extern void pshmem_finalize (void);
   extern char *pshmem_nodename (void) _WUR;
-  extern int pshmem_version (int *major, int *minor) _WUR;
   extern void *pshmem_malloc (size_t size) _WUR;
   extern void pshmem_free (void *ptr);
   extern void *pshmem_realloc (void *ptr, size_t size) _WUR;

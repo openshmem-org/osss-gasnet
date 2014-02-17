@@ -377,19 +377,11 @@ SHMEM_FORTRAN_IGET (complex, complexf, COMPLEXIFY (float));
 
 #pragma weak shmem_nodename_ = pshmem_nodename_
 #define shmem_nodename_ pshmem_nodename_
-#pragma weak shmem_version_ = pshmem_version_
-#define shmem_version_ pshmem_version_
 
 char *
 FORTRANIFY (shmem_nodename) (void)
 {
   return shmem_nodename ();
-}
-
-int
-FORTRANIFY (shmem_version) (int *major, int *minor)
-{
-  return shmem_version (major, minor);
 }
 
 #endif /* 0: commented out */

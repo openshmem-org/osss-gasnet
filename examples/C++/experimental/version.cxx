@@ -64,8 +64,6 @@ main (int argc, char *argv[])
            << SHMEM_VERSION_MAJOR
            << "."
            << SHMEM_VERSION_MINOR
-           << "."
-           << SHMEM_VERSION_BUGFIX
            << endl;
     }
 

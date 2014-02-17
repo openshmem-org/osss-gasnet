@@ -1,4 +1,4 @@
-! Emacs: -*- mode: f90; -*-
+! Emacs: -*- mode: fortran; -*-
 !
 !   Copyright (c) 2011 - 2014
 !     University of Houston System and Oak Ridge National Laboratory.
@@ -34,7 +34,20 @@
 !   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 
+! OpenSHMEM release
 
+      integer SHMEM_VERSION_MAJOR
+      parameter ( SHMEM_VERSION_MAJOR = 1 )
+      integer SHMEM_VERSION_MINOR
+      parameter ( SHMEM_VERSION_MINOR = 0 )
+
+! This tracks maintenance/bugfix releases of Major.Minor versions
+! (Internal use, not API)
+
+      character SHMEM_VERSION_BUGFIX
+      parameter ( SHMEM_VERSION_BUGFIX = 'f' )
+
+! collectives
 
       integer SHMEM_BCAST_SYNC_SIZE
       parameter ( SHMEM_BCAST_SYNC_SIZE = 64 )

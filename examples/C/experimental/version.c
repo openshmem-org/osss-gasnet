@@ -58,12 +58,11 @@ main (int argc, char **argv)
 
   if (me == 0)
     {
-      int ma, mi;
-
-      shmem_version (&ma, &mi);
-
       printf ("PE %d (of %d) says hello from\n", me, npes);
-      printf ("  OpenSHMEM library version %d.%d\n", ma, mi);
+      printf ("  OpenSHMEM library version %d.%d\n",
+	      SHMEM_VERSION_MAJOR,
+	      SHMEM_VERSION_MINOR
+	      );
     }
 
   return 0;

@@ -191,28 +191,4 @@ shmem_nodename (void)
   return GET_STATE (loc.nodename);
 }
 
-/*
- *
- */
-
-#ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_version = pshmem_version
-# define shmem_version pshmem_version
-#endif /* HAVE_FEATURE_PSHMEM */
-
-extern int __shmem_version (int *major, int *minor);
-
-/**
- * OpenSHMEM has a major.minor release number.  Return 0 if
- * successful, -1 otherwise
- *
- */
-
-int
-shmem_version (int *major, int *minor)
-{
-  INIT_CHECK ();
-  return __shmem_version (major, minor);
-}
-
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

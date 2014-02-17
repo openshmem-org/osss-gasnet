@@ -81,8 +81,9 @@ extern "C"
   /*
    * This tracks maintenance/bugfix
    * releases of Major.Minor versions
+   * (Internal use, not API)
    */
-#define SHMEM_VERSION_BUGFIX "f"
+#define SHMEM_VERSION_BUGFIX 'f'
 
   /*
    * not all compilers support this annotation
