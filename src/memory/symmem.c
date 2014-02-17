@@ -167,12 +167,14 @@ shmalloc (size_t size)
 
   INIT_CHECK ();
 
+#ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
+#endif /* HAVE_FEATURE_DEBUG */
 
   __shmem_trace (SHMEM_LOG_MEMORY,
 		 "shmalloc(%ld bytes) passed symmetry check",
@@ -251,12 +253,14 @@ shrealloc (void *addr, size_t size)
       /* NOT REACHED */
     }
 
+#ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
+#endif /* HAVE_FEATURE_DEBUG */
 
   newaddr = __shmem_mem_realloc (addr, size);
 
@@ -294,12 +298,14 @@ shmemalign (size_t alignment, size_t size)
 
   INIT_CHECK ();
 
+#ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
       malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
+#endif /* HAVE_FEATURE_DEBUG */
 
   addr = __shmem_mem_align (alignment, size);
 
