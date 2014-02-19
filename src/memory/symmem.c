@@ -61,6 +61,8 @@
 long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
 
 
+#ifdef HAVE_FEATURE_DEBUG
+
 /**
  * check that all PEs see the same shmalloc size: return first
  * mis-matching PE id if there's a mis-match, return -1 to record
@@ -119,6 +121,7 @@ __shmalloc_symmetry_check (size_t size)
   __shmem_mem_free (shmalloc_remote_size);
   return any_failed_pe;
 }
+#endif /* HAVE_FEATURE_DEBUG */
 
 /**
  * this call avoids the symmetry check that the real shmalloc() has to
@@ -151,17 +154,21 @@ __shmalloc_no_check (size_t size)
 }
 
 
+
+#ifdef HAVE_FEATURE_EXPERIMENTAL
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmalloc = pshmalloc
-# define shmalloc pshmalloc
+# pragma weak shmalloc_nb = pshmalloc_nb
+# define shmalloc_nb pshmalloc_nb
 #endif /* HAVE_FEATURE_PSHMEM */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /**
- * Symmetrically allocate "size" byte of memory across all PEs
+ * Symmetrically allocate "size" byte of memory across all PEs,
+ * don't wait for everyone to be ready
  */
 
 void *
-shmalloc (size_t size)
+shmalloc_nb (size_t size)
 {
   void *addr;
 
@@ -182,26 +189,51 @@ shmalloc (size_t size)
 
   addr = __shmalloc_no_check (size);
 
-  shmem_barrier_all ();
+  malloc_error = (addr != NULL)
+    ? SHMEM_MALLOC_OK
+    : SHMEM_MALLOC_FAIL;
 
   return addr;
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shfree = pshfree
-# define shfree pshfree
+# pragma weak shmalloc = pshmalloc
+# define shmalloc pshmalloc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
- * Symmetrically free previously allocated memory
+ * Symmetrically allocate "size" byte of memory across all PEs,
+ * everyone will be ready for remote memory use afterward
+ */
+
+void *
+shmalloc (size_t size)
+{
+  void *addr = shmalloc_nb (size);
+
+  shmem_barrier_all ();
+
+  return addr;
+}
+
+
+
+#ifdef HAVE_FEATURE_EXPERIMENTAL
+#ifdef HAVE_FEATURE_PSHMEM
+# pragma weak shfree_nb = pshfree_nb
+# define shfree_nb pshfree_nb
+#endif /* HAVE_FEATURE_PSHMEM */
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
+
+/**
+ * Symmetrically free previously allocated memory,
+ * don't wait for everyone to be ready
  */
 
 void
-shfree (void *addr)
+shfree_nb (void *addr)
 {
   INIT_CHECK ();
-
-  shmem_barrier_all ();
 
   if (addr == (void *) NULL)
     {
@@ -218,6 +250,24 @@ shfree (void *addr)
   __shmem_mem_free (addr);
 
   malloc_error = SHMEM_MALLOC_OK;
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+# pragma weak shfree = pshfree
+# define shfree pshfree
+#endif /* HAVE_FEATURE_PSHMEM */
+
+/**
+ * Symmetrically free previously allocated memory,
+ * everyone has synched beforehand
+ */
+
+void
+shfree (void *addr)
+{
+  shmem_barrier_all ();
+
+  shfree_nb (addr);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM

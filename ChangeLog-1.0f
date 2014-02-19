@@ -23,10 +23,16 @@ Build
     * OpenUH (3.0.x)     |
     *                    | = have problems with pshmem support
     *
-  * Experimental (not yet in specification) features include
-    * proposed atomic xor routines
+  * Experimental features include
+    *
+    * atomic xor routines
     * put/get_nb
+    * shmalloc/shfree_nb
     * shmem_wtime
+    *
+    * N.B. These are by definition not (yet) in the
+    * specification.  They are only visible if you ask
+    * configure for --enable-experimental.  Caveat emptor.
 
 Ecosystem
 ---------

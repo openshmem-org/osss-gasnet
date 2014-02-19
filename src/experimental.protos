@@ -60,6 +60,13 @@ extern void shmem_wait_nb (void *h);
 extern int  shmem_test_nb (void *h) _WUR;
 
 /*
+ * non-blocking memory management
+ *
+ */
+extern void *shmalloc_nb (size_t size);
+extern void  shfree_nb (void *addr);
+
+/*
  * Proposed by IBM Zurich
  *
  */
