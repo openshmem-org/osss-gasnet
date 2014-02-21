@@ -219,13 +219,17 @@ void
 __shmem_comms_set_waitmode (comms_spinmode_t mode)
 {
   int gm;
-  const char *mstr;
+  char *mstr;
+
+  /*
+   * defaults
+   */
+  gm = GASNET_WAIT_SPINBLOCK;
+  mstr = "spinblock";
 
   switch (mode)
     {
     case SHMEM_COMMS_SPINBLOCK:
-      gm = GASNET_WAIT_SPINBLOCK;
-      mstr = "spinblock";
       break;
     case SHMEM_COMMS_SPIN:
       gm = GASNET_WAIT_SPIN;
@@ -242,6 +246,11 @@ __shmem_comms_set_waitmode (comms_spinmode_t mode)
     }
 
   GASNET_SAFE (gasnet_set_waitmode (gm));
+
+  __shmem_trace (SHMEM_LOG_INFO,
+		 "Progress mode set to \"%s\"",
+		 mstr
+		 );
 }
 
 /**
@@ -381,8 +390,6 @@ __shmem_symmetric_memory_init (void)
 {
   const int me = GET_STATE (mype);
   const int npes = GET_STATE (numpes);
-  const size_t heapsize = GET_STATE (heapsize);
-  int pm_r;
 
   /*
    * calloc zeroes for us
@@ -402,53 +409,58 @@ __shmem_symmetric_memory_init (void)
    *
    */
 
+  {
 #ifdef HAVE_MANAGED_SEGMENTS
 
-  /* gasnet handles the segment allocation for us */
-  GASNET_SAFE (gasnet_getSegmentInfo (seginfo_table, npes));
+    /* gasnet handles the segment allocation for us */
+    GASNET_SAFE (gasnet_getSegmentInfo (seginfo_table, npes));
 
 #else
 
-  /* allocate the heap - has to be pagesize aligned */
-  pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
-  if (pm_r != 0)
-    {
-      comms_bailout ("unable to allocate symmetric heap (%s)",
-		     strerror (pm_r)
-		     );
-      /* NOT REACHED */
-    }
+    const size_t heapsize = GET_STATE (heapsize);
+    int pm_r;
 
-  /* everyone has their local info before exchanging messages */
-  __shmem_comms_barrier_all ();
-
-  /* store my own heap entry */
-  seginfo_table[me].addr = great_big_heap;
-  seginfo_table[me].size = heapsize;
-
-  {
-    gasnet_seginfo_t gs;
-    int pe;
-
-    gs.addr = great_big_heap;
-    gs.size = heapsize;
-
-    for (pe = 0; pe < npes; pe += 1)
+    /* allocate the heap - has to be pagesize aligned */
+    pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
+    if (pm_r != 0)
       {
-	/* send to everyone else */
-	if (me != pe)
-	  {
-	    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
-				     &gs, sizeof (gs)
-				     );
-	  }
+	comms_bailout ("unable to allocate symmetric heap (%s)",
+		       strerror (pm_r)
+		       );
+	/* NOT REACHED */
       }
 
-    /* now wait on the AM replies (0-based AND don't count myself) */
-    GASNET_BLOCKUNTIL (seg_setup_replies_received == npes - 1);
-  }
+    /* everyone has their local info before exchanging messages */
+    __shmem_comms_barrier_all ();
+
+    /* store my own heap entry */
+    seginfo_table[me].addr = great_big_heap;
+    seginfo_table[me].size = heapsize;
+
+    {
+      gasnet_seginfo_t gs;
+      int pe;
+ 
+      gs.addr = great_big_heap;
+      gs.size = heapsize;
+
+      for (pe = 0; pe < npes; pe += 1)
+	{
+	  /* send to everyone else */
+	  if (me != pe)
+	    {
+	      gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
+				       &gs, sizeof (gs)
+				       );
+	    }
+	}
+
+      /* now wait on the AM replies (0-based AND don't count myself) */
+      GASNET_BLOCKUNTIL (seg_setup_replies_received == npes - 1);
+    }
 
 #endif /* HAVE_MANAGED_SEGMENTS */
+  }
 
   /* initialize my heap */
   __shmem_mem_init (seginfo_table[me].addr, seginfo_table[me].size);
@@ -612,6 +624,106 @@ typedef struct
   long long cond;		/* conditional value */
 } atomic_payload_t;
 
+inline
+void
+amo_do_SWAP (atomic_payload_t *pp)
+{
+  long long old;
+
+  /* save and update */
+  (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
+  (void) memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
+  pp->value = old;
+}
+
+inline
+void
+amo_do_CSWAP (atomic_payload_t *pp)
+{
+  void *omem = malloc (pp->nbytes);
+
+  if (omem == NULL)
+    {
+      comms_bailout ("internal error: unable to allocate cswap save space");
+    }
+  /* save current target */
+  memmove (omem, pp->r_symm_addr, pp->nbytes);
+  /* update value if cond matches */
+  if (memcmp (&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0)
+    {
+      memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
+    }
+  /* return value */
+  memmove (&(pp->value), omem, pp->nbytes);
+  free (omem);
+}
+
+inline
+void
+amo_do_FADD (atomic_payload_t *pp)
+{
+  long long old;
+  long long plus;
+
+  /* save and update */
+  (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + pp->value;
+  (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+  pp->value = old;
+}
+
+inline
+void
+amo_do_FINC (atomic_payload_t *pp)
+{
+  long long old;
+  long long plus;
+
+  /* save and update */
+  (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + 1;
+  (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+  pp->value = old;
+}
+
+inline
+void
+amo_do_ADD (atomic_payload_t *pp)
+{
+  long long old;
+  long long plus;
+
+  /* save and update */
+  (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + pp->value;
+  (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+}
+
+inline
+void
+amo_do_INC (atomic_payload_t *pp)
+{
+  long long old;
+  long long plus;
+
+  /* save and update */
+  (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
+  plus = old + 1;
+  (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+}
+
+inline
+void
+amo_do_XOR (atomic_payload_t *pp)
+{
+  long long old;
+
+  /* save and update */
+  old = * ((long long *)pp->r_symm_addr);
+  old ^= pp->value;
+  * ((long long *)pp->r_symm_addr) = old;
+}
+
 /**
  * called by remote PE to do the AMO
  */
@@ -620,9 +732,6 @@ void
 handler_amo_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
-  long long old = 0;
-  long long plus;
-  void *omem;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
   gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
@@ -631,61 +740,31 @@ handler_amo_out (gasnet_token_t token,
   switch (pp->op)
     {
     case AMO_SWAP:
-      /* save and update */
-      (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-      (void) memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
-      pp->value = old;
+      amo_do_SWAP (pp);
       break;
     case AMO_CSWAP:
-      omem = malloc (pp->nbytes);
-      if (omem == NULL)
-	{
-	  comms_bailout ("internal error: unable to allocate cswap save space");
-	}
-      /* save current target */
-      memmove (omem, pp->r_symm_addr, pp->nbytes);
-      /* update value if cond matches */
-      if (memcmp (&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0)
-	{
-	  memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
-	}
-      /* return value */
-      memmove (&(pp->value), omem, pp->nbytes);
-      free (omem);
+      amo_do_CSWAP (pp);
       break;
     case AMO_FADD:
-      /* save and update */
-      (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-      plus = old + pp->value;
-      (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-      pp->value = old;
+      amo_do_FADD (pp);
       break;
     case AMO_FINC:
-      /* save and update */
-      (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-      plus = old + 1;
-      (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-      pp->value = old;
+      amo_do_FINC (pp);
       break;
     case AMO_ADD:
-      /* save and update */
-      (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-      plus = old + pp->value;
-      (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+      amo_do_ADD (pp);
       break;
     case AMO_INC:
-      /* save and update */
-      (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-      plus = old + 1;
-      (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
+      amo_do_INC (pp);
       break;
     case AMO_XOR:
-      /* save and update */
-      old = * ((long long *)pp->r_symm_addr);
-      old ^= pp->value;
-      * ((long long *)pp->r_symm_addr) = old;
+      amo_do_XOR (pp);
       break;
     default:
+      __shmem_trace (SHMEM_LOG_ATOMIC,
+		     "internal error: AMO handler got unknown opcode %d, ignoring...",
+		     pp->op
+		     );
       break;
     }
 
@@ -710,6 +789,9 @@ handler_amo_bak (gasnet_token_t token,
 
   gasnet_hsl_lock (lk);
 
+  /*
+   * intentional fall-through in switch
+   */
   switch (pp->op)
     {
     case AMO_SWAP:
@@ -804,7 +886,8 @@ static volatile unsigned long get_counter = 0L;
 static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
 
-static void
+static
+void
 atomic_inc_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
@@ -812,7 +895,8 @@ atomic_inc_put_counter (void)
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
-static void
+static
+void
 atomic_dec_put_counter (void)
 {
   gasnet_hsl_lock (&put_counter_lock);
@@ -820,13 +904,15 @@ atomic_dec_put_counter (void)
   gasnet_hsl_unlock (&put_counter_lock);
 }
 
-static void
+static
+void
 atomic_wait_put_zero (void)
 {
   WAIT_ON_COMPLETION (put_counter == 0L);
 }
 
-static void
+static
+void
 atomic_inc_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
@@ -834,7 +920,8 @@ atomic_inc_get_counter (void)
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
-static void
+static
+void
 atomic_dec_get_counter (void)
 {
   gasnet_hsl_lock (&get_counter_lock);
@@ -842,7 +929,8 @@ atomic_dec_get_counter (void)
   gasnet_hsl_unlock (&get_counter_lock);
 }
 
-static void
+static
+void
 atomic_wait_get_zero (void)
 {
   WAIT_ON_COMPLETION (get_counter == 0L);
@@ -877,7 +965,8 @@ atomic_wait_get_zero (void)
  *
  */
 
-static void
+static
+void
 allocate_buffer_and_check (void **buf, size_t siz)
 {
   int r = posix_memalign (buf, GASNET_PAGESIZE, siz);
@@ -921,7 +1010,8 @@ typedef struct
 /**
  * called by remote PE to grab and write to its variable
  */
-static void
+static
+void
 handler_globalvar_put_out (gasnet_token_t token,
 			   void *buf, size_t bufsiz)
 {
@@ -940,7 +1030,8 @@ handler_globalvar_put_out (gasnet_token_t token,
 /**
  * invoking PE just has to ack remote write
  */
-static void
+static
+void
 handler_globalvar_put_bak (gasnet_token_t token,
 			   void *buf, size_t bufsiz)
 {
@@ -956,7 +1047,8 @@ handler_globalvar_put_bak (gasnet_token_t token,
  * buffer.
  *
  */
-static void
+static
+void
 put_a_chunk (void *buf, size_t bufsize,
 	     void *target, void *source,
 	     size_t offset, size_t bytes_to_send, int pe)
@@ -1046,7 +1138,8 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 /**
  * called by remote PE to grab remote data and return
  */
-static void
+static
+void
 handler_globalvar_get_out (gasnet_token_t token,
 			   void *buf, size_t bufsiz)
 {
@@ -1066,7 +1159,8 @@ handler_globalvar_get_out (gasnet_token_t token,
 /**
  * called by invoking PE to write fetched data
  */
-static void
+static
+void
 handler_globalvar_get_bak (gasnet_token_t token,
 			   void *buf, size_t bufsiz)
 {
@@ -1083,7 +1177,8 @@ handler_globalvar_get_bak (gasnet_token_t token,
  * Generate the active message to do a get from a global variable.
  *
  */
-static void
+static
+void
 get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 	     void *target, void *source,
 	     size_t offset, size_t bytes_to_send, int pe)
@@ -1112,6 +1207,7 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 /**
  * perform the get from a global variable
  */
+
 void
 __shmem_comms_globalvar_get_request (void *target, void *source,
 				     size_t nbytes, int pe)
@@ -1320,7 +1416,8 @@ static nb_table_t *nb_table = NULL;
  * add handle into hash table
  */
 
-static void *
+static
+void *
 nb_table_add (gasnet_handle_t h)
 {
   nb_table_t *n = malloc (sizeof (*n));
@@ -1339,7 +1436,8 @@ nb_table_add (gasnet_handle_t h)
  * iterate over hash table, build array of handles,
  * pass this to gasnet to wait
  */
-static void
+static
+void
 nb_table_wait (void)
 {
   gasnet_handle_t *g;
