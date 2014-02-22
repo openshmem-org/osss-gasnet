@@ -107,6 +107,37 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
  * puts and gets
  */
 
+/*
+ * Routines that are needed for Fortran, but aren't currently in the C
+ * API
+ */
+
+extern void shmem_char_put (char *target, const char *source, size_t nelems,
+			     int pe);
+extern void shmem_char_get (char *target, const char *source, size_t nelems,
+			     int pe);
+extern void shmem_char_iput (char *target, const char *source,
+			     ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+			     int pe);
+extern void shmem_char_iget (char *target, const char *source,
+			     ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+			     int pe);
+extern void shmem_complexf_put (COMPLEXIFY (float) *target,
+				const COMPLEXIFY (float) *source, size_t nelems,
+				int pe);
+extern void shmem_complexf_get (COMPLEXIFY (float) *target,
+				const COMPLEXIFY (float) *source, size_t nelems,
+				int pe);
+extern void shmem_complexf_iput (COMPLEXIFY (float) *target,
+				 const COMPLEXIFY (float) *source,
+				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+				 int pe);
+extern void shmem_complexf_iget (COMPLEXIFY (float) *target,
+				 const COMPLEXIFY (float) *source,
+				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+				 int pe);
+
+
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_character_put_ = pshmem_character_put_
 # define shmem_character_put_ pshmem_character_put_
@@ -139,18 +170,18 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 
 #define SHMEM_FORTRAN_PUT(FName, CName, CType)				\
   void									\
-  FORTRANIFY(shmem_##FName##_put) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##FName##_put) (CType *target, const CType *source,	\
 				   int *size, int *pe)			\
   {									\
-    shmem_##CName##_put (target, src, *size, *pe);			\
+    shmem_##CName##_put (target, source, *size, *pe);			\
   }
 
 #define SHMEM_FORTRAN_PUT_SIZE(Size, CName, CType)			\
   void									\
-  FORTRANIFY(shmem_put##Size) (CType *target, const CType *src,		\
+  FORTRANIFY(shmem_put##Size) (CType *target, const CType *source,	\
 			       int *size, int *pe)			\
   {									\
-    shmem_##CName##_put (target, src, *size, *pe);			\
+    shmem_##CName##_put (target, source, *size, *pe);			\
   }
   
 SHMEM_FORTRAN_PUT (character, char, char);
@@ -166,17 +197,17 @@ SHMEM_FORTRAN_PUT_SIZE (64, long, long);
 SHMEM_FORTRAN_PUT_SIZE (128, longdouble, long double);
 
 void
-FORTRANIFY (shmem_putmem) (void *target, const void *src,
+FORTRANIFY (shmem_putmem) (void *target, const void *source,
 			   int *size, int *pe)
 {
-  shmem_putmem (target, src, *size, *pe);
+  shmem_putmem (target, source, *size, *pe);
 }
 
 void
-FORTRANIFY (shmem_put) (long *target, const long *src,
+FORTRANIFY (shmem_put) (long *target, const long *source,
 			int *size, int *pe)
 {
-  shmem_long_put (target, src, *size, *pe);
+  shmem_long_put (target, source, *size, *pe);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -211,18 +242,18 @@ FORTRANIFY (shmem_put) (long *target, const long *src,
 
 #define SHMEM_FORTRAN_GET(FName, CName, CType)				\
   void									\
-  FORTRANIFY(shmem_##FName##_get) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##FName##_get) (CType *target, const CType *source,	\
 				   int *size, int *pe)			\
   {									\
-    shmem_##CName##_get (target, src, *size, *pe);			\
+    shmem_##CName##_get (target, source, *size, *pe);			\
   }
 
 #define SHMEM_FORTRAN_GET_SIZE(Size, CName, CType)			\
   void									\
-  FORTRANIFY(shmem_get##Size) (CType *target, const CType *src,		\
+  FORTRANIFY(shmem_get##Size) (CType *target, const CType *source,	\
 			       int *size, int *pe)			\
   {									\
-    shmem_##CName##_get (target, src, *size, *pe);			\
+    shmem_##CName##_get (target, source, *size, *pe);			\
   }
 
 SHMEM_FORTRAN_GET (character, char, char);
@@ -238,17 +269,17 @@ SHMEM_FORTRAN_GET_SIZE (64, long, long);
 SHMEM_FORTRAN_GET_SIZE (128, longdouble, long double);
 
 void
-FORTRANIFY (shmem_getmem) (void *target, const void *src,
+FORTRANIFY (shmem_getmem) (void *target, const void *source,
 			   int *size, int *pe)
 {
-  shmem_getmem (target, src, *size, *pe);
+  shmem_getmem (target, source, *size, *pe);
 }
 
 void
-FORTRANIFY (shmem_get) (long *target, const long *src,
+FORTRANIFY (shmem_get) (long *target, const long *source,
 			int *size, int *pe)
 {
-  shmem_long_get (target, src, *size, *pe);
+  shmem_long_get (target, source, *size, *pe);
 }
 
 /*
@@ -282,22 +313,22 @@ FORTRANIFY (shmem_get) (long *target, const long *src,
 
 #define SHMEM_FORTRAN_IPUT(Name, CName, CType)				\
   void									\
-  FORTRANIFY(shmem_##Name##_iput) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##Name##_iput) (CType *target, const CType *source,	\
 				   int *tst, int *sst,			\
 				   int *size, int *pe)			\
   {									\
-    shmem_##CName##_iput (target, src, *tst, *sst, *size, *pe);		\
+    shmem_##CName##_iput (target, source, *tst, *sst, *size, *pe);	\
   }
 
 #include <stdio.h>
 
 #define SHMEM_FORTRAN_IPUT_SIZE(Size, CName, CType)			\
   void									\
-  FORTRANIFY(shmem_iput##Size) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_iput##Size) (CType *target, const CType *source,	\
 				int *tst, int *sst,			\
 				int *size, int *pe)			\
   {									\
-    shmem_##CName##_iput (target, src, *tst, *sst, *size, *pe);		\
+    shmem_##CName##_iput (target, source, *tst, *sst, *size, *pe);	\
   }
 
 SHMEM_FORTRAN_IPUT (character, char, char);
@@ -344,20 +375,20 @@ SHMEM_FORTRAN_IPUT (complex, complexf, COMPLEXIFY (float));
 
 #define SHMEM_FORTRAN_IGET(Name, CName, CType)				\
   void									\
-  FORTRANIFY(shmem_##Name##_iget) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##Name##_iget) (CType *target, const CType *source,	\
 				   int *tst, int *sst,			\
 				   int *size, int *pe)			\
   {									\
-    shmem_##CName##_iget(target, src, *tst, *sst, *size, *pe);		\
+    shmem_##CName##_iget(target, source, *tst, *sst, *size, *pe);	\
   }
 
 #define SHMEM_FORTRAN_IGET_SIZE(Size, CName, CType)			\
   void									\
-  FORTRANIFY(shmem_iget##Size) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_iget##Size) (CType *target, const CType *source,	\
 				int *tst, int *sst,			\
 				int *size, int *pe)			\
   {									\
-    shmem_##CName##_iget(target, src, *tst, *sst, *size, *pe);		\
+    shmem_##CName##_iget(target, source, *tst, *sst, *size, *pe);	\
   }
 
 SHMEM_FORTRAN_IGET (character, char, char);
@@ -1112,18 +1143,18 @@ FORTRANIFY (shmem_pcontrol) (int *level)
 
 #define SHMEM_FORTRAN_PUT_NB(FName, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_##FName##_put_nb) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##FName##_put_nb) (CType *target, const CType *source,	\
 				      int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_put_nb (target, src, *size, *pe, hp);	\
+    return shmem_##CName##_put_nb (target, source, *size, *pe, hp);	\
   }
 
 #define SHMEM_FORTRAN_PUT_SIZE_NB(Size, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_put##Size##_nb) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_put##Size##_nb) (CType *target, const CType *source,	\
 				    int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_put_nb (target, src, *size, *pe, hp);	\
+    return shmem_##CName##_put_nb (target, source, *size, *pe, hp);	\
   }
   
 /* SHMEM_FORTRAN_PUT_NB (character, char, char); */
@@ -1171,18 +1202,18 @@ SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
 
 #define SHMEM_FORTRAN_GET_NB(FName, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_##FName##_get_nb) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_##FName##_get_nb) (CType *target, const CType *source,	\
 				      int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_get_nb (target, src, *size, *pe, hp);	\
+    return shmem_##CName##_get_nb (target, source, *size, *pe, hp);	\
   }
 
 #define SHMEM_FORTRAN_GET_SIZE_NB(Size, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_get##Size##_nb) (CType *target, const CType *src,	\
+  FORTRANIFY(shmem_get##Size##_nb) (CType *target, const CType *source,	\
 				    int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_get_nb (target, src, *size, *pe, hp);	\
+    return shmem_##CName##_get_nb (target, source, *size, *pe, hp);	\
   }
   
 /* SHMEM_FORTRAN_GET_NB (character, char, char); */

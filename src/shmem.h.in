@@ -126,9 +126,6 @@ extern "C"
 				    size_t nelems, int pe);
   extern void shmem_double_put (double *dest, const double *src,
 				size_t nelems, int pe);
-  extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
-				  const COMPLEXIFY (double) * src,
-				  size_t nelems, int pe);
   extern void shmem_float_put (float *dest, const float *src, size_t nelems,
 			       int pe);
   extern void shmem_putmem (void *dest, const void *src, size_t nelems,

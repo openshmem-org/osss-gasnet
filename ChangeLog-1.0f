@@ -6,13 +6,11 @@ Updates in Release 1.0f:
 Configure
 ---------
 
-  * Improved checking of compiler suite used to build library
   * Run configure with "--help" to see all options/flags
 
 Build
 -----
 
-  * Updated 3rd party utilities
   * Compiles with
     * GNU (various)
     * Clang (3.x)
