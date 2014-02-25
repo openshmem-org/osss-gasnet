@@ -134,40 +134,41 @@ Source Directory Layout
 =======================
 
     .                         } top-level config (here)
-    |
     |-- doc                   } Documentation
     |-- examples
     |   |-- C                 }
     |   |-- C++               } Language-specific demos
-    |   |-- Fortran           }
+    |   `-- Fortran           }
     `-- src
-        |-- atomic            } remote atomic memory ops
-        |
-        |-- barrier           }
-        |-- broadcast         } collectives
-        |-- collect           }
-        |-- fcollect          }
+        |-- utils             } internal utilities
         |
         |-- comms
         |   |-- gasnet        } different
             ...               } communication
         |   `-- ...           } layers
         |
-        |-- fortran           } The Fortran API
-        |
-        |-- globalvar         } variables outside the managed heap
-        |
-        |-- memory            } symmetric memory allocation
-        |-- cache             } depcrecated cache routines
-        |-- fence             } point-to-point synchronizations
         |-- modules           } collective routine providers
-        |
-        |-- mpp               } old headers
+        |-- globalvar         } variables outside the managed heap
         |
         |-- dlmalloc          } 3rd party
         |-- uthash            }
         |
-        `-- utils             } internal utilities
+        |-- atomic            } remote atomic memory ops
+        |-- barrier           }
+        |-- broadcast         }
+        |-- collect           } collectives
+        |-- fcollect          }
+        |-- reduce            }
+        |-- fortran           } The Fortran API
+        |-- memory            } symmetric memory allocation
+        |-- fence             } point-to-point synchronizations
+        |-- mpp               } old headers
+        |-- querying          } PE discovery
+        |-- ptp               } point-to-point transfers
+        |-- updown            } start/stop OpenSHMEM
+        |-- cache             } cache invalidation
+        |-- profiling         } extensions
+        `-- wtime             }
 
 The "configure" script
 ======================
@@ -269,6 +270,11 @@ instructions at:
 
   http://www.open-mpi.org/faq/?category=openfabrics#ib-low-reg-mem
 
+In situations where you want to be able to pass a hostfile or specific
+arguments to MPI, GASNet provides an environment variable MPIRUN_CMD:
+
+  http://gasnet.lbl.gov/dist/mpi-conduit/README
+
 ELF Library
 -----------
 
@@ -282,34 +288,8 @@ on a number of Linux distributions, we encountered some portability
 issues between elfutils and libelf on some remote systems.  Hopefully
 these issues have been addressed.
 
-N.B. we don't currently support other executable formats (XCOFF etc.).
-
-Pkg-Config
-==========
-
-pkg-config(1)
-
-    http://www.freedesktop.org/wiki/Software/pkg-config
-
-helps packages provide configuration information for other packages to
-interact with them, so you can ask OpenSHMEM for its CFLAGS or
-libraries for linking.  Add
-
-    <install>/lib/pkgconfig
-
-to the PKG_CONFIG_PATH environment variable.
-
-This means you can compile/link programs as e.g. with Open64 from a
-bash shell
-
-    opencc $(pkg-config --cflags openshmem)     \
-        program.c                               \
-            $(pkg-config --libs openshmem)
-
-or any other compiler of your choice (N.B. implementations on top of
-some MPIs will require compilation in this manner with the appropriate
-MPI compiler wrapper such as mpicc, or otherwise passing the
-definitions, headers and libraries for that MPI to a compiler).
+N.B. we don't currently support other executable formats (Mach-O,
+XCOFF etc.).
 
 Module
 ======
@@ -332,15 +312,45 @@ You can then
 to set up your environment for OpenSHMEM.  See the modules
 documentation for more advanced usage.
 
+Pkg-Config
+==========
+
+pkg-config(1)
+
+    http://www.freedesktop.org/wiki/Software/pkg-config
+
+helps packages provide configuration information for other packages to
+interact with them, so you can ask OpenSHMEM for its CFLAGS or
+libraries for linking.  Add
+
+    <install>/lib/pkgconfig
+
+to the PKG_CONFIG_PATH environment variable.  The modulefile installed
+as part of thsi library does that automatically.
+
+This means you can compile/link programs as e.g. with Open64 from a
+bash shell (single line wrapped for formatting):
+
+    $ opencc $(pkg-config --cflags openshmem)     \
+          program.c                               \
+              $(pkg-config --libs openshmem)
+
+or any other compiler of your choice (N.B. implementations on top of
+some MPIs will require compilation in this manner with the appropriate
+MPI compiler wrapper such as mpicc, or otherwise passing the
+definitions, headers and libraries for that MPI to a compiler).
+
 Some Supporting Software
 ========================
 
 1. GASNet   :: http://gasnet.lbl.gov/
             :: https://bitbucket.org/berkeleylab/gasnet
 
-2. Open-MPI :: http://www.open-mpi.org/
+2. UCCS     :: http://uccs.github.io/uccs/
 
-3. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
+3. Open-MPI :: http://www.open-mpi.org/
+
+4. MVAPICH2 :: http://mvapich.cse.ohio-state.edu/overview/mvapich2/
 
 Testing Environments at the University of Houston
 =================================================

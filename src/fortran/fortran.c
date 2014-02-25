@@ -1096,6 +1096,8 @@ FORTRANIFY (shmem_test_lock) (long *lock)
  *
  */
 
+extern void shmem_pcontrol (int level);
+
 void 
 FORTRANIFY (shmem_pcontrol) (int *level)
 {
