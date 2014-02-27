@@ -39,7 +39,8 @@
 \fBoshrun\fP - run an OpenSHMEM program
 .SH SYNOPSIS
 \fBoshrun\fP
--np N
+[launcher pass-through arguments]
+-n|-np N
 program
 [program arguments]
 .SH DESCRIPTION
@@ -48,8 +49,11 @@ processing elements.
 .SH NUMBER OF PROCESSING ELEMENTS
 .IP "-np N" 4
 Run the program on N processing elements (processors).
-.LP
+.IP
 Required.
+.IP "-n N" 4
+Synonym for -np.
+.LP
 .SH EXAMPLES
 The command
 .LP

@@ -12,13 +12,16 @@ show_usage_and_exit()
         echo "Error: $@"
         echo ""
     fi
-    echo "Usage: $progname [conduit options] -n|-np PEs program [program args]"
-    echo ""
-    echo "  Where"
-    echo ""
-    echo "    -n | -np PEs    is the number of processing elements to launch"
-    echo ""
+    cat <<EOF
+Usage: $progname [launcher passs-through options]
+                 -n|-np PEs
+                 program
+                 [program args]
+       Where
 
+         -n|-np PEs   is the number of processing elements to launch
+
+EOF
     exit 1
 }
 
@@ -60,29 +63,42 @@ do
     shift
 done
 
-if [ "$npes" ]
+# make sure npes is something sensible
+
+if [ -z "$npes" ]
 then
-    case "$npes" in
-      [0-9]*)
-        # good, user-supplied
-        ;;
-       *)
-        show_usage_and_exit "NPEs is not a number"
-        ;;
-    esac
-else
     show_usage_and_exit
 fi
+
+case "$npes" in
+    *[!0-9]*)
+        show_usage_and_exit "NPEs ($npes) is not an integer"
+        ;;
+    *)
+	    # otherwise good
+        ;;
+esac
+
+# given something to run?
+
+if [ -z "$launcher_args" -a -z "$all_args" ]
+then
+    show_usage_and_exit
+fi
+
+all_args="$launcher_args $app_args"
+
+# now find the correct launcher
 
 OPENSHMEM_GASNET_CONDUIT="@GASNET_CONDUIT@"
 export OPENSHMEM_GASNET_CONDUIT
 
 case "$OPENSHMEM_GASNET_CONDUIT" in
     smp)
-	RUN_IT="env GASNET_PSHM_NODES=$npes $launcher_args $app_args"
+	RUN_IT="env GASNET_PSHM_NODES=$npes $all_args"
         ;;
     udp)
-	RUN_IT="$launcher_args $app_args"
+	RUN_IT="$all_args"
 	;;
     # delegate to a GASNet launcher, if found
     *)
@@ -93,7 +109,7 @@ case "$OPENSHMEM_GASNET_CONDUIT" in
             show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"
         fi
 	# pass number of PEs & other args
-	RUN_IT="$launcher -n $npes $launcher_args $app_args"
+	RUN_IT="$launcher -n $npes $all_args"
 	;;
 esac
 
