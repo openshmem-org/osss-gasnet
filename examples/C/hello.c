@@ -38,6 +38,7 @@
 
 
 #include <stdio.h>
+#include <sys/utsname.h>
 
 #include <mpp/shmem.h>
 
@@ -45,13 +46,16 @@ int
 main (int argc, char **argv)
 {
   int me, npes;
+  struct utsname u;
+
+  uname (&u);
 
   start_pes (0);
 
   me = _my_pe ();
   npes = _num_pes ();
 
-  printf ("Hello from node %4d of %4d\n", me, npes);
+  printf ("%s: Hello from node %4d of %4d\n", u.nodename, me, npes);
 
   return 0;
 }
