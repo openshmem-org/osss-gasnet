@@ -151,7 +151,13 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
 #include <string.h>
 #include <stdlib.h>
 
-#define OVERLAP_CHECK(t, s, n) ( (t) >= (s) ) && ( (t) < ( (s) + (n) ) )
+/*
+ * Check the source and target areas to see if they touch each other.
+ * Need to copy things if they do.
+ */
+
+#define INRANGE_CHECK(a, b, n)  ( ( (a) >= (b) ) && ( (a) < ( (b) + (n) ) ) )
+#define OVERLAP_CHECK(t, s, n) ( INRANGE_CHECK(t, s, n) || INRANGE_CHECK(s, t, n) )
 
 #define SHMEM_UDR_TYPE_OP(Name, Type)					\
   static								\
