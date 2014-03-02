@@ -481,18 +481,19 @@ FORTRANIFY_VOID_VOID (shmem_quiet);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak pshmem_wait_until_ = pshmem_int4_wait_until_
-# define pshmem_wait_until_ pshmem_int4_wait_until_
-# pragma weak shmem_wait_until_ = pshmem_int4_wait_until_
-# define shmem_wait_until_ pshmem_int4_wait_until_
 # pragma weak shmem_int4_wait_until_ = pshmem_int4_wait_until_
 # define shmem_int4_wait_until_ pshmem_int4_wait_until_
 # pragma weak shmem_int8_wait_until_ = pshmem_int8_wait_until_
 # define shmem_int8_wait_until_ pshmem_int8_wait_until_
-# pragma weak pshmem_wait_ = pshmem_int8_wait_
-# define pshmem_wait_ pshmem_int8_wait_
-# pragma weak shmem_wait_ = pshmem_int8_wait_
-# define shmem_wait_ pshmem_int8_wait_
+# pragma weak shmem_wait_until_ = pshmem_wait_until_
+# define shmem_wait_until_ pshmem_wait_until_
+
+# pragma weak shmem_int4_wait_ = pshmem_int4_wait_
+# define shmem_int4_wait_ pshmem_int4_wait_
+# pragma weak shmem_int8_wait_ = pshmem_int8_wait_
+# define shmem_int8_wait_ pshmem_int8_wait_
+# pragma weak shmem_wait_ = pshmem_wait_
+# define shmem_wait_ pshmem_wait_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define FORTRANIFY_WAIT_UNTIL(Name, Type)				\
@@ -513,6 +514,12 @@ FORTRANIFY_WAIT_UNTIL (int4, int);
 FORTRANIFY_WAIT_UNTIL (int8, long);
 FORTRANIFY_WAIT (int4, int);
 FORTRANIFY_WAIT (int8, long);
+
+void
+FORTRANIFY (shmem_wait_until) (long *ivar, int *cmp, long *cmp_value)
+{
+  shmem_long_wait_until (ivar, *cmp, *cmp_value);
+}
 
 void
 FORTRANIFY (shmem_wait) (long *ivar, long *cmp_value)
