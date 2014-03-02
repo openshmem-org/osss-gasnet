@@ -48,7 +48,7 @@
 #include <mpp/shmem.h>
 
 int pWrk[_SHMEM_REDUCE_SYNC_SIZE];
-long pSync[_SHMEM_BCAST_SYNC_SIZE];
+long pSync[_SHMEM_REDICE_SYNC_SIZE];
 
 int src;
 int dst;
@@ -60,7 +60,7 @@ main ()
   int me;
   int npes;
 
-  for (i = 0; i < SHMEM_BCAST_SYNC_SIZE; i += 1)
+  for (i = 0; i < _SHMEM_REDUCE_SYNC_SIZE; i += 1)
     {
       pSync[i] = _SHMEM_SYNC_VALUE;
     }
