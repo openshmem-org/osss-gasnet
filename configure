@@ -45,6 +45,7 @@ prefix=/usr/local
 comms_layer=
 gasnet_root=$prefix
 gasnet_conduit=
+gasnet_threnv=par
 
 exe_header_dir=/usr/include
 exe_lib_dir=/usr/lib64
@@ -137,22 +138,26 @@ Usage: $progname [options]
     --with-modulefilesdir=DIR    pkg-config file installed to DIR
                                      (default: PREFIX/modulefiles)
 
-  Communications Layer:
-
-    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, ...
-                                     (currently just a stub)
-
   Compiler Suite:
 
     --with-compiler=S            Use compiler suite "S", from:
                                      $known_compilers
                                      (default: CC from environment, or detect)
 
+  Communications Layer:
+
+    --with-comms-layer=L         Use "L" for communications, e.g. GASNet, ...
+                                     (currently just a stub)
+
   Per-layer options:
 
       --with-gasnet-root=G       Use the GASNet installed under directory G
       --with-gasnet-conduit=C    Use GASNet conduit C
                                    (if only 1 conduit configured, use it)
+      --with-gasnet-threnv=P     Threading environment
+                                   (default: par; or: parsync, seq)
+                                 (N.B. parsync & seq don't fully
+                                       support all of OpenSHMEM)
 
       (These imply --with-comms-layer=... as appropriate)
 
@@ -274,6 +279,10 @@ do
 	    ;;
 	--with-gasnet-conduit=*)
 	    gasnet_conduit="`chompit $o`"
+	    setcanonical comms_layer GASNet
+	    ;;
+	--with-gasnet-threnv=*)
+	    gasnet_threnv="`chompit $o`"
 	    setcanonical comms_layer GASNet
 	    ;;
 	--with-compiler=*)
@@ -713,7 +722,19 @@ case "$comms_layer" in
 
         gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
 
-        tell "  Found GASNet version $gasnet_ver"
+        tell "  Found version $gasnet_ver"
+
+	case "$gasnet_threnv" in
+	    par | parsync | seq )
+		;;
+	    *)
+		tell "  Unknown GASNet threading environment \"$gasnet_threnv\""
+		tell "    Must be one of par (default), parsync, seq"
+		bailout
+		;;
+	esac
+
+        tell "  Found threading environment \"$gasnet_threnv\""
 
         #
         # see if we can autodetect which conduit to use.  if not, offer
@@ -865,6 +886,7 @@ do
         -e "s%@COMMS_LAYER@%$comms_layer%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
+        -e "s%@GASNET_THRENV@%$gasnet_threnv%g" \
         -e "s%@EXE_HEADERS@%$exe_headers%g" \
         -e "s%@EXE_LIBS@%$exe_libs%g" \
         -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
@@ -921,6 +943,7 @@ case "$comms_layer" in
 	tell "    Version                     $gasnet_ver"
 	tell "    Installed in                $gasnet_root"
 	tell "    Using conduit               $gasnet_conduit $cdt_auto"
+	tell "    Threading environment       $gasnet_threnv"
 	;;
     *)
 	tell "I do not recognize communications layer \"$comms_layer\"."
@@ -1118,6 +1141,7 @@ setfeature()
 	    echo "#define OPENSHMEM_GASNET_VERSION \"$gasnet_ver\""
 	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
 	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
+	    echo "#define OPENSHMEM_GASNET_THRENV  \"$gasnet_threnv\""
 	    ;;
 	*)
 	    tell "I do not recognize communications layer \"$comms_layer\"."

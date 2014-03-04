@@ -50,8 +50,9 @@ SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 #
 GASNET_ROOT      = @GASNET_ROOT@
 GASNET_CONDUIT   = @GASNET_CONDUIT@
+GASNET_THRENV    = @GASNET_THRENV@
 
-include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-par.mak 
+include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-$(GASNET_THRENV).mak 
 
 # tony: remove GASNET_CFLAGS for now, makes compiler
 #       interoperability easier
