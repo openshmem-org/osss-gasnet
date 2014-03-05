@@ -211,47 +211,73 @@ __shmem_comms_get_segment_size (void)
   return retval;
 }
 
+#if 0
+/**
+ * ---------------------------------------------------------------------------
+ *
+ * different spin/block modes
+ */
+typedef enum
+{
+  SHMEM_COMMS_SPINBLOCK = 0,
+  SHMEM_COMMS_SPIN,
+  SHMEM_COMMS_BLOCK
+} comms_spinmode_t;
+
+typedef struct
+{
+  char *mode_str;
+  int gasnet_mode;
+} comms_spinmode_desc_t;
+
+static
+comms_spinmode_desc_t
+spinmode_table[] =
+  {
+    { "spinblock", GASNET_WAIT_SPINBLOCK },
+    { "spin",      GASNET_WAIT_SPIN      },
+    { "block",     GASNET_WAIT_BLOCK     }
+  };
+static const int spinmode_size = TABLE_SIZE (spinmode_table);
+
 /**
  * allow the runtime to change the spin/block behavior dynamically,
  * would allow adaptivity
  */
 void
-__shmem_comms_set_waitmode (comms_spinmode_t mode)
+__shmem_comms_set_waitmode (const char *mode_str)
 {
-  int gm;
-  char *mstr;
+  comms_spinmode_desc_t *t = spinmode_table;
+  comms_spinmode_t gm;
+  int i;
+  int found = 0;
 
-  /*
-   * defaults
-   */
-  gm = GASNET_WAIT_SPINBLOCK;
-  mstr = "spinblock";
-
-  switch (mode)
+  for (i = 0; i < spinmode_size; i += 1)
     {
-    case SHMEM_COMMS_SPINBLOCK:
-      break;
-    case SHMEM_COMMS_SPIN:
-      gm = GASNET_WAIT_SPIN;
-      mstr = "spin";
-      break;
-    case SHMEM_COMMS_BLOCK:
-      gm = GASNET_WAIT_BLOCK;
-      mstr = "block";
-      break;
-    default:
-      comms_bailout ("tried to set unknown wait mode %d", (int) mode);
-      /* NOT REACHED */
-      break;
+      if (strcmp (mode_str, t->mode_str) == 0)
+	{
+	  gm = t->gasnet_mode;
+	  found = 1;
+	  break;
+	  /* NOT REACHED */
+	}
     }
 
-  GASNET_SAFE (gasnet_set_waitmode (gm));
-
-  __shmem_trace (SHMEM_LOG_INFO,
-		 "Progress mode set to \"%s\"",
-		 mstr
-		 );
+  if (found)
+    {
+      GASNET_SAFE (gasnet_set_waitmode (gm));
+      __shmem_trace (SHMEM_LOG_INFO,
+		     "Progress mode set to \"%s\"",
+		     mode_str
+		     );
+    }
+  else
+    {
+      comms_bailout ("tried to set unknown wait mode \"%s\"", mode_str);
+      /* NOT REACHED */
+    }
 }
+#endif /* commented out */
 
 /**
  * traffic progress
@@ -1770,7 +1796,9 @@ __shmem_comms_init (void)
    */
   GASNET_SAFE (gasnet_attach (handlers, nhandlers, GET_STATE (heapsize), 0));
 
-  __shmem_comms_set_waitmode (SHMEM_COMMS_SPINBLOCK);
+#if 0
+  __shmem_comms_set_waitmode (...);
+#endif /* commented out for now */
 
   __shmem_service_init ();
 

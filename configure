@@ -734,7 +734,7 @@ case "$comms_layer" in
 		;;
 	esac
 
-        tell "  Found threading environment \"$gasnet_threnv\""
+        tell "  Use threading environment \"$gasnet_threnv\""
 
         #
         # see if we can autodetect which conduit to use.  if not, offer
@@ -1134,14 +1134,14 @@ setfeature()
     echo "/*"
     echo " * Communications Layer"
     echo " */"
-    echo         "#define OPENSHMEM_COMMS_LAYER    \"$comms_layer\""
+    echo         "#define OPENSHMEM_COMMS_LAYER      \"$comms_layer\""
     case "$comms_layer" in
 	gasnet)
-	    echo "#define OPENSHMEM_HAVE_GASNET    1"
-	    echo "#define OPENSHMEM_GASNET_VERSION \"$gasnet_ver\""
-	    echo "#define OPENSHMEM_GASNET_ROOT    \"$gasnet_root\""
-	    echo "#define OPENSHMEM_GASNET_CONDUIT \"$gasnet_conduit\""
-	    echo "#define OPENSHMEM_GASNET_THRENV  \"$gasnet_threnv\""
+	    echo "#define OPENSHMEM_HAVE_GASNET      1"
+	    echo "#define OPENSHMEM_GASNET_ROOT      \"$gasnet_root\""
+	    echo "#define OPENSHMEM_GASNET_VERSION   \"$gasnet_ver\""
+	    echo "#define OPENSHMEM_GASNET_CONDUIT   \"$gasnet_conduit\""
+	    echo "#define OPENSHMEM_GASNET_THRENV    \"$gasnet_threnv\""
 	    ;;
 	*)
 	    tell "I do not recognize communications layer \"$comms_layer\"."

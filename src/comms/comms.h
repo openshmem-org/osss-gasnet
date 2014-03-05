@@ -60,17 +60,12 @@ extern int __shmem_comms_nodes (void);
  */
 extern char *__shmem_comms_getenv (const char *name);
 
+#if 0
 /*
- * different spin/block modes
+ * manage different spin/block modes
  */
-typedef enum
-{
-  SHMEM_COMMS_SPINBLOCK = 0,
-  SHMEM_COMMS_SPIN,
-  SHMEM_COMMS_BLOCK
-} comms_spinmode_t;
-
-extern void __shmem_comms_set_waitmode (comms_spinmode_t mode);
+extern void __shmem_comms_set_waitmode (const char *mode_str);
+#endif /* commented out */
 
 /*
  * handlers for puts and gets
@@ -94,12 +89,13 @@ extern int __shmem_comms_test_nb (void *h);
 
 /*
  * exported to control polling and waiting
- * TODO: needs better encapsulation
  */
 extern void __shmem_comms_service (void);
 
 /*
  * utility to wait on remote updates
+ *
+ * TODO: GASNet-specific (I know this needs fixing)
  */
 #define WAIT_ON_COMPLETION(p)	GASNET_BLOCKUNTIL(p)
 
