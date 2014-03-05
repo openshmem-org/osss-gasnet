@@ -1800,6 +1800,11 @@ __shmem_comms_init (void)
   __shmem_comms_set_waitmode (...);
 #endif /* commented out for now */
 
+  /*
+   * this seems to give best performance in observed cases
+   */
+  GASNET_SAFE (gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK));
+
   __shmem_service_init ();
 
   /*
