@@ -50,22 +50,15 @@ extern void __shmem_comms_finalize (int status);
 extern void __shmem_comms_exit (int status);
 
 /*
- * query the environment
+ * query the environment (which rank/PE I am, how many PEs)
  */
 extern int __shmem_comms_mynode (void);
 extern int __shmem_comms_nodes (void);
 
 /*
- * do a getenv (potentially multi-node)
+ * look at PE's environment
  */
 extern char *__shmem_comms_getenv (const char *name);
-
-#if 0
-/*
- * manage different spin/block modes
- */
-extern void __shmem_comms_set_waitmode (const char *mode_str);
-#endif /* commented out */
 
 /*
  * handlers for puts and gets
@@ -93,13 +86,6 @@ extern int __shmem_comms_test_nb (void *h);
 extern void __shmem_comms_service (void);
 
 /*
- * utility to wait on remote updates
- *
- * TODO: GASNet-specific (I know this needs fixing)
- */
-#define WAIT_ON_COMPLETION(p)	GASNET_BLOCKUNTIL(p)
-
-/*
  * for accessibility timeouts
  */
 extern int __shmem_comms_ping_request (int pe);
@@ -112,9 +98,8 @@ extern void __shmem_comms_barrier (int PE_start, int logPE_stride,
 				   int PE_size, long *pSync);
 
 /*
- * swaps, other atomics
+ * the atomics we support
  */
-
 typedef enum
   {
     AMO_SWAP=0,
@@ -138,7 +123,7 @@ extern void __shmem_comms_fence_request (void);
 extern void __shmem_comms_quiet_request (void);
 
 /*
- * TODO: this should be in ../globalvar
+ * TODO: review location of source
  */
 extern void *__shmem_symmetric_addr_lookup (void *dest, int pe);
 

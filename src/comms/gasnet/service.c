@@ -58,7 +58,7 @@
 #endif /* _POSIX_C_SOURCE */
 #include <time.h>
 
-#include <gasnet.h>
+#include "gasnet_safe.h"
 
 #include "../comms.h"
 
@@ -87,7 +87,8 @@ static volatile int done = 0;
  * does comms. service until told not to
  */
 
-static void *
+static
+void *
 start_service (void *unused)
 {
   do
@@ -105,6 +106,21 @@ start_service (void *unused)
  * assume initially we need to manage progress ourselves
  */
 static int handling_own_thread = 1;
+
+/**
+ * tell a PE how to contend for updates
+ *
+ */
+static
+void
+waitmode_init (void)
+{
+  /*
+   * this gives best performance in all cases observed by the author
+   * (@ UH).  Could make this programmable.
+   */
+  GASNET_SAFE (gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK));
+}
 
 /**
  * start the servicer
@@ -168,6 +184,8 @@ __shmem_service_init (void)
 	  /* NOT REACHED */
         }
     }
+
+  waitmode_init ();
 }
 
 /**
