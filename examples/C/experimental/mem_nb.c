@@ -45,6 +45,7 @@
 #include <stdio.h>
 
 #include <mpp/shmem.h>
+#include <mpp/shmemx.h>
 
 int
 main (int argc, char **argv)

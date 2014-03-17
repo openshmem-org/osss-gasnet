@@ -48,6 +48,7 @@
 #include <stdio.h>
 
 #include <mpp/shmem.h>
+#include <mpp/shmemx.h>
 
 int dst;
 
@@ -64,7 +65,7 @@ main ()
 
   if (me == 0)
     {
-      shmem_int_xor (&dst, 0x58, 1);
+      shmemx_int_xor (&dst, 0x58, 1);
     }
   shmem_barrier_all ();
 

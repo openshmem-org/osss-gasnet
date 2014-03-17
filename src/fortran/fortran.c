@@ -53,6 +53,10 @@
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
+#ifdef HAVE_FEATURE_EXPERIMENTAL
+# include "pshmemx.h"
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
+
 /**
  *
  * init & query functions
@@ -741,22 +745,22 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value,
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_int4_xor_ = pshmem_int4_xor_
-# define shmem_int4_xor_ pshmem_int4_xor_
-# pragma weak shmem_int8_xor_ = pshmem_int8_xor_
-# define shmem_int8_xor_ pshmem_int8_xor_
+# pragma weak shmemx_int4_xor_ = pshmemx_int4_xor_
+# define shmemx_int4_xor_ pshmemx_int4_xor_
+# pragma weak shmemx_int8_xor_ = pshmemx_int8_xor_
+# define shmemx_int8_xor_ pshmemx_int8_xor_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
-FORTRANIFY (shmem_int4_xor) (int *target, int *value, int *pe)
+FORTRANIFY (shmemx_int4_xor) (int *target, int *value, int *pe)
 {
-  shmem_int_xor (target, *value, *pe);
+  shmemx_int_xor (target, *value, *pe);
 }
 
 void
-FORTRANIFY (shmem_int8_xor) (long *target, long *value, int *pe)
+FORTRANIFY (shmemx_int8_xor) (long *target, long *value, int *pe)
 {
-  shmem_long_xor (target, *value, *pe);
+  shmemx_long_xor (target, *value, *pe);
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
@@ -1124,132 +1128,132 @@ FORTRANIFY (shmem_pcontrol) (int *level)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-/* # pragma weak shmem_character_put_nb_ = pshmem_character_put_nb_ */
-/* # define shmem_character_put_nb_ pshmem_character_put_nb_ */
-# pragma weak shmem_double_put_nb_ = pshmem_double_put_nb_
-# define shmem_double_put_nb_ pshmem_double_put_nb_
-# pragma weak shmem_integer_put_nb_ = pshmem_integer_put_nb_
-# define shmem_integer_put_nb_ pshmem_integer_put_nb_
-# pragma weak shmem_logical_put_nb_ = pshmem_logical_put_nb_
-# define shmem_logical_put_nb_ pshmem_logical_put_nb_
-# pragma weak shmem_real_put_nb_ = pshmem_real_put_nb_
-# define shmem_real_put_nb_ pshmem_real_put_nb_
-/* # pragma weak shmem_complex_put_nb_ = pshmem_complex_put_nb_*/
-/* # define shmem_complex_put_nb_ pshmem_complex_put_nb_*/
-# pragma weak shmem_put4_nb_ = pshmem_put4_nb_
-# define shmem_put4_nb_ pshmem_put4_nb_
-# pragma weak shmem_put8_nb_ = pshmem_put8_nb_
-# define shmem_put8_nb_ pshmem_put8_nb_
-# pragma weak shmem_put32_nb_ = pshmem_put32_nb_
-# define shmem_put32_nb_ pshmem_put32_nb_
-# pragma weak shmem_put64_nb_ = pshmem_put64_nb_
-# define shmem_put64_nb_ pshmem_put64_nb_
-# pragma weak shmem_put128_nb_ = pshmem_put128_nb_
-# define shmem_put128_nb_ pshmem_put128_nb_
-/* # pragma weak shmem_putmem_nb_ = pshmem_putmem_nb_ */
-/* # define shmem_putmem_nb_ pshmem_putmem_nb_ */
+/* # pragma weak shmemx_character_put_nb_ = pshmemx_character_put_nb_ */
+/* # define shmemx_character_put_nb_ pshmemx_character_put_nb_ */
+# pragma weak shmemx_double_put_nb_ = pshmemx_double_put_nb_
+# define shmemx_double_put_nb_ pshmemx_double_put_nb_
+# pragma weak shmemx_integer_put_nb_ = pshmemx_integer_put_nb_
+# define shmemx_integer_put_nb_ pshmemx_integer_put_nb_
+# pragma weak shmemx_logical_put_nb_ = pshmemx_logical_put_nb_
+# define shmemx_logical_put_nb_ pshmemx_logical_put_nb_
+# pragma weak shmemx_real_put_nb_ = pshmemx_real_put_nb_
+# define shmemx_real_put_nb_ pshmemx_real_put_nb_
+/* # pragma weak shmemx_complex_put_nb_ = pshmemx_complex_put_nb_*/
+/* # define shmemx_complex_put_nb_ pshmemx_complex_put_nb_*/
+# pragma weak shmemx_put4_nb_ = pshmemx_put4_nb_
+# define shmemx_put4_nb_ pshmemx_put4_nb_
+# pragma weak shmemx_put8_nb_ = pshmemx_put8_nb_
+# define shmemx_put8_nb_ pshmemx_put8_nb_
+# pragma weak shmemx_put32_nb_ = pshmemx_put32_nb_
+# define shmemx_put32_nb_ pshmemx_put32_nb_
+# pragma weak shmemx_put64_nb_ = pshmemx_put64_nb_
+# define shmemx_put64_nb_ pshmemx_put64_nb_
+# pragma weak shmemx_put128_nb_ = pshmemx_put128_nb_
+# define shmemx_put128_nb_ pshmemx_put128_nb_
+/* # pragma weak shmemx_putmem_nb_ = pshmemx_putmem_nb_ */
+/* # define shmemx_putmem_nb_ pshmemx_putmem_nb_ */
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_FORTRAN_PUT_NB(FName, CName, CType)			\
+#define SHMEMX_FORTRAN_PUT_NB(FName, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_##FName##_put_nb) (CType *target, const CType *source,	\
-				      int *size, int *pe, void **hp)	\
+  FORTRANIFY(shmemx_##FName##_put_nb) (CType *target, const CType *source, \
+				       int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_put_nb (target, source, *size, *pe, hp);	\
+    return shmemx_##CName##_put_nb (target, source, *size, *pe, hp);	\
   }
 
-#define SHMEM_FORTRAN_PUT_SIZE_NB(Size, CName, CType)			\
+#define SHMEMX_FORTRAN_PUT_SIZE_NB(Size, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_put##Size##_nb) (CType *target, const CType *source,	\
-				    int *size, int *pe, void **hp)	\
+  FORTRANIFY(shmemx_put##Size##_nb) (CType *target, const CType *source, \
+				     int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_put_nb (target, source, *size, *pe, hp);	\
+    return shmemx_##CName##_put_nb (target, source, *size, *pe, hp);	\
   }
   
-/* SHMEM_FORTRAN_PUT_NB (character, char, char); */
-SHMEM_FORTRAN_PUT_NB (double, double, double);
-SHMEM_FORTRAN_PUT_NB (integer, int, int);
-SHMEM_FORTRAN_PUT_NB (logical, int, int);
-SHMEM_FORTRAN_PUT_NB (real, int, int);
-/* SHMEM_FORTRAN_PUT_NB (complex, complexf, COMPLEXIFY (float)); */
-SHMEM_FORTRAN_PUT_SIZE_NB (4, int, int);
-SHMEM_FORTRAN_PUT_SIZE_NB (8, long, long);
-SHMEM_FORTRAN_PUT_SIZE_NB (32, int, int);
-SHMEM_FORTRAN_PUT_SIZE_NB (64, long, long);
-SHMEM_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
+/* SHMEMX_FORTRAN_PUT_NB (character, char, char); */
+SHMEMX_FORTRAN_PUT_NB (double, double, double);
+SHMEMX_FORTRAN_PUT_NB (integer, int, int);
+SHMEMX_FORTRAN_PUT_NB (logical, int, int);
+SHMEMX_FORTRAN_PUT_NB (real, int, int);
+/* SHMEMX_FORTRAN_PUT_NB (complex, complexf, COMPLEXIFY (float)); */
+SHMEMX_FORTRAN_PUT_SIZE_NB (4, int, int);
+SHMEMX_FORTRAN_PUT_SIZE_NB (8, long, long);
+SHMEMX_FORTRAN_PUT_SIZE_NB (32, int, int);
+SHMEMX_FORTRAN_PUT_SIZE_NB (64, long, long);
+SHMEMX_FORTRAN_PUT_SIZE_NB (128, longlong, long long);
 
 /*
  * non-blocking gets
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-/* # pragma weak shmem_character_get_nb_ = pshmem_character_get_nb_ */
-/* # define shmem_character_get_nb_ pshmem_character_get_nb_ */
-# pragma weak shmem_double_get_nb_ = pshmem_double_get_nb_
-# define shmem_double_get_nb_ pshmem_double_get_nb_
-# pragma weak shmem_integer_get_nb_ = pshmem_integer_get_nb_
-# define shmem_integer_get_nb_ pshmem_integer_get_nb_
-# pragma weak shmem_logical_get_nb_ = pshmem_logical_get_nb_
-# define shmem_logical_get_nb_ pshmem_logical_get_nb_
-# pragma weak shmem_real_get_nb_ = pshmem_real_get_nb_
-# define shmem_real_get_nb_ pshmem_real_get_nb_
-/* # pragma weak shmem_complex_get_nb_ = pshmem_complex_get_nb_*/
-/* # define shmem_complex_get_nb_ pshmem_complex_get_nb_*/
-# pragma weak shmem_get4_nb_ = pshmem_get4_nb_
-# define shmem_get4_nb_ pshmem_get4_nb_
-# pragma weak shmem_get8_nb_ = pshmem_get8_nb_
-# define shmem_get8_nb_ pshmem_get8_nb_
-# pragma weak shmem_get32_nb_ = pshmem_get32_nb_
-# define shmem_get32_nb_ pshmem_get32_nb_
-# pragma weak shmem_get64_nb_ = pshmem_get64_nb_
-# define shmem_get64_nb_ pshmem_get64_nb_
-# pragma weak shmem_get128_nb_ = pshmem_get128_nb_
-# define shmem_get128_nb_ pshmem_get128_nb_
-/* # pragma weak shmem_getmem_nb_ = pshmem_getmem_nb_ */
-/* # define shmem_getmem_nb_ pshmem_getmem_nb_ */
+/* # pragma weak shmemx_character_get_nb_ = pshmemx_character_get_nb_ */
+/* # define shmemx_character_get_nb_ pshmemx_character_get_nb_ */
+# pragma weak shmemx_double_get_nb_ = pshmemx_double_get_nb_
+# define shmemx_double_get_nb_ pshmemx_double_get_nb_
+# pragma weak shmemx_integer_get_nb_ = pshmemx_integer_get_nb_
+# define shmemx_integer_get_nb_ pshmemx_integer_get_nb_
+# pragma weak shmemx_logical_get_nb_ = pshmemx_logical_get_nb_
+# define shmemx_logical_get_nb_ pshmemx_logical_get_nb_
+# pragma weak shmemx_real_get_nb_ = pshmemx_real_get_nb_
+# define shmemx_real_get_nb_ pshmemx_real_get_nb_
+/* # pragma weak shmemx_complex_get_nb_ = pshmemx_complex_get_nb_*/
+/* # define shmemx_complex_get_nb_ pshmemx_complex_get_nb_*/
+# pragma weak shmemx_get4_nb_ = pshmemx_get4_nb_
+# define shmemx_get4_nb_ pshmemx_get4_nb_
+# pragma weak shmemx_get8_nb_ = pshmemx_get8_nb_
+# define shmemx_get8_nb_ pshmemx_get8_nb_
+# pragma weak shmemx_get32_nb_ = pshmemx_get32_nb_
+# define shmemx_get32_nb_ pshmemx_get32_nb_
+# pragma weak shmemx_get64_nb_ = pshmemx_get64_nb_
+# define shmemx_get64_nb_ pshmemx_get64_nb_
+# pragma weak shmemx_get128_nb_ = pshmemx_get128_nb_
+# define shmemx_get128_nb_ pshmemx_get128_nb_
+/* # pragma weak shmemx_getmem_nb_ = pshmemx_getmem_nb_ */
+/* # define shmemx_getmem_nb_ pshmemx_getmem_nb_ */
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_FORTRAN_GET_NB(FName, CName, CType)			\
+#define SHMEMX_FORTRAN_GET_NB(FName, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_##FName##_get_nb) (CType *target, const CType *source,	\
-				      int *size, int *pe, void **hp)	\
+  FORTRANIFY(shmemx_##FName##_get_nb) (CType *target, const CType *source, \
+				       int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_get_nb (target, source, *size, *pe, hp);	\
+    return shmemx_##CName##_get_nb (target, source, *size, *pe, hp);	\
   }
 
-#define SHMEM_FORTRAN_GET_SIZE_NB(Size, CName, CType)			\
+#define SHMEMX_FORTRAN_GET_SIZE_NB(Size, CName, CType)			\
   void *								\
-  FORTRANIFY(shmem_get##Size##_nb) (CType *target, const CType *source,	\
-				    int *size, int *pe, void **hp)	\
+  FORTRANIFY(shmemx_get##Size##_nb) (CType *target, const CType *source, \
+				     int *size, int *pe, void **hp)	\
   {									\
-    return shmem_##CName##_get_nb (target, source, *size, *pe, hp);	\
+    return shmemx_##CName##_get_nb (target, source, *size, *pe, hp);	\
   }
   
-/* SHMEM_FORTRAN_GET_NB (character, char, char); */
-SHMEM_FORTRAN_GET_NB (double, double, double);
-SHMEM_FORTRAN_GET_NB (integer, int, int);
-SHMEM_FORTRAN_GET_NB (logical, int, int);
-SHMEM_FORTRAN_GET_NB (real, int, int);
-/* SHMEM_FORTRAN_GET_NB (complex, complexf, COMPLEXIFY (float)); */
-SHMEM_FORTRAN_GET_SIZE_NB (4, int, int);
-SHMEM_FORTRAN_GET_SIZE_NB (8, long, long);
-SHMEM_FORTRAN_GET_SIZE_NB (32, int, int);
-SHMEM_FORTRAN_GET_SIZE_NB (64, long, long);
-SHMEM_FORTRAN_GET_SIZE_NB (128, longlong, long long);
+/* SHMEMX_FORTRAN_GET_NB (character, char, char); */
+SHMEMX_FORTRAN_GET_NB (double, double, double);
+SHMEMX_FORTRAN_GET_NB (integer, int, int);
+SHMEMX_FORTRAN_GET_NB (logical, int, int);
+SHMEMX_FORTRAN_GET_NB (real, int, int);
+/* SHMEMX_FORTRAN_GET_NB (complex, complexf, COMPLEXIFY (float)); */
+SHMEMX_FORTRAN_GET_SIZE_NB (4, int, int);
+SHMEMX_FORTRAN_GET_SIZE_NB (8, long, long);
+SHMEMX_FORTRAN_GET_SIZE_NB (32, int, int);
+SHMEMX_FORTRAN_GET_SIZE_NB (64, long, long);
+SHMEMX_FORTRAN_GET_SIZE_NB (128, longlong, long long);
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_wtime_ = pshmem_wtime_
-# define shmem_wtime_ pshmem_wtime_
+# pragma weak shmemx_wtime_ = pshmemx_wtime_
+# define shmemx_wtime_ pshmemx_wtime_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 double
-FORTRANIFY (shmem_wtime) (void)
+FORTRANIFY (shmemx_wtime) (void)
 {
-  return shmem_wtime ();
+  return shmemx_wtime ();
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

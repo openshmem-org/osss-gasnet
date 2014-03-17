@@ -558,22 +558,7 @@ extern "C"
 
   extern void pshmem_set_lock (long *lock);
   extern void pshmem_clear_lock (long *lock);
-  extern int pshmem_test_lock (long *lock) _WUR;
-
-ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protosp'))
-
-#if 0
-  extern void pshmem_init (void);
-  extern void pshmem_finalize (void);
-  extern char *pshmem_nodename (void) _WUR;
-  extern void *pshmem_malloc (size_t size) _WUR;
-  extern void pshmem_free (void *ptr);
-  extern void *pshmem_realloc (void *ptr, size_t size) _WUR;
-  extern void *pshmem_memalign (size_t alignment, size_t size) _WUR;
-  extern char *psherror (void) _WUR;
-  extern char *pshmem_error (void) _WUR;
-  extern void pshmem_sync_init (long *pSync);
-#endif
+  extern int  pshmem_test_lock (long *lock) _WUR;
 
   /*
    * --end--

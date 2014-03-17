@@ -67,6 +67,10 @@
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
+#ifdef HAVE_FEATURE_EXPERIMENTAL
+# include "pshmemx.h"
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
+
 #include "version.h"
 
 /* ----------------------------------------------------------------- */
@@ -292,3 +296,26 @@ start_pes (int npes)
    * and we're up and running
    */
 }
+
+#ifdef HAVE_FEATURE_EXPERIMENTAL
+
+#ifdef HAVE_FEATURE_PSHMEM
+# pragma weak shmemx_init = pshmemx_init
+# define shmemx_init pshmemx_init
+# pragma weak shmemx_finalize = pshmemx_finalize
+# define shmemx_finalize pshmemx_finalize
+#endif /* HAVE_FEATURE_PSHMEM */
+
+void
+shmemx_init (void)
+{
+  start_pes (0);
+}
+
+void
+shmemx_finalize (void)
+{
+  /* currently nothing here, all done in atexit () handler */
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

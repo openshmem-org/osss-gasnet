@@ -647,9 +647,7 @@ extern "C"
 
   extern void shmem_set_lock (long *lock);
   extern void shmem_clear_lock (long *lock);
-  extern int shmem_test_lock (long *lock) _WUR;
-
-ifdef(`HAVE_FEATURE_EXPERIMENTAL', include(`experimental.protos'))
+  extern int  shmem_test_lock (long *lock) _WUR;
 
   /*
    * --end--

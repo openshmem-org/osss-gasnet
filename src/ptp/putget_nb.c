@@ -53,48 +53,48 @@
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern void *shmem_put16_nb (void *dest, const void *src, size_t nelems,
-			     int pe, void **hp) _WUR; /* ! API */
-extern void *shmem_put_nb (long *dest, const long *src, size_t nelems,
-			   int pe, void **hp) _WUR; /* ! API */
-# pragma weak shmem_short_put_nb = pshmem_short_put_nb
-# define shmem_short_put_nb pshmem_short_put_nb
-# pragma weak shmem_int_put_nb = pshmem_int_put_nb
-# define shmem_int_put_nb pshmem_int_put_nb
-# pragma weak shmem_long_put_nb = pshmem_long_put_nb
-# define shmem_long_put_nb pshmem_long_put_nb
-# pragma weak shmem_longdouble_put_nb = pshmem_longdouble_put_nb
-# define shmem_longdouble_put_nb pshmem_longdouble_put_nb
-# pragma weak shmem_longlong_put_nb = pshmem_longlong_put_nb
-# define shmem_longlong_put_nb pshmem_longlong_put_nb
-# pragma weak shmem_double_put_nb = pshmem_double_put_nb
-# define shmem_double_put_nb pshmem_double_put_nb
-# pragma weak shmem_float_put_nb = pshmem_float_put_nb
-# define shmem_float_put_nb pshmem_float_put_nb
-# pragma weak shmem_put16_nb = pshmem_put16_nb
-# define shmem_put16_nb pshmem_put16_nb
-# pragma weak shmem_put32_nb = pshmem_put32_nb
-# define shmem_put32_nb pshmem_put32_nb
-# pragma weak shmem_put64_nb = pshmem_put64_nb
-# define shmem_put64_nb pshmem_put64_nb
-# pragma weak shmem_put128_nb = pshmem_put128_nb
-# define shmem_put128_nb pshmem_put128_nb
+extern void *shmemx_put16_nb (void *dest, const void *src, size_t nelems,
+			      int pe, void **hp) _WUR; /* ! API */
+extern void *shmemx_put_nb (long *dest, const long *src, size_t nelems,
+			    int pe, void **hp) _WUR; /* ! API */
+# pragma weak shmemx_short_put_nb = pshmemx_short_put_nb
+# define shmemx_short_put_nb pshmemx_short_put_nb
+# pragma weak shmemx_int_put_nb = pshmemx_int_put_nb
+# define shmemx_int_put_nb pshmemx_int_put_nb
+# pragma weak shmemx_long_put_nb = pshmemx_long_put_nb
+# define shmemx_long_put_nb pshmemx_long_put_nb
+# pragma weak shmemx_longdouble_put_nb = pshmemx_longdouble_put_nb
+# define shmemx_longdouble_put_nb pshmemx_longdouble_put_nb
+# pragma weak shmemx_longlong_put_nb = pshmemx_longlong_put_nb
+# define shmemx_longlong_put_nb pshmemx_longlong_put_nb
+# pragma weak shmemx_double_put_nb = pshmemx_double_put_nb
+# define shmemx_double_put_nb pshmemx_double_put_nb
+# pragma weak shmemx_float_put_nb = pshmemx_float_put_nb
+# define shmemx_float_put_nb pshmemx_float_put_nb
+# pragma weak shmemx_put16_nb = pshmemx_put16_nb
+# define shmemx_put16_nb pshmemx_put16_nb
+# pragma weak shmemx_put32_nb = pshmemx_put32_nb
+# define shmemx_put32_nb pshmemx_put32_nb
+# pragma weak shmemx_put64_nb = pshmemx_put64_nb
+# define shmemx_put64_nb pshmemx_put64_nb
+# pragma weak shmemx_put128_nb = pshmemx_put128_nb
+# define shmemx_put128_nb pshmemx_put128_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * non-blocking extensions
  */
 
-#define SHMEM_TYPE_PUT_NB(Name, Type)					\
+#define SHMEMX_TYPE_PUT_NB(Name, Type)					\
   void *								\
-  shmem_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
-			 int pe, void **hp)				\
+  shmemx_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
+			  int pe, void **hp)				\
   {									\
     void *h;								\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    SYMMETRY_CHECK (target, 1, "shmem_" #Name "_put_nb");		\
+    SYMMETRY_CHECK (target, 1, "shmemx_" #Name "_put_nb");		\
     h = __shmem_comms_put_nb ((Type *) target, (Type *) source,		\
 			      typed_nelems, pe);			\
     if ((hp != NULL) && (*hp != NULL))					\
@@ -104,53 +104,53 @@ extern void *shmem_put_nb (long *dest, const long *src, size_t nelems,
     return h;								\
   }
 
-SHMEM_TYPE_PUT_NB (short, short);
-SHMEM_TYPE_PUT_NB (int, int);
-SHMEM_TYPE_PUT_NB (long, long);
-SHMEM_TYPE_PUT_NB (longdouble, long double);
-SHMEM_TYPE_PUT_NB (longlong, long long);
-SHMEM_TYPE_PUT_NB (double, double);
-SHMEM_TYPE_PUT_NB (float, float);
+SHMEMX_TYPE_PUT_NB (short, short);
+SHMEMX_TYPE_PUT_NB (int, int);
+SHMEMX_TYPE_PUT_NB (long, long);
+SHMEMX_TYPE_PUT_NB (longdouble, long double);
+SHMEMX_TYPE_PUT_NB (longlong, long long);
+SHMEMX_TYPE_PUT_NB (double, double);
+SHMEMX_TYPE_PUT_NB (float, float);
 
 void *
-shmem_put16_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_put16_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_short_put_nb (dest, src, nelems, pe, hp);
+  return shmemx_short_put_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_put32_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_put32_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_int_put_nb (dest, src, nelems, pe, hp);
+  return shmemx_int_put_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_put64_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_put64_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_long_put_nb (dest, src, nelems, pe, hp);
+  return shmemx_long_put_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_put128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_put128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_longdouble_put_nb (dest, src, nelems, pe, hp);
+  return shmemx_longdouble_put_nb (dest, src, nelems, pe, hp);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_putmem_nb = pshmem_putmem_nb
-# define shmem_putmem_nb pshmem_putmem_nb
-# pragma weak shmem_put_nb = pshmem_put_nb
-# define shmem_put_nb pshmem_put_nb
+# pragma weak shmemx_putmem_nb = pshmemx_putmem_nb
+# define shmemx_putmem_nb pshmemx_putmem_nb
+# pragma weak shmemx_put_nb = pshmemx_put_nb
+# define shmemx_put_nb pshmemx_put_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void *
-shmem_putmem_nb (void *target, const void *source, size_t nelems,
-		 int pe, void **hp)
+shmemx_putmem_nb (void *target, const void *source, size_t nelems,
+		  int pe, void **hp)
 {
   void *h;
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
-  SYMMETRY_CHECK (target, 1, "shmem_putmem_nb");
+  SYMMETRY_CHECK (target, 1, "shmemx_putmem_nb");
   h = __shmem_comms_put_nb (target, (void *) source, nelems, pe);
   if ((hp != NULL) && (*hp != NULL))
     {
@@ -160,51 +160,51 @@ shmem_putmem_nb (void *target, const void *source, size_t nelems,
 }
 
 void *
-shmem_put_nb (long *target, const long *source, size_t nelems,
-	      int pe, void **hp)
+shmemx_put_nb (long *target, const long *source, size_t nelems,
+	       int pe, void **hp)
 {
-  return shmem_long_put_nb (target, source, nelems, pe, hp);
+  return shmemx_long_put_nb (target, source, nelems, pe, hp);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern void *shmem_get16_nb (void *dest, const void *src, size_t nelems,
-			     int pe, void **hp) _WUR; /* ! API */
-extern void *shmem_get_nb (long *dest, const long *src, size_t nelems,
-			   int pe, void **hp) _WUR; /* ! API */
-# pragma weak shmem_short_get_nb = pshmem_short_get_nb
-# define shmem_short_get_nb pshmem_short_get_nb
-# pragma weak shmem_int_get_nb = pshmem_int_get_nb
-# define shmem_int_get_nb pshmem_int_get_nb
-# pragma weak shmem_long_get_nb = pshmem_long_get_nb
-# define shmem_long_get_nb pshmem_long_get_nb
-# pragma weak shmem_longdouble_get_nb = pshmem_longdouble_get_nb
-# define shmem_longdouble_get_nb pshmem_longdouble_get_nb
-# pragma weak shmem_longlong_get_nb = pshmem_longlong_get_nb
-# define shmem_longlong_get_nb pshmem_longlong_get_nb
-# pragma weak shmem_double_get_nb = pshmem_double_get_nb
-# define shmem_double_get_nb pshmem_double_get_nb
-# pragma weak shmem_float_get_nb = pshmem_float_get_nb
-# define shmem_float_get_nb pshmem_float_get_nb
-# pragma weak shmem_get16_nb = pshmem_get16_nb
-# define shmem_get16_nb pshmem_get16_nb
-# pragma weak shmem_get32_nb = pshmem_get32_nb
-# define shmem_get32_nb pshmem_get32_nb
-# pragma weak shmem_get64_nb = pshmem_get64_nb
-# define shmem_get64_nb pshmem_get64_nb
-# pragma weak shmem_get128_nb = pshmem_get128_nb
-# define shmem_get128_nb pshmem_get128_nb
+extern void *shmemx_get16_nb (void *dest, const void *src, size_t nelems,
+			      int pe, void **hp) _WUR; /* ! API */
+extern void *shmemx_get_nb (long *dest, const long *src, size_t nelems,
+			    int pe, void **hp) _WUR; /* ! API */
+# pragma weak shmemx_short_get_nb = pshmemx_short_get_nb
+# define shmemx_short_get_nb pshmemx_short_get_nb
+# pragma weak shmemx_int_get_nb = pshmemx_int_get_nb
+# define shmemx_int_get_nb pshmemx_int_get_nb
+# pragma weak shmemx_long_get_nb = pshmemx_long_get_nb
+# define shmemx_long_get_nb pshmemx_long_get_nb
+# pragma weak shmemx_longdouble_get_nb = pshmemx_longdouble_get_nb
+# define shmemx_longdouble_get_nb pshmemx_longdouble_get_nb
+# pragma weak shmemx_longlong_get_nb = pshmemx_longlong_get_nb
+# define shmemx_longlong_get_nb pshmemx_longlong_get_nb
+# pragma weak shmemx_double_get_nb = pshmemx_double_get_nb
+# define shmemx_double_get_nb pshmemx_double_get_nb
+# pragma weak shmemx_float_get_nb = pshmemx_float_get_nb
+# define shmemx_float_get_nb pshmemx_float_get_nb
+# pragma weak shmemx_get16_nb = pshmemx_get16_nb
+# define shmemx_get16_nb pshmemx_get16_nb
+# pragma weak shmemx_get32_nb = pshmemx_get32_nb
+# define shmemx_get32_nb pshmemx_get32_nb
+# pragma weak shmemx_get64_nb = pshmemx_get64_nb
+# define shmemx_get64_nb pshmemx_get64_nb
+# pragma weak shmemx_get128_nb = pshmemx_get128_nb
+# define shmemx_get128_nb pshmemx_get128_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_GET_NB(Name, Type)					\
+#define SHMEMX_TYPE_GET_NB(Name, Type)					\
   void *								\
-  shmem_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
+  shmemx_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
 			 int pe, void **hp)				\
   {									\
     void *h;								\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    SYMMETRY_CHECK (source, 2, "shmem_" #Name "_get_nb");		\
+    SYMMETRY_CHECK (source, 2, "shmemx_" #Name "_get_nb");		\
     h = __shmem_comms_get_nb ((Type *) target, (Type *) source,		\
 			      typed_nelems, pe);			\
     if ((hp != NULL) && (*hp != NULL))					\
@@ -214,54 +214,54 @@ extern void *shmem_get_nb (long *dest, const long *src, size_t nelems,
     return h;								\
   }
 
-SHMEM_TYPE_GET_NB (short, short);
-SHMEM_TYPE_GET_NB (int, int);
-SHMEM_TYPE_GET_NB (long, long);
-SHMEM_TYPE_GET_NB (longdouble, long double);
-SHMEM_TYPE_GET_NB (longlong, long long);
-SHMEM_TYPE_GET_NB (double, double);
-SHMEM_TYPE_GET_NB (float, float);
+SHMEMX_TYPE_GET_NB (short, short);
+SHMEMX_TYPE_GET_NB (int, int);
+SHMEMX_TYPE_GET_NB (long, long);
+SHMEMX_TYPE_GET_NB (longdouble, long double);
+SHMEMX_TYPE_GET_NB (longlong, long long);
+SHMEMX_TYPE_GET_NB (double, double);
+SHMEMX_TYPE_GET_NB (float, float);
 
 void *
-shmem_get16_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_get16_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_short_get_nb (dest, src, nelems, pe, hp);
+  return shmemx_short_get_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_get32_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_get32_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_int_get_nb (dest, src, nelems, pe, hp);
+  return shmemx_int_get_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_get64_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_get64_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_long_get_nb (dest, src, nelems, pe, hp);
+  return shmemx_long_get_nb (dest, src, nelems, pe, hp);
 }
 
 void *
-shmem_get128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
+shmemx_get128_nb (void *dest, const void *src, size_t nelems, int pe, void **hp)
 {
-  return shmem_longdouble_get_nb (dest, src, nelems, pe, hp);
+  return shmemx_longdouble_get_nb (dest, src, nelems, pe, hp);
 }
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_getmem_nb = pshmem_getmem_nb
-# define shmem_getmem_nb pshmem_getmem_nb
-# pragma weak shmem_get_nb = pshmem_get_nb
-# define shmem_get_nb pshmem_get_nb
+# pragma weak shmemx_getmem_nb = pshmemx_getmem_nb
+# define shmemx_getmem_nb pshmemx_getmem_nb
+# pragma weak shmemx_get_nb = pshmemx_get_nb
+# define shmemx_get_nb pshmemx_get_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void *
-shmem_getmem_nb (void *target, const void *source, size_t nelems,
+shmemx_getmem_nb (void *target, const void *source, size_t nelems,
 		 int pe, void **hp)
 {
   void *h;
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
-  SYMMETRY_CHECK (source, 2, "shmem_getmem_nb");
+  SYMMETRY_CHECK (source, 2, "shmemx_getmem_nb");
   h = __shmem_comms_get_nb (target, (void *) source, nelems, pe);
   if ((hp != NULL) && (*hp != NULL))
     {
@@ -271,23 +271,23 @@ shmem_getmem_nb (void *target, const void *source, size_t nelems,
 }
 
 void *
-shmem_get_nb (long *target, const long *source, size_t nelems, int pe, void **hp)
+shmemx_get_nb (long *target, const long *source, size_t nelems, int pe, void **hp)
 {
-  return shmem_long_get_nb (target, source, nelems, pe, hp);
+  return shmemx_long_get_nb (target, source, nelems, pe, hp);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_wait_nb = pshmem_wait_nb
-# define shmem_wait_nb pshmem_wait_nb
-# pragma weak shmem_test_nb = pshmem_test_nb
-# define shmem_test_nb pshmem_test_nb
+# pragma weak shmemx_wait_nb = pshmemx_wait_nb
+# define shmemx_wait_nb pshmemx_wait_nb
+# pragma weak shmemx_test_nb = pshmemx_test_nb
+# define shmemx_test_nb pshmemx_test_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Wait for handle to be completed
  */
 
-void shmem_wait_nb (void *h)
+void shmemx_wait_nb (void *h)
 {
   __shmem_comms_wait_nb (h);
 }
@@ -297,7 +297,7 @@ void shmem_wait_nb (void *h)
  */
 
 int
-shmem_test_nb (void *h)
+shmemx_test_nb (void *h)
 {
   return __shmem_comms_test_nb (h);
 }

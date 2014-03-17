@@ -274,6 +274,9 @@ SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h pshmem.fh
+ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+SHMEM_HEADERS   += shmemx.h shmemx.fh pshmemx.h pshmemx.fh
+endif
 
 # NOTE: elf and dl are hardwired for now
 LIBS             = @EXE_LIBS@ -lelf -ldl
@@ -379,19 +382,22 @@ uninstall-include:
 
 # -- header files ------------------------------------------
 
-shmem-headers: $(SHMEM_HEADERS)
+# these are now no-ops as experimental features have moved to
+# their own header <shmemx.h>
 
-shmem.h:	shmem.h.in
-	$(M4) $(M4FLAGS) < $^ > $@
+shmem-headers:
 
-pshmem.h:	pshmem.h.in
-	$(M4) $(M4FLAGS) < $^ > $@
+#shmem.h:	shmem.h.in
+#	$(M4) $(M4FLAGS) < $^ > $@
 
-shmem.fh:	shmem.fh.in
-	$(M4) $(M4FLAGS) < $^ > $@
+#pshmem.h:	pshmem.h.in
+#	$(M4) $(M4FLAGS) < $^ > $@
 
-pshmem.fh:	pshmem.fh.in
-	$(M4) $(M4FLAGS) < $^ > $@
+#shmem.fh:	shmem.fh.in
+#	$(M4) $(M4FLAGS) < $^ > $@
+
+#pshmem.fh:	pshmem.fh.in
+#	$(M4) $(M4FLAGS) < $^ > $@
 
 # -- build supporting objects as above ---------------------
 

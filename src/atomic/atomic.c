@@ -93,12 +93,10 @@ __shmem_atomic_finalize (void)
   shmem_##Name##_swap (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
-    Type cond = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_SWAP,				\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_swap_request (target, &value, sizeof (Type),		\
+				pe, &retval);				\
     return retval;							\
   }
 
@@ -140,9 +138,8 @@ shmem_swap (long *target, long value, int pe)
     Type retval;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_CSWAP,				\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_cswap_request (target, &cond, &value, sizeof (Type),	\
+				 pe, &retval);				\
     return retval;							\
   }
 
@@ -164,12 +161,10 @@ SHMEM_TYPE_CSWAP (longlong, long long);
   shmem_##Name##_fadd (Type *target, Type value, int pe)		\
   {									\
     Type retval;							\
-    Type cond = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_FADD,				\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_fadd_request (target, &value, sizeof (Type),		\
+				pe, &retval);				\
     return retval;							\
   }
 
@@ -197,13 +192,10 @@ SHMEM_TYPE_FADD (longlong, long long);
   shmem_##Name##_finc (Type *target, int pe)				\
   {									\
     Type retval;							\
-    Type cond = 0;							\
-    Type value = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_FINC,				\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_finc_request (target, sizeof (Type),			\
+				pe, &retval);				\
     return retval;							\
   }
 
@@ -228,13 +220,10 @@ SHMEM_TYPE_FINC (longlong, long long);
   void									\
   shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
-    Type retval;							\
-    Type cond = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_ADD,					\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_add_request (target, &value, sizeof (Type),		\
+			       pe);					\
   }
 
 SHMEM_TYPE_ADD (int, int);
@@ -255,14 +244,10 @@ SHMEM_TYPE_ADD (longlong, long long);
   void									\
   shmem_##Name##_inc (Type *target, int pe)				\
   {									\
-    Type retval;							\
-    Type cond = 0;							\
-    Type value = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_INC,					\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_inc_request (target, sizeof (Type),			\
+			       pe);					\
   }
 
 SHMEM_TYPE_INC (int, int);
@@ -274,46 +259,43 @@ SHMEM_TYPE_INC (longlong, long long);
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_int_xor = pshmem_int_xor
-# define shmem_int_xor pshmem_int_xor
-# pragma weak shmem_long_xor = pshmem_long_xor
-# define shmem_long_xor pshmem_long_xor
-# pragma weak shmem_longlong_xor = pshmem_longlong_xor
-# define shmem_longlong_xor pshmem_longlong_xor
+# pragma weak shmemx_int_xor = pshmemx_int_xor
+# define shmemx_int_xor pshmemx_int_xor
+# pragma weak shmemx_long_xor = pshmemx_long_xor
+# define shmemx_long_xor pshmemx_long_xor
+# pragma weak shmemx_longlong_xor = pshmemx_longlong_xor
+# define shmemx_longlong_xor pshmemx_longlong_xor
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_XOR(Name, Type)					\
+#define SHMEMX_TYPE_XOR(Name, Type)					\
   void									\
-  shmem_##Name##_xor(Type *target, Type value, int pe)			\
+  shmemx_##Name##_xor(Type *target, Type value, int pe)			\
   {									\
-    Type retval;							\
-    Type cond = 0;							\
     INIT_CHECK ();							\
     PE_RANGE_CHECK (pe);						\
-    __shmem_comms_amo_request (AMO_XOR,					\
-			       target, &cond, &value, sizeof(Type),	\
-			       pe, &retval);				\
+    __shmem_comms_xor_request (target, &value, sizeof (Type),		\
+			       pe);					\
   }
 
-/**
- * \brief These routines perform an atomic exclusive-or (xor) operation
- * between a data value and the target data object.
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   void shmem_int_xor (int *target, int value, int pe);
- *   void shmem_long_xor (long *target, long value, int pe);
- *   void shmem_longlong_xor (long long *target, long long value, int pe);
+ /**
+  * \brief These routines perform an atomic exclusive-or (xor) operation
+  * between a data value and the target data object.
+  *
+  * \b Synopsis:
+  *
+  * - C/C++:
+  * \code
+  *   void shmemx_int_xor (int *target, int value, int pe);
+  *   void shmemx_long_xor (long *target, long value, int pe);
+  *   void shmemx_longlong_xor (long long *target, long long value, int pe);
  * \endcode
  *
  * - Fortran:
  * \code
  *   INTEGER pe
  *
- *   SHMEM_INT4_XOR (target, value, pe)
- *   SHMEM_INT8_XOR (target, value, pe)
+ *   SHMEMX_INT4_XOR (target, value, pe)
+ *   SHMEMX_INT8_XOR (target, value, pe)
  * \endcode
  *
  * \param target    Address of the symmetric data object where to save the data on the target pe.
@@ -327,9 +309,9 @@ SHMEM_TYPE_INC (longlong, long long);
  *      - target must be the address of a symmetric data object.
  *      - If using C/C++, the type of value must match that implied in the Synopsis
  *      section. When calling from Fortran, the data type of value must be as follows:
- *          - For SHMEM_INT4_XOR(), value must be of type Integer,
+ *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
  *            with element size of 4 bytes
- *          - For SHMEM_INT8_XOR(), value must be of type Integer,
+ *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
  *            with element size of 8 bytes.
  *      - value must be the same type as the target data object.
  *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
@@ -345,8 +327,8 @@ SHMEM_TYPE_INC (longlong, long long);
  *
  */
 
-SHMEM_TYPE_XOR (int, int);
-SHMEM_TYPE_XOR (long, long);
-SHMEM_TYPE_XOR (longlong, long long);
+SHMEMX_TYPE_XOR (int, int);
+SHMEMX_TYPE_XOR (long, long);
+SHMEMX_TYPE_XOR (longlong, long long);
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

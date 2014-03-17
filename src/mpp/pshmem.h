@@ -37,11 +37,6 @@
 
 
 
-/*
- * NOT INSTALLED, PART OF SOURCE TREE ONLY
- *
- */
-
 #ifndef _MPP_PSHMEM_H
 #define _MPP_PSHMEM_H 1
 
