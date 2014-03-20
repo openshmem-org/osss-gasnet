@@ -106,11 +106,19 @@ extern void shmemx_wait_nb (void *h);
 extern int  shmemx_test_nb (void *h) _WUR;
 
 /*
- * non-blocking memory management
+ * renamed & non-blocking memory management
  *
  */
-extern void *shmalloc_nb (size_t size);
+#define shmemx_malloc(s)      shmalloc(s)
+#define shmemx_free(a)        shfree(a)
+#define shmemx_realloc(p, s)  shrealloc(p, s)
+#define shmemx_align(a, s)    shmemalign(a, s)
+
+extern void *shmalloc_nb (size_t size) _WUR;
 extern void  shfree_nb (void *addr);
+
+#define shmemx_malloc_nb(s)   shmalloc_nb(s)
+#define shmemx_free_nb(a)     shfree_nb(a)
 
 /*
  * Proposed by IBM Zurich

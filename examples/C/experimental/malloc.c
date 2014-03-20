@@ -2,16 +2,16 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- *
+ * 
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- *
+ * 
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- *
+ * 
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
@@ -32,52 +32,33 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- */   
-    
+ *
+ */
 
 
 /*
- * rotate get_nb an array to right neighbor
+ * trivial test of the shmemx interface
  */
 
 #include <stdio.h>
-#include <time.h>
+#include <assert.h>
 
 #include <shmemx.h>
 
-#define N 7
-
 int
-main (int argc, char **argv)
+main ()
 {
-  int i;
-  int nextpe;
-  int me, npes;
-  long src[N];
-  long *dest;
-  void *handle;
+  int *p;
 
   start_pes (0);
-  me = _my_pe ();
-  npes = _num_pes ();
 
-  for (i = 0; i < N; i += 1)
-    {
-      src[i] = (long) me;
-    }
+  p = shmemx_malloc (64 * sizeof (*p));
 
-  dest = (long *) shmalloc (N * sizeof (*dest));
-
-  nextpe = (me + 1) % npes;
-
-  handle = shmemx_long_get_nb (src, dest,  N, nextpe, &handle);
-
-  shmemx_wait_nb (handle);
+  assert (p != NULL);
 
   shmem_barrier_all ();
 
-  shfree (dest);
+  shmemx_free (p);
 
   return 0;
 }

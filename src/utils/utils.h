@@ -80,7 +80,7 @@
 
 #include "trace.h"
 
-#define PE_RANGE_CHECK(p)						\
+#define PE_RANGE_CHECK(pe)						\
   IF_DEBUGGING(								\
 	       {							\
 		 const int bot_pe = 0;					\

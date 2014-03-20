@@ -217,7 +217,6 @@ shmalloc (size_t size)
 }
 
 
-
 #ifdef HAVE_FEATURE_EXPERIMENTAL
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shfree_nb = pshfree_nb

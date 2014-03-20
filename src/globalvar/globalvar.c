@@ -97,7 +97,8 @@ static global_area_t elfdata;
  * scan the ELF image to build table of global symbold and the image
  * regions where they can be found (BSS and DATA)
  */
-static int
+static
+int
 table_init_helper (void)
 {
   Elf *e = NULL;
@@ -290,13 +291,15 @@ table_init_helper (void)
 /*
  * helpers for debug output: not used currently
  */
-static int
+static
+int
 addr_sort (globalvar_t * a, globalvar_t * b)
 {
   return ((char *) (a->addr) - (char *) (b->addr));
 }
 
-static void
+static
+void
 print_global_var_table (shmem_trace_t msgtype)
 {
   globalvar_t *g;

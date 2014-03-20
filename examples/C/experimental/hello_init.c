@@ -39,7 +39,7 @@
 
 #include <stdio.h>
 
-#include <mpp/shmem.h>
+#include <shmemx.h>
 
 int
 main (int argc, char **argv)

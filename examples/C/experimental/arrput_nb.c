@@ -44,8 +44,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <mpp/shmem.h>
-#include <mpp/shmemx.h>
+#include <shmemx.h>
 
 #define N 7
 

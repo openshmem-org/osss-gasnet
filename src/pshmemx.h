@@ -41,7 +41,7 @@
 #ifndef _PSHMEMX_H
 #define _PSHMEMX_H 1
 
-#include <shmemx.h>
+#include <pshmem.h>
 
 /*
  * new ideas (not part of formal 1.0 API)
@@ -105,11 +105,19 @@ extern void pshmemx_wait_nb (void *h);
 extern int  pshmemx_test_nb (void *h) _WUR;
 
 /*
- * non-blocking memory management
+ * renamed & non-blocking memory management
  *
  */
+#define pshmemx_malloc(s)      pshmalloc(s)
+#define pshmemx_free(a)        pshfree(a)
+#define pshmemx_realloc(p, s)  pshrealloc(p, s)
+#define pshmemx_align(a, s)    pshmemalign(a, s)
+
 extern void *pshmalloc_nb (size_t size);
 extern void  pshfree_nb (void *addr);
+
+#define pshmemx_malloc_nb(s)   pshmalloc_nb(s)
+#define pshmemx_free_nb(a)     pshfree_nb(a)
 
 /*
  * Proposed by IBM Zurich

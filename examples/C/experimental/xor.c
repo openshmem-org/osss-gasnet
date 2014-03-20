@@ -47,8 +47,7 @@
 
 #include <stdio.h>
 
-#include <mpp/shmem.h>
-#include <mpp/shmemx.h>
+#include <shmemx.h>
 
 int dst;
 
