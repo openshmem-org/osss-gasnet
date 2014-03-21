@@ -78,11 +78,11 @@ extern void __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe);
 /*
  * handlers for non-blocking puts and gets (FUTURE)
  */
-extern void __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc);
-extern void __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc);
+extern void __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc);
+extern void __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc);
 
-extern void __shmem_comms_wait_req (shmem_request_handle_t desc);
-extern void __shmem_comms_test_req (shmem_request_handle_t desc, int *flag);
+extern void __shmem_comms_wait_req (shmemx_request_handle_t desc);
+extern void __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag);
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /*

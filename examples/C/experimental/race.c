@@ -58,7 +58,7 @@ main()
   if (me == 0)
     {
       int s;
-      shmem_request_handle_t h;
+      shmemx_request_handle_t h;
 
       shmemx_int_put_nb (dst, &src, 1, 1, &h);
 

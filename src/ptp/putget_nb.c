@@ -54,9 +54,9 @@
 
 #ifdef HAVE_FEATURE_PSHMEM
 extern void shmemx_put16_nb (void *dest, const void *src, size_t nelems,
-			      int pe, shmem_request_handle_t *desc); /* ! API */
+			      int pe, shmemx_request_handle_t *desc); /* ! API */
 extern void shmemx_put_nb (long *dest, const long *src, size_t nelems,
-			    int pe, shmem_request_handle_t *desc); /* ! API */
+			    int pe, shmemx_request_handle_t *desc); /* ! API */
 # pragma weak shmemx_short_put_nb = pshmemx_short_put_nb
 # define shmemx_short_put_nb pshmemx_short_put_nb
 # pragma weak shmemx_int_put_nb = pshmemx_int_put_nb
@@ -88,7 +88,7 @@ extern void shmemx_put_nb (long *dest, const long *src, size_t nelems,
 #define SHMEMX_TYPE_PUT_NB(Name, Type)					\
   void 								\
   shmemx_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
-			  int pe, shmem_request_handle_t *desc)				\
+			  int pe, shmemx_request_handle_t *desc)				\
   {									\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
@@ -107,25 +107,25 @@ SHMEMX_TYPE_PUT_NB (double, double);
 SHMEMX_TYPE_PUT_NB (float, float);
 
 void 
-shmemx_put16_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_put16_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_short_put_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_put32_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_put32_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_int_put_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_put64_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_put64_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_long_put_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_put128_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_put128_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_longdouble_put_nb (dest, src, nelems, pe, desc);
 }
@@ -139,7 +139,7 @@ shmemx_put128_nb (void *dest, const void *src, size_t nelems, int pe, shmem_requ
 
 void 
 shmemx_putmem_nb (void *target, const void *source, size_t nelems,
-		  int pe, shmem_request_handle_t *desc)
+		  int pe, shmemx_request_handle_t *desc)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
@@ -149,16 +149,16 @@ shmemx_putmem_nb (void *target, const void *source, size_t nelems,
 
 void 
 shmemx_put_nb (long *target, const long *source, size_t nelems,
-	       int pe, shmem_request_handle_t *desc)
+	       int pe, shmemx_request_handle_t *desc)
 {
   shmemx_long_put_nb (target, source, nelems, pe, desc);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
 extern void shmemx_get16_nb (void *dest, const void *src, size_t nelems,
-			      int pe, shmem_request_handle_t *desc); /* ! API */
+			      int pe, shmemx_request_handle_t *desc); /* ! API */
 extern void shmemx_get_nb (long *dest, const long *src, size_t nelems,
-			    int pe, shmem_request_handle_t *desc); /* ! API */
+			    int pe, shmemx_request_handle_t *desc); /* ! API */
 # pragma weak shmemx_short_get_nb = pshmemx_short_get_nb
 # define shmemx_short_get_nb pshmemx_short_get_nb
 # pragma weak shmemx_int_get_nb = pshmemx_int_get_nb
@@ -186,7 +186,7 @@ extern void shmemx_get_nb (long *dest, const long *src, size_t nelems,
 #define SHMEMX_TYPE_GET_NB(Name, Type)					\
   void 								\
   shmemx_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
-			 int pe, shmem_request_handle_t *desc)				\
+			 int pe, shmemx_request_handle_t *desc)				\
   {									\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
@@ -205,25 +205,25 @@ SHMEMX_TYPE_GET_NB (double, double);
 SHMEMX_TYPE_GET_NB (float, float);
 
 void 
-shmemx_get16_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_get16_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_short_get_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_get32_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_get32_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_int_get_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_get64_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_get64_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_long_get_nb (dest, src, nelems, pe, desc);
 }
 
 void 
-shmemx_get128_nb (void *dest, const void *src, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_get128_nb (void *dest, const void *src, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_longdouble_get_nb (dest, src, nelems, pe, desc);
 }
@@ -238,7 +238,7 @@ shmemx_get128_nb (void *dest, const void *src, size_t nelems, int pe, shmem_requ
 
 void 
 shmemx_getmem_nb (void *target, const void *source, size_t nelems,
-		 int pe, shmem_request_handle_t *desc)
+		 int pe, shmemx_request_handle_t *desc)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe);
@@ -247,7 +247,7 @@ shmemx_getmem_nb (void *target, const void *source, size_t nelems,
 }
 
 void 
-shmemx_get_nb (long *target, const long *source, size_t nelems, int pe, shmem_request_handle_t *desc)
+shmemx_get_nb (long *target, const long *source, size_t nelems, int pe, shmemx_request_handle_t *desc)
 {
   shmemx_long_get_nb (target, source, nelems, pe, desc);
 }
@@ -263,7 +263,7 @@ shmemx_get_nb (long *target, const long *source, size_t nelems, int pe, shmem_re
  * Wait for handle to be completed
  */
 
-void shmemx_wait_req (shmem_request_handle_t desc)
+void shmemx_wait_req (shmemx_request_handle_t desc)
 {
   __shmem_comms_wait_req (desc);
 }
@@ -273,7 +273,7 @@ void shmemx_wait_req (shmem_request_handle_t desc)
  */
 
 void
-shmemx_test_req (shmem_request_handle_t desc, int *flag)
+shmemx_test_req (shmemx_request_handle_t desc, int *flag)
 {
   __shmem_comms_test_req (desc, flag);
 }
