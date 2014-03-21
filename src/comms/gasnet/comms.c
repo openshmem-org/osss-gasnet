@@ -77,6 +77,8 @@
 
 #include "bail.h"
 
+#include "shmemx.h"
+
 /**
  * gasnet put model: this is just for testing different put
  * emulations; generally we want the nbi routines to get performance.
@@ -1780,26 +1782,24 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
   return n;
 }
 
-void *
-__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe)
+void
+__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc)
 {
-  void *h;
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (dst))
     {
       __shmem_comms_globalvar_put_request (dst, src, len, pe);
-      h = NULL;			/* masquerade as _nb for now */
+      *desc = NULL;			/* masquerade as _nb for now */
     }
   else
     {
       void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
-      h = put_nb_helper (their_dst, src, len, pe);
+      *desc = put_nb_helper (their_dst, src, len, pe);
     }
 #else
   void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
-  h = put_nb_helper (their_dst, src, len, pe);
+  *desc = put_nb_helper (their_dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  return h;
 }
 
 static
@@ -1815,37 +1815,35 @@ get_nb_helper (void *dst, void *src, size_t len, int pe)
   return n;
 }
 
-void *
-__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe)
+void
+__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc)
 {
-  void *h;
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (src))
     {
       __shmem_comms_globalvar_get_request (dst, src, len, pe);
-      h = NULL;			/* masquerade for now */
+      *desc = NULL;			/* masquerade for now */
     }
   else
     {
       void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-      h = get_nb_helper (dst, their_src, len, pe);
+      *desc = get_nb_helper (dst, their_src, len, pe);
     }
 #else
   void *their_src = __shmem_symmetric_addr_lookup (src, pe);
-  h = get_nb_helper (dst, their_src, len, pe);
+  *desc = get_nb_helper (dst, their_src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
-  return h;
 }
 
 /**
  * wait for the handle to be completed
  */
 void
-__shmem_comms_wait_nb (void *h)
+__shmem_comms_wait_req (shmem_request_handle_t desc)
 {
-  if (h != NULL)
+  if (desc != NULL)
     {
-      nb_table_t *n = (nb_table_t *) h;
+      nb_table_t *n = (nb_table_t *) desc;
 
       gasnet_wait_syncnb (n->handle);
       LOAD_STORE_FENCE ();
@@ -1864,12 +1862,12 @@ __shmem_comms_wait_nb (void *h)
  * check to see if the handle has been completed.  Return 1 if so, 0
  * if not
  */
-int
-__shmem_comms_test_nb (void *h)
+void
+__shmem_comms_test_req (shmem_request_handle_t desc, int *flag)
 {
-  if (h != NULL)
+  if (desc != NULL)
     {
-      nb_table_t *n = (nb_table_t *) h;
+      nb_table_t *n = (nb_table_t *) desc;
       nb_table_t *res;
       int s;
 
@@ -1877,16 +1875,16 @@ __shmem_comms_test_nb (void *h)
       HASH_FIND_NB_TABLE (nb_table, n, res);
       if (res == NULL)
 	{
-	  return 1;		/* cleared => complete */
+	  *flag = 1;		/* cleared => complete */
 	}
 
       /* if gasnet says "ok", then complete */
       s = gasnet_try_syncnb (n->handle);
-      return (s == GASNET_OK) ? 1 : 0;
+      *flag = (s == GASNET_OK) ? 1 : 0;
     }
   else
     {
-      return 1;			/* no handle, carry on */
+      *flag = 1;			/* no handle, carry on */
     }
 }
 
