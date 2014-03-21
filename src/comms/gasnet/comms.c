@@ -1783,7 +1783,7 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
 }
 
 void
-__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc)
+__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (dst))
@@ -1816,7 +1816,7 @@ get_nb_helper (void *dst, void *src, size_t len, int pe)
 }
 
 void
-__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc)
+__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
   if (__shmem_symmetric_is_globalvar (src))
@@ -1839,7 +1839,7 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmem_request_ha
  * wait for the handle to be completed
  */
 void
-__shmem_comms_wait_req (shmem_request_handle_t desc)
+__shmem_comms_wait_req (shmemx_request_handle_t desc)
 {
   if (desc != NULL)
     {
@@ -1863,7 +1863,7 @@ __shmem_comms_wait_req (shmem_request_handle_t desc)
  * if not
  */
 void
-__shmem_comms_test_req (shmem_request_handle_t desc, int *flag)
+__shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
 {
   if (desc != NULL)
     {
