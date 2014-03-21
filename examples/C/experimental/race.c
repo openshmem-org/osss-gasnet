@@ -58,17 +58,17 @@ main()
   if (me == 0)
     {
       int s;
-      void *h;
+      shmem_request_handle_t h;
 
-      h = shmemx_int_put_nb (dst, &src, 1, 1, NULL);
+      shmemx_int_put_nb (dst, &src, 1, 1, &h);
 
-      s = shmemx_test_nb (h);
+      shmemx_test_req (h, &s);
 
       fprintf (stderr, "%d: before wait, s = %d\n", me, s);
 
-      shmemx_wait_nb (h);
+      shmemx_wait_req (h);
 
-      s = shmemx_test_nb (h);
+      shmemx_test_req (h, &s);
 
       fprintf (stderr, "%d: after wait, s = %d\n", me, s);
     }

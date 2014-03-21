@@ -56,7 +56,7 @@ main (int argc, char **argv)
   int me, npes;
   long src[N];
   long *dest;
-  void *handle;
+  shmem_request_handle_t handle;
 
   start_pes (0);
   me = _my_pe ();
@@ -71,9 +71,9 @@ main (int argc, char **argv)
 
   nextpe = (me + 1) % npes;
 
-  handle = shmemx_long_get_nb (src, dest,  N, nextpe, &handle);
+  shmemx_long_get_nb (src, dest,  N, nextpe, &handle);
 
-  shmemx_wait_nb (handle);
+  shmemx_wait_req (handle);
 
   shmem_barrier_all ();
 

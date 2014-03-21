@@ -41,6 +41,9 @@
 #define _COMMS_H 1
 
 #include <sys/types.h>
+#ifdef HAVE_FEATURE_EXPERIMENTAL
+#include "shmemx.h"
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /*
  * initialization and shutdown of the communications layer
@@ -71,14 +74,16 @@ extern long __shmem_comms_get_val (void *src, size_t len, int pe);
 extern void __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe);
 extern void __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe);
 
+#ifdef HAVE_FEATURE_EXPERIMENTAL
 /*
  * handlers for non-blocking puts and gets (FUTURE)
  */
-extern void *__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe);
-extern void *__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe);
+extern void __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc);
+extern void __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmem_request_handle_t *desc);
 
-extern void __shmem_comms_wait_nb (void *h);
-extern int __shmem_comms_test_nb (void *h);
+extern void __shmem_comms_wait_req (shmem_request_handle_t desc);
+extern void __shmem_comms_test_req (shmem_request_handle_t desc, int *flag);
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /*
  * exported to control polling and waiting
