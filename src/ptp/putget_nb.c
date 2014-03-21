@@ -253,10 +253,10 @@ shmemx_get_nb (long *target, const long *source, size_t nelems, int pe, shmem_re
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmemx_wait_nb = pshmemx_wait_nb
-# define shmemx_wait_nb pshmemx_wait_nb
-# pragma weak shmemx_test_nb = pshmemx_test_nb
-# define shmemx_test_nb pshmemx_test_nb
+# pragma weak shmemx_wait_req = pshmemx_wait_req
+# define shmemx_wait_req pshmemx_wait_req
+# pragma weak shmemx_test_req = pshmemx_test_req
+# define shmemx_test_req pshmemx_test_req
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
