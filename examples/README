@@ -36,7 +36,7 @@
 
 This is a set of test programs.
 
-Currently only functionality tests that were developed or ported
+Currently they are just functionality tests that were developed or ported
 during the writing of the reference implementation.
 
 Executables are the same name as the source but with a ".x" extension.

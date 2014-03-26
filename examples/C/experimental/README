@@ -39,5 +39,5 @@ that are not officially in the API, but which have either been
 proposed by the community or are just being thought about by the
 developers.
 
-OpenSHMEM must be configured with --enable-experimental for these
-programs to compile/link and run.
+The Reference Implementation OpenSHMEM library must be configured with
+--enable-experimental for these programs to compile/link and run.
