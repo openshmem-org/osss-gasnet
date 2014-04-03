@@ -89,8 +89,9 @@ typedef struct
   size_t end;
 } global_area_t;
 
-static global_area_t elfbss;
-static global_area_t elfdata;
+static global_area_t elfbss;	/* uninitialized */
+static global_area_t elfdata;	/* initialized */
+static global_area_t elfro;	/* read-only */
 
 
 /*
@@ -107,7 +108,6 @@ table_init_helper (void)
   size_t shstrndx;
   Elf_Scn *scn = NULL;
   GElf_Shdr shdr;
-  Elf_Data *data = NULL;
   int ret = -1;
   int (*getsi)();		/* look up name of elf_get... routine */
 
@@ -157,7 +157,7 @@ table_init_helper (void)
    */
   (void) getsi (e, &shstrndx);
 
-  /* walk sections, look for BSS/DATA and symbol table */
+  /* walk sections, look for RO/BSS/DATA and symbol table */
   scn = NULL;
 
   while ((scn = elf_nextscn (e, scn)) != NULL)
@@ -167,13 +167,29 @@ table_init_helper (void)
 	{
 	  goto bail;
 	}
-      if ((shstr_name = elf_strptr (e, shstrndx, shdr.sh_name)) == NULL)
+      shstr_name = elf_strptr (e, shstrndx, shdr.sh_name);
+      if (shstr_name == NULL)
 	{
 	  goto bail;
 	}
 
-      /* found the .bss section */
-      if (shdr.sh_type == SHT_NOBITS && strcmp (shstr_name, ".bss") == 0)
+      /* found the read-only data */
+      if (shdr.sh_type == SHT_PROGBITS &&
+	  strcmp (shstr_name, ".rodata") == 0)
+	{
+
+	  elfro.start = shdr.sh_addr;
+	  elfro.end = elfro.start + shdr.sh_size;
+
+	  __shmem_trace (SHMEM_LOG_SYMBOLS,
+			 "ELF section .rodata for global variables = 0x%lX -> 0x%lX",
+			 elfro.start, elfro.end);
+	  continue;		/* move to next scan */
+	}
+
+      /* found the uninitialized globals */
+      if (shdr.sh_type == SHT_NOBITS &&
+	  strcmp (shstr_name, ".bss") == 0)
 	{
 
 	  elfbss.start = shdr.sh_addr;
@@ -185,8 +201,9 @@ table_init_helper (void)
 	  continue;		/* move to next scan */
 	}
 
-      /* found the .data section */
-      if (shdr.sh_type == SHT_PROGBITS && strcmp (shstr_name, ".data") == 0)
+      /* found the initialized globals */
+      if (shdr.sh_type == SHT_PROGBITS &&
+	  strcmp (shstr_name, ".data") == 0)
 	{
 
 	  elfdata.start = shdr.sh_addr;
@@ -199,79 +216,78 @@ table_init_helper (void)
 	}
 
       /* keep looking until we find the symbol table */
-      if (shdr.sh_type != SHT_SYMTAB)
+      if (shdr.sh_type == SHT_SYMTAB)
 	{
-	  continue;
-	}
-
-      /* found valid-looking symbol table */
-      data = NULL;
-      while ((data = elf_getdata (scn, data)) != NULL)
-	{
-	  GElf_Sym *es;
-	  GElf_Sym *last_es;
-
-	  es = (GElf_Sym *) data->d_buf;
-	  if (es == NULL)
+	  Elf_Data *data = NULL;
+	  while ((data = elf_getdata (scn, data)) != NULL)
 	    {
-	      continue;
-	    }
+	      GElf_Sym *es;
+	      GElf_Sym *last_es;
 
-	  last_es = (GElf_Sym *) ((char *) data->d_buf + data->d_size);
-
-	  for (; es < last_es; es += 1)
-	    {
-	      char *name;
-
-	      /*
-	       * need visible global or local (Fortran save) object with
-	       * some kind of content
-	       */
-	      if (es->st_value == 0 || es->st_size == 0)
+	      es = (GElf_Sym *) data->d_buf;
+	      if (es == NULL)
 		{
 		  continue;
 		}
-	      /*
-	       * this macro handles a symbol that is present
-	       * in one libelf implementation but isn't in another
-	       * (elfutils vs. libelf)
-	       */
+
+	      /* find out how many entries to look for */
+	      last_es = (GElf_Sym *) ((char *) data->d_buf + data->d_size);
+
+	      for (; es < last_es; es += 1)
+		{
+		  char *name;
+
+		  /*
+		   * need visible global or local (Fortran save) object with
+		   * some kind of content
+		   */
+		  if (es->st_value == 0 || es->st_size == 0)
+		    {
+		      continue;
+		    }
+		  /*
+		   * this macro handles a symbol that is present
+		   * in one libelf implementation but isn't in another
+		   * (elfutils vs. libelf)
+		   */
 #ifndef GELF_ST_VISIBILITY
 # define GELF_ST_VISIBILITY(o) ELF64_ST_VISIBILITY(o)
 #endif
-	      if (GELF_ST_TYPE (es->st_info) != STT_OBJECT &&
-		  GELF_ST_VISIBILITY (es->st_info) != STV_DEFAULT)
-		{
-		  continue;
-		}
-	      name = elf_strptr (e, shdr.sh_link, (size_t) es->st_name);
-	      if (name == NULL || *name == '\0')
-		{
-		  continue;
-		}
-	      {
-		globalvar_t *gv = (globalvar_t *) malloc (sizeof (*gv));
-		if (gv == NULL)
+		  if (GELF_ST_TYPE (es->st_info) != STT_OBJECT &&
+		      GELF_ST_VISIBILITY (es->st_info) != STV_DEFAULT)
+		    {
+		      continue;
+		    }
+		  name = elf_strptr (e, shdr.sh_link, (size_t) es->st_name);
+		  if (name == NULL || *name == '\0')
+		    {
+		      continue;
+		    }
+		  /* put the symbol and info into the symbol hash table */
 		  {
-		    goto bail;
+		    globalvar_t *gv = (globalvar_t *) malloc (sizeof (*gv));
+		    if (gv == NULL)
+		      {
+			goto bail;
+		      }
+		    gv->name = strdup (name);
+		    if (gv->name == NULL)
+		      {
+			goto bail;
+		      }
+		    gv->addr = (void *) es->st_value;
+		    gv->size = es->st_size;
+		    HASH_ADD_PTR (gvp, addr, gv);
 		  }
-		gv->name = strdup (name);
-		if (gv->name == NULL)
-		  {
-		    goto bail;
-		  }
-		gv->addr = (void *) es->st_value;
-		gv->size = es->st_size;
-		HASH_ADD_PTR (gvp, addr, gv);
-	      }
+		}
 	    }
+	  /*
+	   * pulled out all the global symbols => success,
+	   * don't need to scan further
+	   */
+	  ret = 0;
+	  break;
 	}
-      /*
-       * pulled out all the global symbols => success,
-       * don't need to scan further
-       */
-      ret = 0;
-      break;
     }
 
  bail:
@@ -339,7 +355,7 @@ __shmem_symmetric_globalvar_table_init (void)
       /* NOT REACHED */
     }
 
-  /* too noisy: print_global_var_table(SHMEM_LOG_SYMBOLS); */
+  /* print_global_var_table(SHMEM_LOG_SYMBOLS); */
 }
 
 /*
@@ -363,7 +379,7 @@ __shmem_symmetric_globalvar_table_finalize (void)
  * helper to check address ranges
  */
 #define IN_RANGE(Area, Addr) \
-  ( ( Area.start <= (Addr) ) && ( (Addr) < Area.end ) )
+  ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
 
 /*
  * check to see if address is global
@@ -373,5 +389,24 @@ __shmem_symmetric_is_globalvar (void *addr)
 {
   size_t a = (size_t) addr;
 
-  return IN_RANGE (elfbss, a) || IN_RANGE (elfdata, a);
+  /*
+   * check most common locations first
+   */
+
+  if (IN_RANGE (elfdata, a))
+    {
+      return 1;
+    }
+
+  if (IN_RANGE (elfbss, a))
+    {
+      return 1;
+    }
+
+  if (IN_RANGE (elfro, a))
+    {
+      return 1;
+    }
+
+  return 0;
 }
