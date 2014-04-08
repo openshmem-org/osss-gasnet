@@ -103,7 +103,7 @@ case "$OPENSHMEM_GASNET_CONDUIT" in
     # delegate to a GASNet launcher, if found
     *)
 	# conduit-specific launcher
-	launcher="@GASNET_ROOT@/bin/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
+	launcher="@GASNET_BINDIR@/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
         if [ ! -x "$launcher" ]
         then
             show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"

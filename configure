@@ -43,7 +43,9 @@
 prefix=/usr/local
 
 comms_layer=
-gasnet_root=$prefix
+gasnet_root=
+gasnet_incdir=
+gasnet_bindir=
 gasnet_conduit=
 gasnet_threnv=par
 
@@ -152,6 +154,10 @@ Usage: $progname [options]
   Per-layer options:
 
       --with-gasnet-root=G       Use the GASNet installed under directory G
+      --with-gasnet-incdir=H     GASNet include files are under directory H
+                                     (default: <gasnet-root>/include)
+      --with-gasnet-bindir=B     GASNet launchers are under directory B
+                                     (default: <gasnet-root>/bin)
       --with-gasnet-conduit=C    Use GASNet conduit C
                                    (if only 1 conduit configured, use it)
       --with-gasnet-threnv=P     Threading environment
@@ -275,6 +281,14 @@ do
 	    ;;
 	--with-gasnet-root=*)
 	    gasnet_root="`chompit $o`"
+	    setcanonical comms_layer GASNet
+	    ;;
+	--with-gasnet-incdir=*)
+	    gasnet_incdir="`chompit $o`"
+	    setcanonical comms_layer GASNet
+	    ;;
+	--with-gasnet-bindir=*)
+	    gasnet_bindir="`chompit $o`"
 	    setcanonical comms_layer GASNet
 	    ;;
 	--with-gasnet-conduit=*)
@@ -677,27 +691,54 @@ tell ""
 
 tell "Looking for communication layer ... "
 
+bail_gasnet()
+{
+    tell "  I can't find a GASNet installation"
+    tell ""
+    tell "  Specify GASNet location with --gasnet-root=DIR"
+    tell "  or"
+    tell "  indicate where required GASNet components are installed with"
+    tell ""
+    tell "    --with-gasnet-incdir=DIR  (headers)"
+    tell "    --with-gasnet-bindir=DIR  (launchers)"
+    bailout
+}
+
 case "$comms_layer" in
     gasnet)
 
-	if [ -z "$gasnet_root" ]
+	if [ -z "$gasnet_bindir" ]
 	then
-	    tell "  I don't know where GASNet is installed"
-	    bailout
+	    if [ -z "$gasnet_root" ]
+	    then
+		bail_gasnet
+	    fi
+	    gasnet_bindir="$gasnet_root/bin"
 	fi
 
-	tell "  Checking for GASNet under"
-	tell "    $gasnet_root"
+        if [ ! -d "$gasnet_bindir" ]
+    	then
+    	    bail_gasnet
+        fi
+
+	if [ -z "$gasnet_incdir" ]
+	then
+	    if [ -z "$gasnet_root" ]
+	    then
+		bail_gasnet
+	    fi
+	    gasnet_incdir="$gasnet_root/include"
+	fi
+
+	tell "  Checking for GASNet configuration under"
+	tell "    $gasnet_incdir"
 
         gasnet_h="gasnet_config.h"
-        gasnet_inc_dir="$gasnet_root/include"
-        gasnet_path_h="$gasnet_inc_dir/$gasnet_h"
+        gasnet_path_h="$gasnet_incdir/$gasnet_h"
+
         if [ ! -r "$gasnet_path_h" ]
     	then
-    	    tell "  I can't find a GASNet installation in \"$gasnet_root\""
-    	    tell "    (no $gasnet_h header file)"
-    	    tell "  Indicate where GASNet is installed with --with-gasnet-root=DIR"
-    	    bailout
+    	    basil_gasnet
         fi
 
         # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
@@ -741,13 +782,12 @@ case "$comms_layer" in
         # all installed under the gasnet directory
         #
 
-        KNOWN_CONDUITS="`( cd $gasnet_root/include; echo *-conduit |
+        KNOWN_CONDUITS="`( cd $gasnet_incdir; echo *-conduit |
                            sed -e 's/-conduit//g' )`"
 
         if [ "$KNOWN_CONDUITS" = '*' ]
         then
-            tell "I couldn't find any GASNet conduits under $gasnet_root"
-            bailout
+            bail_gasnet
         fi
 
 	tell "  Found conduits: $KNOWN_CONDUITS"
@@ -788,7 +828,7 @@ case "$comms_layer" in
         # -- ok, we have a candidate conduit --
 
         gasnet_core_h="gasnet_core.h"
-        gasnet_cdt_dir="$gasnet_root/include/${gasnet_conduit}-conduit"
+        gasnet_cdt_dir="$gasnet_incdir/${gasnet_conduit}-conduit"
         gasnet_path_core_h="$gasnet_cdt_dir/$gasnet_core_h"
         if [ ! -r "$gasnet_path_core_h" ]
         then
@@ -862,7 +902,8 @@ tell ""
 tell "Making build files from templates ... "
 
 (
-    find $build_me_dirs \( -name 'Makefile.in' -o -name 'openshmem-template.pc.in' \) -print
+    find $build_me_dirs \( -name 'Makefile.in' -o \
+	-name 'openshmem-template.pc.in' \) -print
     echo $top_levels | tr '[:space:]' '\n'
 ) |
 while read mfin
@@ -885,6 +926,8 @@ do
         -e "s%@LDFLAGS@%$ld_flags%g" \
         -e "s%@COMMS_LAYER@%$comms_layer%g" \
         -e "s%@GASNET_ROOT@%$gasnet_root%g" \
+        -e "s%@GASNET_INCDIR@%$gasnet_incdir%g" \
+        -e "s%@GASNET_BINDIR@%$gasnet_bindir%g" \
         -e "s%@GASNET_CONDUIT@%$gasnet_conduit%g" \
         -e "s%@GASNET_THRENV@%$gasnet_threnv%g" \
         -e "s%@EXE_HEADERS@%$exe_headers%g" \
@@ -941,7 +984,8 @@ case "$comms_layer" in
     gasnet)
 	tell "  GASNet:"
 	tell "    Version                     $gasnet_ver"
-	tell "    Installed in                $gasnet_root"
+	tell "    Includes in                 $gasnet_incdir"
+	tell "    Launchers in                $gasnet_bindir"
 	tell "    Using conduit               $gasnet_conduit $cdt_auto"
 	tell "    Threading environment       $gasnet_threnv"
 	;;
@@ -1138,7 +1182,12 @@ setfeature()
     case "$comms_layer" in
 	gasnet)
 	    echo "#define OPENSHMEM_HAVE_GASNET      1"
-	    echo "#define OPENSHMEM_GASNET_ROOT      \"$gasnet_root\""
+	    if [ "$gasnet_root" ]
+	    then
+		echo "#define OPENSHMEM_GASNET_ROOT      \"$gasnet_root\""
+	    fi
+	    echo "#define OPENSHMEM_GASNET_INCDIR    \"$gasnet_incdir\""
+	    echo "#define OPENSHMEM_GASNET_BINDIR    \"$gasnet_bindir\""
 	    echo "#define OPENSHMEM_GASNET_VERSION   \"$gasnet_ver\""
 	    echo "#define OPENSHMEM_GASNET_CONDUIT   \"$gasnet_conduit\""
 	    echo "#define OPENSHMEM_GASNET_THRENV    \"$gasnet_threnv\""

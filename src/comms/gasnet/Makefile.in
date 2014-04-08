@@ -49,10 +49,12 @@ SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 # GASNet installation root, and setup
 #
 GASNET_ROOT      = @GASNET_ROOT@
+GASNET_INCDIR    = @GASNET_INCDIR@
+GASNET_BINDIR    = @GASNET_BINDIR@
 GASNET_CONDUIT   = @GASNET_CONDUIT@
 GASNET_THRENV    = @GASNET_THRENV@
 
-include $(GASNET_ROOT)/include/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-$(GASNET_THRENV).mak 
+include $(GASNET_INCDIR)/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-$(GASNET_THRENV).mak 
 
 # tony: remove GASNET_CFLAGS for now, makes compiler
 #       interoperability easier
@@ -213,9 +215,9 @@ $(SHMEM_FC):	$(SHMEM_CC)
 
 $(SHMEM_RUN):	$(SHMEM_RUN).in
 	sed \
-		-e "s%@GASNET_LD@%$(GASNET_LD)%" \
+		-e "s%\@GASNET_LD\@%$(GASNET_LD)%" \
 		-e "s%\@GASNET_CONDUIT\@%$(GASNET_CONDUIT)%" \
-		-e "s%\@GASNET_ROOT\@%$(GASNET_ROOT)%" \
+		-e "s%\@GASNET_BINDIR\@%$(GASNET_BINDIR)%" \
 		< $^ > $@
 
 # -- pkg-config --------------------------------------------
