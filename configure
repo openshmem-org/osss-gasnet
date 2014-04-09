@@ -49,8 +49,8 @@ gasnet_bindir=
 gasnet_conduit=
 gasnet_threnv=par
 
-exe_header_dir=/usr/include
-exe_lib_dir=/usr/lib64
+exe_incdir=/usr/include
+exe_libdir=/usr/lib64
 
 feature_experimental=disabled
 feature_debug=disabled
@@ -171,9 +171,9 @@ Usage: $progname [options]
 
     --with-libelf=LE             Libelf header and library files under
                                      directory LE (.../include, .../lib)
-    --with-libelf-headers=H      Libelf header files in directory H
+    --with-libelf-incdir=H       Libelf header files in directory H
                                      (default: /usr/include)
-    --with-libelf-libs=L         Libelf library files in directory L
+    --with-libelf-libdir=L       Libelf library files in directory L
                                      (default: /usr/lib64)
 
   Optional features:
@@ -310,20 +310,20 @@ do
 	--with-libelf=*)
 	    exe_format=ELF
 	    exe_top_dir="`chompit $o`"
-            exe_header_dir="$exe_top_dir/include"
-            exe_lib_dir="$exe_top_dir/lib"
-            exe_headers="-I$exe_header_dir"
+            exe_incdir="$exe_top_dir/include"
+            exe_libdir="$exe_top_dir/lib"
+            exe_headers="-I$exe_incdir"
 	    # TODO: try to defer to per-compiler section
-            exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
+            # exe_libs="-L$exe_libdir -Wl,-rpath,$exe_libdir"
             ;;
-	--with-libelf-headers=*)
+	--with-libelf-headers=* | --with-libelf-incdir=*)
 	    exe_format=ELF
-	    exe_header_dir="`chompit $o`"
-            exe_headers="-I$exe_header_dir"
+	    exe_incdir="`chompit $o`"
+            exe_headers="-I$exe_incdir"
 	    ;;
-	--with-libelf-libs=*)
+	--with-libelf-libs=* | --with-libelf-libdir=*)
 	    exe_format=ELF
-	    exe_lib_dir="`chompit $o`"
+	    exe_libdir="`chompit $o`"
 	    # TODO: try to defer to per-compiler section
             # exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
 	    ;;
@@ -404,29 +404,29 @@ exe_format=ELF
 
 case "$exe_format" in
     ELF)
-	gelf_h="$exe_header_dir/gelf.h"
+	gelf_h="$exe_incdir/gelf.h"
 	if [ ! -r "$gelf_h" ]
 	then
-	    tell "  Can't find header <gelf.h> for ELF executable support"
-	    tell "    in $exe_header_dir"
+	    tell "  Can't find header <gelf.h> for $exe_format executable support"
+	    tell "    in $exe_incdir"
 	    bailout
 	fi
-	elf_lib_so="$exe_lib_dir/libelf.so"
+	elf_lib_so="$exe_libdir/libelf.so"
 	if [ -r "$elf_lib_so" ]
 	then
 	    found_libexe="shared"
 	else
-	    elf_lib_a="$exe_lib_dir/libelf.a"
+	    elf_lib_a="$exe_libdir/libelf.a"
 	    if [ -r "$elf_lib_a" ]
 	    then
 		found_libexe="static"
 	    else
-		tell "  Can't find library -lelf for ELF executable support"
-		tell "    in $exe_lib_dir"
+		tell "  Can't find library -lelf for $exe_format executable support"
+		tell "    in $exe_libdir"
 		bailout
 	    fi
 	fi
-	tell "  Found ELF support"
+	tell "  Found $exe_format support"
 	;;
     *)
 	tell "  I don't know executable format \"$exe_format\""
@@ -435,7 +435,10 @@ case "$exe_format" in
 	;;
 esac
 
-exe_headers="-I$exe_header_dir"
+exe_headers="-I$exe_incdir"
+
+tell "    Headers in $exe_incdir"
+tell "    Libraries in $exe_libdir"
 
 tell "Looking for executable format library ... done"
 tell ""
@@ -513,10 +516,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="gcc"
 	fc_cmd="gfortran"
@@ -529,10 +532,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="icc"
 	fc_cmd="ifort"
@@ -545,10 +548,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags=""
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="pgcc"
 	fc_cmd="pgfortran"
@@ -561,10 +564,10 @@ case "$cc_type" in
 	pic_flags="-PIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="suncc"
 	fc_cmd="sunf90"
@@ -577,10 +580,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="uhcc"
 	fc_cmd="uhf90"
@@ -593,10 +596,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="opencc"
 	fc_cmd="openf90"
@@ -609,10 +612,10 @@ case "$cc_type" in
 	pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	cc_cmd="clang"
 	fc_cmd="false"
@@ -624,10 +627,10 @@ case "$cc_type" in
 	warn_flags=""
 	pic_flags="-qpic"
 	thread_flags="-qthreaded"
-	exe_libs="-L$exe_lib_dir"
+	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]
 	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_lib_dir"
+	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
 	fi
 	so_flags="-G"
 	cc_cmd="xlc"
@@ -975,8 +978,8 @@ tell "    Fortran flags are           \"$fc_flags\""
 tell ""
 tell "Executable Format:"
 tell "  Format is                     $exe_format"
-tell "    Headers in                  $exe_header_dir"
-tell "    Library in                  $exe_lib_dir ($found_libexe)"
+tell "    Headers in                  $exe_incdir"
+tell "    Library in                  $exe_libdir ($found_libexe)"
 tell ""
 
 tell "Communications Layer:"
@@ -1171,8 +1174,8 @@ setfeature()
     echo " * Executable format"
     echo " */"
     echo "#define OPENSHMEM_EXE_FORMAT    \"$exe_format\""
-    echo "#define OPENSHMEM_EXE_HEADERS   \"$exe_header_dir\""
-    echo "#define OPENSHMEM_EXE_LIBRARIES \"$exe_lib_dir\""
+    echo "#define OPENSHMEM_EXE_HEADERS   \"$exe_incdir\""
+    echo "#define OPENSHMEM_EXE_LIBRARIES \"$exe_libdir\""
     echo
 
     echo "/*"
