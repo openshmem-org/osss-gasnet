@@ -326,19 +326,19 @@ libraries for linking.  Add
     <install>/lib/pkgconfig
 
 to the PKG_CONFIG_PATH environment variable.  The modulefile installed
-as part of thsi library does that automatically.
+as part of this library does that automatically.
 
-This means you can compile/link programs as e.g. with Open64 from a
-bash shell (single line wrapped for formatting):
+This means you can compile/link programs e.g. with Open64 from a bash
+shell (single line wrapped for formatting):
 
     $ opencc $(pkg-config --cflags openshmem)     \
           program.c                               \
               $(pkg-config --libs openshmem)
 
-or any other compiler of your choice (N.B. implementations on top of
-some MPIs will require compilation in this manner with the appropriate
-MPI compiler wrapper such as mpicc, or otherwise passing the
-definitions, headers and libraries for that MPI to a compiler).
+or with any other compiler of your choice (N.B. implementations on top
+of some MPIs will require compilation in this manner with the
+appropriate MPI compiler wrapper such as mpicc, or otherwise passing
+the definitions, headers and libraries for that MPI to a compiler).
 
 Some Supporting Software
 ========================
