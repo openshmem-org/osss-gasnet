@@ -38,7 +38,7 @@
 
 
 #include <stdio.h>		/* NULL                           */
-#include <stdlib.h>		/* atexit()                       */
+#include <stdlib.h>		/* atexit(), EXIT_ codes          */
 #include <sys/utsname.h>	/* uname()                        */
 #include <sys/types.h>		/* size_t                         */
 
@@ -122,7 +122,7 @@ static
 void
 exit_handler (void)
 {
-  __shmem_exit (0);
+  __shmem_exit (EXIT_SUCCESS);
 }
 
 /**
