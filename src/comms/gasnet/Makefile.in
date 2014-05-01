@@ -42,7 +42,9 @@ PREFIX           = @PREFIX@
 SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
+# !! hardwired !!
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
+SHMEM_LIBS      += @EXE_LIBS@ -lelf -ldl
 SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
 
 #

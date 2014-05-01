@@ -279,7 +279,7 @@ SHMEM_HEADERS   += shmemx.h shmemx.fh pshmemx.h pshmemx.fh
 endif
 
 # NOTE: elf and dl are hardwired for now
-LIBS             = @EXE_LIBS@ -lelf -ldl
+# LIBS             = @EXE_LIBS@ -lelf -ldl
 
 INSTALL          = install -c
 REMOVE           = rm -f

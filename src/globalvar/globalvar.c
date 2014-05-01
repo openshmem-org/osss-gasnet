@@ -138,16 +138,24 @@ table_init_helper (void)
       goto bail;
     }
 
-  /* Try to handle deprecated interface from older libelf on CentOS */
-  getsi = (int (*) ()) dlsym (NULL, "elf_getshdrstrndx");
-  if (getsi == NULL)
-    {
-      getsi = (int (*) ()) dlsym (NULL, "elf_getshstrndx");
-      if (getsi == NULL)
-        {
-          goto bail;
-        }
-    }
+  /*
+   * Try to handle deprecated interface from older libelf on CentOS
+   * (and maybe elsewhere).  Scan current program and see which
+   * symbol we find.
+   */
+  {
+    void *h = dlopen (NULL, RTLD_NOW);
+
+    *(void **) (& getsi) = dlsym (h, "elf_getshdrstrndx");
+    if (getsi == NULL)
+      {
+	*(void **) (& getsi) = dlsym (h, "elf_getshstrndx");
+	if (getsi == NULL)
+	  {
+	    goto bail;
+	  }
+      }
+  }
 
   /*
    * There are various elf_get* routines with different return values
