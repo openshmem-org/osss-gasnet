@@ -49,23 +49,33 @@
 
 ! collectives
 
+!
+!   In specification, reduction sync type for Fortran is 'integer', for 
+!   C is 'long', they have different size in 64-bits machine. 32-bits for 
+!   Fortran Integer and 64-bits for C long. This may cause array access
+!   vialation.
+!   
+!   Here we just double the SHMEM_COLLECTIVE_OP_SYNC_SIZE in Fortran to solve
+!   it. 
+!
+
       integer SHMEM_BCAST_SYNC_SIZE
-      parameter ( SHMEM_BCAST_SYNC_SIZE = 64 )
+      parameter ( SHMEM_BCAST_SYNC_SIZE = 128 )
 
       integer SHMEM_BARRIER_SYNC_SIZE
-      parameter ( SHMEM_BARRIER_SYNC_SIZE = 64 )
+      parameter ( SHMEM_BARRIER_SYNC_SIZE = 128 )
 
       integer SHMEM_SYNC_VALUE
       parameter ( SHMEM_SYNC_VALUE = -1 )
 
       integer SHMEM_REDUCE_SYNC_SIZE
-      parameter ( SHMEM_REDUCE_SYNC_SIZE = 128 )
+      parameter ( SHMEM_REDUCE_SYNC_SIZE = 256 )
 
       integer SHMEM_REDUCE_MIN_WRKDATA_SIZE
       parameter ( SHMEM_REDUCE_MIN_WRKDATA_SIZE = 128 )
 
       integer SHMEM_COLLECT_SYNC_SIZE
-      parameter ( SHMEM_COLLECT_SYNC_SIZE = 64 )
+      parameter ( SHMEM_COLLECT_SYNC_SIZE = 128 )
 
 !
 ! compatibility with SGI

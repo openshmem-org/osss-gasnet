@@ -402,6 +402,16 @@ extern "C"
    * reductions
    */
 
+  /*
+   * In specification, reduction sync type for Fortran is 'integer', for 
+   * C is long, they have different size in 64-bits machine. 32-bits for 
+   * Fortran Integer and 64-bits for C long. This may cause array access
+   * vialation.
+   * 
+   * Here we just double the SHMEM_COLLECTIVE_OP_SYNC_SIZE in Fortran to solve
+   * it. 
+   */
+
 #define SHMEM_BCAST_SYNC_SIZE 64
 #define SHMEM_BARRIER_SYNC_SIZE 64
 #define SHMEM_SYNC_VALUE (-1L)
