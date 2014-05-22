@@ -290,7 +290,10 @@ start_pes (int npes)
       }
   }
 
-  __shmem_comms_barrier_all ();
+  /*
+   * tc: not needed
+   * __shmem_comms_barrier_all ();
+   */
 
   /*
    * and we're up and running
