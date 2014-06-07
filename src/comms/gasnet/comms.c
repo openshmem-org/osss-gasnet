@@ -2047,7 +2047,7 @@ maximize_gasnet_timeout (void)
 {
   char buf[32];
   snprintf (buf, 32, "%d", INT_MAX - 1);
-  setenv ("GASNET_EXITTIMEOUT", buf, 1);
+  setenv ("GASNET_ EXITTIMEOUT", buf, 1);
 }
 
 
@@ -2088,10 +2088,13 @@ __shmem_comms_init (void)
   __shmem_service_init ();
 
   /*
+   * tc: this may not actually be needed
+   *
    * make sure all nodes are up to speed before "declaring"
    * initialization done
+   *
+   * __shmem_comms_barrier_all ();
    */
-  __shmem_comms_barrier_all ();
 
   /* Up and running! */
 }
@@ -2104,7 +2107,10 @@ __shmem_comms_exit (int status)
 {
   __shmem_comms_barrier_all ();
 
-  gasnet_exit (status);
+  /*
+   * tc: this messes up gprof, and probably other things:
+   * gasnet_exit (status);
+   */
 }
 
 /**
