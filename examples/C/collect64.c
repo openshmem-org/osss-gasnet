@@ -76,7 +76,7 @@ main (void)
 
   start_pes (0);
   npes = _num_pes ();
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   for (i = 0; i < DST_SIZE; i++)
     {

@@ -54,7 +54,7 @@ main (int argc, char **argv)
 
   start_pes (0);
   npes = _num_pes ();
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   if (me == 0)
     {

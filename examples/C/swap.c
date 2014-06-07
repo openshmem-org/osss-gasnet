@@ -55,7 +55,7 @@ main ()
   long swapped_val, new_val;
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
   npes = _num_pes ();
 
   target = (long *) shmalloc (sizeof (*target));

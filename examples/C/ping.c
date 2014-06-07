@@ -54,7 +54,7 @@ main ()
   setbuf (stdout, NULL);
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
   npes = _num_pes ();
 
   if (me == 0)

@@ -84,7 +84,7 @@ main (int argc, char *argv[])
 
   start_pes (0);
   numprocs = _num_pes ();
-  myid = _my_pe ();
+  myid = shmem_my_pe ();
 
   if (myid == 0)
     {
