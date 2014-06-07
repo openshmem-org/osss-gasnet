@@ -51,7 +51,7 @@ long var;
 int
 main (void)
 {
-  shmem_init (0);
+  start_pes (0);
 
   shmem_clear_cache_inv ();
 

@@ -44,7 +44,7 @@
 int
 main ()
 {
-  shmem_init (0);
+  start_pes (0);
 
   if (_my_pe () == 0)
     {

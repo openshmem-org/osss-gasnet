@@ -48,8 +48,8 @@
 int
 main (int argc, char **argv)
 {
-  shmem_init (0);
-  shmem_init (0);
+  start_pes (0);
+  start_pes (0);
 
   printf ("Hello from multi-init test\n");
 

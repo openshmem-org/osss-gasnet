@@ -48,7 +48,7 @@ main()
   int *dst;
   int me;
 
-  shmem_init (0);
+  start_pes (0);
   me = _my_pe ();
 
   dst = shmalloc (sizeof (*dst));

@@ -54,7 +54,7 @@ main (void)
 {
   int me;
 
-  shmem_init (0);
+  start_pes (0);
   me = _my_pe ();
 
   n = 3;

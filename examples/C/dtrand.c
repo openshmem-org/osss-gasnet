@@ -119,7 +119,7 @@ main (int argc, char *argv[])
 
   srand ( getpid ()  + getuid () );
 
-  shmem_init (0);
+  start_pes (0);
   me = _my_pe ();
   npes = _num_pes ();
 

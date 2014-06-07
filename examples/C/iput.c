@@ -58,7 +58,7 @@ main ()
   static short target[10];
   int me;
 
-  shmem_init (0);
+  start_pes (0);
   me = _my_pe ();
 
   if (me == 0)

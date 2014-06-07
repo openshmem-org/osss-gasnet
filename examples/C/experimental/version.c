@@ -52,7 +52,7 @@ main (int argc, char **argv)
   int npes;
   int me;
 
-  shmem_init (0);
+  start_pes (0);
   npes = _num_pes ();
   me = _my_pe ();
 

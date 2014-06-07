@@ -157,7 +157,7 @@ main (int argc, char *argv[])
 
   uname (&un);
 
-  shmem_init (0);
+  start_pes (0);
 
   proc = _my_pe ();
   nproc = _num_pes ();

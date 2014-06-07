@@ -71,7 +71,7 @@ main ()
   int *pWrk;
   int pWrk_size;
 
-  shmem_init (0);
+  start_pes (0);
 
   pWrk_size = MAX (nred/2 + 1, _SHMEM_REDUCE_MIN_WRKDATA_SIZE);
   pWrk = (int *) shmalloc (pWrk_size * sizeof (*pWrk));

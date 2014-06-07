@@ -83,7 +83,7 @@ int main( int argc, char *argv[])  {
   //MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
   //MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  shmem_init(0);
+  start_pes(0);
   rank = _my_pe();
   numtasks = _num_pes();
 

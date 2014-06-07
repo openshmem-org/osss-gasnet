@@ -93,7 +93,7 @@ main (int argc, char **argv)
   float *dest13;
 
 
-  shmem_init (0);
+  start_pes (0);
   me = _my_pe ();
   npes = _num_pes ();
 
