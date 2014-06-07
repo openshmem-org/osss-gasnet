@@ -94,11 +94,11 @@ int main ( int argc, char *argv[] )
   //
   //  Get the number of processes.
   //
-  process_num = _num_pes();
+  process_num = shmem_n_pes();
   //
   //  Get the rank of this process.
   //
-  process_rank = _my_pe();
+  process_rank = shmem_my_pe();
   //
   //  The master process prints a message.
   //
