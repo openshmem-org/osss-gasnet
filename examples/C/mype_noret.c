@@ -46,7 +46,7 @@ main (int argc, char **argv)
 {
   int me, npes;
 
-  start_pes (0);
+  shmem_init (0);
 
   _my_pe ();		/* expect to get warning here */
   npes = _num_pes ();

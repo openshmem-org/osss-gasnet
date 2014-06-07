@@ -58,7 +58,7 @@ void init_it(int  *argc, char ***argv) {
     //mpi_err = MPI_Init(argc,argv);
     //mpi_err = MPI_Comm_size( MPI_COMM_WORLD, &numnodes );
     //mpi_err = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-    start_pes(0);
+    shmem_init(0);
     numnodes = _num_pes();
     myid = _my_pe();
 }

@@ -57,7 +57,7 @@ main ()
       target[i] = 666;
     }
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
 
   if (me == 1)

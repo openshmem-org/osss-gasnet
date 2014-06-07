@@ -64,7 +64,7 @@ main (int argc, char **argv)
   su = uname (&u);
   assert (su == 0);
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
   npes = _num_pes ();
 

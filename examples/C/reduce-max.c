@@ -66,7 +66,7 @@ main ()
       pSync[i] = _SHMEM_SYNC_VALUE;
     }
 
-  start_pes (0);
+  shmem_init (0);
 
   for (i = 0; i < N; i += 1)
     {

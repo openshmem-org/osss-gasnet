@@ -82,7 +82,7 @@ main (int argc, char *argv[])
   double h, sum, x;
   struct timeval startwtime, endwtime;
 
-  start_pes (0);
+  shmem_init (0);
   numprocs = _num_pes ();
   myid = _my_pe ();
 

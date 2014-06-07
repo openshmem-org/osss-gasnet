@@ -48,7 +48,7 @@ main ()
 {
   long *x;
 
-  start_pes (0);
+  shmem_init (0);
 
   x = (long *) shmalloc (sizeof (*x));
 

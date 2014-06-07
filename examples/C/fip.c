@@ -59,7 +59,7 @@ main (void)
   float *f;
   int me;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
 
   f = (float *) shmalloc (sizeof (*f));

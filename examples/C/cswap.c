@@ -48,7 +48,7 @@ main ()
   int oldval;
   int me;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
 
   oldval = shmem_int_cswap (&race_winner, -1, me, 0);

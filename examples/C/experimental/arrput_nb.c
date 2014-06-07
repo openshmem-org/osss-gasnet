@@ -58,7 +58,7 @@ main (int argc, char **argv)
   long *dest;
   shmemx_request_handle_t handle;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
   npes = _num_pes ();
 

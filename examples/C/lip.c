@@ -52,7 +52,7 @@ main (void)
   long *f;
   int me;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
 
   f = (long *) shmalloc (sizeof (*f));

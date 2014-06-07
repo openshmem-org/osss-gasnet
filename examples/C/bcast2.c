@@ -52,7 +52,7 @@ main (void)
   int nlong = 8;
   int me, npes;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
   npes = _num_pes ();
 

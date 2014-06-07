@@ -88,7 +88,7 @@ main (int argc, char **argv)
   double *src12;
   float *src13;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
   npes = _num_pes ();
 

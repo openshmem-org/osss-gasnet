@@ -52,7 +52,7 @@ main (int argc, char *argv[])
 {
   int me;
 
-  start_pes (0);
+  shmem_init (0);
   me = _my_pe ();
 
   if (me > 0)

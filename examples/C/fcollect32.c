@@ -73,7 +73,7 @@ main (void)
 {
   int i;
 
-  start_pes (0);
+  shmem_init (0);
   npes = _num_pes ();
   me = _my_pe ();
 
