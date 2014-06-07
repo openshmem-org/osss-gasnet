@@ -55,7 +55,7 @@ main ()
   int me;
 
   start_pes (0);
-  me = _my_pe ();
+  me = shmem_my_pe ();
 
   value = me + 1;
 

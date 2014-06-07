@@ -120,8 +120,8 @@ main (int argc, char *argv[])
   srand ( getpid ()  + getuid () );
 
   start_pes (0);
-  me = _my_pe ();
-  npes = _num_pes ();
+  me = shmem_my_pe ();
+  npes = shmem_n_pes ();
 
   /*
    * size of the per-PE partition

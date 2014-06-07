@@ -38,7 +38,7 @@
 
 
 /*
- * reduce [0,1,2] + _my_pe() across 4 PEs with MAX()
+ * reduce [0,1,2] + shmem_my_pe() across 4 PEs with MAX()
  *
  *
  */
@@ -70,13 +70,13 @@ main ()
 
   for (i = 0; i < N; i += 1)
     {
-      src[i] = _my_pe () + i;
+      src[i] = shmem_my_pe () + i;
     }
   shmem_barrier_all ();
 
   shmem_long_max_to_all (dst, src, 3, 0, 0, 4, pWrk, pSync);
 
-  printf ("%d/%d   dst =", _my_pe (), _num_pes ());
+  printf ("%d/%d   dst =", shmem_my_pe (), shmem_n_pes ());
   for (i = 0; i < N; i += 1)
     {
       printf (" %d", dst[i]);

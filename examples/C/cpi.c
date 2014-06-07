@@ -83,8 +83,8 @@ main (int argc, char *argv[])
   struct timeval startwtime, endwtime;
 
   start_pes (0);
-  numprocs = _num_pes ();
-  myid = _my_pe ();
+  numprocs = shmem_n_pes ();
+  myid = shmem_my_pe ();
 
   if (myid == 0)
     {

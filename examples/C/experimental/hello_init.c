@@ -47,8 +47,8 @@ main (int argc, char **argv)
   int me, npes;
 
   shmemx_init ();
-  me = _my_pe ();
-  npes = _num_pes ();
+  me = shmem_my_pe ();
+  npes = shmem_n_pes ();
 
   printf ("Hello from node %4d of %4d\n", me, npes);
 
