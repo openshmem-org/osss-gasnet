@@ -59,7 +59,7 @@ main (void)
   int i;
 
   start_pes (0);
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
   me = shmem_my_pe ();
 
   dst = (int *) shmalloc (64);

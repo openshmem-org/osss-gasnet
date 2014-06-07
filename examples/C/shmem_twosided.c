@@ -85,7 +85,7 @@ int main( int argc, char *argv[])  {
 
   start_pes(0);
   rank = shmem_my_pe();
-  numtasks = _num_pes();
+  numtasks = shmem_n_pes();
 
   if (rank == 0) {
     even();

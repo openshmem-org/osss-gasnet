@@ -67,7 +67,7 @@ main ()
 
   start_pes (0);
   me = shmem_my_pe ();
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
 
   src = me + 1;
   shmem_barrier_all ();

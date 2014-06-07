@@ -59,7 +59,7 @@ void init_it(int  *argc, char ***argv) {
     //mpi_err = MPI_Comm_size( MPI_COMM_WORLD, &numnodes );
     //mpi_err = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
     start_pes(0);
-    numnodes = _num_pes();
+    numnodes = shmem_n_pes();
     myid = shmem_my_pe();
 }
 

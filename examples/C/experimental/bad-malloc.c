@@ -49,7 +49,7 @@ main (int argc, char *argv[])
 
   start_pes (0);
   me = shmem_my_pe ();
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
 
   /* deliberately pass different values */
   x = (long *) shmalloc ((me + 1) * 2);

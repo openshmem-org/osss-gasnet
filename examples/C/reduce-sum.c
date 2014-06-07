@@ -90,7 +90,7 @@ main ()
 
   shmem_int_sum_to_all (&dst, &src, nred, 0, 0, 4, pWrk, pSync);
 
-  printf ("%d/%d   dst =", shmem_my_pe (), _num_pes ());
+  printf ("%d/%d   dst =", shmem_my_pe (), shmem_n_pes ());
   printf (" %d", dst);
   printf ("\n");
 

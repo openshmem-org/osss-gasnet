@@ -76,7 +76,7 @@ main ()
 
   shmem_long_max_to_all (dst, src, 3, 0, 0, 4, pWrk, pSync);
 
-  printf ("%d/%d   dst =", shmem_my_pe (), _num_pes ());
+  printf ("%d/%d   dst =", shmem_my_pe (), shmem_n_pes ());
   for (i = 0; i < N; i += 1)
     {
       printf (" %d", dst[i]);

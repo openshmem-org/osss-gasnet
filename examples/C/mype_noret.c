@@ -49,7 +49,7 @@ main (int argc, char **argv)
   start_pes (0);
 
   shmem_my_pe ();		/* expect to get warning here */
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
 
   printf ("Hello from %d PEs\n", npes);
 

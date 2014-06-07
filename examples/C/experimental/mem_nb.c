@@ -54,7 +54,7 @@ main (int argc, char **argv)
   int *ip;
 
   start_pes (0);
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
   me = shmem_my_pe ();
 
   /* fire off allocation */

@@ -160,7 +160,7 @@ main (int argc, char *argv[])
   start_pes (0);
 
   proc = shmem_my_pe ();
-  nproc = _num_pes ();
+  nproc = shmem_n_pes ();
 
   for (progName = argv[0] + strlen (argv[0]);
        progName > argv[0] && *(progName - 1) != '/'; progName--)

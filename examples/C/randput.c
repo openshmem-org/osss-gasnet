@@ -65,7 +65,7 @@ main (int argc, char **argv)
   start_pes (0);
 
   me = shmem_my_pe ();
-  npes = _num_pes ();
+  npes = shmem_n_pes ();
 
   {
     time_t now;
