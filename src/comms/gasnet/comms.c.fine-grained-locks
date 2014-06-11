@@ -503,7 +503,6 @@ __shmem_symmetric_addr_lookup (void *dest, int pe)
   return rdest;
 }
 
-#if 0
 /**
  * -- lock finding/creating utility --
  */
@@ -560,19 +559,10 @@ get_lock_for (void *addr)
 
   return try->lock;
 }
-#endif
 
 /**
  * -- atomics handlers ---------------------------------------------------------
  */
-
-static gasnet_hsl_t amo_swap_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_cswap_lock   = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_fadd_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_add_lock     = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_finc_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_inc_lock     = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER; 
 
 /*
  * to wait on remote updates
@@ -604,8 +594,9 @@ handler_swap_out (gasnet_token_t token,
 {
   long long old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_swap_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -614,7 +605,7 @@ handler_swap_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (& amo_swap_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz);
@@ -628,8 +619,9 @@ handler_swap_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_swap_lock);
+  gasnet_hsl_lock (lk);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -639,7 +631,7 @@ handler_swap_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_swap_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -691,8 +683,9 @@ handler_cswap_out (gasnet_token_t token,
 {
   void *old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_cswap_lock);
+  gasnet_hsl_lock (lk);
 
   old = malloc (pp->nbytes);
   if (old == NULL)
@@ -715,7 +708,7 @@ handler_cswap_out (gasnet_token_t token,
 
   free (old);
 
-  gasnet_hsl_unlock (& amo_cswap_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz);
@@ -730,8 +723,9 @@ handler_cswap_bak (gasnet_token_t token,
 		   void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_cswap_lock);
+  gasnet_hsl_lock (lk);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -741,7 +735,7 @@ handler_cswap_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_cswap_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -791,8 +785,9 @@ handler_fadd_out (gasnet_token_t token,
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_fadd_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -802,7 +797,7 @@ handler_fadd_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (& amo_fadd_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz);
@@ -816,8 +811,9 @@ handler_fadd_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_fadd_lock);
+  gasnet_hsl_lock (lk);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -827,7 +823,7 @@ handler_fadd_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_fadd_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -873,8 +869,9 @@ handler_finc_out (gasnet_token_t token,
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_finc_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -884,7 +881,7 @@ handler_finc_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (& amo_finc_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz);
@@ -898,8 +895,9 @@ handler_finc_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_finc_lock);
+  gasnet_hsl_lock (lk);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -909,7 +907,7 @@ handler_finc_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_finc_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -952,8 +950,9 @@ handler_add_out (gasnet_token_t token,
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_add_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -962,7 +961,7 @@ handler_add_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (& amo_add_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz);
@@ -976,15 +975,16 @@ handler_add_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_add_lock);
+  gasnet_hsl_lock (lk);
 
   LOAD_STORE_FENCE ();
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_add_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -1027,8 +1027,9 @@ handler_inc_out (gasnet_token_t token,
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_inc_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -1038,7 +1039,7 @@ handler_inc_out (gasnet_token_t token,
 
   __shmem_trace (SHMEM_LOG_ATOMIC, "%lld -> %lld", old, plus);
 
-  gasnet_hsl_unlock (& amo_inc_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz);
@@ -1052,13 +1053,14 @@ handler_inc_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_inc_lock);
+  gasnet_hsl_lock (lk);
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_inc_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
@@ -1100,9 +1102,10 @@ handler_xor_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
   long long v;
 
-  gasnet_hsl_lock (& amo_xor_lock);
+  gasnet_hsl_lock (lk);
 
   /* save and update */
   v = * ((long long *)pp->r_symm_addr);
@@ -1110,7 +1113,7 @@ handler_xor_out (gasnet_token_t token,
   * ((long long *)pp->r_symm_addr) = v;
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (& amo_xor_lock);
+  gasnet_hsl_unlock (lk);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz);
@@ -1124,13 +1127,14 @@ handler_xor_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
+  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (& amo_xor_lock);
+  gasnet_hsl_lock (lk);
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (& amo_xor_lock);
+  gasnet_hsl_unlock (lk);
 }
 
 /**
