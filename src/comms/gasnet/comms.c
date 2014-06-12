@@ -203,10 +203,13 @@ __shmem_comms_get_segment_size (void)
   __shmem_parse_size (mlss_str, &retval, &ok);
   if (ok)
     {
-      /* make sure small values aligned upward */
-      if (retval < GASNET_PAGESIZE)
+      /* make sure aligned to page size multiples */
+      const size_t mod = retval % GASNET_PAGESIZE;
+
+      if (mod != 0)
 	{
-	  retval = GASNET_PAGESIZE;
+	  const size_t div = retval / GASNET_PAGESIZE;
+	  retval = (div + 1) * GASNET_PAGESIZE;
 	}
 
       return retval;
