@@ -183,11 +183,13 @@ enum
  * Either from environment setting, or default value from
  * implementation
  */
-static size_t
+static
+size_t
 __shmem_comms_get_segment_size (void)
 {
   char *mlss_str = __shmem_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
   size_t retval;
+  int ok;
 
   if (mlss_str == (char *) NULL)
     {
@@ -198,17 +200,23 @@ __shmem_comms_get_segment_size (void)
 #endif
     }
 
-  retval = __shmem_parse_size (mlss_str);
-  if (retval == (size_t) -1)
+  __shmem_parse_size (mlss_str, &retval, &ok);
+  if (ok)
     {
-      /* don't know that unit! */
-      comms_bailout ("unknown data size unit in symmetric heap specification");
+      /* make sure small values aligned upward */
+      if (retval < GASNET_PAGESIZE)
+	{
+	  retval = GASNET_PAGESIZE;
+	}
+
+      return retval;
       /* NOT REACHED */
     }
 
-  return retval;
-
+  comms_bailout ("Unusable symmetric heap size \"%s\"", mlss_str);
+  /* NOT REACHED */
 }
+		      
 
 /**
  * traffic progress
@@ -295,7 +303,8 @@ static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 /**
  * unpack buf from sender PE and store seg info locally.  Ack. receipt.
  */
-static void
+static
+void
 handler_segsetup_out (gasnet_token_t token,
 		      void *buf, size_t bufsiz)
 {
@@ -324,7 +333,8 @@ handler_segsetup_out (gasnet_token_t token,
 /**
  * record receipt ack.  We only need to count the number of replies
  */
-static void
+static
+void
 handler_segsetup_bak (gasnet_token_t token,
 		      void *buf, size_t bufsiz)
 {
@@ -503,6 +513,11 @@ __shmem_symmetric_addr_lookup (void *dest, int pe)
   return rdest;
 }
 
+/*
+ * Following lock management code ifdef'd out as it isn't used any
+ * longer.  But leaving in place for future reference.
+ */
+
 #if 0
 /**
  * -- lock finding/creating utility --
@@ -522,7 +537,8 @@ static lock_table_t *lock_table = NULL;
  * seen before, create the lock for it.
  *
  */
-static gasnet_hsl_t *
+static
+gasnet_hsl_t *
 get_lock_for (void *addr)
 {
   lock_table_t *try;
@@ -560,19 +576,19 @@ get_lock_for (void *addr)
 
   return try->lock;
 }
-#endif
+#endif	/* ifdef'd out lock code */
 
 /**
  * -- atomics handlers ---------------------------------------------------------
  */
 
-static gasnet_hsl_t amo_swap_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_cswap_lock   = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_fadd_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_add_lock     = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_finc_lock    = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_inc_lock     = GASNET_HSL_INITIALIZER; 
-static gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER; 
+static gasnet_hsl_t amo_swap_lock    = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_cswap_lock   = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_fadd_lock    = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_add_lock     = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_finc_lock    = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_inc_lock     = GASNET_HSL_INITIALIZER;
+static gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER;
 
 /*
  * to wait on remote updates
@@ -598,7 +614,8 @@ typedef struct
 /**
  * called by remote PE to do the swap.  Store new value, send back old value
  */
-static void
+static
+void
 handler_swap_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -623,7 +640,8 @@ handler_swap_out (gasnet_token_t token,
 /**
  * called by swap invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_swap_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -685,7 +703,8 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
-static void
+static
+void
 handler_cswap_out (gasnet_token_t token,
 		   void *buf, size_t bufsiz)
 {
@@ -725,7 +744,8 @@ handler_cswap_out (gasnet_token_t token,
  * called by swap invoker when old value returned by remote PE
  * (same as swap_bak for now)
  */
-static void
+static
+void
 handler_cswap_bak (gasnet_token_t token,
 		   void *buf, size_t bufsiz)
 {
@@ -784,7 +804,8 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
  * called by remote PE to do the fetch and add.  Store new value, send
  * back old value
  */
-static void
+static
+void
 handler_fadd_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -811,7 +832,8 @@ handler_fadd_out (gasnet_token_t token,
 /**
  * called by fadd invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_fadd_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -866,7 +888,8 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
  * called by remote PE to do the fetch and increment.  Store new
  * value, send back old value
  */
-static void
+static
+void
 handler_finc_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -893,7 +916,8 @@ handler_finc_out (gasnet_token_t token,
 /**
  * called by finc invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_finc_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
@@ -945,7 +969,8 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
 /**
  * called by remote PE to do the remote add.
  */
-static void
+static
+void
 handler_add_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
@@ -971,7 +996,8 @@ handler_add_out (gasnet_token_t token,
 /**
  * called by remote add invoker when store done
  */
-static void
+static
+void
 handler_add_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
@@ -1020,7 +1046,8 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote increment
  */
-static void
+static
+void
 handler_inc_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
@@ -1047,7 +1074,8 @@ handler_inc_out (gasnet_token_t token,
 /**
  * called by remote increment invoker when store done
  */
-static void
+static
+void
 handler_inc_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
@@ -1095,7 +1123,8 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote xor
  */
-static void
+static
+void
 handler_xor_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
@@ -1119,7 +1148,8 @@ handler_xor_out (gasnet_token_t token,
 /**
  * called by remote xor invoker when store done
  */
-static void
+static
+void
 handler_xor_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {

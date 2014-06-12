@@ -77,9 +77,7 @@ typedef struct
 
   size_t heapsize;		/* size of symmetric heap (bytes) */
 
-  struct itimerval ping_timeout;	/* wait for remote PE to ack ping */
-
-  struct utsname loc;		/* location information (currently not used) */
+  struct utsname loc;		/* some initial testing of locality */
 
   char exe_name[MAXPATHLEN];	/* real name of executable */
   int exe_fd;			/* file descriptor of executable */

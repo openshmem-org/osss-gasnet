@@ -62,7 +62,9 @@ struct state_desc
  * table of known PE status
  */
 
-static struct state_desc d[] =
+static
+struct state_desc
+d[] =
   {
     {
       PE_UNINITIALIZED, "PE has not been initialized yet"
@@ -86,7 +88,8 @@ static const int nd = TABLE_SIZE (d);
  * translate PE status to human description
  */
 
-const char *
+const
+char *
 __shmem_state_as_string (pe_status_t s)
 {
   struct state_desc *dp = d;

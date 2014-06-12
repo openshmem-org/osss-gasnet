@@ -42,24 +42,25 @@
 #include <sys/types.h>
 
 /**
- * define accepted size units in ascending order
+ * define accepted size units in ascending order, fits in size_t
  *
  * See section 3.1 in http://physics.nist.gov/Pubs/SP330/sp330.pdf
  *
  */
 
-static char *units_string = "kmgtpezy";
+static char *units_string = "kmgtpe";
 static const size_t multiplier = 1024;
 
 /**
  * Take a scaling unit and work out its numeric value.
  *
- * Return scale value if known, otherwise -1
+ * Return scaled value if known, otherwise 0
  *
  */
 
-static size_t
-parse_unit (char u)
+static
+void
+parse_unit (char u, size_t *sp, int *ok)
 {
   int foundit = 0;
   char *usp = units_string;
@@ -78,19 +79,27 @@ parse_unit (char u)
       usp += 1;
     }
  
-  return foundit ? bytes : -1;
+  if (foundit)
+    {
+      *sp = bytes;
+      *ok = 1;
+    }
+  else
+    {
+      *sp = 0;
+      *ok = 0;
+    }
 }
 
 
 /**
  * segment size can be expressed with scaling units.  Parse those.
  *
- * Return segemnt size, scaled where necessary by unit, or -1
- * if we couldn't parse it.
+ * Return segment size, scaled where necessary by unit
  */
 
-size_t
-__shmem_parse_size (char *size_str)
+void
+__shmem_parse_size (char *size_str, size_t *bytes_p, int *ok_p)
 {
   char unit = '\0';
   size_t ret = 0;
@@ -113,11 +122,18 @@ __shmem_parse_size (char *size_str)
   /* if no unit, we already have value.  Otherwise, do scaling */
   if (unit == '\0')
     {
-      return ret;
+      *bytes_p = ret;
+      *ok_p = 1;
     }
   else
     {
-      const size_t bytes = parse_unit (unit);
-      return (bytes != -1) ? bytes * ret : -1;
+      size_t b;
+      int ok;
+      parse_unit (unit, &b, &ok);
+      if (ok)
+	{
+	  *bytes_p = b * ret;
+	  *ok_p = 1;
+	}
     }
 }

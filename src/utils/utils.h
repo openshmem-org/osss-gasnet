@@ -64,14 +64,15 @@
 
 #define INIT_CHECK()							\
   IF_DEBUGGING(								\
-	       if (GET_STATE(pe_status) != PE_RUNNING) {		\
-		 fprintf(stderr,					\
-			 "Error: OpenSHMEM library has not been initialized\n" \
-			 );						\
-		 exit(1);						\
-		 /* NOT REACHED */					\
-	       }							\
-	       )
+	       if (GET_STATE(pe_status) != PE_RUNNING)			\
+		 {							\
+		   fprintf(stderr,					\
+			   "Error: OpenSHMEM library has not been initialized\n" \
+			   );						\
+		   exit(1);						\
+		   /* NOT REACHED */					\
+		 }							\
+									)
 
 /*
  * make sure a target PE is within the assigned range
@@ -93,7 +94,7 @@
 		   /* NOT REACHED */					\
 		 }							\
 	       }							\
-	       )
+									)
 
 /*
  * check for symmetry of required addresses
@@ -104,16 +105,17 @@
 
 #define SYMMETRY_CHECK(addr, argpos, subrname)				\
   IF_DEBUGGING(								\
-	       if (! __shmem_is_symmetric ( (void *) (addr))) {		\
-		 __shmem_trace (SHMEM_LOG_FATAL,			\
-				"%s(), argument #%d @ %p is not symmetric", \
-				subrname,				\
-				argpos,					\
-				addr					\
-				);					\
-		 /* NOT REACHED */					\
-	       }							\
-	       )
+	       if (! __shmem_is_symmetric ( (void *) (addr)))		\
+		 {							\
+		   __shmem_trace (SHMEM_LOG_FATAL,			\
+				  "%s(), argument #%d @ %p is not symmetric", \
+				  subrname,				\
+				  argpos,				\
+				  addr					\
+				  );					\
+		   /* NOT REACHED */					\
+		 }							\
+									)
 
 /*
  * how many elements in array T?

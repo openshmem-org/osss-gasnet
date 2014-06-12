@@ -175,6 +175,25 @@ check_pe_status (void)
   return yn;
 }
 
+static
+void
+report_up (void)
+{
+  int maj, min;
+  const int n = GET_STATE (numpes);
+  const size_t h = GET_STATE (heapsize);
+
+  if (__shmem_version (&maj, &min) == 0)
+    {
+      __shmem_trace (SHMEM_LOG_INIT,
+		     "version %d.%d running on %d PE%s, using %zd bytes of symmetric heap",
+		     maj, min,
+		     n, (n == 1) ? "" : "s",
+		     h
+		     );
+    }
+}
+
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak start_pes = pstart_pes
 # define start_pes pstart_pes
@@ -276,19 +295,7 @@ start_pes (int npes)
 
   SET_STATE (pe_status, PE_RUNNING);
 
-  {
-    int maj, min;
-    const int n = GET_STATE (numpes);
-    if (__shmem_version (&maj, &min) == 0)
-      {
-	__shmem_trace (SHMEM_LOG_VERSION,
-		       "version %d.%d running on %d PE%s",
-		       maj, min,
-		       n,
-		       n == 1 ? "" : "s"
-		       );
-      }
-  }
+  report_up ();
 
   /*
    * tc: not needed
