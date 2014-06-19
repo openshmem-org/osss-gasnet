@@ -73,4 +73,6 @@ main (void)
     {
       printf ("PE %d:  after put, f = %d, %s\n", me, *f, (*f == 42) ? "OK" : "FAIL");
     }
+
+  return 0;
 }
