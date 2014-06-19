@@ -247,7 +247,7 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
@@ -274,7 +274,7 @@ SHMEM_LIBNAME    = openshmem
 SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
 SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h pshmem.fh
-ifeq "@FEATURE_EXPERIMENTAL@" "enabled"
+ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 SHMEM_HEADERS   += shmemx.h shmemx.fh pshmemx.h pshmemx.fh
 endif
 

@@ -935,7 +935,7 @@ do
         -e "s%@GASNET_THRENV@%$gasnet_threnv%g" \
         -e "s%@EXE_HEADERS@%$exe_headers%g" \
         -e "s%@EXE_LIBS@%$exe_libs%g" \
-        -e "s%@FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
+        -e "s%@HAVE_FEATURE_EXPERIMENTAL@%$feature_experimental%g" \
         -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
         -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \
         -e "s%@HAVE_FEATURE_TRACE@%$feature_trace%g" \
