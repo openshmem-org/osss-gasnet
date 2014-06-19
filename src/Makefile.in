@@ -328,7 +328,7 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
 all default:	shmem-headers $(SHMEM_LIBRARY)
 
-install:	install-lib install-comms install-include
+install:	install-lib install-include install-comms
 
 install-lib:	all
 	mkdir -p $(DESTDIR)$(SHMEM_LIB_DIR)
@@ -338,9 +338,6 @@ install-lib:	all
 	$(MAKE) -C $(FCOLLECT_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(MODULES_DIR) $@
-
-install-comms:	all
-	$(MAKE) -C $(COMMS_DIR) install
 
 install-include: all
 	mkdir -p $(DESTDIR)$(SHMEM_INC_DIR)/mpp
@@ -352,12 +349,18 @@ install-include: all
 		done \
 	)
 
+install-comms:	all
+	$(MAKE) -C $(COMMS_DIR) install
+
 # we may be sharing the install area with other packages, so don't
 # blindly zap directories when uninstalling, allow them to remain
 # there gracefully.
 
-uninstall:	uninstall-include uninstall-comms uninstall-lib
+uninstall:	uninstall-comms uninstall-include uninstall-lib
 	- rmdir $(DESTDIR)$(PREFIX)
+
+uninstall-comms:
+	$(MAKE) -C $(COMMS_DIR) uninstall
 
 uninstall-lib:
 	$(MAKE) -C $(MODULES_DIR) $@
@@ -367,9 +370,6 @@ uninstall-lib:
 	$(MAKE) -C $(BROADCAST_DIR) $@
 	$(REMOVE) $(DESTDIR)$(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY)
 	- rmdir $(DESTDIR)$(SHMEM_LIB_DIR)
-
-uninstall-comms:
-	$(MAKE) -C $(COMMS_DIR) uninstall
 
 uninstall-include:
 	for h in $(SHMEM_HEADERS); \
