@@ -403,26 +403,25 @@ extern "C"
    */
 
   /*
-   * In specification, reduction sync type for Fortran is 'integer', for 
-   * C is long, they have different size in 64-bits machine. 32-bits for 
-   * Fortran Integer and 64-bits for C long. This may cause array access
-   * vialation.
-   * 
-   * Here we just double the SHMEM_COLLECTIVE_OP_SYNC_SIZE in Fortran to solve
-   * it. 
+   * cf. Fortran values are multiples of these (different types)
    */
+#define F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define SHMEM_BCAST_SYNC_SIZE 64
-#define SHMEM_BARRIER_SYNC_SIZE 64
-#define SHMEM_SYNC_VALUE (-1L)
-#define SHMEM_REDUCE_SYNC_SIZE 128
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE SHMEM_REDUCE_SYNC_SIZE
+#define SHMEM_BCAST_SYNC_SIZE (128L / F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE (128L / F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE (256L / F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / F2C_SCALE)
 
 #define _SHMEM_BCAST_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
 #define _SHMEM_BARRIER_SYNC_SIZE SHMEM_BARRIER_SYNC_SIZE
 #define _SHMEM_SYNC_VALUE SHMEM_SYNC_VALUE
 #define _SHMEM_REDUCE_SYNC_SIZE SHMEM_REDUCE_SYNC_SIZE
 #define _SHMEM_REDUCE_MIN_WRKDATA_SIZE SHMEM_REDUCE_MIN_WRKDATA_SIZE
+
+  /*
+   * Initialize sync arrays to this
+   */
+#define SHMEM_SYNC_VALUE (-1L)
 
   extern void shmem_complexd_sum_to_all (COMPLEXIFY (double) * target,
 					 COMPLEXIFY (double) * source,
@@ -634,7 +633,7 @@ extern "C"
    * collects
    */
 
-#define SHMEM_COLLECT_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
+#define SHMEM_COLLECT_SYNC_SIZE (128L / F2C_SCALE)
 #define _SHMEM_COLLECT_SYNC_SIZE SHMEM_COLLECT_SYNC_SIZE
 
   extern void shmem_fcollect32 (void *target, const void *source,

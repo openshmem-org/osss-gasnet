@@ -15,5 +15,4 @@ Build
 
     * Added some more experimental features, including:
     *
-    * shmemx_local_ptr API
-
+    * shmemx_local_ptr API for locality tests
