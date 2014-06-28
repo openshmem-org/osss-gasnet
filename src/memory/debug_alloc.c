@@ -158,9 +158,10 @@ debug_alloc_del (void *a)
 void
 debug_alloc_replace (void *a, size_t s)
 {
-#if 0
+#if 1
   /*
    * TODO: could be a typo in HASH_REPLACE_PTR
+   * DONE: now fixed in uthash >= 1.9.9 (TC contributed fix)
    */
   alloc_table_t *at = debug_alloc_new (a, s);
   alloc_table_t *replaced_stub;

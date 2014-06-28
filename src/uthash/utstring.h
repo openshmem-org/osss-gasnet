@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008-2013, Troy D. Hanson   http://troydhanson.github.com/uthash/
+Copyright (c) 2008-2014, Troy D. Hanson   http://troydhanson.github.com/uthash/
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef UTSTRING_H
 #define UTSTRING_H
 
-#define UTSTRING_VERSION 1.9.8
+#define UTSTRING_VERSION 1.9.9
 
 #ifdef __GNUC__
 #define _UNUSED_ __attribute__ ((__unused__)) 
@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include <stdlib.h>
+#include <sys/types.h>  /* ssize_t */
 #include <string.h>
 #include <stdarg.h>
 #define oom() exit(-1)
@@ -127,7 +128,7 @@ _UNUSED_ static void utstring_printf_va(UT_string *s, const char *fmt, va_list a
       n = vsnprintf (&s->d[s->i], s->n-s->i, fmt, cp);
       va_end(cp);
 
-      if ((n > -1) && (n < (int)(s->n-s->i))) {
+      if ((n > -1) && ((size_t) n < (s->n-s->i))) {
         s->i += n;
         return;
       }
@@ -155,7 +156,7 @@ _UNUSED_ static void utstring_printf(UT_string *s, const char *fmt, ...) {
 /* Build KMP table from left to right. */
 _UNUSED_ static void _utstring_BuildTable(
     const char *P_Needle, 
-    size_t P_NeedleLen, 
+    ssize_t P_NeedleLen, 
     long *P_KMP_Table)
 {
     long i, j;
@@ -195,7 +196,7 @@ _UNUSED_ static void _utstring_BuildTable(
 /* Build KMP table from right to left. */
 _UNUSED_ static void _utstring_BuildTableR(
     const char *P_Needle, 
-    size_t P_NeedleLen, 
+    ssize_t P_NeedleLen, 
     long *P_KMP_Table)
 {
     long i, j;
@@ -304,7 +305,7 @@ _UNUSED_ static long utstring_find(
     UT_string *s, 
     long P_StartPosition,   /* Start from 0. -1 means last position. */
     const char *P_Needle, 
-    size_t P_NeedleLen)
+    ssize_t P_NeedleLen)
 {
     long V_StartPosition;
     long V_HaystackLen;
@@ -350,7 +351,7 @@ _UNUSED_ static long utstring_findR(
     UT_string *s, 
     long P_StartPosition,   /* Start from 0. -1 means last position. */
     const char *P_Needle, 
-    size_t P_NeedleLen)
+    ssize_t P_NeedleLen)
 {
     long V_StartPosition;
     long V_HaystackLen;
