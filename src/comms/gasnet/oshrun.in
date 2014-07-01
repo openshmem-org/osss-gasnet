@@ -95,10 +95,10 @@ export OPENSHMEM_GASNET_CONDUIT
 
 case "$OPENSHMEM_GASNET_CONDUIT" in
     smp)
-	RUN_IT="env GASNET_PSHM_NODES=$npes $all_args"
+	RUN_IT="env GASNET_PSHM_NODES=$npes $launcher_args $app_args"
         ;;
     udp)
-	RUN_IT="$all_args"
+	RUN_IT="$launcher_args $npes $app_args"
 	;;
     # delegate to a GASNet launcher, if found
     *)
@@ -109,7 +109,7 @@ case "$OPENSHMEM_GASNET_CONDUIT" in
             show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"
         fi
 	# pass number of PEs & other args
-	RUN_IT="$launcher -n $npes $all_args"
+	RUN_IT="$launcher -n $npes $launcher_args $app_args"
 	;;
 esac
 

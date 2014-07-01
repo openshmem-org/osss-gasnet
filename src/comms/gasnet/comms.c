@@ -1988,8 +1988,8 @@ static const int nhandlers = TABLE_SIZE (handlers);
  * command-line rather than a launcher program.
  */
 
-static int argc;
-static char **argv;
+static int argc = 0;
+static char **argv = NULL;
 
 static const char *cmdline = "/proc/self/cmdline";
 static const char *cmdline_fmt = "/proc/%ld/cmdline";
@@ -1999,23 +1999,21 @@ void
 parse_cmdline(void)
 {
   FILE *fp;
-  char buf[1024];		/* TODO: arbitrary size */
-  char *p = buf;
+  char an_arg[1024];		/* TODO: arbitrary size */
+  char *p = an_arg;
   int i = 0;
   int c;
-
-  argc = 0;
 
   /*
    * try to find this process' command-line:
    * either from short-cut, or from pid
    */
-  fp = fopen(cmdline, "r");
+  fp = fopen (cmdline, "r");
   if (fp == NULL)
     {
-      char buf[MAXPATHLEN];
-      snprintf (buf, MAXPATHLEN, cmdline_fmt, getpid ());
-      fp = fopen(buf, "r");
+      char pidname[MAXPATHLEN];
+      snprintf (pidname, MAXPATHLEN, cmdline_fmt, getpid ());
+      fp = fopen (pidname, "r");
       if (fp == NULL)
 	{
 	  comms_bailout ("could not discover process' command-line (%s)",
@@ -2026,14 +2024,14 @@ parse_cmdline(void)
     }
 
   /* first count the number of nuls in cmdline to see how many args */
-  while ((c = fgetc(fp)) != EOF)
+  while ((c = fgetc (fp)) != EOF)
     {
       if (c == '\0')
         {
           argc += 1;
         }
     }
-  rewind(fp);
+  rewind (fp);
 
   argv = (char **) malloc ((argc + 1) * sizeof (*argv));
   if (argv == (char **) NULL)
@@ -2044,7 +2042,7 @@ parse_cmdline(void)
 
   while (1)
     {
-      int c = fgetc(fp);
+      int c = fgetc (fp);
       switch (c)
 	{
 	case EOF:		/* end of args */
@@ -2053,8 +2051,8 @@ parse_cmdline(void)
 	  break;
 	case '\0':		/* end of this arg */
 	  *p = c;
-	  argv[i++] = strdup(buf);
-	  p = buf;
+	  argv[i++] = strdup (an_arg); /* unchecked return */
+	  p = an_arg;
 	  break;
 	default:		/* copy out char in this arg  */
 	  *p++ = c;
@@ -2062,7 +2060,24 @@ parse_cmdline(void)
 	}
     }
  end:
-  fclose(fp);
+  fclose (fp);
+}
+
+static
+void
+release_cmdline (void)
+{
+  if (argv != NULL)
+    {
+      int i;
+      for (i = 0; i < argc; i += 1)
+	{
+	  if (argv[i] != NULL)
+	    {
+	      free (argv[i]);
+	    }
+	}
+    }
 }
 
 /**
@@ -2150,18 +2165,7 @@ __shmem_comms_finalize (int status)
 {
   __shmem_service_finalize ();
 
-  if (argv != NULL)
-    {
-      int i;
-      for (i = 0; i < argc; i += 1)
-	{
-	  if (argv[i] != NULL)
-	    {
-	      free (argv[i]);
-	    }
-	}
-      free (argv);
-    }
+  release_cmdline ();
 
   __shmem_comms_exit (status);
 }
