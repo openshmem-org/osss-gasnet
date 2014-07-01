@@ -83,6 +83,14 @@
 void
 __shmem_exit (int status)
 {
+  /*
+   * calling multiple times is undefined, I'm just going to do nothing
+   */
+  if (GET_STATE (pe_status) == PE_SHUTDOWN)
+    {
+      return;
+    }
+
   __shmem_comms_barrier_all ();
   /* ok, no more pending I/O ... */
 
@@ -108,8 +116,9 @@ __shmem_exit (int status)
 		 );
 
   /*
-   * strictly speaking should free remaining alloc'ed things,
-   * but exit is immediately next, so everything gets reaped anyway...
+   * TODO, tc: need to be better at cleanup for 1.2, since finalize
+   * doesn't imply follow-on exit, merely end of OpenSHMEM portion.
+   *
    */
   __shmem_comms_finalize (status);
 }
@@ -325,7 +334,7 @@ shmemx_init (void)
 void
 shmemx_finalize (void)
 {
-  /* currently nothing here, all done in atexit () handler */
+  exit_handler ();
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
