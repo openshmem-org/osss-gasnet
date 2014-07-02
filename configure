@@ -375,19 +375,15 @@ done
 
 # --------------------------------------------------------------------
 
-# bail out immediately if running from source directory (should be in
-# separate build directory)
-#
-# We do this here to allow people to run with --help even in source
-# tree
+# See if we're building directly from the source directory, or in a
+# separate build directory.  Use this info later to see if we need to
+# populate a build area.
 
-if [ -f "$progname" ]
+if [ "$srctreedir" = "$buildtreedir" ]
 then
-    tell "Looks like we're in the source directory."
-    tell "  (There's a file with the same name, \"$progname\", here.)"
-    tell ""
-    tell "Please run $progname from a separate build directory."
-    bailout
+    separate_build=0
+else
+    separate_build=1
 fi
 
 # --------------------------------------------------------------------
@@ -696,11 +692,17 @@ tell "Looking for communication layer ... "
 
 bail_gasnet()
 {
-    tell "  I can't find a GASNet installation"
     tell ""
-    tell "  Specify GASNet location with --gasnet-root=DIR"
-    tell "  or"
-    tell "  indicate where required GASNet components are installed with"
+    tell "GASNet problem:"
+    tell ""
+    tell "  I can't find a GASNet installation:"
+    tell "    $@"
+    tell ""
+    tell "  Specify GASNet location with"
+    tell ""
+    tell "    --gasnet-root=DIR"
+    tell ""
+    tell "  or indicate where separate GASNet components are installed with"
     tell ""
     tell "    --with-gasnet-incdir=DIR  (headers)"
     tell "    --with-gasnet-bindir=DIR  (launchers)"
@@ -714,24 +716,29 @@ case "$comms_layer" in
 	then
 	    if [ -z "$gasnet_root" ]
 	    then
-		bail_gasnet
+		bail_gasnet "No GASNet installation found"
 	    fi
 	    gasnet_bindir="$gasnet_root/bin"
 	fi
 
         if [ ! -d "$gasnet_bindir" ]
     	then
-    	    bail_gasnet
+    	    bail_gasnet "No directory $gasnet_bindir found"
         fi
 
 	if [ -z "$gasnet_incdir" ]
 	then
 	    if [ -z "$gasnet_root" ]
 	    then
-		bail_gasnet
+		bail_gasnet "No GASNet installation found"
 	    fi
 	    gasnet_incdir="$gasnet_root/include"
 	fi
+
+        if [ ! -d "$gasnet_incdir" ]
+    	then
+    	    bail_gasnet "No directory $gasnet_incdir found"
+        fi
 
 	tell "  Checking for GASNet configuration under"
 	tell "    $gasnet_incdir"
@@ -741,7 +748,7 @@ case "$comms_layer" in
 
         if [ ! -r "$gasnet_path_h" ]
     	then
-    	    basil_gasnet
+    	    basil_gasnet "Can't find header file $gasnet_path_h"
         fi
 
         # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
@@ -790,7 +797,7 @@ case "$comms_layer" in
 
         if [ "$KNOWN_CONDUITS" = '*' ]
         then
-            bail_gasnet
+            bail_gasnet "no conduits found"
         fi
 
 	tell "  Found conduits: $KNOWN_CONDUITS"
@@ -859,43 +866,47 @@ tell ""
 [ -z "$modulesdir" ]     && modulesdir=$libdir/modules
 [ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
-# -- create build directory tree --
-
-# from the source tree, pull in doc, src, and top-level input files
-
-tell "Populating build directory tree ... "
-
+# directories in which to compile things
 build_me_dirs="
 doc
 src
 "
 
+# files at source root that are templates
 top_levels="
 ./Makefile.in
 ./openshmem.module.in
 "
 
-for d in $build_me_dirs $top_levels
-do
-  find $srctreedir/$d \! -type d -print |
-  while read f
-  do
-    # tell "Found source file $f"
-    treepart="`dirname -- $f`"
-    treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
-    [ -z "$treepart" ] && treepart="."
-    mkdir -p $treepart
-    (
-	cd $treepart
-	thispart="`basename -- $f`"
-	rm -f $thispart
-	ln -s $f
-    )
-  done
-done
+if [ $separate_build = 1 ]
+then
+    # -- create build directory tree --
+    # from the source tree, pull in doc, src, and top-level input files
 
-tell "Populating build directory tree ... done"
-tell ""
+    tell "Populating build directory tree ... "
+
+    for d in $build_me_dirs $top_levels
+    do
+	find $srctreedir/$d \! -type d -print |
+	while read f
+	do
+            # tell "Found source file $f"
+	    treepart="`dirname -- $f`"
+	    treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
+	    [ -z "$treepart" ] && treepart="."
+	    mkdir -p $treepart
+	    (
+		cd $treepart
+		thispart="`basename -- $f`"
+		rm -f $thispart
+		ln -s $f
+	    )
+	done
+    done
+
+    tell "Populating build directory tree ... done"
+    tell ""
+fi
 
 # -- generate build files from .in templates --
 #
