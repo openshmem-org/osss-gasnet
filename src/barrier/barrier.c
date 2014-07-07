@@ -136,9 +136,9 @@ shmem_barrier_all (void)
 {
   INIT_CHECK ();
 
-  mi_all.func_32 ();
-
   shmem_quiet ();
+
+  mi_all.func_32 ();
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -151,7 +151,7 @@ shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
   INIT_CHECK ();
 
-  mi_bar.func_32 (PE_start, logPE_stride, PE_size, pSync);
-
   shmem_quiet ();
+
+  mi_bar.func_32 (PE_start, logPE_stride, PE_size, pSync);
 }
