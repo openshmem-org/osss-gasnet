@@ -11,6 +11,7 @@
 #include <sys/types.h>
 
 #define ONLY_MSPACES 1
+#define HAVE_MORECORE 0
 #define USE_LOCKS 1
 
 typedef void *mspace;
