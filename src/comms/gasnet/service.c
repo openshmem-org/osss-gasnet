@@ -129,7 +129,7 @@ waitmode_init (void)
 void
 __shmem_service_init (void)
 {
-#ifdef GASNETC_IB_RCV_THREAD
+#ifdef GASNETC_IBV_RCV_THREAD
   /*
    * if we have an IBV progress thread configured, then check env for
    * GASNET_RCV_THREAD.
@@ -166,7 +166,7 @@ __shmem_service_init (void)
 	  break;
 	}
     }
-#endif /* GASNETC_IB_RCV_THREAD */
+#endif /* GASNETC_IBV_RCV_THREAD */
 
   if (handling_own_thread)
     {
