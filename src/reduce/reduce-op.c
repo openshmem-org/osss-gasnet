@@ -238,7 +238,7 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
 	pe += step;							\
       }									\
     /* everyone has to have finished */					\
-    /* shmem_barrier (PE_start, logPE_stride, PE_size, pSync);*/	\
+    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);	\
     if (overlap)							\
       {									\
 	/* write to real local target and free temp */			\
