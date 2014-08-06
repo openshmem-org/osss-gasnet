@@ -178,12 +178,13 @@ Usage: $progname [options]
 
   Optional features:
 
-    --enable-debug               Run-time debugging checks
-    --disable-debug              No run-time debugging checks
-                                     (default)
-
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
+                                     (default)
+
+    --enable-debug               Run-time debugging checks
+                                     Will enable tracing at the same time
+    --disable-debug              No run-time debugging checks
                                      (default)
 
   Optional and not-stable-yet:
@@ -351,14 +352,6 @@ do
 	--disable-experimental)
 	    feature_experimental=disabled
 	    ;;
-#	--enable-putget-nb)
-#	    deprecated "$o" "--enable-experimental"
-#	    feature_experimental=enabled
-#	    ;;
-#	--disable-putget-nb)
-#	    deprecated "$o" "--disable-experimental"
-#	    feature_experimental=disabled
-#	    ;;
 	--help)
 	    show_usage
 	    bailout
@@ -372,6 +365,18 @@ do
 	    ;;
     esac
 done
+
+# --------------------------------------------------------------------
+
+# debug requires trace
+if [ "$feature_debug" = "enabled" ]
+then
+    if [ "$feature_trace" = "disabled" ]
+    then
+	tell "Debug requires tracing, enabling..."
+	feature_trace=enabled
+    fi
+fi
 
 # --------------------------------------------------------------------
 

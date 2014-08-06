@@ -114,8 +114,11 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
 		   long *pSync)
 {
+  INIT_CHECK ();
   SYMMETRY_CHECK (target, 1, "shmem_broadcast32");
   SYMMETRY_CHECK (source, 2, "shmem_broadcast32");
+  SYMMETRY_CHECK (pSync,  8, "shmem_broadcast32");
+  PE_RANGE_CHECK (PE_start, 5);
 
   mi.func_32 (target, source, nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);
@@ -131,8 +134,11 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
 		   int PE_root, int PE_start, int logPE_stride, int PE_size,
 		   long *pSync)
 {
+  INIT_CHECK ();
   SYMMETRY_CHECK (target, 1, "shmem_broadcast64");
   SYMMETRY_CHECK (source, 2, "shmem_broadcast64");
+  SYMMETRY_CHECK (pSync,  8, "shmem_broadcast64");
+  PE_RANGE_CHECK (PE_start, 5);
 
   mi.func_64 (target, source, nelems,
 	      PE_root, PE_start, logPE_stride, PE_size, pSync);

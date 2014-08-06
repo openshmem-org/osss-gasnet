@@ -226,7 +226,8 @@ static FILE *trace_log_stream;
  *
  */
 
-static void
+static
+void
 logging_filestream_init (void)
 {
   char *shlf;
@@ -252,7 +253,8 @@ logging_filestream_init (void)
  *
  */
 
-static void
+static
+void
 sgi_compat_environment_init (void)
 {
   int overwrite = 1;

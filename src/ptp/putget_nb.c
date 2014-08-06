@@ -88,12 +88,12 @@ extern void shmemx_put_nb (long *dest, const long *src, size_t nelems,
 #define SHMEMX_TYPE_PUT_NB(Name, Type)					\
   void 								\
   shmemx_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
-			  int pe, shmemx_request_handle_t *desc)				\
+			  int pe, shmemx_request_handle_t *desc)	\
   {									\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
     SYMMETRY_CHECK (target, 1, "shmemx_" #Name "_put_nb");		\
+    PE_RANGE_CHECK (pe, 4);						\
     __shmem_comms_put_nb ((Type *) target, (Type *) source,		\
 			      typed_nelems, pe, desc);			\
   }
@@ -142,8 +142,8 @@ shmemx_putmem_nb (void *target, const void *source, size_t nelems,
 		  int pe, shmemx_request_handle_t *desc)
 {
   INIT_CHECK ();
-  PE_RANGE_CHECK (pe);
   SYMMETRY_CHECK (target, 1, "shmemx_putmem_nb");
+  PE_RANGE_CHECK (pe, 4);
   __shmem_comms_put_nb (target, (void *) source, nelems, pe, desc);
 }
 
@@ -184,14 +184,14 @@ extern void shmemx_get_nb (long *dest, const long *src, size_t nelems,
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEMX_TYPE_GET_NB(Name, Type)					\
-  void 								\
+  void									\
   shmemx_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
-			 int pe, shmemx_request_handle_t *desc)				\
+			  int pe, shmemx_request_handle_t *desc)	\
   {									\
     int typed_nelems = sizeof(Type) * nelems;                           \
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
     SYMMETRY_CHECK (source, 2, "shmemx_" #Name "_get_nb");		\
+    PE_RANGE_CHECK (pe, 4);						\
     __shmem_comms_get_nb ((Type *) target, (Type *) source,		\
 			      typed_nelems, pe, desc);			\
   }
@@ -241,8 +241,8 @@ shmemx_getmem_nb (void *target, const void *source, size_t nelems,
 		 int pe, shmemx_request_handle_t *desc)
 {
   INIT_CHECK ();
-  PE_RANGE_CHECK (pe);
   SYMMETRY_CHECK (source, 2, "shmemx_getmem_nb");
+  PE_RANGE_CHECK (pe, 4);
   __shmem_comms_get_nb (target, (void *) source, nelems, pe, desc);
 }
 

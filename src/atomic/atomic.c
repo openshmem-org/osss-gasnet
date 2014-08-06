@@ -94,7 +94,7 @@ __shmem_atomic_finalize (void)
   {									\
     Type retval;							\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 3);						\
     __shmem_comms_swap_request (target, &value, sizeof (Type),		\
 				pe, &retval);				\
     return retval;							\
@@ -137,7 +137,7 @@ shmem_swap (long *target, long value, int pe)
   {									\
     Type retval;							\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 4);						\
     __shmem_comms_cswap_request (target, &cond, &value, sizeof (Type),	\
 				 pe, &retval);				\
     return retval;							\
@@ -162,7 +162,7 @@ SHMEM_TYPE_CSWAP (longlong, long long);
   {									\
     Type retval;							\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 3);						\
     __shmem_comms_fadd_request (target, &value, sizeof (Type),		\
 				pe, &retval);				\
     return retval;							\
@@ -193,7 +193,7 @@ SHMEM_TYPE_FADD (longlong, long long);
   {									\
     Type retval;							\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 2);						\
     __shmem_comms_finc_request (target, sizeof (Type),			\
 				pe, &retval);				\
     return retval;							\
@@ -221,7 +221,7 @@ SHMEM_TYPE_FINC (longlong, long long);
   shmem_##Name##_add (Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 3);						\
     __shmem_comms_add_request (target, &value, sizeof (Type),		\
 			       pe);					\
   }
@@ -245,7 +245,7 @@ SHMEM_TYPE_ADD (longlong, long long);
   shmem_##Name##_inc (Type *target, int pe)				\
   {									\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 2);						\
     __shmem_comms_inc_request (target, sizeof (Type),			\
 			       pe);					\
   }
@@ -272,7 +272,7 @@ SHMEM_TYPE_INC (longlong, long long);
   shmemx_##Name##_xor(Type *target, Type value, int pe)			\
   {									\
     INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe);						\
+    PE_RANGE_CHECK (pe, 3);						\
     __shmem_comms_xor_request (target, &value, sizeof (Type),		\
 			       pe);					\
   }

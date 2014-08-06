@@ -109,7 +109,7 @@ void *
 shmem_ptr (void *target, int pe)
 {
   INIT_CHECK ();
-  PE_RANGE_CHECK (pe);
+  PE_RANGE_CHECK (pe, 2);
 
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 

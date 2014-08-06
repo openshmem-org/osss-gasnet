@@ -101,8 +101,8 @@ extern void shmem_char_iget (char *target, const char *source, ptrdiff_t tst,
   {									\
     size_t ti = 0, si = 0;						\
     size_t i;								\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe, 6);						\
     for (i = 0; i < nelems; i += 1) {					\
       shmem_##Name##_p (& (target[ti]), source[si], pe);		\
       ti += tst;							\
@@ -182,8 +182,8 @@ shmem_iput128 (void *target, const void *source,
   {									\
     size_t ti = 0, si = 0;						\
     size_t i;								\
-    INIT_CHECK();							\
-    PE_RANGE_CHECK(pe);							\
+    INIT_CHECK ();							\
+    PE_RANGE_CHECK (pe, 6);						\
     for (i = 0; i < nelems; i += 1) {					\
       target[ti] = shmem_##Name##_g ((Type *) & (source[si]), pe);	\
       ti += tst;							\

@@ -1,0 +1,3 @@
+These programs are intentionally broken in various ways so that either
+the configure option --enable-debug or the OpenSHMEM Analyzer can detect
+the problems.
