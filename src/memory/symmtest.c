@@ -74,30 +74,31 @@ __shmem_symmetric_test_with_abort (void *remote_addr,
 int
 __shmem_symmetric_addr_accessible (void *addr, int pe)
 {
-  return (__shmem_symmetric_addr_lookup (addr, pe) != NULL);
-}
-
-/**
- * is the address one that can be accessed remotely?
- * 
- */
-
-int
-__shmem_is_symmetric (void *addr)
-{
-  void *testaddr = __shmem_symmetric_addr_lookup (addr, GET_STATE (mype));
-
-#ifdef HAVE_FEATURE_DEBUG
-  /*
-   * peek into memory hash table in debugging mode.
-   *
-   * TODO: check within bounds of allocation
-   */
-  if (EXPR_UNLIKELY (! debug_alloc_check (testaddr)))
+  if (EXPR_LIKELY (__shmem_symmetric_addr_lookup (addr, pe) != NULL))
+    {
+      return 1;
+    }
+  else
     {
       return 0;
     }
-#endif /* HAVE_FEATURE_DEBUG */
-
-  return testaddr != NULL;
 }
+
+#if 0
+/**
+ * is the address one that can be accessed remotely? (self-inspection)
+ * 
+ */
+int
+__shmem_is_symmetric (void *addr)
+{
+  if (EXPR_LIKELY ( __shmem_symmetric_addr_lookup (addr, GET_STATE (mype)) != NULL))
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+#endif /* not used */

@@ -57,6 +57,8 @@
 #include "trace.h"
 #include "exe.h"
 
+#include "utils.h"
+
 /*
  * ---------------------------------------------------------------------------
  *
@@ -386,35 +388,26 @@ __shmem_symmetric_globalvar_table_finalize (void)
 /*
  * helper to check address ranges
  */
-#define IN_RANGE(Area, Addr) \
+#define IN_RANGE(Area, Addr)					\
   ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
 
-/*
+#define IS_GLOBAL(Addr)				\
+  (IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a))
+
+  /*
  * check to see if address is global
  */
 int
 __shmem_symmetric_is_globalvar (void *addr)
 {
-  size_t a = (size_t) addr;
+  const size_t a = (size_t) addr;
 
-  /*
-   * check most common locations first
-   */
-
-  if (IN_RANGE (elfdata, a))
+  if (EXPR_LIKELY (IS_GLOBAL (a)))
     {
       return 1;
     }
-
-  if (IN_RANGE (elfbss, a))
+  else
     {
-      return 1;
+      return 0;
     }
-
-  if (IN_RANGE (elfro, a))
-    {
-      return 1;
-    }
-
-  return 0;
 }

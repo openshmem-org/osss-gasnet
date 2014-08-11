@@ -49,6 +49,8 @@ extern void *__shmem_symmetric_addr_lookup (void *dest, int pe);
 
 extern int __shmem_symmetric_addr_accessible (void *addr, int pe);
 
+#if 0
 extern int __shmem_is_symmetric (void *addr);
+#endif /* not used */
 
 #endif /* _SYMMTEST_H */

@@ -70,6 +70,7 @@
 
 #include "service.h"
 
+#include "trace.h"
 #include "utils.h"
 #include "unitparse.h"
 
@@ -463,16 +464,15 @@ __shmem_symmetric_memory_finalize (void)
 void *
 __shmem_symmetric_addr_lookup (void *dest, int pe)
 {
-  const int me = GET_STATE (mype);
-
   /* globals are in same place everywhere */
-  if (EXPR_LIKELY (__shmem_symmetric_is_globalvar (dest)))
+  if (__shmem_symmetric_is_globalvar (dest))
     {
       return dest;
     }
 
   /* symmetric if inside of heap */
   {
+    const int me = GET_STATE (mype);
     const size_t atos = (size_t) dest;
     const size_t ta = (size_t) seginfo_table[me].addr; /* remote addr */
     const size_t tt = ta + seginfo_table[me].size; /* remote addr top of range */
