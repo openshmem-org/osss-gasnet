@@ -123,4 +123,11 @@
  */
 #define TABLE_SIZE(T) ( sizeof(T) / sizeof((T)[0]) )
 
+/*
+ * for branch prediction optimization
+ *
+ */
+#define EXPR_LIKELY(expression) __builtin_expect(!!(expression), 1)
+#define EXPR_UNLIKELY(expression) __builtin_expect(!!(expression), 0)
+
 #endif /* _UTILS_H */

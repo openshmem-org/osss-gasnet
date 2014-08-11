@@ -201,12 +201,12 @@ __shmem_comms_get_segment_size (void)
     }
 
   __shmem_parse_size (mlss_str, &retval, &ok);
-  if (ok)
+  if (EXPR_LIKELY (ok))
     {
       /* make sure aligned to page size multiples */
       const size_t mod = retval % GASNET_PAGESIZE;
 
-      if (mod != 0)
+      if (EXPR_UNLIKELY (mod != 0))
 	{
 	  const size_t div = retval / GASNET_PAGESIZE;
 	  retval = (div + 1) * GASNET_PAGESIZE;
@@ -366,7 +366,7 @@ __shmem_symmetric_memory_init (void)
    */
   seginfo_table =
     (gasnet_seginfo_t *) calloc (npes, sizeof (gasnet_seginfo_t));
-  if (seginfo_table == (gasnet_seginfo_t *) NULL)
+  if (EXPR_UNLIKELY (seginfo_table == (gasnet_seginfo_t *) NULL))
     {
       comms_bailout ("could not allocate GASNet segments (%s)",
 		     strerror (errno)
@@ -392,7 +392,7 @@ __shmem_symmetric_memory_init (void)
 
     /* allocate the heap - has to be pagesize aligned */
     pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
-    if (pm_r != 0)
+    if (EXPR_UNLIKELY (pm_r != 0))
       {
 	comms_bailout ("unable to allocate symmetric heap (%s)",
 		       strerror (pm_r)
@@ -417,7 +417,7 @@ __shmem_symmetric_memory_init (void)
       for (pe = 0; pe < npes; pe += 1)
 	{
 	  /* send to everyone else */
-	  if (me != pe)
+	  if (EXPR_LIKELY (me != pe))
 	    {
 	      gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
 				       &gs, sizeof (gs)
@@ -455,35 +455,7 @@ __shmem_symmetric_memory_finalize (void)
 /**
  * where the symmetric memory starts on the given PE
  */
-void *
-__shmem_symmetric_var_base (int p)
-{
-  return seginfo_table[p].addr;
-}
-
-/**
- * is the address in the managed symmetric area?
- */
-int
-__shmem_symmetric_var_in_range (void *addr, int pe)
-{
-  int retval;
-
-  if (addr < seginfo_table[pe].addr)
-    {
-      retval = 0;
-    }
-  else if (addr > (seginfo_table[pe].addr + seginfo_table[pe].size))
-    {
-      retval = 0;
-    }
-  else
-    {
-      retval = 1;
-    }
-
-  return retval;
-}
+#define SHMEM_SYMMETRIC_VAR_BASE(p) (seginfo_table[(p)].addr)
 
 /**
  * translate my "dest" to corresponding address on PE "pe"
@@ -492,28 +464,32 @@ void *
 __shmem_symmetric_addr_lookup (void *dest, int pe)
 {
   const int me = GET_STATE (mype);
-  size_t offset;
-  char *rdest;
 
   /* globals are in same place everywhere */
-  if (__shmem_symmetric_is_globalvar (dest))
+  if (EXPR_LIKELY (__shmem_symmetric_is_globalvar (dest)))
     {
       return dest;
     }
 
-  /* not symmetric if outside of heap */
-  if (! __shmem_symmetric_var_in_range (dest, me))
-    {
-      return NULL;
-    }
+  /* symmetric if inside of heap */
+  {
+    const size_t atos = (size_t) dest;
+    const size_t ta = (size_t) seginfo_table[me].addr; /* remote addr */
+    const size_t tt = ta + seginfo_table[me].size; /* remote addr top of range */
 
-  /* where this is in *my* heap */
-  offset = (char *) dest - (char *) __shmem_symmetric_var_base (me);
-  /* and where it is in the remote heap */
-  rdest = (char *) __shmem_symmetric_var_base (pe) + offset;
+    if (EXPR_LIKELY ( (atos >= ta) || (atos < tt) ))
+      {
+	/* where this is in *my* heap */
+	const size_t offset = (char *) dest - (char *) SHMEM_SYMMETRIC_VAR_BASE (me);
+	/* and where it is in the remote heap */
+	char *rdest = (char *) SHMEM_SYMMETRIC_VAR_BASE (pe) + offset;
+	
+	/* assume this is good */
+	return rdest;
+      }
+  }
 
-  /* assume this is good */
-  return rdest;
+  return NULL;
 }
 
 /*
@@ -548,11 +524,11 @@ get_lock_for (void *addr)
 
   HASH_FIND_PTR (lock_table, &addr, try);
 
-  if (try == (lock_table_t *) NULL)
+  if (EXPR_UNLIKELY (try == (lock_table_t *) NULL))
     {
       gasnet_hsl_t *L = (gasnet_hsl_t *) malloc (sizeof (*L));
 
-      if (L == (gasnet_hsl_t *) NULL)
+      if (EXPR_UNLIKELY (L == (gasnet_hsl_t *) NULL))
 	{
 	  comms_bailout ("internal error: unable to allocate lock for address %p",
 			 addr
@@ -561,7 +537,7 @@ get_lock_for (void *addr)
 	}
 
       try = (lock_table_t *) malloc (sizeof (*try));
-      if (try == (lock_table_t *) NULL)
+      if (EXPR_UNLIKELY (try == (lock_table_t *) NULL))
 	{
 	  comms_bailout ("internal error: unable to allocate lock table entry for address %p",
 			 addr
@@ -671,7 +647,7 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
 			    int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate swap payload memory");
     }
@@ -717,7 +693,7 @@ handler_cswap_out (gasnet_token_t token,
   gasnet_hsl_lock (& amo_cswap_lock);
 
   old = malloc (pp->nbytes);
-  if (old == NULL)
+  if (EXPR_UNLIKELY (old == NULL))
     {
       comms_bailout ("internal error: unable to allocate cswap save space");
     }
@@ -775,7 +751,7 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
 			     size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *cp = (atomic_payload_t *) malloc (sizeof (*cp));
-  if (cp == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (cp == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate conditional swap payload memory");
     }
@@ -863,7 +839,7 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
 			    void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate fetch-and-add payload memory");
     }
@@ -946,7 +922,7 @@ void
 __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate fetch-and-increment payload memory");
     }
@@ -1023,7 +999,7 @@ void
 __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote add payload memory");
     }
@@ -1099,7 +1075,7 @@ void
 __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote increment payload memory");
     }
@@ -1173,7 +1149,7 @@ void
 __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote exclusive-or payload memory");
     }
@@ -1220,6 +1196,7 @@ static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
 
 static
+inline
 void
 atomic_inc_put_counter (void)
 {
@@ -1229,6 +1206,7 @@ atomic_inc_put_counter (void)
 }
 
 static
+inline
 void
 atomic_dec_put_counter (void)
 {
@@ -1238,6 +1216,7 @@ atomic_dec_put_counter (void)
 }
 
 static
+inline
 void
 atomic_wait_put_zero (void)
 {
@@ -1245,6 +1224,7 @@ atomic_wait_put_zero (void)
 }
 
 static
+inline
 void
 atomic_inc_get_counter (void)
 {
@@ -1254,6 +1234,7 @@ atomic_inc_get_counter (void)
 }
 
 static
+inline
 void
 atomic_dec_get_counter (void)
 {
@@ -1263,6 +1244,7 @@ atomic_dec_get_counter (void)
 }
 
 static
+inline
 void
 atomic_wait_get_zero (void)
 {
@@ -1299,6 +1281,7 @@ atomic_wait_get_zero (void)
  */
 
 static
+inline
 void
 allocate_buffer_and_check (void **buf, size_t siz)
 {
@@ -1438,7 +1421,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 
   allocate_buffer_and_check (&put_buf, alloc_size);
 
-  if (nchunks > 0)
+  if (EXPR_LIKELY (nchunks > 0))
     {
       size_t i;
 
@@ -1451,7 +1434,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 	}
     }
 
-  if (rem_send > 0)
+  if (EXPR_LIKELY (rem_send > 0))
     {
       payload_size = rem_send;
 
@@ -1561,7 +1544,7 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 
   allocate_buffer_and_check (&get_buf, alloc_size);
 
-  if (nchunks > 0)
+  if (EXPR_LIKELY (nchunks > 0))
     {
       size_t i;
 
@@ -1576,7 +1559,7 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 	}
     }
 
-  if (rem_send > 0)
+  if (EXPR_LIKELY (rem_send > 0))
     {
       payload_size = rem_send;
 
@@ -1754,7 +1737,7 @@ void *
 nb_table_add (gasnet_handle_t h)
 {
   nb_table_t *n = malloc (sizeof (*n));
-  if (n == (nb_table_t *) NULL)
+  if (EXPR_UNLIKELY (n == (nb_table_t *) NULL))
     {
       comms_bailout ("internal error: unable to alloate memory for non-blocking table");
       /* NOT REACHED */
@@ -1779,7 +1762,7 @@ nb_table_wait (void)
   unsigned int i = 0;
 
   g = malloc (n * sizeof (*g));
-  if (g != NULL)
+  if (EXPR_UNLIKELY (g != NULL))
     {
       HASH_ITER (hh, nb_table, current, tmp)
 	{
@@ -1995,6 +1978,7 @@ static const char *cmdline = "/proc/self/cmdline";
 static const char *cmdline_fmt = "/proc/%ld/cmdline";
 
 static
+inline
 void
 parse_cmdline(void)
 {
@@ -2009,12 +1993,12 @@ parse_cmdline(void)
    * either from short-cut, or from pid
    */
   fp = fopen (cmdline, "r");
-  if (fp == NULL)
+  if (EXPR_UNLIKELY (fp == NULL))
     {
       char pidname[MAXPATHLEN];
       snprintf (pidname, MAXPATHLEN, cmdline_fmt, getpid ());
       fp = fopen (pidname, "r");
-      if (fp == NULL)
+      if (EXPR_UNLIKELY (fp == NULL))
 	{
 	  comms_bailout ("could not discover process' command-line (%s)",
 			 strerror (errno)
@@ -2034,7 +2018,7 @@ parse_cmdline(void)
   rewind (fp);
 
   argv = (char **) malloc ((argc + 1) * sizeof (*argv));
-  if (argv == (char **) NULL)
+  if (EXPR_UNLIKELY (argv == (char **) NULL))
     {
       comms_bailout ("internal error: unable to allocate memory for faked command-line arguments");
       /* NOT REACHED */
@@ -2064,6 +2048,7 @@ parse_cmdline(void)
 }
 
 static
+inline
 void
 release_cmdline (void)
 {
@@ -2084,8 +2069,8 @@ release_cmdline (void)
  * GASNet does this timeout thing if its collective routines
  * (e.g. barrier) go idle, so make this as long as possible
  */
-
 static
+inline
 void
 maximize_gasnet_timeout (void)
 {
@@ -2093,7 +2078,6 @@ maximize_gasnet_timeout (void)
   snprintf (buf, 32, "%d", INT_MAX - 1);
   setenv ("GASNET_ EXITTIMEOUT", buf, 1);
 }
-
 
 /**
  * -----------------------------------------------------------------------

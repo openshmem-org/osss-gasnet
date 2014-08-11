@@ -44,6 +44,8 @@
 #include "comms.h"
 #include "state.h"
 
+#include "utils.h"
+
 #include "debug_alloc.h"
 
 /*
@@ -56,7 +58,7 @@ __shmem_symmetric_test_with_abort (void *remote_addr,
 				   void *local_addr,
 				   const char *name, const char *routine)
 {
-  if (remote_addr == NULL)
+  if (EXPR_UNLIKELY (remote_addr == NULL))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "shmem_%s_%s: address %p is not symmetric",
@@ -83,35 +85,19 @@ __shmem_symmetric_addr_accessible (void *addr, int pe)
 int
 __shmem_is_symmetric (void *addr)
 {
-  /*
-   * global variables are symmetrical
-   */
-  if (__shmem_symmetric_is_globalvar (addr))
-    {
-      return 1;
-    }
+  void *testaddr = __shmem_symmetric_addr_lookup (addr, GET_STATE (mype));
 
-  /*
-   * things in the heap *should be* symmetrical
-   */
-  if (__shmem_symmetric_var_in_range (addr, GET_STATE (mype)))
-    {
 #ifdef HAVE_FEATURE_DEBUG
-      /*
-       * peek into memory hash table in debugging mode.
-       *
-       * TODO: check within bounds of allocation
-       */
-      if (! debug_alloc_check (addr))
-	{
-	  return 0;
-	}
-#endif /* HAVE_FEATURE_DEBUG */
-      return 1;
-    }
-
   /*
-   * anything else, ain't symmetrical
+   * peek into memory hash table in debugging mode.
+   *
+   * TODO: check within bounds of allocation
    */
-  return 0;
+  if (EXPR_UNLIKELY (! debug_alloc_check (testaddr)))
+    {
+      return 0;
+    }
+#endif /* HAVE_FEATURE_DEBUG */
+
+  return testaddr != NULL;
 }
