@@ -104,31 +104,48 @@ extern void __shmem_comms_barrier (int PE_start, int logPE_stride,
 
 /*
  * the atomics we support
+ *
+ * Distinguish between 32 and 64 bit.
+ *
  */
-extern void __shmem_comms_swap_request (void *target, void *value,
-                                        size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_swap_request32 (void *target, void *value,
+					  size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_swap_request64 (void *target, void *value,
+					  size_t nbytes, int pe, void *retval);
 
-extern void __shmem_comms_cswap_request (void *target,
-                                         void *cond, void *value,
-                                         size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_cswap_request32 (void *target,
+					   void *cond, void *value,
+					   size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_cswap_request64 (void *target,
+					   void *cond, void *value,
+					   size_t nbytes, int pe, void *retval);
 
-extern void __shmem_comms_fadd_request (void *target, void *value,
-                                        size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_fadd_request32 (void *target, void *value,
+					  size_t nbytes, int pe, void *retval);
+extern void __shmem_comms_fadd_request64 (void *target, void *value,
+					  size_t nbytes, int pe, void *retval);
 
-extern void __shmem_comms_finc_request (void *target, size_t nbytes,
-                                        int pe, void *retval);
+extern void __shmem_comms_finc_request32 (void *target, size_t nbytes,
+					  int pe, void *retval);
+extern void __shmem_comms_finc_request64 (void *target, size_t nbytes,
+					  int pe, void *retval);
 
-extern void __shmem_comms_add_request (void *target, void *value,
-                                       size_t nbytes, int pe);
+extern void __shmem_comms_add_request32 (void *target, void *value,
+					 size_t nbytes, int pe);
+extern void __shmem_comms_add_request64 (void *target, void *value,
+					 size_t nbytes, int pe);
 
-extern void __shmem_comms_inc_request (void *target, size_t nbytes, int pe);
+extern void __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe);
+extern void __shmem_comms_inc_request64 (void *target, size_t nbytes, int pe);
 
 /*
  * Proposed by IBM Zurich
  *
  */
-extern void __shmem_comms_xor_request (void *target, void *value,
-                                       size_t nbytes, int pe);
+extern void __shmem_comms_xor_request32 (void *target, void *value,
+					 size_t nbytes, int pe);
+extern void __shmem_comms_xor_request64 (void *target, void *value,
+					 size_t nbytes, int pe);
 
 /*
  * fence and quiet initiators
@@ -137,7 +154,7 @@ extern void __shmem_comms_fence_request (void);
 extern void __shmem_comms_quiet_request (void);
 
 /*
- * TODO: review location of source
+ * find where variable is on another PE
  */
 extern void *__shmem_symmetric_addr_lookup (void *dest, int pe);
 

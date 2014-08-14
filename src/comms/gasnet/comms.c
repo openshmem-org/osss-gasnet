@@ -185,6 +185,7 @@ enum
  * implementation
  */
 static
+inline
 size_t
 __shmem_comms_get_segment_size (void)
 {
@@ -192,7 +193,7 @@ __shmem_comms_get_segment_size (void)
   size_t retval;
   int ok;
 
-  if (mlss_str == (char *) NULL)
+  if (EXPR_LIKELY (mlss_str == (char *) NULL))
     {
 #ifdef HAVE_MANAGED_SEGMENTS
       return (size_t) gasnet_getMaxLocalSegmentSize ();
@@ -219,6 +220,7 @@ __shmem_comms_get_segment_size (void)
 
   comms_bailout ("Unusable symmetric heap size \"%s\"", mlss_str);
   /* NOT REACHED */
+  return 0;
 }
 		      
 
@@ -226,6 +228,7 @@ __shmem_comms_get_segment_size (void)
  * traffic progress
  *
  */
+inline
 void
 __shmem_comms_service (void)
 {
@@ -236,6 +239,7 @@ __shmem_comms_service (void)
  * can't just call getenv, it might not pass through environment
  * info to other nodes from launch.
  */
+inline
 char *
 __shmem_comms_getenv (const char *name)
 {
@@ -245,6 +249,7 @@ __shmem_comms_getenv (const char *name)
 /**
  * which node (PE) am I?
  */
+inline
 int
 __shmem_comms_mynode (void)
 {
@@ -254,6 +259,7 @@ __shmem_comms_mynode (void)
 /**
  * how many nodes (PEs) take part in this program?
  */
+inline
 int
 __shmem_comms_nodes (void)
 {
@@ -270,6 +276,7 @@ __shmem_comms_nodes (void)
 static long barcount = 0;
 static int barflag = 0;
 
+inline
 void
 __shmem_comms_barrier_all (void)
 {
@@ -356,6 +363,7 @@ handler_segsetup_bak (gasnet_token_t token,
  * gasnet configurations
  */
 
+inline
 void
 __shmem_symmetric_memory_init (void)
 {
@@ -444,6 +452,7 @@ __shmem_symmetric_memory_init (void)
 /**
  * shut down the memory allocation handler
  */
+inline
 void
 __shmem_symmetric_memory_finalize (void)
 {
@@ -461,6 +470,7 @@ __shmem_symmetric_memory_finalize (void)
 /**
  * translate my "dest" to corresponding address on PE "pe"
  */
+inline
 void *
 __shmem_symmetric_addr_lookup (void *dest, int pe)
 {
@@ -642,9 +652,11 @@ handler_swap_bak (gasnet_token_t token,
 /**
  * perform the swap
  */
+static
+inline
 void
-__shmem_comms_swap_request (void *target, void *value, size_t nbytes,
-			    int pe, void *retval)
+make_swap_request (void *target, void *value, size_t nbytes,
+		   int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -658,7 +670,6 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p));
 
@@ -671,12 +682,25 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
    * a post and wait/poll pair, post returning a handle for the atomic
    * op. in progress.
    */
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
 }
 
+inline
+void
+__shmem_comms_swap_request32 (void *target, void *value,
+			      size_t nbytes, int pe, void *retval)
+{
+  make_swap_request (target, value, nbytes, pe, retval);
+}
+
+inline
+void
+__shmem_comms_swap_request64 (void *target, void *value,
+			      size_t nbytes, int pe, void *retval)
+{
+  make_swap_request (target, value, nbytes, pe, retval);
+}
 
 /**
  * called by remote PE to do the swap.  Store new value if cond
@@ -746,9 +770,11 @@ handler_cswap_bak (gasnet_token_t token,
 /**
  * perform the conditional swap
  */
+static
+inline
 void
-__shmem_comms_cswap_request (void *target, void *cond, void *value,
-			     size_t nbytes, int pe, void *retval)
+make_cswap_request (void *target, void *cond, void *value,
+		    size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *cp = (atomic_payload_t *) malloc (sizeof (*cp));
   if (EXPR_UNLIKELY (cp == (atomic_payload_t *) NULL))
@@ -764,15 +790,27 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
   memmove (&(cp->cond), cond, nbytes);
   cp->completed = 0;
   cp->completed_addr = &(cp->completed);
-
   LOAD_STORE_FENCE ();
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp));
-
   WAIT_ON_COMPLETION (cp->completed);
-
   free (cp);
+}
+
+inline
+void
+__shmem_comms_cswap_request32 (void *target, void *cond, void *value,
+			       size_t nbytes, int pe, void *retval)
+{
+  make_cswap_request (target, cond, value, nbytes, pe, retval);
+}
+
+inline
+void
+__shmem_comms_cswap_request64 (void *target, void *cond, void *value,
+			       size_t nbytes, int pe, void *retval)
+{
+  make_cswap_request (target, cond, value, nbytes, pe, retval);
 }
 
 /**
@@ -834,9 +872,11 @@ handler_fadd_bak (gasnet_token_t token,
 /**
  * perform the fetch-and-add
  */
+static
+inline
 void
-__shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
-			    void *retval)
+make_fadd_request (void *target, void *value, size_t nbytes, int pe,
+		   void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -850,13 +890,26 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+inline
+void
+__shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
+			      void *retval)
+{
+  make_fadd_request (target, value, nbytes, pe, retval);
+}
+
+inline
+void
+__shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
+			      void *retval)
+{
+  make_fadd_request (target, value, nbytes, pe, retval);
 }
 
 /**
@@ -918,8 +971,10 @@ handler_finc_bak (gasnet_token_t token,
 /**
  * perform the fetch-and-increment
  */
+static
+inline
 void
-__shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
+make_finc_request (void *target, size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -932,14 +987,26 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
 }
+
+inline
+void
+__shmem_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
+{
+  make_finc_request (target, nbytes, pe, retval);
+}
+
+inline
+void
+__shmem_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
+{
+  make_finc_request (target, nbytes, pe, retval);
+}
+
 
 /**
  * remote add
@@ -995,8 +1062,10 @@ handler_add_bak (gasnet_token_t token,
 /**
  * perform the add
  */
+static
+inline
 void
-__shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
+make_add_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -1009,13 +1078,24 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+inline
+void
+ __shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
+ {
+   make_add_request (target, value, nbytes, pe);
+ }
+
+inline
+void
+__shmem_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_add_request (target, value, nbytes, pe);
 }
 
 /**
@@ -1071,8 +1151,10 @@ handler_inc_bak (gasnet_token_t token,
 /**
  * perform the increment
  */
+static
+inline
 void
-__shmem_comms_inc_request (void *target, size_t nbytes, int pe)
+make_inc_request (void *target, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -1084,14 +1166,26 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
 }
+
+inline
+void
+ __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
+ {
+   make_inc_request (target, nbytes, pe);
+ }
+
+inline
+void
+__shmem_comms_inc_request64 (void *target, size_t nbytes, int pe)
+{
+  make_inc_request (target, nbytes, pe);
+}
+
 
 /**
  * Proposed by IBM Zurich
@@ -1145,8 +1239,10 @@ handler_xor_bak (gasnet_token_t token,
 /**
  * perform the xor
  */
+static
+inline
 void
-__shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
+make_xor_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -1159,13 +1255,24 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+inline
+void
+ __shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
+ {
+   make_xor_request (target, value, nbytes, pe);
+ }
+
+inline
+void
+__shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_xor_request (target, value, nbytes, pe);
 }
 
 /**
@@ -1174,6 +1281,7 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
  * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
  *
  */
+inline
 int
 __shmem_comms_ping_request (int pe)
 {

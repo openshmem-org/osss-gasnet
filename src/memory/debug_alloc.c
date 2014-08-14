@@ -102,7 +102,8 @@ debug_alloc_check (void *a)
     {
       const size_t off = a - s->addr;
 
-      if ( (s->size > off) && (off >= 0) )
+      /* if ( (s->size > off) && (off >= 0) ) */
+      if (s->size > off)
 	{
 	  return 1;
 	  /* NOT REACHED */

@@ -120,6 +120,7 @@ SHMEM_EMIT_IPUT (longdouble, long double);
 SHMEM_EMIT_IPUT (longlong, long long);
 SHMEM_EMIT_IPUT (complexf, COMPLEXIFY (float));
 
+inline
 void
 shmem_iput32 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
@@ -127,6 +128,7 @@ shmem_iput32 (void *target, const void *source,
   shmem_int_iput (target, source, tst, sst, nelems, pe);
 }
 
+inline
 void
 shmem_iput64 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
@@ -134,6 +136,7 @@ shmem_iput64 (void *target, const void *source,
   shmem_long_iput (target, source, tst, sst, nelems, pe);
 }
 
+inline
 void
 shmem_iput128 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
@@ -201,6 +204,7 @@ SHMEM_EMIT_IGET (longdouble, long double);
 SHMEM_EMIT_IGET (longlong, long long);
 SHMEM_EMIT_IGET (complexf, COMPLEXIFY (float));
 
+inline
 void
 shmem_iget32 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
@@ -208,6 +212,7 @@ shmem_iget32 (void *target, const void *source,
   shmem_int_iget (target, source, tst, sst, nelems, pe);
 }
 
+inline
 void
 shmem_iget64 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)
@@ -215,6 +220,7 @@ shmem_iget64 (void *target, const void *source,
   shmem_long_iget (target, source, tst, sst, nelems, pe);
 }
 
+inline
 void
 shmem_iget128 (void *target, const void *source,
 	      ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe)

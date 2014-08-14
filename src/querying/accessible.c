@@ -39,6 +39,7 @@
 
 #include "globalvar.h"
 #include "utils.h"
+#include "symmtest.h"
 
 #include "comms/comms.h"
 

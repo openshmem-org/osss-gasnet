@@ -159,7 +159,7 @@ int
 check_pe_status (void)
 {
   int yn = 1;
-  const int s = GET_STATE (pe_status);
+  const pe_status_t s = GET_STATE (pe_status);
 
   switch (s)
     {
