@@ -64,6 +64,8 @@
 
 #include "bail.h"
 
+#include "utils.h"
+
 /**
  * for refractory back-off
  */
@@ -135,7 +137,8 @@ __shmem_service_init (void)
    * if we have an IBV progress thread configured, then check env for
    * GASNET_RCV_THREAD.
    *
-   * If unset, we start our own progress thread
+   * With no env var, let ibv conduit handle things...
+   *
    * If set to [0nN] (false), we start our own progress thread
    * If set to [1yY] (true), the conduit handles progress
    *
@@ -146,13 +149,17 @@ __shmem_service_init (void)
 
   const char *grt_str = "GASNET_RCV_THREAD";
   char *rtv = __shmem_comms_getenv (grt_str);
-  if (rtv != NULL)
+  if (EXPR_LIKELY (rtv == NULL))
+    {
+      handling_own_thread = 0;
+    }
+  else
     {
       switch (tolower (*rtv))
 	{
 	case '0':
 	case 'n':
-        /* use initial value for handling_own_thread */
+          /* use initial value for handling_own_thread */
 	  break;
 	case '1':
 	case 'y':
