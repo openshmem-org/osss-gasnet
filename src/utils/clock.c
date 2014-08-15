@@ -44,6 +44,8 @@
 
 #include "trace.h"
 
+#include "utils.h"
+
 /**
  * record start of program run
  */
@@ -54,6 +56,7 @@ static double epoch;
  * since program started
  */
 static
+inline
 double
 read_clock (void)
 {
@@ -62,7 +65,7 @@ read_clock (void)
   int s;
 
   s = gettimeofday (&tv, (struct timezone *) NULL);
-  if (s != 0)
+  if (EXPR_UNLIKELY (s != 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "internal error: can't read system clock (%s)",

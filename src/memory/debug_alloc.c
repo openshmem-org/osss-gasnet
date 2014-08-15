@@ -51,6 +51,7 @@ static alloc_table_t *atp = NULL; /* our allocation hash table */
  */
 
 static
+inline
 alloc_table_t *
 debug_alloc_new (void *a, size_t s)
 {

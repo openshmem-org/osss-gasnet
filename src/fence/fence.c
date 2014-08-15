@@ -55,7 +55,6 @@
  * fence orders puts to a particular PE
  */
 
-inline
 void
 shmem_fence (void)
 {

@@ -129,6 +129,7 @@ static const int n_tracers = TABLE_SIZE (tracers);
  */
 
 static
+inline
 int
 __shmem_trace_enable_text (char *trace)
 {
@@ -153,6 +154,7 @@ __shmem_trace_enable_text (char *trace)
  */
 
 static
+inline
 void
 __shmem_trace_enable_all (void)
 {
@@ -172,6 +174,7 @@ __shmem_trace_enable_all (void)
  */
 
 static
+inline
 const char *
 __level_to_string (shmem_trace_t level)
 {
@@ -227,6 +230,7 @@ static FILE *trace_log_stream;
  */
 
 static
+inline
 void
 logging_filestream_init (void)
 {
@@ -254,6 +258,7 @@ logging_filestream_init (void)
  */
 
 static
+inline
 void
 sgi_compat_environment_init (void)
 {
@@ -297,6 +302,7 @@ sgi_compat_environment_init (void)
  */
 
 static
+inline
 void
 parse_log_levels (void)
 {
@@ -458,18 +464,22 @@ void
 __shmem_tracers_init (void)
 {
 }
+
 void
 __shmem_tracers_show (void)
 {
 }
+
 void
 __shmem_maybe_tracers_show_info (void)
 {
 }
+
 void
 __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 {
 }
+
 int
 __shmem_trace_is_enabled (shmem_trace_t level)
 {

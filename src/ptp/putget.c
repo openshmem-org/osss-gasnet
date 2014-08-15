@@ -120,28 +120,24 @@ SHMEM_TYPE_PUT (float, float);
 SHMEM_TYPE_PUT (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_PUT (complexd, COMPLEXIFY (double));
 
-inline
 void
 shmem_put32 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_int_put (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_put64 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_long_put (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_put128 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_longdouble_put (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 {
@@ -211,28 +207,24 @@ SHMEM_TYPE_GET (float, float);
 SHMEM_TYPE_GET (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_GET (complexd, COMPLEXIFY (double));;
 
-inline
 void
 shmem_get32 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_int_get (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_get64 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_long_get (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_get128 (void *dest, const void *src, size_t nelems, int pe)
 {
   shmem_longdouble_get (dest, src, nelems, pe);
 }
 
-inline
 void
 shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 {

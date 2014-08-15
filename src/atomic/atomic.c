@@ -57,13 +57,11 @@
  * placeholders: no init/final required (so far)
  */
 
-inline
 void
 __shmem_atomic_init (void)
 {
 }
 
-inline
 void
 __shmem_atomic_finalize (void)
 {
@@ -112,7 +110,6 @@ SHMEM_TYPE_SWAP (float, float, 32);
 /**
  * untyped variant
  */
-inline
 long
 shmem_swap (long *target, long value, int pe)
 {

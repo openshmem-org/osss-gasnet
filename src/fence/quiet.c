@@ -55,7 +55,6 @@
  * quiet orders puts to all PEs
  */
 
-inline
 void
 shmem_quiet (void)
 {

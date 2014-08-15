@@ -101,6 +101,7 @@ static global_area_t elfro;	/* read-only */
  * regions where they can be found (BSS and DATA)
  */
 static
+inline
 int
 table_init_helper (void)
 {

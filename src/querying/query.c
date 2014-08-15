@@ -97,14 +97,12 @@ mype_helper (void)
  *
  */
 
-inline
 int
 _my_pe (void)
 {
   return mype_helper ();
 }
 
-inline
 int
 shmem_my_pe (void)
 {
@@ -162,14 +160,12 @@ numpes_helper (void)
  *
  */
 
-inline
 int
 _num_pes (void)
 {
   return numpes_helper ();
 }
 
-inline
 int
 shmem_n_pes (void)
 {
@@ -188,7 +184,6 @@ extern char *shmem_nodename (void); /* ! API */
 # define shmem_nodename pshmem_nodename
 #endif /* HAVE_FEATURE_PSHMEM */
 
-inline
 char *
 shmem_nodename (void)
 {

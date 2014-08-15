@@ -70,6 +70,7 @@ long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
  */
 
 static
+inline
 int
 __shmalloc_symmetry_check (size_t size)
 {
@@ -131,6 +132,7 @@ __shmalloc_symmetry_check (size_t size)
  */
 
 static
+inline
 void *
 __shmalloc_no_check (size_t size)
 {

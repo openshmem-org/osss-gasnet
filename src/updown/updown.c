@@ -139,6 +139,7 @@ exit_handler (void)
  *
  */
 static
+inline
 void
 place_init (void)
 {
@@ -155,6 +156,7 @@ place_init (void)
  * I shouldn't really initialize more than once
  */
 static
+inline
 int
 check_pe_status (void)
 {
@@ -185,6 +187,7 @@ check_pe_status (void)
 }
 
 static
+inline
 void
 report_up (void)
 {

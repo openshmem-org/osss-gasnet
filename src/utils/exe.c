@@ -51,6 +51,8 @@
 #include "trace.h"
 #include "state.h"
 
+#include "utils.h"
+
 static const char *self = "/proc/self/exe";
 static const char *self_fmt = "/proc/%ld/exe";
 
@@ -68,7 +70,7 @@ __shmem_executable_init (void)
   s = readlink (self, GET_STATE (exe_name), MAXPATHLEN);
 
   /* if not, try finding our PID */
-  if (s < 0)
+  if (EXPR_UNLIKELY (s < 0))
     {
       char buf[MAXPATHLEN];
       snprintf (buf, MAXPATHLEN, self_fmt, getpid ());
@@ -76,7 +78,7 @@ __shmem_executable_init (void)
     }
 
   /* dunno who I am, complain */
-  if (s < 0)
+  if (EXPR_UNLIKELY (s < 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "can't find my own executable name (%s)",
@@ -89,7 +91,7 @@ __shmem_executable_init (void)
 
   /* get a file descriptor */
   fd = open (GET_STATE (exe_name), O_RDONLY, 0);
-  if (fd < 0)
+  if (EXPR_UNLIKELY (fd < 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
 		     "can't open \"%s\" (%s)",

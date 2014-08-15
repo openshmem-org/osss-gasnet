@@ -227,7 +227,6 @@ __shmem_comms_get_segment_size (void)
  * can't just call getenv, it might not pass through environment
  * info to other nodes from launch.
  */
-inline
 char *
 __shmem_comms_getenv (const char *name)
 {
@@ -237,7 +236,6 @@ __shmem_comms_getenv (const char *name)
 /**
  * which node (PE) am I?
  */
-inline
 int
 __shmem_comms_mynode (void)
 {
@@ -247,7 +245,6 @@ __shmem_comms_mynode (void)
 /**
  * how many nodes (PEs) take part in this program?
  */
-inline
 int
 __shmem_comms_nodes (void)
 {
@@ -264,7 +261,6 @@ __shmem_comms_nodes (void)
 static long barcount = 0;
 static int barflag = 0;
 
-inline
 void
 __shmem_comms_barrier_all (void)
 {
@@ -351,7 +347,6 @@ handler_segsetup_bak (gasnet_token_t token,
  * gasnet configurations
  */
 
-inline
 void
 __shmem_symmetric_memory_init (void)
 {
@@ -440,7 +435,6 @@ __shmem_symmetric_memory_init (void)
 /**
  * shut down the memory allocation handler
  */
-inline
 void
 __shmem_symmetric_memory_finalize (void)
 {
@@ -458,7 +452,6 @@ __shmem_symmetric_memory_finalize (void)
 /**
  * translate my "dest" to corresponding address on PE "pe"
  */
-inline
 void *
 __shmem_symmetric_addr_lookup (void *dest, int pe)
 {
@@ -574,7 +567,6 @@ static gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER;
 #define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
 
 #define COMMS_WAIT_TYPE(Name, Type, OpName, Op)				\
-  inline								\
   void									\
   __shmem_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
   {									\
@@ -728,7 +720,6 @@ make_swap_request (void *target, void *value, size_t nbytes,
   free (p);
 }
 
-inline
 void
 __shmem_comms_swap_request32 (void *target, void *value,
 			      size_t nbytes, int pe, void *retval)
@@ -736,7 +727,6 @@ __shmem_comms_swap_request32 (void *target, void *value,
   make_swap_request (target, value, nbytes, pe, retval);
 }
 
-inline
 void
 __shmem_comms_swap_request64 (void *target, void *value,
 			      size_t nbytes, int pe, void *retval)
@@ -839,7 +829,6 @@ make_cswap_request (void *target, void *cond, void *value,
   free (cp);
 }
 
-inline
 void
 __shmem_comms_cswap_request32 (void *target, void *cond, void *value,
 			       size_t nbytes, int pe, void *retval)
@@ -847,7 +836,6 @@ __shmem_comms_cswap_request32 (void *target, void *cond, void *value,
   make_cswap_request (target, cond, value, nbytes, pe, retval);
 }
 
-inline
 void
 __shmem_comms_cswap_request64 (void *target, void *cond, void *value,
 			       size_t nbytes, int pe, void *retval)
@@ -938,7 +926,6 @@ make_fadd_request (void *target, void *value, size_t nbytes, int pe,
   free (p);
 }
 
-inline
 void
 __shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
 			      void *retval)
@@ -946,7 +933,6 @@ __shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
   make_fadd_request (target, value, nbytes, pe, retval);
 }
 
-inline
 void
 __shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
 			      void *retval)
@@ -1035,14 +1021,12 @@ make_finc_request (void *target, size_t nbytes, int pe, void *retval)
   free (p);
 }
 
-inline
 void
 __shmem_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
 {
   make_finc_request (target, nbytes, pe, retval);
 }
 
-inline
 void
 __shmem_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
 {
@@ -1126,14 +1110,12 @@ make_add_request (void *target, void *value, size_t nbytes, int pe)
   free (p);
 }
 
-inline
 void
  __shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
  {
    make_add_request (target, value, nbytes, pe);
  }
 
-inline
 void
 __shmem_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
 {
@@ -1224,14 +1206,12 @@ make_inc_request (void *target, size_t nbytes, int pe)
   free (p);
 }
 
-inline
 void
  __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
  {
    make_inc_request (target, nbytes, pe);
  }
 
-inline
 void
 __shmem_comms_inc_request64 (void *target, size_t nbytes, int pe)
 {
@@ -1313,14 +1293,12 @@ make_xor_request (void *target, void *value, size_t nbytes, int pe)
   free (p);
 }
 
-inline
 void
  __shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
  {
    make_xor_request (target, value, nbytes, pe);
  }
 
-inline
 void
 __shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
 {
@@ -1333,7 +1311,6 @@ __shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
  * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
  *
  */
-inline
 int
 __shmem_comms_ping_request (int pe)
 {
