@@ -102,7 +102,7 @@ __shmem_atomic_finalize (void)
     return retval;							\
   }
 
-/* SHMEM_TYPE_SWAP(short, short) */
+/* SHMEM_TYPE_SWAP(short, short, 32) !! */
 SHMEM_TYPE_SWAP (int, int, 32);
 SHMEM_TYPE_SWAP (long, long, 64);
 SHMEM_TYPE_SWAP (longlong, long long, 64);

@@ -223,18 +223,6 @@ __shmem_comms_get_segment_size (void)
   return 0;
 }
 		      
-
-/**
- * traffic progress
- *
- */
-inline
-void
-__shmem_comms_service (void)
-{
-  GASNET_SAFE (gasnet_AMPoll ());
-}
-
 /**
  * can't just call getenv, it might not pass through environment
  * info to other nodes from launch.
@@ -582,7 +570,61 @@ static gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER;
 /*
  * to wait on remote updates
  */
-#define WAIT_ON_COMPLETION(p)   GASNET_BLOCKUNTIL(p)
+
+#define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
+
+#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)				\
+  inline								\
+  void									\
+  __shmem_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
+  {									\
+    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
+  }
+
+#if 0
+
+#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
+
+    while ( ! ( VOLATILIZE (Type, var) Op cmp_value))			\
+      {									\
+	__shmem_comms_service ();					\
+      }									\
+
+    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
+
+#endif
+
+COMMS_WAIT_TYPE (short, short, eq, ==);
+COMMS_WAIT_TYPE (int, int, eq, ==);
+COMMS_WAIT_TYPE (long, long, eq, ==);
+COMMS_WAIT_TYPE (longlong, long long, eq, ==);
+
+COMMS_WAIT_TYPE (short, short, ne, !=);
+COMMS_WAIT_TYPE (int, int, ne, !=);
+COMMS_WAIT_TYPE (long, long, ne, !=);
+COMMS_WAIT_TYPE (longlong, long long, ne, !=);
+
+COMMS_WAIT_TYPE (short, short, gt, >);
+COMMS_WAIT_TYPE (int, int, gt, >);
+COMMS_WAIT_TYPE (long, long, gt, >);
+COMMS_WAIT_TYPE (longlong, long long, gt, >);
+
+COMMS_WAIT_TYPE (short, short, le, <=);
+COMMS_WAIT_TYPE (int, int, le, <=);
+COMMS_WAIT_TYPE (long, long, le, <=);
+COMMS_WAIT_TYPE (longlong, long long, le, <=);
+
+COMMS_WAIT_TYPE (short, short, lt, <);
+COMMS_WAIT_TYPE (int, int, lt, <);
+COMMS_WAIT_TYPE (long, long, lt, <);
+COMMS_WAIT_TYPE (longlong, long long, lt, <);
+
+COMMS_WAIT_TYPE (short, short, ge, >=);
+COMMS_WAIT_TYPE (int, int, ge, >=);
+COMMS_WAIT_TYPE (long, long, ge, >=);
+COMMS_WAIT_TYPE (longlong, long long, ge, >=);
+
+#define WAIT_ON_COMPLETION(Cond)   GASNET_BLOCKUNTIL (Cond)
 
 /**
  * NB we make the cond/value "long long" throughout
@@ -1116,13 +1158,15 @@ handler_inc_out (gasnet_token_t token,
 
   gasnet_hsl_lock (& amo_inc_lock);
 
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
+
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
   plus = old + 1;
   (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
   LOAD_STORE_FENCE ();
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "%lld -> %lld", old, plus);
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
 
   gasnet_hsl_unlock (& amo_inc_lock);
 
@@ -1141,6 +1185,8 @@ handler_inc_bak (gasnet_token_t token,
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
   gasnet_hsl_lock (& amo_inc_lock);
+
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1168,7 +1214,13 @@ make_inc_request (void *target, size_t nbytes, int pe)
   p->completed_addr = &(p->completed);
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
+
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
+
   WAIT_ON_COMPLETION (p->completed);
+
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
+
   free (p);
 }
 

@@ -51,18 +51,6 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
-/**
- * this waits for the variable to change but also dispatches
- * other put/get traffic in the meantime
- */
-
-#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
-  while ( ! ( (* ( volatile Type *) (Var)) Op CmpValue) )	\
-    {								\
-      __shmem_comms_service ();					\
-    }
-
-
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_short_wait_until = pshmem_short_wait_until
 # define shmem_short_wait_until pshmem_short_wait_until
@@ -87,22 +75,22 @@
   {									\
     switch (cmp) {							\
     case SHMEM_CMP_EQ:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, ==, cmp_value);		\
+      __shmem_comms_wait_##Name##_eq (ivar, cmp_value);			\
       break;								\
     case SHMEM_CMP_NE:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, !=, cmp_value);		\
+      __shmem_comms_wait_##Name##_ne (ivar, cmp_value);			\
       break;								\
     case SHMEM_CMP_GT:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, >, cmp_value);		\
+      __shmem_comms_wait_##Name##_gt (ivar, cmp_value);			\
       break;								\
     case SHMEM_CMP_LE:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, <=, cmp_value);		\
+      __shmem_comms_wait_##Name##_le (ivar, cmp_value);			\
       break;								\
     case SHMEM_CMP_LT:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, <, cmp_value);		\
+      __shmem_comms_wait_##Name##_lt (ivar, cmp_value);			\
       break;								\
     case SHMEM_CMP_GE:							\
-      SHMEM_WAIT_LOOP_FRAGMENT (Type, ivar, >=, cmp_value);		\
+      __shmem_comms_wait_##Name##_ge (ivar, cmp_value);			\
       break;								\
     default:								\
       __shmem_trace (SHMEM_LOG_FATAL,					\
@@ -122,6 +110,7 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
  * and a special case for the untyped call
  */
 
+inline
 void
 shmem_wait_until (long *ivar, int cmp, long cmp_value)
 {
@@ -146,6 +135,7 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
  */
 
 #define SHMEM_TYPE_WAIT(Name, Type)					\
+  inline								\
   void									\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\

@@ -91,6 +91,39 @@ extern void __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag);
 extern void __shmem_comms_service (void);
 
 /*
+ * wait for a condition (e.g. variable's value) to change
+ */
+extern void __shmem_comms_wait_short_eq (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_eq (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_eq (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_eq (long long *var, long long cmp_value);
+
+extern void __shmem_comms_wait_short_ne (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_ne (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_ne (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_ne (long long *var, long long cmp_value);
+
+extern void __shmem_comms_wait_short_gt (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_gt (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_gt (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_gt (long long *var, long long cmp_value);
+
+extern void __shmem_comms_wait_short_le (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_le (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_le (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_le (long long *var, long long cmp_value);
+
+extern void __shmem_comms_wait_short_lt (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_lt (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_lt (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_lt (long long *var, long long cmp_value);
+
+extern void __shmem_comms_wait_short_ge (short *var, short cmp_value);
+extern void __shmem_comms_wait_int_ge (int *var, int cmp_value);
+extern void __shmem_comms_wait_long_ge (long *var, long cmp_value);
+extern void __shmem_comms_wait_longlong_ge (long long *var, long long cmp_value);
+
+/*
  * for accessibility timeouts
  */
 extern int __shmem_comms_ping_request (int pe);

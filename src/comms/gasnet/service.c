@@ -85,6 +85,17 @@ static pthread_t thr;
 
 static volatile int done = 0;
 
+
+/**
+ * traffic progress
+ *
+ */
+void
+__shmem_comms_service (void)
+{
+  GASNET_SAFE (gasnet_AMPoll ());
+}
+
 /**
  * does comms. service until told not to
  */
@@ -107,13 +118,14 @@ start_service (void *unused)
 /**
  * assume initially we need to manage progress ourselves
  */
-static int handling_own_thread = 1;
+static int use_conduit_thread = 0;
 
 /**
  * tell a PE how to contend for updates
  *
  */
 static
+inline
 void
 waitmode_init (void)
 {
@@ -131,6 +143,12 @@ waitmode_init (void)
 void
 __shmem_service_init (void)
 {
+  /*
+   * Zap this code for now.  Problems with IBV conduit thread if all
+   * PEs on one physical node.
+   *
+   */
+#if 0
 #if defined(GASNETC_IBV_RCV_THREAD) && \
     (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI))
   /*
@@ -151,29 +169,32 @@ __shmem_service_init (void)
   char *rtv = __shmem_comms_getenv (grt_str);
   if (EXPR_LIKELY (rtv == NULL))
     {
-      handling_own_thread = 0;
+      use_conduit_thread = 1;
     }
   else
     {
-      switch (tolower (*rtv))
+      switch (*rtv)
 	{
 	case '0':
 	case 'n':
-          /* use initial value for handling_own_thread */
+	case 'N':
+	  use_conduit_thread = 0;
 	  break;
 	case '1':
 	case 'y':
-	  handling_own_thread = 0;
+	case 'Y':
+	  use_conduit_thread = 1;
 	  break;
 	default:
-	  handling_own_thread = 0;
+	  use_conduit_thread = 1;
 	  break;
 	}
     }
 #endif /* defined(GASNETC_IBV_RCV_THREAD) &&
           (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI)) */
+#endif /* commented out */
 
-  if (handling_own_thread)
+  if (! use_conduit_thread)
     {
       int s;
 
@@ -181,7 +202,7 @@ __shmem_service_init (void)
       delayspec.tv_nsec = delay;
 
       s = pthread_create (&thr, NULL, start_service, (void *) 0);
-      if (s != 0)
+      if (EXPR_UNLIKELY (s != 0))
         {
 	  comms_bailout ("internal error: progress thread creation failed (%s)",
 			 strerror (s)
@@ -200,14 +221,14 @@ __shmem_service_init (void)
 void
 __shmem_service_finalize (void)
 {
-  if (handling_own_thread)
+  if (! use_conduit_thread)
     {
       int s;
 
       done = 1;
 
       s = pthread_join (thr, NULL);
-      if (s != 0)
+      if (EXPR_UNLIKELY (s != 0))
 	{
 	  comms_bailout ("internal error: progress thread termination failed (%s)",
 			 strerror (s)
