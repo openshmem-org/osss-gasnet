@@ -37,9 +37,9 @@
 
 
 
-#ifndef _BARRIER_H
-#define _BARRIER_H 1
+#ifndef _BARRIER_ALL_H
+#define _BARRIER_ALL_H 1
 
 extern void __shmem_barrier_all_dispatch_init (void);
 
-#endif /* _BARRIER_H */
+#endif /* _BARRIER_ALL_H */

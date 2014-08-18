@@ -115,7 +115,9 @@ table_init_helper (void)
   Elf_Scn *scn = NULL;
   GElf_Shdr shdr;
   int ret = -1;
+#if 0
   int (*getsi)();		/* look up name of elf_get... routine */
+#endif
 
   /* unrecognized format */
   if (elf_version (EV_CURRENT) == EV_NONE)
