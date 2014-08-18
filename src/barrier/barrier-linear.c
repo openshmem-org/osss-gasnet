@@ -75,9 +75,3 @@ __shmem_barrier_linear (int PE_start, int logPE_stride, int PE_size,
 
     }
 }
-
-#include "module_info.h"
-module_info_t module_info = {
-  __shmem_barrier_linear,
-  __shmem_barrier_linear,
-};

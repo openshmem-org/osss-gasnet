@@ -48,6 +48,7 @@
 #include "atomic.h"
 
 #include "barrier.h"
+#include "barrier-all.h"
 #include "broadcast.h"
 #include "collect.h"
 #include "fcollect.h"
@@ -56,8 +57,6 @@
 #include "utils.h"
 #include "clock.h"
 #include "exe.h"
-
-#include "modules.h"
 
 #include "shmem.h"
 
@@ -100,7 +99,7 @@ __shmem_exit (int status)
   __shmem_symmetric_globalvar_table_finalize ();
 
   /* clean up plugin modules */
-  __shmem_modules_finalize ();
+  /* __shmem_modules_finalize (); */
 
   /* tidy up binary inspector */
   __shmem_executable_finalize ();
@@ -277,9 +276,10 @@ start_pes (int npes)
   __shmem_ping_init ();
 
   /* set up module selection */
-  __shmem_modules_init ();
+  /*  __shmem_modules_init (); */
 
-  __shmem_barriers_dispatch_init ();
+  __shmem_barrier_dispatch_init ();
+  __shmem_barrier_all_dispatch_init ();
   __shmem_broadcast_dispatch_init ();
   __shmem_collect_dispatch_init ();
   __shmem_fcollect_dispatch_init ();

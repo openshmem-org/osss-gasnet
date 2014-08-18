@@ -35,19 +35,12 @@
  *
  */
 
+#ifndef _BROADCAST_IMPL_H
 
+extern void __shmem_broadcast32_linear ();
+extern void __shmem_broadcast64_linear ();
 
-#ifndef _MODULE_INFO_H
-#define _MODULE_INFO_H 1
+extern void __shmem_broadcast32_tree ();
+extern void __shmem_broadcast64_tree ();
 
-/*
- * tell us which functions implement the 32 vs 64 bit routines
- */
-
-typedef struct
-{
-  void (*func_32) ();
-  void (*func_64) ();
-} module_info_t;
-
-#endif /* _MODULE_INFO_H */
+#endif

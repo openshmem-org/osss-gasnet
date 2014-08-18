@@ -59,10 +59,8 @@ ATOMIC_CPPFLAGS    =    -I$(ATOMIC_DIR)
 BARRIER_DIR       =    ../barrier
 BARRIER_CPPFLAGS  =    -I$(BARRIER_DIR)
 
-# ---------------------------------------------------------
-
-MODULES_DIR       =    ../modules
-MODULES_CPPFLAGS  =    -I$(MODULES_DIR)
+BARRIER_ALL_DIR       = ../barrier-all
+BARRIER_ALL_CPPFLAGS  = -I$(BARRIER_ALL_DIR)
 
 # ---------------------------------------------------------
 
@@ -109,7 +107,7 @@ CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
-CPPFLAGS        += $(MODULES_CPPFLAGS)
+CPPFLAGS        += $(BARRIER_ALL_CPPFLAGS)
 CPPFLAGS        += $(COLLECT_CPPFLAGS)
 CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)

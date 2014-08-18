@@ -49,7 +49,10 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#if 0
 #include <dlfcn.h>
+#endif
 
 #include "uthash.h"
 
@@ -141,6 +144,7 @@ table_init_helper (void)
       goto bail;
     }
 
+#if 0
   /*
    * Try to handle deprecated interface from older libelf on CentOS
    * (and maybe elsewhere).  Scan current program and see which
@@ -159,6 +163,7 @@ table_init_helper (void)
 	  }
       }
   }
+#endif
 
   /*
    * There are various elf_get* routines with different return values
@@ -166,7 +171,12 @@ table_init_helper (void)
    * all we ned to know.  So let it go here, and we'll mop up any
    * problems later on.
    */
+
+#if 0
   (void) getsi (e, &shstrndx);
+#endif
+
+  (void) elf_getshdrstrndx (e, &shstrndx);
 
   /* walk sections, look for RO/BSS/DATA and symbol table */
   scn = NULL;

@@ -44,8 +44,10 @@ SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 # !! hardwired !!
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
-SHMEM_LIBS      += @EXE_LIBS@ -lelf -ldl
-SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
+SHMEM_LIBS      += @EXE_LIBS@ -lelf
+# SHMEM_LIBS      += @(SHMEM_LIBS) -ldl
+# SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
+SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR)
 
 #
 # GASNet installation root, and setup

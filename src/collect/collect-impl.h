@@ -35,18 +35,9 @@
  *
  */
 
+#ifndef _COLLECT_IMPL_H
 
+extern void __shmem_collect32_linear ();
+extern void __shmem_collect64_linear ();
 
-#include "comms.h"
-
-void
-__shmem_barrier_all_linear (void)
-{
-  __shmem_comms_barrier_all ();
-}
-
-#include "module_info.h"
-module_info_t module_info = {
-  __shmem_barrier_all_linear,
-  __shmem_barrier_all_linear,
-};
+#endif

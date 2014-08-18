@@ -73,7 +73,7 @@ ATOMIC_OBJ           = $(ATOMIC_DIR)/*.o
 #
 BROADCAST_DIR        = ./broadcast
 BROADCAST_CPPFLAGS   = -I$(BROADCAST_DIR)
-BROADCAST_OBJ        = $(BROADCAST_DIR)/broadcast.o
+BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -81,11 +81,11 @@ BROADCAST_OBJ        = $(BROADCAST_DIR)/broadcast.o
 #
 COLLECT_DIR          = ./collect
 COLLECT_CPPFLAGS     = -I$(COLLECT_DIR)
-COLLECT_OBJ          = $(COLLECT_DIR)/collect.o
+COLLECT_OBJ          = $(COLLECT_DIR)/*.o
 
 FCOLLECT_DIR         = ./fcollect
 FCOLLECT_CPPFLAGS    = -I$(FCOLLECT_DIR)
-FCOLLECT_OBJ         = $(FCOLLECT_DIR)/fcollect.o
+FCOLLECT_OBJ         = $(FCOLLECT_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -93,7 +93,11 @@ FCOLLECT_OBJ         = $(FCOLLECT_DIR)/fcollect.o
 #
 BARRIER_DIR          = ./barrier
 BARRIER_CPPFLAGS     = -I$(BARRIER_DIR)
-BARRIER_OBJ          = $(BARRIER_DIR)/barrier.o
+BARRIER_OBJ          = $(BARRIER_DIR)/*.o
+
+BARRIER_ALL_DIR      = ./barrier-all
+BARRIER_ALL_CPPFLAGS = -I$(BARRIER_ALL_DIR)
+BARRIER_ALL_OBJ      = $(BARRIER_ALL_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -118,14 +122,6 @@ MALLOC_OBJ           = $(MALLOC_DIR)/*.o
 MEMORY_DIR           = ./memory
 MEMORY_CPPFLAGS      = -I$(MEMORY_DIR)
 MEMORY_OBJ           = $(MEMORY_DIR)/*.o
-
-# ---------------------------------------------------------
-#
-# loadable modules management
-#
-MODULES_DIR           = ./modules
-MODULES_CPPFLAGS      = -I$(MODULES_DIR)
-MODULES_OBJ           = $(MODULES_DIR)/*.o
 
 # ---------------------------------------------------------
 #
@@ -217,18 +213,22 @@ LDFLAGS          = @LDFLAGS@
 M4               = m4
 M4FLAGS          =
 
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
+
 # CPPFLAGS        += -MMD
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
+CPPFLAGS        += $(BARRIER_ALL_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(COLLECT_CPPFLAGS)
 CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
-CPPFLAGS        += $(MODULES_CPPFLAGS)
 CPPFLAGS        += $(QUERY_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += $(UPDOWN_CPPFLAGS)
@@ -271,7 +271,10 @@ COMMON_FLAGS     = $(CPPFLAGS) $(CFLAGS)
 
 SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
-SHMEM_LIBRARY    = lib$(SHMEM_LIBNAME).so
+
+SHMEM_LIBRARY_SO = lib$(SHMEM_LIBNAME).so
+SHMEM_LIBRARY_A  = lib$(SHMEM_LIBNAME).a
+
 SHMEM_INC_DIR    = @INC_DIR@
 SHMEM_HEADERS    = shmem.h shmem.fh pshmem.h pshmem.fh
 ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
@@ -291,7 +294,6 @@ INT_OBJ_GEN      =
 INT_OBJ_GEN     += utils-obj-gen
 INT_OBJ_GEN     += comms-obj-gen
 INT_OBJ_GEN     += globalvar-obj-gen
-INT_OBJ_GEN     += modules-obj-gen
 INT_OBJ_GEN     += malloc-obj-gen
 #
 # API
@@ -300,6 +302,7 @@ API_OBJ_GEN      =
 API_OBJ_GEN     += updown-obj-gen
 API_OBJ_GEN     += query-obj-gen
 API_OBJ_GEN     += barrier-obj-gen
+API_OBJ_GEN     += barrier-all-obj-gen
 API_OBJ_GEN     += memory-obj-gen
 API_OBJ_GEN     += atomic-obj-gen
 API_OBJ_GEN     += fence-obj-gen
@@ -320,24 +323,19 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 .PHONY: all default
 .PHONY:	$(OBJ_GEN)
 .PHONY:	shmem-headers
-.PHONY: install install-lib install-comms install-include
-.PHONY: uninstall uninstall-lib uninstall-comms uninstall-include
+.PHONY: install install-comms install-include
+.PHONY: uninstall uninstall-comms uninstall-include
 .PHONY: tidy clean distclean
 
 # ---------------------------------------------------------
 
-all default:	shmem-headers $(SHMEM_LIBRARY)
+all default:	shmem-headers $(SHMEM_LIBRARY_A)
 
-install:	install-lib install-include install-comms
+install:	all default install-lib install-include install-comms
 
-install-lib:	all
+install-lib:    all
 	mkdir -p $(DESTDIR)$(SHMEM_LIB_DIR)
-	$(INSTALL) $(SHMEM_LIBRARY) $(DESTDIR)$(SHMEM_LIB_DIR)
-	$(MAKE) -C $(BROADCAST_DIR) $@
-	$(MAKE) -C $(COLLECT_DIR) $@
-	$(MAKE) -C $(FCOLLECT_DIR) $@
-	$(MAKE) -C $(BARRIER_DIR) $@
-	$(MAKE) -C $(MODULES_DIR) $@
+	$(INSTALL) $(SHMEM_LIBRARY_A) $(DESTDIR)$(SHMEM_LIB_DIR)
 
 install-include: all
 	mkdir -p $(DESTDIR)$(SHMEM_INC_DIR)/mpp
@@ -362,15 +360,6 @@ uninstall:	uninstall-comms uninstall-include uninstall-lib
 uninstall-comms:
 	$(MAKE) -C $(COMMS_DIR) uninstall
 
-uninstall-lib:
-	$(MAKE) -C $(MODULES_DIR) $@
-	$(MAKE) -C $(BARRIER_DIR) $@
-	$(MAKE) -C $(FCOLLECT_DIR) $@
-	$(MAKE) -C $(COLLECT_DIR) $@
-	$(MAKE) -C $(BROADCAST_DIR) $@
-	$(REMOVE) $(DESTDIR)$(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY)
-	- rmdir $(DESTDIR)$(SHMEM_LIB_DIR)
-
 uninstall-include:
 	for h in $(SHMEM_HEADERS); \
 	do \
@@ -379,6 +368,10 @@ uninstall-include:
 	done
 	- rmdir $(DESTDIR)$(SHMEM_INC_DIR)/mpp
 	- rmdir $(DESTDIR)$(SHMEM_INC_DIR)
+
+uninstall-lib:
+	$(REMOVE) $(DESTDIR)$(SHMEM_LIB_DIR)/$(SHMEM_LIBRARY_A)
+	- rmdir $(DESTDIR)$(SHMEM_LIB_DIR)
 
 # -- header files ------------------------------------------
 
@@ -410,9 +403,6 @@ comms-obj-gen:
 globalvar-obj-gen:
 	$(MAKE) -C $(GLOBALVAR_DIR) all
 
-modules-obj-gen:
-	$(MAKE) -C $(MODULES_DIR) all
-
 malloc-obj-gen:
 	$(MAKE) -C $(MALLOC_DIR) all
 
@@ -425,6 +415,9 @@ query-obj-gen:
 
 barrier-obj-gen:
 	$(MAKE) -C $(BARRIER_DIR) all
+
+barrier-all-obj-gen:
+	$(MAKE) -C $(BARRIER_ALL_DIR) all
 
 memory-obj-gen:
 	$(MAKE) -C $(MEMORY_DIR) all
@@ -469,16 +462,31 @@ wtime-obj-gen:
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY):	$(OBJ_GEN)
+$(SHMEM_LIBRARY_SO):	$(OBJ_GEN)
 	$(LD) \
 		$(LDFLAGS) $(SOFLAGS) \
-		-o $(SHMEM_LIBRARY) \
-		$(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) $(MODULES_OBJ) \
-		$(MALLOC_OBJ) $(UPDOWN_OBJ) $(QUERY_OBJ) $(BARRIER_OBJ) \
+		-o $@ \
+		$(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
+		$(MALLOC_OBJ) $(UPDOWN_OBJ) $(QUERY_OBJ) \
+		$(BARRIER_OBJ) $(BARRIER_ALL_OBJ) \
 		$(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) \
 		$(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) \
 		$(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(WTIME_OBJ) \
 		$(LIBS)
+
+# -- generate the archive object library -------------------
+
+$(SHMEM_LIBRARY_A):	$(OBJ_GEN)
+	$(AR) \
+		$(ARFLAGS) \
+		$@ \
+		$(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
+		$(MALLOC_OBJ) $(UPDOWN_OBJ) $(QUERY_OBJ) \
+		$(BARRIER_OBJ) $(BARRIER_ALL_OBJ) \
+		$(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) \
+		$(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) \
+		$(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(WTIME_OBJ)
+	- $(RANLIB) $@
 
 # ---------------------------------------------------------
 
@@ -496,14 +504,14 @@ tidy clean:
 	$(MAKE) -C $(FENCE_DIR) $@
 	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
+	$(MAKE) -C $(BARRIER_ALL_DIR) $@
 	$(MAKE) -C $(QUERY_DIR) $@
 	$(MAKE) -C $(UPDOWN_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@
-	$(MAKE) -C $(MODULES_DIR) $@
 	$(MAKE) -C $(GLOBALVAR_DIR) $@
 	$(MAKE) -C $(COMMS_DIR) $@
 	$(MAKE) -C $(UTILS_DIR) $@
-	$(REMOVE) $(SHMEM_LIBRARY)
+	$(REMOVE) $(SHMEM_LIBRARY_A)
 
 distclean: clean
 	$(REMOVE) Makefile

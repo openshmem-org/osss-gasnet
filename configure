@@ -514,7 +514,7 @@ case "$cc_type" in
     "gnu")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -530,7 +530,7 @@ case "$cc_type" in
     "intel")
 	c99_flags="-std=c99"
 	warn_flags=""     # enabled by default
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -546,7 +546,7 @@ case "$cc_type" in
     "pgi")
 	c99_flags="-c99"
 	warn_flags=""     # enabled by default
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags=""
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -562,7 +562,7 @@ case "$cc_type" in
     "oracle")
 	c99_flags="-xc99"
 	warn_flags=""     # enabled by default
-	pic_flags="-PIC"
+	# pic_flags="-PIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -578,7 +578,7 @@ case "$cc_type" in
     "openuh")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -594,7 +594,7 @@ case "$cc_type" in
     "open64")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -610,7 +610,7 @@ case "$cc_type" in
     "clang")
 	c99_flags="-std=c99"
 	warn_flags="-Wall"
-	pic_flags="-fPIC"
+	# pic_flags="-fPIC"
 	thread_flags="-pthread"
 	so_flags="-shared"
 	exe_libs="-L$exe_libdir"
@@ -626,7 +626,7 @@ case "$cc_type" in
     "ibmxl")
 	c99_flags="-qlanglvl=stdc99"
 	warn_flags=""
-	pic_flags="-qpic"
+	# pic_flags="-qpic"
 	thread_flags="-qthreaded"
 	exe_libs="-L$exe_libdir"
 	if  [ "$found_libexe" = "shared" ]

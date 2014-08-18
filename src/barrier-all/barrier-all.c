@@ -46,21 +46,21 @@
 
 #include "shmem.h"
 
-#include "collect-impl.h"
+#include "barrier-all-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
+
 static char *default_implementation = "linear";
 
-static void (*func32) ();
-static void (*func64) ();
+static void (*func) ();
 
 void
-__shmem_collect_dispatch_init (void)
+__shmem_barrier_all_dispatch_init (void)
 {
-  char *name = __shmem_comms_getenv ("SHMEM_COLLECT_ALGORITHM");
+  char *name = __shmem_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
 
   if (EXPR_LIKELY (name == (char *) NULL))
     {
@@ -69,8 +69,7 @@ __shmem_collect_dispatch_init (void)
 
   if (strcmp (name, "linear") == 0)
     {
-      func32 = __shmem_collect32_linear;
-      func64 = __shmem_collect64_linear;
+      func = __shmem_barrier_all_linear;
     }
   else
     {
@@ -78,61 +77,33 @@ __shmem_collect_dispatch_init (void)
     }
 
   /*
-   * report which implementation we set up
+   * report which broadcast implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
+  __shmem_trace (SHMEM_LOG_BARRIER,
+		 "using broadcast \"%s\"",
+		 name
+		 );
 }
 
-/*
- * the rest is what library users see
+/* the rest is what library users see
+ *
+ * in this case we don't have the 32/64 bit divide, so we just look at
+ * the 32-bit version and use that pointer
  *
  */
 
-#ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_collect32 = pshmem_collect32
-# define shmem_collect32 pshmem_collect32
-#endif /* HAVE_FEATURE_PSHMEM */
-
-/**
- * Collective concatenation of 32-bit data from participating PEs
- * into a target array on all those PEs
- */
-
-void
-shmem_collect32 (void *target, const void *source, size_t nelems,
-		 int PE_start, int logPE_stride, int PE_size, long *pSync)
-{
-  INIT_CHECK ();
-  SYMMETRY_CHECK (target, 1, "shmem_collect32");
-  SYMMETRY_CHECK (source, 2, "shmem_collect32");
-  SYMMETRY_CHECK (pSync,  7, "shmem_collect32");
-  PE_RANGE_CHECK (PE_start, 4);
-  PE_RANGE_CHECK (PE_size, 6);
-
-  func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
-}
-
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_collect64 = pshmem_collect64
-# define shmem_collect64 pshmem_collect64
+# pragma weak shmem_barrier_all = pshmem_barrier_all
+# define shmem_barrier_all pshmem_barrier_all
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/**
- * Collective concatenation of 64-bit data from participating PEs
- * into a target array on all those PEs
- */
-
 void
-shmem_collect64 (void *target, const void *source, size_t nelems,
-		 int PE_start, int logPE_stride, int PE_size, long *pSync)
+shmem_barrier_all (void)
 {
   INIT_CHECK ();
-  SYMMETRY_CHECK (target, 1, "shmem_collect64");
-  SYMMETRY_CHECK (source, 2, "shmem_collect64");
-  SYMMETRY_CHECK (pSync,  7, "shmem_collect64");
-  PE_RANGE_CHECK (PE_start, 4);
-  PE_RANGE_CHECK (PE_size, 6);
 
-  func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
+  shmem_quiet ();
+
+  func ();
 }

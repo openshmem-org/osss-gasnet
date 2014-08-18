@@ -68,7 +68,6 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
-CPPFLAGS        += -I../modules
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -81,26 +80,12 @@ endif
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
-SOFLAGS          = @SOFLAGS@
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
 
-MODULES = $(wildcard fcollect-*.c)
-OBJECTS = $(MODULES:.c=.o)
-SHOBJECTS = $(MODULES:.c=.so)
+.PHONY: all default clean
 
-.PHONY: all default install-lib uninstall-lib clean
-
-all default:	$(SHOBJECTS) fcollect.o
-
-install-lib:	all default
-	mkdir -p $(DESTDIR)@MODULES_DIR@
-	cp $(SHOBJECTS) $(DESTDIR)@MODULES_DIR@
-
-uninstall-lib:
-	for f in $(SHOBJECTS); do rm -f $(DESTDIR)@MODULES_DIR@/$$f; done
-	- rmdir $(DESTDIR)@MODULES_DIR@
-
-%.so:	%.o
-	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
+all default:	$(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) $(SHOBJECTS) fcollect.o
+	rm -f $(OBJECTS)

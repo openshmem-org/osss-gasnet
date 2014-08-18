@@ -38,7 +38,7 @@
 
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "comms.h"
 #include "trace.h"
@@ -46,19 +46,17 @@
 
 #include "shmem.h"
 
-#include "modules.h"
-
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/*
- * handlers for broadcast implementations
- *
- */
 
-static module_info_t mi;
+#include "broadcast-impl.h"
 
+static char *default_implementation = "linear";
+
+static void (*func32) ();
+static void (*func64) ();
 
 /*
  * called during initialization of shmem
@@ -68,28 +66,27 @@ static module_info_t mi;
 void
 __shmem_broadcast_dispatch_init (void)
 {
-  char *name;
-  int s;
-
-  /*
-   * choose the broadcast: env >> config file
-   *
-   */
-  name = __shmem_comms_getenv ("SHMEM_BROADCAST_ALGORITHM");
-  if (name == (char *) NULL)
+  char *name = __shmem_comms_getenv ("SHMEM_BROADCAST_ALGORITHM");
+  if (EXPR_LIKELY (name == (char *) NULL))
     {
-      name = __shmem_modules_get_implementation ("broadcast");
-    }
-  s = __shmem_modules_load ("broadcast", name, &mi);
-  if (s != 0)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't load broadcast module \"%s\"",
-		     name
-		     );
-      /* NOT REACHED */
+      name = default_implementation;
     }
 
+  if (strcmp (name, "linear") == 0)
+    {
+      func32 = __shmem_broadcast32_linear;
+      func64 = __shmem_broadcast64_linear;
+    }
+  else
+    if (strcmp (name, "tree") == 0)
+      {
+	func32 = __shmem_broadcast32_tree;
+	func64 = __shmem_broadcast64_tree;
+      }
+    else
+      {
+	; /* error */
+      }
   /*
    * report which broadcast implementation we set up
    */
@@ -120,8 +117,8 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
   SYMMETRY_CHECK (pSync,  8, "shmem_broadcast32");
   PE_RANGE_CHECK (PE_start, 5);
 
-  mi.func_32 (target, source, nelems,
-	      PE_root, PE_start, logPE_stride, PE_size, pSync);
+  func32 (target, source, nelems,
+	  PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -140,27 +137,6 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
   SYMMETRY_CHECK (pSync,  8, "shmem_broadcast64");
   PE_RANGE_CHECK (PE_start, 5);
 
-  mi.func_64 (target, source, nelems,
-	      PE_root, PE_start, logPE_stride, PE_size, pSync);
-}
-
-#ifdef HAVE_FEATURE_PSHMEM
-extern void shmem_sync_init (long *pSync);
-#pragma weak shmem_sync_init = pshmem_sync_init
-#define shmem_sync_init pshmem_sync_init
-#endif /* HAVE_FEATURE_PSHMEM */
-
-void
-shmem_sync_init (long *pSync)
-{
-  const int nb = _SHMEM_BCAST_SYNC_SIZE;
-  int i;
-
-  SYMMETRY_CHECK (pSync, 1, "shmem_sync_init");
-
-  for (i = 0; i < nb; i += 1)
-    {
-      pSync[i] = _SHMEM_SYNC_VALUE;
-    }
-  shmem_barrier_all ();
+  func64 (target, source, nelems,
+	  PE_root, PE_start, logPE_stride, PE_size, pSync);
 }

@@ -38,7 +38,7 @@
 
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "comms.h"
 #include "trace.h"
@@ -46,56 +46,41 @@
 
 #include "shmem.h"
 
-#include "modules.h"
+#include "fcollect-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
+static char *default_implementation = "linear";
 
-
-/*
- * handlers for implementations
- *
- */
-
-static module_info_t mi;
-
-
-/*
- * called during initialization of shmem
- *
- */
+static void (*func32) ();
+static void (*func64) ();
 
 void
 __shmem_fcollect_dispatch_init (void)
 {
-  char *name;
-  int s;
+  char *name = __shmem_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
 
-  /*
-   * choose the fcollect
-   *
-   */
-
-  name = __shmem_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
-  if (name == (char *) NULL)
+  if (EXPR_LIKELY (name == (char *) NULL))
     {
-      name = __shmem_modules_get_implementation ("fcollect");
+      name = default_implementation;
     }
-  s = __shmem_modules_load ("fcollect", name, &mi);
-  if (s != 0)
+
+  if (strcmp (name, "linear") == 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't load fcollect module \"%s\"",
-		     name);
-      /* NOT REACHED */
+      func32 = __shmem_fcollect32_linear;
+      func64 = __shmem_fcollect64_linear;
+    }
+  else
+    {
+      ; /* error */
     }
 
   /*
    * report which implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST, "using fcollect \"%s\"", name);
+  __shmem_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
 }
 
 /*
@@ -103,11 +88,15 @@ __shmem_fcollect_dispatch_init (void)
  *
  */
 
-
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_fcollect32 = pshmem_fcollect32
 # define shmem_fcollect32 pshmem_fcollect32
 #endif /* HAVE_FEATURE_PSHMEM */
+
+/**
+ * Collective concatenation of 32-bit data from participating PEs
+ * into a target array on all those PEs
+ */
 
 void
 shmem_fcollect32 (void *target, const void *source, size_t nelems,
@@ -120,13 +109,19 @@ shmem_fcollect32 (void *target, const void *source, size_t nelems,
   PE_RANGE_CHECK (PE_start, 4);
   PE_RANGE_CHECK (PE_size, 6);
 
-  mi.func_32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
+  func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
+
 
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_fcollect64 = pshmem_fcollect64
 # define shmem_fcollect64 pshmem_fcollect64
 #endif /* HAVE_FEATURE_PSHMEM */
+
+/**
+ * Collective concatenation of 64-bit data from participating PEs
+ * into a target array on all those PEs
+ */
 
 void
 shmem_fcollect64 (void *target, const void *source, size_t nelems,
@@ -139,5 +134,5 @@ shmem_fcollect64 (void *target, const void *source, size_t nelems,
   PE_RANGE_CHECK (PE_start, 4);
   PE_RANGE_CHECK (PE_size, 6);
 
-  mi.func_64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
+  func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }

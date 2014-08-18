@@ -37,9 +37,10 @@
 
 
 
-#ifndef _BARRIER_H
-#define _BARRIER_H 1
+#include "comms.h"
 
-extern void __shmem_barrier_dispatch_init (void);
-
-#endif /* _BARRIER_H */
+void
+__shmem_barrier_all_linear (void)
+{
+  __shmem_comms_barrier_all ();
+}

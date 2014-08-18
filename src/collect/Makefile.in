@@ -68,7 +68,6 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
-CPPFLAGS        += -I../modules
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -81,31 +80,15 @@ endif
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
-SOFLAGS          = @SOFLAGS@
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
 
-MODDIR           = @MODULES_DIR@
+.PHONY: all default clean shmem-headers
 
-MODULES = $(wildcard collect-*.c)
-OBJECTS = $(MODULES:.c=.o)
-SHOBJECTS = $(MODULES:.c=.so)
-
-.PHONY: all default install-lib uninstall-lib clean shmem-headers
-
-all default:	shmem-headers $(SHOBJECTS) collect.o
+all default:	shmem-headers $(OBJECTS)
 
 shmem-headers:
 	$(MAKE) -C .. $@
 
-install-lib:	all default
-	mkdir -p $(DESTDIR)$(MODDIR)
-	cp $(SHOBJECTS) $(DESTDIR)$(MODDIR)
-
-uninstall-lib:
-	for f in $(SHOBJECTS); do rm -f $(DESTDIR)$(MODDIR)/$$f; done
-	- rmdir $(DESTDIR)$(MODDIR)
-
-%.so:	%.o
-	$(LD) $(SOFLAGS) $(LDFLAGS) $(CFLAGS) -o $@ $^
-
 clean:
-	rm -f $(OBJECTS) $(SHOBJECTS) collect.o
+	rm -f $(OBJECTS)

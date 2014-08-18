@@ -35,11 +35,9 @@
  *
  */
 
+#ifndef _BARRIER_IMPL_H
 
+extern void __shmem_barrier_linear ();
+extern void __shmem_barrier_tree ();
 
-#ifndef _BARRIER_H
-#define _BARRIER_H 1
-
-extern void __shmem_barrier_dispatch_init (void);
-
-#endif /* _BARRIER_H */
+#endif

@@ -36,19 +36,25 @@
 
 # ---------------------------------------------------------
 
-HASH_DIR         =    ../uthash
-HASH_CPPFLAGS    =    -I$(HASH_DIR)
+COMMS_DIR        =    ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
 # ---------------------------------------------------------
 
-UTILS_DIR        =    ../utils
-UTILS_CPPFLAGS   =    -I$(UTILS_DIR)
+MEMORY_DIR        =    ../memory
+MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 # ---------------------------------------------------------
 
-prefix           = @PREFIX@
+ATOMIC_DIR        =    ../atomic
+ATOMIC_CPPFLAGS   =    -I$(ATOMIC_DIR)
 
-MODDIR           = $(prefix)/lib/modules
+# ---------------------------------------------------------
+
+UTILS_DIR         =    ../utils
+UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
+
+# ---------------------------------------------------------
 
 CC               = @CC@
 CFLAGS           = @CFLAGS@
@@ -56,35 +62,34 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_DEBUG
+CPPFLAGS        += -I..
+
+CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += -I../modules
+
+ifeq "@DEBUG@" "enabled"
+CPPFLAGS        += -DDEBUG
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
-# CPPFLAGS        += -I.
-CPPFLAGS        += -I..
-CPPFLAGS        += -DINSTALLED_MODULES_DIR="\"$(MODDIR)\""
-CPPFLAGS        += $(HASH_CPPFLAGS)
-CPPFLAGS        += $(UTILS_CPPFLAGS)
-
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
-.PHONY: all default install-lib uninstall-lib clean
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
 
-SOURCES  = $(wildcard *.c)
-OBJECTS  = $(SOURCES:.c=.o)
+.PHONY: all default clean shmem-headers
 
-all default:	$(OBJECTS)
+all default:	shmem-headers $(OBJECTS)
 
-install-lib:
-	cp config $(DESTDIR)$(MODDIR)
-
-uninstall-lib:
-	rm -f $(DESTDIR)$(MODDIR)/config
+shmem-headers:
+	$(MAKE) -C .. $@
 
 clean:
 	rm -f $(OBJECTS)

@@ -42,6 +42,7 @@
 
 #include "state.h"
 #include "trace.h"
+#include "utils.h"
 
 #include "shmem.h"
 
@@ -58,18 +59,11 @@
     const int root = (PE_root * step) + PE_start;			\
     const int me = GET_STATE (mype);					\
     shmem_barrier (PE_start, logPE_stride, PE_size, pSync);		\
-    if (me != root) {							\
-      shmem_getmem (target, source, typed_nelems, root);		\
-    }									\
+    if (EXPR_LIKELY (me != root))					\
+      {									\
+	shmem_getmem (target, source, typed_nelems, root);		\
+      }									\
   }									\
 
 SHMEM_BROADCAST_TYPE (32, 4);
 SHMEM_BROADCAST_TYPE (64, 8);
-
-#include "module_info.h"
-module_info_t
-module_info =
-  {
-    __shmem_broadcast32_linear,
-    __shmem_broadcast64_linear,
-  };

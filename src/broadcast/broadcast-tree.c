@@ -49,7 +49,9 @@
  * approach.
  *
  */
-static void
+static
+inline
+void
 set_2tree (int PE_start, int PE_stride, int PE_size,
 	   int *parent, int *child_l, int *child_r, int my_pe)
 {
@@ -80,7 +82,9 @@ set_2tree (int PE_start, int PE_stride, int PE_size,
 		 *parent, *child_l, *child_r);
 }
 
-static void
+static
+inline
+void
 build_tree (int PE_start, int step, int PE_root, int PE_size,
 	    int *parent, int *child_l, int *child_r, int my_pe)
 {
@@ -286,7 +290,6 @@ __shmem_broadcast32_tree (void *target, const void *source,
 	       * %d\n",my_pe,parent);*/
 	      shmem_long_inc (&pSync[1], parent);
 	    }
-
 	}
       __shmem_trace (SHMEM_LOG_BROADCAST, "at the end of bcast32");
       /* shmem_barrier(PE_start,
@@ -301,12 +304,8 @@ __shmem_broadcast64_tree (void *target, const void *source, size_t nlong,
 			  int PE_root, int PE_start,
 			  int logPE_stride, int PE_size, long *pSync)
 {
-  __shmem_broadcast32_tree (target, source, nlong * 2, PE_root, PE_start,
+  __shmem_broadcast32_tree (target, source,
+			    nlong * 2,
+			    PE_root, PE_start,
 			    logPE_stride, PE_size, pSync);
 }
-
-#include "module_info.h"
-module_info_t module_info = {
-  __shmem_broadcast32_tree,
-  __shmem_broadcast64_tree,
-};

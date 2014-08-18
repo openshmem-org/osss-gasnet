@@ -77,10 +77,3 @@
 
 SHMEM_FCOLLECT (32, 4);
 SHMEM_FCOLLECT (64, 8);
-
-#include "module_info.h"
-module_info_t
-module_info = {
-  __shmem_fcollect32_linear,
-  __shmem_fcollect64_linear,
-};

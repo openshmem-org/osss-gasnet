@@ -38,25 +38,23 @@
 
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "comms.h"
 #include "trace.h"
 #include "utils.h"
-#include "modules.h"
 
 #include "shmem.h"
+
+#include "barrier-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/*
- * handlers for barrier implementations
- *
- */
+static char *default_implementation = "linear";
 
-static module_info_t mi_all, mi_bar;
+static void (*func) ();
 
 /*
  * called during initialization of shmem
@@ -64,57 +62,36 @@ static module_info_t mi_all, mi_bar;
  */
 
 void
-__shmem_barriers_dispatch_init (void)
+__shmem_barrier_dispatch_init (void)
 {
-  char *bar_name;
-  char *all_name;
-  int sa, sb;
+  char *name = __shmem_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
+
+  if (EXPR_LIKELY (name == (char *) NULL))
+    {
+      name = default_implementation;
+    }
+
+  if (strcmp (name, "linear") == 0)
+    {
+      func = __shmem_barrier_linear;
+    }
+  else
+    if (strcmp (name, "tree") == 0)
+      {
+	func = __shmem_barrier_tree;
+      }
+    else
+      {
+	; /* error */
+      }
 
   /*
-   * choose the barrier_all
-   *
-   */
-
-  all_name = __shmem_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
-  if (all_name == (char *) NULL)
-    {
-      all_name = __shmem_modules_get_implementation ("barrier-all");
-    }
-  sa = __shmem_modules_load ("barrier-all", all_name, &mi_all);
-  if (sa != 0)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't load barrier-all module \"%s\"",
-		     all_name);
-      /* NOT REACHED */
-    }
-
-  /*
-   * choose the barrier (could be different from _all)
-   *
-   */
-
-  bar_name = __shmem_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
-  if (bar_name == (char *) NULL)
-    {
-      bar_name = __shmem_modules_get_implementation ("barrier");
-    }
-  sb = __shmem_modules_load ("barrier", bar_name, &mi_bar);
-  if (sb != 0)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't load barrier module \"%s\"",
-		     bar_name);
-      /* NOT REACHED */
-    }
-
-  /*
-   * report which implementation we set up
+   * report which broadcast implementation we set up
    */
   __shmem_trace (SHMEM_LOG_BARRIER,
-		 "using barrier_all \"%s\" & barrier \"%s\"",
-		 all_name, bar_name);
-
+		 "using broadcast \"%s\"",
+		 name
+		 );
 }
 
 /*
@@ -124,22 +101,6 @@ __shmem_barriers_dispatch_init (void)
  * the 32-bit version and use that pointer
  *
  */
-
-
-#ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_barrier_all = pshmem_barrier_all
-# define shmem_barrier_all pshmem_barrier_all
-#endif /* HAVE_FEATURE_PSHMEM */
-
-void
-shmem_barrier_all (void)
-{
-  INIT_CHECK ();
-
-  shmem_quiet ();
-
-  mi_all.func_32 ();
-}
 
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_barrier = pshmem_barrier
@@ -153,5 +114,5 @@ shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 
   shmem_quiet ();
 
-  mi_bar.func_32 (PE_start, logPE_stride, PE_size, pSync);
+  func (PE_start, logPE_stride, PE_size, pSync);
 }
