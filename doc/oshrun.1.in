@@ -40,34 +40,31 @@
 .SH SYNOPSIS
 \fBoshrun\fP
 [launcher pass-through arguments]
--n|-np N
+-n N | -np N
 program
 [program arguments]
 .SH DESCRIPTION
 \fBoshrun\fP runs an OpenSHMEM program on the given number of
 processing elements.
 .SH NUMBER OF PROCESSING ELEMENTS
-.IP "-np N" 4
+.IP "-n N | -np N" 4
 Run the program on N processing elements (processors).
 .IP
 Required.
-.IP "-n N" 4
-Synonym for -np.
 .LP
 .SH EXAMPLES
 The command
 .LP
 .RS
-$ oshrun -np 4 ./sping.x -e
+$ oshrun -np 4 ./sping.x -e 8192
 .RE
 .LP
-runs the Quadrics ping-pong example code on 4 processing elements,
-and passes the "-e" option to the OpenSHMEM program.
+runs the Quadrics ping-pong example code on 4 processing elements, and
+passes the arguments "-e" and "8192" through to the OpenSHMEM program.
 .SH NOTES
-The OpenSHMEM specification does not say anything about
-how OpenSHMEM programs and compiled, linked and launched.
-These wrapper programs are supplied as part of the Reference
-Library for convenience.
+The OpenSHMEM specification does not say anything about how OpenSHMEM
+programs and compiled, linked and launched.  These wrapper programs
+are supplied as part of the Reference Library for convenience.
 .SH SEE ALSO
 intro_shmem(3),
 .br

@@ -56,6 +56,8 @@
   showtabs=false
 }
 
+\usepackage[disable]{todonotes}
+
 % --------------------------------------------------------------------------
 
 \providecommand{\tabularnewline}{\\}
@@ -656,29 +658,7 @@ checks. The default is 1.0 (i.e\ may be fractional).
 
 A module sytem coupled with the above environment variables allows for
 runtime decisions to be made about which algorithm should be used for
-different collective routines. These are installed as dynamic objects
-and the selected algorithm is then loaded as needed. Each module
-defines a structure that maps the interface it provides to its
-routines. The choice of algorithm can also be steered through an
-optional configuration file (overridden by the environment variables).
-The file is
-
-\begin{lstlisting}
-<installdir>/lib/modules/config
-\end{lstlisting}
-
-and has a simple
-
-\begin{lstlisting}
-algorithm = implementation
-\end{lstlisting}
-
-format, e.g.\
-
-\begin{lstlisting}
-default = tree
-barrier-all = bruck
-\end{lstlisting}
+different collective routines
 
 \subsection{Writing a New Collective Algorithm}
 
@@ -688,7 +668,6 @@ following steps are required:
 \begin{enumerate}
 \item Add a source file to the appropriate directory
 \item write the 32- and 64-bit routines
-\item create the module information that points to these routines
 \end{enumerate}
 
 \noindent
@@ -710,33 +689,14 @@ __shmem_broadcast64_clever (...)
 {
   ...
 }
-
-#include "module_info.h"
-module_info_t
-module_info = {
-  __shmem_broadcast32_clever,
-  __shmem_broadcast64_clever,
-};
 \end{lstlisting}
 \end{minipage}
 \vspace{0.1in}
 
-\noindent
-\texttt{module\_info\_t} is a structure that defines function pointers
-to the 2 sizes of routine:
-
-\vspace{0.1in}
-\begin{minipage}{0.75\linewidth}
-\begin{lstlisting}[language=C,caption={Definition of module structure}]
-typedef struct
-{
-  void (*func_32) ();
-  void (*func_64) ();
-} module_info_t;
-\end{lstlisting}
-\end{minipage}
-\vspace{0.1in}
-
+The names of the new routines are added to the ``impl.h'' file in the
+sub-directory, and the loader file in the collective's sub-directory
+is configured to understand the new name and to assign the function
+pointers accordingly.
 
 \section{Compiling and Running Programs}
 

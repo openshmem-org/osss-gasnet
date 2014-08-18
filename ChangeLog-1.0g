@@ -6,6 +6,15 @@ Updates in Release 1.0g:
 Configure
 ---------
 
+  * IMPORTANT:
+
+      The library is now compiled as a statically linked archive,
+      rather than as a shared object.  Strongly recommend completely
+      uninstalling previous release(s) if installing over the top.
+
+      The "config" file for selecting collective implementations has
+      been removed, use environment variables instead.
+
   * Allow compile now in source directory or in separate build
     directory
 
