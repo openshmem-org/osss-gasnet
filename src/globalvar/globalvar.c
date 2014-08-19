@@ -36,23 +36,10 @@
  */
 
 
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <gelf.h>
-#include <libelf.h>
-#include <setjmp.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#if 0
-#include <dlfcn.h>
-#endif
 
 #include "uthash.h"
 
@@ -146,27 +133,6 @@ table_init_helper (void)
       goto bail;
     }
 
-#if 0
-  /*
-   * Try to handle deprecated interface from older libelf on CentOS
-   * (and maybe elsewhere).  Scan current program and see which
-   * symbol we find.
-   */
-  {
-    void *h = dlopen (NULL, RTLD_NOW);
-
-    *(void **) (& getsi) = dlsym (h, "elf_getshdrstrndx");
-    if (getsi == NULL)
-      {
-	*(void **) (& getsi) = dlsym (h, "elf_getshstrndx");
-	if (getsi == NULL)
-	  {
-	    goto bail;
-	  }
-      }
-  }
-#endif
-
   /*
    * There are various elf_get* routines with different return values
    * in differnt libraries/versions - name of routine does not tell us
@@ -174,10 +140,11 @@ table_init_helper (void)
    * problems later on.
    */
 
-#if 0
-  (void) getsi (e, &shstrndx);
-#endif
-
+  /*
+   * This routine is either "elf_getshdrstrndx" in newer ELF
+   * libraries, or "elf_getshstrndx" in older ones.  Hard-code newer
+   * one for now, this will be detected by autoconf later
+   */
   (void) elf_getshdrstrndx (e, &shstrndx);
 
   /* walk sections, look for RO/BSS/DATA and symbol table */

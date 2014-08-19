@@ -1140,7 +1140,9 @@ handler_inc_out (gasnet_token_t token,
 
   gasnet_hsl_lock (& amo_inc_lock);
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
+
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: nbytes in payload = %d\n", pp->nbytes);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -1148,7 +1150,7 @@ handler_inc_out (gasnet_token_t token,
   (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
   LOAD_STORE_FENCE ();
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
 
   gasnet_hsl_unlock (& amo_inc_lock);
 
@@ -1168,7 +1170,7 @@ handler_inc_bak (gasnet_token_t token,
 
   gasnet_hsl_lock (& amo_inc_lock);
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
 
   /* done it */
   *(pp->completed_addr) = 1;

@@ -60,6 +60,8 @@
 
 #include "gasnet_safe.h"
 
+#include "atomic.h"
+
 #include "../comms.h"
 
 #include "bail.h"
@@ -97,7 +99,7 @@ __shmem_comms_service (void)
 }
 
 /**
- * does comms. service until told not to
+ * Does comms. service until told not to
  */
 
 static
