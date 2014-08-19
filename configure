@@ -60,7 +60,6 @@ feature_pshmem=disabled
 libdir=
 incdir=
 bindir=
-modulesdir=
 modulefilesdir=
 
 show_progress=YES
@@ -133,6 +132,9 @@ Usage: $progname [options]
 
     --with-includedir=DIR        Header files installed to DIR
                                      (default: PREFIX/include)
+
+    --with-modulefilesdir=DIR    pkg-config file installed to DIR
+                                     (default: PREFIX/modulefiles)
 
   Compiler Suite:
 
@@ -265,6 +267,9 @@ do
 	--with-includedir=*)
 	    incdir="`chompit $o`"
 	    ;;
+        --with-modulefilesdir=*)
+            modulefilesdir="`chompit $o`"
+            ;;
 	--with-comms-layer=*)
 	    setcanonical comms_layer "`chompit $o`"
 	    ;;
@@ -856,6 +861,7 @@ tell ""
 [ -z "$bindir" ]         && bindir=$prefix/bin
 [ -z "$libdir" ]         && libdir=$prefix/lib
 [ -z "$incdir" ]         && incdir=$prefix/include
+[ -z "$modulefilesdir" ] && modulefilesdir=$prefix/modulefiles
 
 # directories in which to compile things
 build_me_dirs="
@@ -945,6 +951,7 @@ do
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
         -e "s%@INC_DIR@%$incdir%g" \
+        -e "s%@MODULEFILES_DIR@%$modulefilesdir%g" \
         < $mfin > $mf
 done
 
@@ -1011,6 +1018,7 @@ tell "  Main package to               $prefix"
 tell "  Executables to                $bindir"
 tell "  Libraries to                  $libdir"
 tell "  Headers to                    $incdir"
+tell "  pkg-config file to            $modulefilesdir"
 
 # -- save configure settings, makes it easy to re-run --
 
@@ -1210,6 +1218,7 @@ setfeature()
     echo "#define OPENSHMEM_INSTALL_BIN    \"$bindir\""
     echo "#define OPENSHMEM_INSTALL_LIB    \"$libdir\""
     echo "#define OPENSHMEM_INSTALL_HDR    \"$incdir\""
+    echo "#define OPENSHMEM_INSTALL_PKG    \"$modulefilesdir\""
     echo
 
     echo "#endif /* CONFIG_H */"
