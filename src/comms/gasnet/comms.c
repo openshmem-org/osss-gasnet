@@ -2040,15 +2040,17 @@ __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
 /**
  * called by mainline to fence off outstanding requests
  *
- * chances here for fence/quiet differentiation and optimization
+ * chances here for fence/quiet differentiation and optimization, but
+ * we'll just fence <=> quiet
  */
 
+static
+inline
 void
-__shmem_comms_quiet_request (void)
+do_quiet (void)
 {
-  GASNET_WAIT_PUTS ();
   atomic_wait_put_zero ();
-
+  GASNET_WAIT_PUTS ();
   nb_table_wait ();
 
   LOAD_STORE_FENCE ();
@@ -2056,9 +2058,15 @@ __shmem_comms_quiet_request (void)
 }
 
 void
+__shmem_comms_quiet_request (void)
+{
+  do_quiet ();
+}
+
+void
 __shmem_comms_fence_request (void)
 {
-  __shmem_comms_quiet_request ();
+  do_quiet ();
 }
 
 

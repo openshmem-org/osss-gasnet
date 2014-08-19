@@ -135,7 +135,6 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
  */
 
 #define SHMEM_TYPE_WAIT(Name, Type)					\
-  inline								\
   void									\
   shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
   {									\

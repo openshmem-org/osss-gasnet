@@ -65,18 +65,8 @@ include $(GASNET_INCDIR)/$(GASNET_CONDUIT)-conduit/$(GASNET_CONDUIT)-$(GASNET_TH
 
 # ---------------------------------------------------------
 
-COMMS_SRC        = comms.c
-COMMS_OBJ        = $(COMMS_SRC:.c=.o)
-
-# ---------------------------------------------------------
-
-SERVICE_SRC      = service.c
-SERVICE_OBJ      = $(SERVICE_SRC:.c=.o)
-
-# ---------------------------------------------------------
-
-BAIL_SRC         = bail.c
-BAIL_OBJ         = $(BAIL_SRC:.c=.o)
+SOURCES          = $(wildcard *.c)
+OBJECTS          = $(SOURCES:.c=.o)
 
 # ---------------------------------------------------------
 
@@ -154,19 +144,25 @@ SHMEM_RUN        = oshrun
 .PHONY: uninstall uninstall-bin uninstall-lib
 .PHONY: clean
 
-# -- start comms interface ---------------------------------
+# # -- start comms interface ---------------------------------
+# 
+all:	$(OBJECTS) wrappers openshmem.pc
+# 
+# $(COMMS_OBJ):	$(COMMS_SRC)
+# 	$(CC) \
+# 		$(CPPFLAGS) \
+# 		$(COMMON_FLAGS) \
+# 		-c -o $@ $<
+# 
+# # -- end comms interface -----------------------------------
+# 
+# $(SERVICE_OBJ):	$(SERVICE_SRC)
+# 	$(CC) \
+# 		$(CPPFLAGS) \
+# 		$(COMMON_FLAGS) \
+# 		-c -o $@ $<
 
-all:	$(COMMS_OBJ) $(SERVICE_OBJ) $(BAIL_OBJ) wrappers openshmem.pc
-
-$(COMMS_OBJ):	$(COMMS_SRC)
-	$(CC) \
-		$(CPPFLAGS) \
-		$(COMMON_FLAGS) \
-		-c -o $@ $<
-
-# -- end comms interface -----------------------------------
-
-$(SERVICE_OBJ):	$(SERVICE_SRC)
+%.o:		%.c
 	$(CC) \
 		$(CPPFLAGS) \
 		$(COMMON_FLAGS) \

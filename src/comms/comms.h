@@ -191,4 +191,33 @@ extern void __shmem_comms_quiet_request (void);
  */
 extern void *__shmem_symmetric_addr_lookup (void *dest, int pe);
 
+/*
+ * lock managerment
+ */
+
+#include <stdint.h>
+
+typedef struct
+{
+  union
+  {
+    struct
+    {
+      volatile uint16_t locked;	/* boolean to indicate current state of lock */
+      volatile int16_t next;	/* vp of next requestor */
+    } s;
+    volatile uint32_t word;
+  } u;
+#define l_locked        u.s.locked
+#define l_next          u.s.next
+#define l_word          u.word
+} SHMEM_LOCK;
+
+extern void __shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock,
+					int this_pe);
+extern void __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock,
+					int this_pe);
+extern int  __shmem_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock,
+				     int this_pe);
+
 #endif /* _COMMS_H */
