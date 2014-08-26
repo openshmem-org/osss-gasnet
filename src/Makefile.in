@@ -42,7 +42,7 @@ PREFIX               = @PREFIX@
 
 # ---------------------------------------------------------
 #
-# the communications API lives in .../comms.o
+# the communications API lives in .../comms
 #
 
 COMMS_LAYER          = @COMMS_LAYER@
@@ -320,6 +320,7 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
 # ---------------------------------------------------------
 
+.PHONY: firstpass
 .PHONY: all default
 .PHONY:	$(OBJ_GEN)
 .PHONY:	shmem-headers
@@ -329,7 +330,14 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
 # ---------------------------------------------------------
 
-all default:	shmem-headers $(SHMEM_LIBRARY_A)
+#
+# very first thing we need to do is expose the inlined comms setup and
+# the paths to headers and make fragments
+#
+firstpass:
+	$(MAKE) -C $(COMMS_DIR) $@
+
+all default:	firstpass	shmem-headers $(SHMEM_LIBRARY_A)
 
 install:	all default install-lib install-include install-comms
 

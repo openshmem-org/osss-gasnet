@@ -45,6 +45,8 @@
 #include "utils.h"
 #include "symmtest.h"
 
+#include "comms/comms.h"
+
 #include "shmem.h"
 
 /*

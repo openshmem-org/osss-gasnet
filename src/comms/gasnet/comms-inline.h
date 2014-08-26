@@ -46,7 +46,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <setjmp.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,9 +54,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>
-
-
-#include "gasnet_safe.h"
 
 #include "uthash.h"
 
@@ -68,16 +64,340 @@
 #include "exe.h"
 #include "globalvar.h"
 
-#include "service.h"
-
+#include "trace.h"
 #include "utils.h"
 #include "unitparse.h"
 
-#include "../comms.h"
-
-#include "bail.h"
-
 #include "shmemx.h"
+
+#include "comms-shared.h"
+
+
+/**
+ * --------------- real work starts here ---------------------
+ *
+ */
+
+static inline void comms_bailout (char *fmt, ...);
+static inline void __shmem_comms_exit (int status);
+static inline void *__shmem_symmetric_addr_lookup (void *dest, int pe);
+
+/**
+ * trap gasnet errors gracefully
+ *
+ */
+#define GASNET_SAFE(fncall) \
+  do {									\
+    const int _retval = fncall ;					\
+    if (_retval != GASNET_OK)						\
+      {									\
+	comms_bailout ("error calling: %s at %s:%i, %s (%s)\n",		\
+		       #fncall, __FILE__, __LINE__,			\
+		       gasnet_ErrorName (_retval),			\
+		       gasnet_ErrorDesc (_retval)			\
+		       );						\
+      }									\
+  } while(0)
+
+
+/* bail.c */
+
+#define MSG_BUF_SIZE 256
+
+/**
+ * Handle error messages while initializing the comms layer.  We don't
+ * have access to the trace sub-system yet, since it depends on comms
+ * being up to get PE and other informational output
+ */
+
+static
+inline
+void
+comms_bailout (char *fmt, ...)
+{
+  char tmp1[MSG_BUF_SIZE];
+  char tmp2[MSG_BUF_SIZE];	/* incoming args */
+  va_list ap;
+
+  strncpy (tmp1, "COMMS ERROR: ", MSG_BUF_SIZE);
+
+  va_start (ap, fmt);
+  vsnprintf (tmp2, MSG_BUF_SIZE, fmt, ap);
+  va_end (ap);
+
+  strncat (tmp1, tmp2, strlen (tmp2));
+  strncat (tmp1, "\n", 1);
+
+  fputs (tmp1, stderr);
+  fflush (stderr);
+
+  __shmem_comms_exit (1);
+}
+
+/* end: bail.c */
+
+
+
+/* service.c */
+
+
+/**
+ * Do network service.  When code is not engaged in shmem calls,
+ * something needs to provide communication access so that operations
+ * where "this" PE is a passive target can continue
+ */
+
+
+#include <pthread.h>
+
+/**
+ * for hi-res timer
+ */
+
+#ifndef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 199309
+#endif /* _POSIX_C_SOURCE */
+#include <time.h>
+
+/**
+ * for refractory back-off
+ */
+
+static long delay = 1000L; /* ns */
+static struct timespec delayspec;
+
+/**
+ * new thread for progress-o-matic
+ */
+
+static pthread_t thr;
+
+/**
+ * polling sentinel
+ */
+
+static volatile int done = 0;
+
+
+/**
+ * traffic progress
+ *
+ */
+static
+inline
+void
+__shmem_comms_service (void)
+{
+  GASNET_SAFE (gasnet_AMPoll ());
+}
+
+/**
+ * Does comms. service until told not to
+ */
+
+static
+void *
+start_service (void *unused)
+{
+  do
+    {
+      __shmem_comms_service ();
+      pthread_yield ();
+      nanosleep (&delayspec, NULL); /* back off */
+    }
+  while (! done);
+
+  return NULL;
+}
+
+/**
+ * assume initially we need to manage progress ourselves
+ */
+static int use_conduit_thread = 0;
+
+/**
+ * tell a PE how to contend for updates
+ *
+ */
+static
+inline
+void
+waitmode_init (void)
+{
+  /*
+   * this gives best performance in all cases observed by the author
+   * (@ UH).  Could make this programmable.
+   */
+  GASNET_SAFE (gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK));
+}
+
+/**
+ * start the servicer
+ */
+
+static
+inline
+void
+__shmem_service_init (void)
+{
+  /*
+   * Zap this code for now.  Problems with IBV conduit thread if all
+   * PEs on one physical node.
+   *
+   */
+#if 0
+#if defined(GASNETC_IBV_RCV_THREAD) && \
+    (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI))
+  /*
+   * if we have an IBV progress thread configured, then check env for
+   * GASNET_RCV_THREAD.
+   *
+   * With no env var, let ibv conduit handle things...
+   *
+   * If set to [0nN] (false), we start our own progress thread
+   * If set to [1yY] (true), the conduit handles progress
+   *
+   * Any other value, assume true but make a note.  NB with 1.20.2,
+   * GASNet itself traps other values and aborts.
+   *
+   */
+
+  const char *grt_str = "GASNET_RCV_THREAD";
+  char *rtv = __shmem_comms_getenv (grt_str);
+  if (EXPR_LIKELY (rtv == NULL))
+    {
+      use_conduit_thread = 1;
+    }
+  else
+    {
+      switch (*rtv)
+	{
+	case '0':
+	case 'n':
+	case 'N':
+	  use_conduit_thread = 0;
+	  break;
+	case '1':
+	case 'y':
+	case 'Y':
+	  use_conduit_thread = 1;
+	  break;
+	default:
+	  use_conduit_thread = 1;
+	  break;
+	}
+    }
+#endif /* defined(GASNETC_IBV_RCV_THREAD) &&
+          (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI)) */
+#endif /* commented out */
+
+  if (! use_conduit_thread)
+    {
+      int s;
+
+      delayspec.tv_sec = (time_t) 0;
+      delayspec.tv_nsec = delay;
+
+      s = pthread_create (&thr, NULL, start_service, (void *) 0);
+      if (EXPR_UNLIKELY (s != 0))
+        {
+	  comms_bailout ("internal error: progress thread creation failed (%s)",
+			 strerror (s)
+			 );
+	  /* NOT REACHED */
+        }
+    }
+
+  waitmode_init ();
+}
+
+/**
+ * stop the servicer
+ */
+
+static
+inline
+void
+__shmem_service_finalize (void)
+{
+  if (! use_conduit_thread)
+    {
+      int s;
+
+      done = 1;
+
+      s = pthread_join (thr, NULL);
+      if (EXPR_UNLIKELY (s != 0))
+	{
+	  comms_bailout ("internal error: progress thread termination failed (%s)",
+			 strerror (s)
+			 );
+	  /* NOT REACHED */
+	}
+    }
+}
+
+/* end: service.c */
+
+/**
+ * which node (PE) am I?
+ */
+static
+inline
+int
+__shmem_comms_mynode (void)
+{
+  return (int) gasnet_mynode ();
+}
+
+/**
+ * how many nodes (PEs) take part in this program?
+ */
+static
+inline
+int
+__shmem_comms_nodes (void)
+{
+  return (int) gasnet_nodes ();
+}
+
+
+/**
+ * ---------------------------------------------------------------------------
+ *
+ * global barrier done through gasnet
+ *
+ */
+
+static
+inline
+void
+__shmem_comms_barrier_all (void)
+{
+  /* GASNET_BEGIN_FUNCTION(); */
+
+  /* use gasnet's global barrier */
+  gasnet_barrier_notify (barcount, barflag);
+  GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
+
+  barcount += 1;
+}
+
+/**
+ * bail out of run-time with STATUS error code
+ */
+static
+inline
+void
+__shmem_comms_exit (int status)
+{
+  __shmem_comms_barrier_all ();
+
+  /*
+   * tc: this messes up gprof, and probably other things:
+   * gasnet_exit (status);
+   */
+}
 
 /**
  * gasnet put model: this is just for testing different put
@@ -105,39 +425,52 @@
 #define GASNET_GET_BULK(pe, dst, src, len) gasnet_get_bulk (pe, dst, src, len)
 
 /**
- * gasnet model choice
+ * ---------------------------------------------------------------------------
+ *
+ * lookup where another PE stores things
  *
  */
 
-#if defined(GASNET_SEGMENT_FAST)
-# define HAVE_MANAGED_SEGMENTS 1
-#elif defined(GASNET_SEGMENT_LARGE)
-# define HAVE_MANAGED_SEGMENTS 1
-#elif defined(GASNET_SEGMENT_EVERYTHING)
-# undef HAVE_MANAGED_SEGMENTS
-#else
-# error "I don't know what kind of GASNet segment model you're trying to use"
-#endif
+/**
+ * where the symmetric memory lives on the given PE
+ */
+#define SHMEM_SYMMETRIC_VAR_BASE(p) (seginfo_table[(p)].addr)
+#define SHMEM_SYMMETRIC_VAR_SIZE(p) (seginfo_table[(p)].size)
 
 /**
- * set up segment/symmetric handling
- *
+ * translate my "dest" to corresponding address on PE "pe"
  */
+static
+inline
+void *
+__shmem_symmetric_addr_lookup (void *dest, int pe)
+{
+  /* globals are in same place everywhere */
+  if (__shmem_symmetric_is_globalvar (dest))
+    {
+      return dest;
+    }
 
-static gasnet_seginfo_t *seginfo_table;
+  /* symmetric if inside of heap */
+  {
+    int me = GET_STATE (mype);
+    size_t al = (size_t) SHMEM_SYMMETRIC_VAR_BASE (me); /* lower bound */
+    size_t au = al + SHMEM_SYMMETRIC_VAR_SIZE (pe); /* upper bound */
+    size_t aao = (size_t) dest; /* my addr as offset */
+    size_t offset = aao - al;
 
-#if ! defined(HAVE_MANAGED_SEGMENTS)
+    if ( EXPR_LIKELY ( offset < au ) )
+      {
+	/* and where it is in the remote heap */
+	char *rdest = SHMEM_SYMMETRIC_VAR_BASE (pe) + offset;
+	
+	/* assume this is good */
+	return rdest;
+      }
+  }
 
-/**
- * this will be malloc'ed so we can respect setting from environment
- * variable
- */
-
-#define DEFAULT_HEAP_SIZE 2000000000L	/* 2G */
-
-static void *great_big_heap;
-
-#endif /* ! HAVE_MANAGED_SEGMENTS */
+  return NULL;
+}
 
 /*
  * --------------------------------------------------------------
@@ -171,11 +504,18 @@ enum
     GASNET_HANDLER_GLOBALVAR_GET_OUT,
     GASNET_HANDLER_GLOBALVAR_GET_BAK,
   };
-
+		      
 /**
- * --------------- real work starts here ---------------------
- *
+ * can't just call getenv, it might not pass through environment
+ * info to other nodes from launch.
  */
+static
+inline
+char *
+__shmem_comms_getenv (const char *name)
+{
+  return gasnet_getenv (name);
+}
 
 /**
  * work out how big the symmetric segment areas should be.
@@ -183,13 +523,16 @@ enum
  * Either from environment setting, or default value from
  * implementation
  */
-static size_t
+static
+inline
+size_t
 __shmem_comms_get_segment_size (void)
 {
   char *mlss_str = __shmem_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
   size_t retval;
+  int ok;
 
-  if (mlss_str == (char *) NULL)
+  if (EXPR_LIKELY (mlss_str == (char *) NULL))
     {
 #ifdef HAVE_MANAGED_SEGMENTS
       return (size_t) gasnet_getMaxLocalSegmentSize ();
@@ -198,76 +541,25 @@ __shmem_comms_get_segment_size (void)
 #endif
     }
 
-  retval = __shmem_parse_size (mlss_str);
-  if (retval == (size_t) -1)
+  __shmem_parse_size (mlss_str, &retval, &ok);
+  if (EXPR_LIKELY (ok))
     {
-      /* don't know that unit! */
-      comms_bailout ("unknown data size unit in symmetric heap specification");
+      /* make sure aligned to page size multiples */
+      const size_t mod = retval % GASNET_PAGESIZE;
+
+      if (EXPR_UNLIKELY (mod != 0))
+	{
+	  const size_t div = retval / GASNET_PAGESIZE;
+	  retval = (div + 1) * GASNET_PAGESIZE;
+	}
+
+      return retval;
       /* NOT REACHED */
     }
 
-  return retval;
-
-}
-
-/**
- * traffic progress
- *
- */
-void
-__shmem_comms_service (void)
-{
-  GASNET_SAFE (gasnet_AMPoll ());
-}
-
-/**
- * can't just call getenv, it might not pass through environment
- * info to other nodes from launch.
- */
-char *
-__shmem_comms_getenv (const char *name)
-{
-  return gasnet_getenv (name);
-}
-
-/**
- * which node (PE) am I?
- */
-int
-__shmem_comms_mynode (void)
-{
-  return (int) gasnet_mynode ();
-}
-
-/**
- * how many nodes (PEs) take part in this program?
- */
-int
-__shmem_comms_nodes (void)
-{
-  return (int) gasnet_nodes ();
-}
-
-/**
- * ---------------------------------------------------------------------------
- *
- * global barrier done through gasnet
- *
- */
-
-static long barcount = 0;
-static int barflag = 0;
-
-void
-__shmem_comms_barrier_all (void)
-{
-  /* GASNET_BEGIN_FUNCTION(); */
-
-  /* use gasnet's global barrier */
-  gasnet_barrier_notify (barcount, barflag);
-  GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
-
-  barcount += 1;
+  comms_bailout ("Unusable symmetric heap size \"%s\"", mlss_str);
+  /* NOT REACHED */
+  return 0;
 }
 
 /**
@@ -285,17 +577,10 @@ __shmem_comms_barrier_all (void)
 #if ! defined(HAVE_MANAGED_SEGMENTS)
 
 /**
- * remotely modified, stop it being put in a register
- */
-static volatile int seg_setup_replies_received = 0;
-
-static gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
-static gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
-
-/**
  * unpack buf from sender PE and store seg info locally.  Ack. receipt.
  */
-static void
+static
+void
 handler_segsetup_out (gasnet_token_t token,
 		      void *buf, size_t bufsiz)
 {
@@ -324,7 +609,8 @@ handler_segsetup_out (gasnet_token_t token,
 /**
  * record receipt ack.  We only need to count the number of replies
  */
-static void
+static
+void
 handler_segsetup_bak (gasnet_token_t token,
 		      void *buf, size_t bufsiz)
 {
@@ -342,6 +628,8 @@ handler_segsetup_bak (gasnet_token_t token,
  * gasnet configurations
  */
 
+static
+inline
 void
 __shmem_symmetric_memory_init (void)
 {
@@ -353,7 +641,7 @@ __shmem_symmetric_memory_init (void)
    */
   seginfo_table =
     (gasnet_seginfo_t *) calloc (npes, sizeof (gasnet_seginfo_t));
-  if (seginfo_table == (gasnet_seginfo_t *) NULL)
+  if (EXPR_UNLIKELY (seginfo_table == (gasnet_seginfo_t *) NULL))
     {
       comms_bailout ("could not allocate GASNet segments (%s)",
 		     strerror (errno)
@@ -379,7 +667,7 @@ __shmem_symmetric_memory_init (void)
 
     /* allocate the heap - has to be pagesize aligned */
     pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
-    if (pm_r != 0)
+    if (EXPR_UNLIKELY (pm_r != 0))
       {
 	comms_bailout ("unable to allocate symmetric heap (%s)",
 		       strerror (pm_r)
@@ -404,7 +692,7 @@ __shmem_symmetric_memory_init (void)
       for (pe = 0; pe < npes; pe += 1)
 	{
 	  /* send to everyone else */
-	  if (me != pe)
+	  if (EXPR_LIKELY (me != pe))
 	    {
 	      gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
 				       &gs, sizeof (gs)
@@ -430,6 +718,8 @@ __shmem_symmetric_memory_init (void)
 /**
  * shut down the memory allocation handler
  */
+static
+inline
 void
 __shmem_symmetric_memory_finalize (void)
 {
@@ -439,70 +729,12 @@ __shmem_symmetric_memory_finalize (void)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-/**
- * where the symmetric memory starts on the given PE
+/*
+ * Following lock management code ifdef'd out as it isn't used any
+ * longer.  But leaving in place for future reference.
  */
-void *
-__shmem_symmetric_var_base (int p)
-{
-  return seginfo_table[p].addr;
-}
 
-/**
- * is the address in the managed symmetric area?
- */
-int
-__shmem_symmetric_var_in_range (void *addr, int pe)
-{
-  int retval;
-
-  if (addr < seginfo_table[pe].addr)
-    {
-      retval = 0;
-    }
-  else if (addr > (seginfo_table[pe].addr + seginfo_table[pe].size))
-    {
-      retval = 0;
-    }
-  else
-    {
-      retval = 1;
-    }
-
-  return retval;
-}
-
-/**
- * translate my "dest" to corresponding address on PE "pe"
- */
-void *
-__shmem_symmetric_addr_lookup (void *dest, int pe)
-{
-  const int me = GET_STATE (mype);
-  size_t offset;
-  char *rdest;
-
-  /* globals are in same place everywhere */
-  if (__shmem_symmetric_is_globalvar (dest))
-    {
-      return dest;
-    }
-
-  /* not symmetric if outside of heap */
-  if (! __shmem_symmetric_var_in_range (dest, me))
-    {
-      return NULL;
-    }
-
-  /* where this is in *my* heap */
-  offset = (char *) dest - (char *) __shmem_symmetric_var_base (me);
-  /* and where it is in the remote heap */
-  rdest = (char *) __shmem_symmetric_var_base (pe) + offset;
-
-  /* assume this is good */
-  return rdest;
-}
-
+#if 0
 /**
  * -- lock finding/creating utility --
  */
@@ -521,18 +753,19 @@ static lock_table_t *lock_table = NULL;
  * seen before, create the lock for it.
  *
  */
-static gasnet_hsl_t *
+static
+gasnet_hsl_t *
 get_lock_for (void *addr)
 {
   lock_table_t *try;
 
   HASH_FIND_PTR (lock_table, &addr, try);
 
-  if (try == (lock_table_t *) NULL)
+  if (EXPR_UNLIKELY (try == (lock_table_t *) NULL))
     {
       gasnet_hsl_t *L = (gasnet_hsl_t *) malloc (sizeof (*L));
 
-      if (L == (gasnet_hsl_t *) NULL)
+      if (EXPR_UNLIKELY (L == (gasnet_hsl_t *) NULL))
 	{
 	  comms_bailout ("internal error: unable to allocate lock for address %p",
 			 addr
@@ -541,7 +774,7 @@ get_lock_for (void *addr)
 	}
 
       try = (lock_table_t *) malloc (sizeof (*try));
-      if (try == (lock_table_t *) NULL)
+      if (EXPR_UNLIKELY (try == (lock_table_t *) NULL))
 	{
 	  comms_bailout ("internal error: unable to allocate lock table entry for address %p",
 			 addr
@@ -559,6 +792,7 @@ get_lock_for (void *addr)
 
   return try->lock;
 }
+#endif	/* ifdef'd out lock code */
 
 /**
  * -- atomics handlers ---------------------------------------------------------
@@ -567,36 +801,76 @@ get_lock_for (void *addr)
 /*
  * to wait on remote updates
  */
-#define WAIT_ON_COMPLETION(p)   GASNET_BLOCKUNTIL(p)
 
-/**
- * NB we make the cond/value "long long" throughout
- * to be used by smaller types as self-contained payload
- */
+#define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
 
-typedef struct
-{
-  void *local_store;            /* sender saves here */
-  void *r_symm_addr;            /* recipient symmetric var */
-  volatile int completed;       /* transaction end marker */
-  volatile int *completed_addr; /* addr of marker */
-  size_t nbytes;                /* how big the value is */
-  long long value;              /* value to be swapped */
-  long long cond;               /* conditional value */
-} atomic_payload_t;
+#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)				\
+  static								\
+  inline								\
+  void									\
+  __shmem_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
+  {									\
+    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
+  }
+
+#if 0
+
+#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
+
+    while ( ! ( VOLATILIZE (Type, var) Op cmp_value))			\
+      {									\
+	__shmem_comms_service ();					\
+      }									\
+
+    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
+
+#endif
+
+COMMS_WAIT_TYPE (short, short, eq, ==);
+COMMS_WAIT_TYPE (int, int, eq, ==);
+COMMS_WAIT_TYPE (long, long, eq, ==);
+COMMS_WAIT_TYPE (longlong, long long, eq, ==);
+
+COMMS_WAIT_TYPE (short, short, ne, !=);
+COMMS_WAIT_TYPE (int, int, ne, !=);
+COMMS_WAIT_TYPE (long, long, ne, !=);
+COMMS_WAIT_TYPE (longlong, long long, ne, !=);
+
+COMMS_WAIT_TYPE (short, short, gt, >);
+COMMS_WAIT_TYPE (int, int, gt, >);
+COMMS_WAIT_TYPE (long, long, gt, >);
+COMMS_WAIT_TYPE (longlong, long long, gt, >);
+
+COMMS_WAIT_TYPE (short, short, le, <=);
+COMMS_WAIT_TYPE (int, int, le, <=);
+COMMS_WAIT_TYPE (long, long, le, <=);
+COMMS_WAIT_TYPE (longlong, long long, le, <=);
+
+COMMS_WAIT_TYPE (short, short, lt, <);
+COMMS_WAIT_TYPE (int, int, lt, <);
+COMMS_WAIT_TYPE (long, long, lt, <);
+COMMS_WAIT_TYPE (longlong, long long, lt, <);
+
+COMMS_WAIT_TYPE (short, short, ge, >=);
+COMMS_WAIT_TYPE (int, int, ge, >=);
+COMMS_WAIT_TYPE (long, long, ge, >=);
+COMMS_WAIT_TYPE (longlong, long long, ge, >=);
+
+#define WAIT_ON_COMPLETION(Cond)   GASNET_BLOCKUNTIL (Cond)
+
 
 /**
  * called by remote PE to do the swap.  Store new value, send back old value
  */
-static void
+static
+void
 handler_swap_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   long long old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_swap_lock);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -605,7 +879,7 @@ handler_swap_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_swap_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz);
@@ -614,14 +888,14 @@ handler_swap_out (gasnet_token_t token,
 /**
  * called by swap invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_swap_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_swap_lock);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -631,18 +905,20 @@ handler_swap_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_swap_lock);
 }
 
 /**
  * perform the swap
  */
+static
+inline
 void
-__shmem_comms_swap_request (void *target, void *value, size_t nbytes,
-			    int pe, void *retval)
+make_swap_request (void *target, void *value, size_t nbytes,
+		   int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate swap payload memory");
     }
@@ -653,7 +929,6 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p));
 
@@ -666,29 +941,44 @@ __shmem_comms_swap_request (void *target, void *value, size_t nbytes,
    * a post and wait/poll pair, post returning a handle for the atomic
    * op. in progress.
    */
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
 }
 
+static
+inline
+void
+__shmem_comms_swap_request32 (void *target, void *value,
+			      size_t nbytes, int pe, void *retval)
+{
+  make_swap_request (target, value, nbytes, pe, retval);
+}
+
+static
+inline
+void
+__shmem_comms_swap_request64 (void *target, void *value,
+			      size_t nbytes, int pe, void *retval)
+{
+  make_swap_request (target, value, nbytes, pe, retval);
+}
 
 /**
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
-static void
+static
+void
 handler_cswap_out (gasnet_token_t token,
 		   void *buf, size_t bufsiz)
 {
   void *old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_cswap_lock);
 
   old = malloc (pp->nbytes);
-  if (old == NULL)
+  if (EXPR_UNLIKELY (old == NULL))
     {
       comms_bailout ("internal error: unable to allocate cswap save space");
     }
@@ -708,7 +998,7 @@ handler_cswap_out (gasnet_token_t token,
 
   free (old);
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_cswap_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz);
@@ -718,14 +1008,14 @@ handler_cswap_out (gasnet_token_t token,
  * called by swap invoker when old value returned by remote PE
  * (same as swap_bak for now)
  */
-static void
+static
+void
 handler_cswap_bak (gasnet_token_t token,
 		   void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_cswap_lock);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -735,18 +1025,20 @@ handler_cswap_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_cswap_lock);
 }
 
 /**
  * perform the conditional swap
  */
+static
+inline
 void
-__shmem_comms_cswap_request (void *target, void *cond, void *value,
-			     size_t nbytes, int pe, void *retval)
+make_cswap_request (void *target, void *cond, void *value,
+		    size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *cp = (atomic_payload_t *) malloc (sizeof (*cp));
-  if (cp == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (cp == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate conditional swap payload memory");
     }
@@ -759,15 +1051,29 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
   memmove (&(cp->cond), cond, nbytes);
   cp->completed = 0;
   cp->completed_addr = &(cp->completed);
-
   LOAD_STORE_FENCE ();
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp));
-
   WAIT_ON_COMPLETION (cp->completed);
-
   free (cp);
+}
+
+static
+inline
+void
+__shmem_comms_cswap_request32 (void *target, void *cond, void *value,
+			       size_t nbytes, int pe, void *retval)
+{
+  make_cswap_request (target, cond, value, nbytes, pe, retval);
+}
+
+static
+inline
+void
+__shmem_comms_cswap_request64 (void *target, void *cond, void *value,
+			       size_t nbytes, int pe, void *retval)
+{
+  make_cswap_request (target, cond, value, nbytes, pe, retval);
 }
 
 /**
@@ -778,16 +1084,16 @@ __shmem_comms_cswap_request (void *target, void *cond, void *value,
  * called by remote PE to do the fetch and add.  Store new value, send
  * back old value
  */
-static void
+static
+void
 handler_fadd_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_fadd_lock);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -797,7 +1103,7 @@ handler_fadd_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_fadd_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz);
@@ -806,14 +1112,14 @@ handler_fadd_out (gasnet_token_t token,
 /**
  * called by fadd invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_fadd_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_fadd_lock);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -823,18 +1129,20 @@ handler_fadd_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_fadd_lock);
 }
 
 /**
  * perform the fetch-and-add
  */
+static
+inline
 void
-__shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
-			    void *retval)
+make_fadd_request (void *target, void *value, size_t nbytes, int pe,
+		   void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate fetch-and-add payload memory");
     }
@@ -845,13 +1153,28 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+static
+inline
+void
+__shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
+			      void *retval)
+{
+  make_fadd_request (target, value, nbytes, pe, retval);
+}
+
+static
+inline
+void
+__shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
+			      void *retval)
+{
+  make_fadd_request (target, value, nbytes, pe, retval);
 }
 
 /**
@@ -862,16 +1185,16 @@ __shmem_comms_fadd_request (void *target, void *value, size_t nbytes, int pe,
  * called by remote PE to do the fetch and increment.  Store new
  * value, send back old value
  */
-static void
+static
+void
 handler_finc_out (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_finc_lock);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -881,7 +1204,7 @@ handler_finc_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_finc_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz);
@@ -890,14 +1213,14 @@ handler_finc_out (gasnet_token_t token,
 /**
  * called by finc invoker when old value returned by remote PE
  */
-static void
+static
+void
 handler_finc_bak (gasnet_token_t token,
 		  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_finc_lock);
 
   /* save returned value */
   (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
@@ -907,17 +1230,19 @@ handler_finc_bak (gasnet_token_t token,
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_finc_lock);
 }
 
 /**
  * perform the fetch-and-increment
  */
+static
+inline
 void
-__shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
+make_finc_request (void *target, size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate fetch-and-increment payload memory");
     }
@@ -927,14 +1252,28 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
 }
+
+static
+inline
+void
+__shmem_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
+{
+  make_finc_request (target, nbytes, pe, retval);
+}
+
+static
+inline
+void
+__shmem_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
+{
+  make_finc_request (target, nbytes, pe, retval);
+}
+
 
 /**
  * remote add
@@ -943,16 +1282,16 @@ __shmem_comms_finc_request (void *target, size_t nbytes, int pe, void *retval)
 /**
  * called by remote PE to do the remote add.
  */
-static void
+static
+void
 handler_add_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_add_lock);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -961,7 +1300,7 @@ handler_add_out (gasnet_token_t token,
 
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_add_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz);
@@ -970,31 +1309,33 @@ handler_add_out (gasnet_token_t token,
 /**
  * called by remote add invoker when store done
  */
-static void
+static
+void
 handler_add_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_add_lock);
 
   LOAD_STORE_FENCE ();
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_add_lock);
 }
 
 /**
  * perform the add
  */
+static
+inline
 void
-__shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
+make_add_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote add payload memory");
     }
@@ -1004,13 +1345,26 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+static
+inline
+void
+ __shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
+ {
+   make_add_request (target, value, nbytes, pe);
+ }
+
+static
+inline
+void
+__shmem_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_add_request (target, value, nbytes, pe);
 }
 
 /**
@@ -1020,16 +1374,20 @@ __shmem_comms_add_request (void *target, void *value, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote increment
  */
-static void
+static
+void
 handler_inc_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_inc_lock);
+
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
+
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: nbytes in payload = %d\n", pp->nbytes);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -1037,9 +1395,9 @@ handler_inc_out (gasnet_token_t token,
   (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
   LOAD_STORE_FENCE ();
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "%lld -> %lld", old, plus);
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_inc_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz);
@@ -1048,29 +1406,33 @@ handler_inc_out (gasnet_token_t token,
 /**
  * called by remote increment invoker when store done
  */
-static void
+static
+void
 handler_inc_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_inc_lock);
+
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_inc_lock);
 }
 
 /**
  * perform the increment
  */
+static
+inline
 void
-__shmem_comms_inc_request (void *target, size_t nbytes, int pe)
+make_inc_request (void *target, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote increment payload memory");
     }
@@ -1079,14 +1441,34 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
+
   WAIT_ON_COMPLETION (p->completed);
+
+  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
 
   free (p);
 }
+
+static
+inline
+void
+ __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
+ {
+   make_inc_request (target, nbytes, pe);
+ }
+
+static
+inline
+void
+__shmem_comms_inc_request64 (void *target, size_t nbytes, int pe)
+{
+  make_inc_request (target, nbytes, pe);
+}
+
 
 /**
  * Proposed by IBM Zurich
@@ -1097,15 +1479,15 @@ __shmem_comms_inc_request (void *target, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote xor
  */
-static void
+static
+void
 handler_xor_out (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
   long long v;
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_xor_lock);
 
   /* save and update */
   v = * ((long long *)pp->r_symm_addr);
@@ -1113,7 +1495,7 @@ handler_xor_out (gasnet_token_t token,
   * ((long long *)pp->r_symm_addr) = v;
   LOAD_STORE_FENCE ();
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_xor_lock);
 
   /* return updated payload */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz);
@@ -1122,29 +1504,31 @@ handler_xor_out (gasnet_token_t token,
 /**
  * called by remote xor invoker when store done
  */
-static void
+static
+void
 handler_xor_bak (gasnet_token_t token,
 		 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
-  gasnet_hsl_t *lk = get_lock_for (pp->r_symm_addr);
 
-  gasnet_hsl_lock (lk);
+  gasnet_hsl_lock (& amo_xor_lock);
 
   /* done it */
   *(pp->completed_addr) = 1;
 
-  gasnet_hsl_unlock (lk);
+  gasnet_hsl_unlock (& amo_xor_lock);
 }
 
 /**
  * perform the xor
  */
+static
+inline
 void
-__shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
+make_xor_request (void *target, void *value, size_t nbytes, int pe)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-  if (p == (atomic_payload_t *) NULL)
+  if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
     {
       comms_bailout ("internal error: unable to allocate remote exclusive-or payload memory");
     }
@@ -1154,13 +1538,26 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
   p->value = *(long long *) value;
   p->completed = 0;
   p->completed_addr = &(p->completed);
-
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p));
-
   WAIT_ON_COMPLETION (p->completed);
-
   free (p);
+}
+
+static
+inline
+void
+ __shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
+ {
+   make_xor_request (target, value, nbytes, pe);
+ }
+
+static
+inline
+void
+__shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_xor_request (target, value, nbytes, pe);
 }
 
 /**
@@ -1169,6 +1566,8 @@ __shmem_comms_xor_request (void *target, void *value, size_t nbytes, int pe)
  * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
  *
  */
+static
+inline
 int
 __shmem_comms_ping_request (int pe)
 {
@@ -1181,6 +1580,8 @@ __shmem_comms_ping_request (int pe)
 
 #if defined(HAVE_MANAGED_SEGMENTS)
 
+/* TODO non-static */
+
 /**
  * atomic counters
  */
@@ -1191,6 +1592,7 @@ static gasnet_hsl_t put_counter_lock = GASNET_HSL_INITIALIZER;
 static gasnet_hsl_t get_counter_lock = GASNET_HSL_INITIALIZER;
 
 static
+inline
 void
 atomic_inc_put_counter (void)
 {
@@ -1200,6 +1602,7 @@ atomic_inc_put_counter (void)
 }
 
 static
+inline
 void
 atomic_dec_put_counter (void)
 {
@@ -1209,6 +1612,7 @@ atomic_dec_put_counter (void)
 }
 
 static
+inline
 void
 atomic_wait_put_zero (void)
 {
@@ -1216,6 +1620,7 @@ atomic_wait_put_zero (void)
 }
 
 static
+inline
 void
 atomic_inc_get_counter (void)
 {
@@ -1225,6 +1630,7 @@ atomic_inc_get_counter (void)
 }
 
 static
+inline
 void
 atomic_dec_get_counter (void)
 {
@@ -1234,6 +1640,7 @@ atomic_dec_get_counter (void)
 }
 
 static
+inline
 void
 atomic_wait_get_zero (void)
 {
@@ -1270,6 +1677,7 @@ atomic_wait_get_zero (void)
  */
 
 static
+inline
 void
 allocate_buffer_and_check (void **buf, size_t siz)
 {
@@ -1297,15 +1705,6 @@ allocate_buffer_and_check (void **buf, size_t siz)
 }
 
 #if defined(HAVE_MANAGED_SEGMENTS)
-
-typedef struct
-{
-  size_t nbytes;		/* size of write */
-  void *target;			/* where to write */
-  void *source;			/* data we want to get */
-  volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	/* addr of marker */
-} globalvar_payload_t;
 
 /**
  * Puts
@@ -1352,6 +1751,7 @@ handler_globalvar_put_bak (gasnet_token_t token,
  *
  */
 static
+inline
 void
 put_a_chunk (void *buf, size_t bufsize,
 	     void *target, void *source,
@@ -1388,6 +1788,8 @@ put_a_chunk (void *buf, size_t bufsize,
 /**
  * perform the put to a global variable
  */
+static
+inline
 void
 __shmem_comms_globalvar_put_request (void *target, void *source,
 				     size_t nbytes, int pe)
@@ -1409,7 +1811,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 
   allocate_buffer_and_check (&put_buf, alloc_size);
 
-  if (nchunks > 0)
+  if (EXPR_LIKELY (nchunks > 0))
     {
       size_t i;
 
@@ -1422,7 +1824,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 	}
     }
 
-  if (rem_send > 0)
+  if (EXPR_LIKELY (rem_send > 0))
     {
       payload_size = rem_send;
 
@@ -1482,6 +1884,7 @@ handler_globalvar_get_bak (gasnet_token_t token,
  *
  */
 static
+inline
 void
 get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 	     void *target, void *source,
@@ -1512,6 +1915,8 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
  * perform the get from a global variable
  */
 
+static
+inline
 void
 __shmem_comms_globalvar_get_request (void *target, void *source,
 				     size_t nbytes, int pe)
@@ -1532,7 +1937,7 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 
   allocate_buffer_and_check (&get_buf, alloc_size);
 
-  if (nchunks > 0)
+  if (EXPR_LIKELY (nchunks > 0))
     {
       size_t i;
 
@@ -1547,7 +1952,7 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 	}
     }
 
-  if (rem_send > 0)
+  if (EXPR_LIKELY (rem_send > 0))
     {
       payload_size = rem_send;
 
@@ -1566,6 +1971,8 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
  * ---------------------------------------------------------------------------
  */
 
+static
+inline
 void
 __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 {
@@ -1585,6 +1992,8 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
+static
+inline
 void
 __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 {
@@ -1604,6 +2013,8 @@ __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
+static
+inline
 void
 __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 {
@@ -1623,6 +2034,8 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
+static
+inline
 void
 __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 {
@@ -1647,6 +2060,8 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
  * it's big enough and hides the gasnet type: is that good enough?
  */
 
+static
+inline
 void
 __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 {
@@ -1666,6 +2081,8 @@ __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
+static
+inline
 long
 __shmem_comms_get_val (void *src, size_t len, int pe)
 {
@@ -1687,7 +2104,6 @@ __shmem_comms_get_val (void *src, size_t len, int pe)
 
   return retval;
 }
-
 
 /**
  * ---------------------------------------------------------------------------
@@ -1721,11 +2137,12 @@ static nb_table_t *nb_table = NULL;
  */
 
 static
+inline
 void *
 nb_table_add (gasnet_handle_t h)
 {
   nb_table_t *n = malloc (sizeof (*n));
-  if (n == (nb_table_t *) NULL)
+  if (EXPR_UNLIKELY (n == (nb_table_t *) NULL))
     {
       comms_bailout ("internal error: unable to alloate memory for non-blocking table");
       /* NOT REACHED */
@@ -1741,6 +2158,7 @@ nb_table_add (gasnet_handle_t h)
  * pass this to gasnet to wait
  */
 static
+inline
 void
 nb_table_wait (void)
 {
@@ -1750,7 +2168,7 @@ nb_table_wait (void)
   unsigned int i = 0;
 
   g = malloc (n * sizeof (*g));
-  if (g != NULL)
+  if (EXPR_UNLIKELY (g != NULL))
     {
       HASH_ITER (hh, nb_table, current, tmp)
 	{
@@ -1770,6 +2188,7 @@ nb_table_wait (void)
 }
 
 static
+inline
 void *
 put_nb_helper (void *dst, void *src, size_t len, int pe)
 {
@@ -1782,6 +2201,47 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
   return n;
 }
 
+/**
+ * called by mainline to fence off outstanding requests
+ *
+ * chances here for fence/quiet differentiation and optimization, but
+ * we'll just fence <=> quiet
+ */
+
+static
+inline
+void
+do_quiet (void)
+{
+  atomic_wait_put_zero ();
+  GASNET_WAIT_PUTS ();
+  nb_table_wait ();
+
+  LOAD_STORE_FENCE ();
+  return;
+}
+
+static
+inline
+void
+__shmem_comms_quiet_request (void)
+{
+  do_quiet ();
+}
+
+static
+inline
+void
+__shmem_comms_fence_request (void)
+{
+  do_quiet ();
+}
+
+
+typedef void *shmemx_request_handle_t;
+
+static
+inline
 void
 __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
@@ -1803,6 +2263,7 @@ __shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_h
 }
 
 static
+inline
 void *
 get_nb_helper (void *dst, void *src, size_t len, int pe)
 {
@@ -1815,6 +2276,8 @@ get_nb_helper (void *dst, void *src, size_t len, int pe)
   return n;
 }
 
+static
+inline
 void
 __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
@@ -1838,6 +2301,8 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_h
 /**
  * wait for the handle to be completed
  */
+static
+inline
 void
 __shmem_comms_wait_req (shmemx_request_handle_t desc)
 {
@@ -1862,6 +2327,8 @@ __shmem_comms_wait_req (shmemx_request_handle_t desc)
  * check to see if the handle has been completed.  Return 1 if so, 0
  * if not
  */
+static
+inline
 void
 __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
 {
@@ -1886,30 +2353,6 @@ __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
     {
       *flag = 1;			/* no handle, carry on */
     }
-}
-
-/**
- * called by mainline to fence off outstanding requests
- *
- * chances here for fence/quiet differentiation and optimization
- */
-
-void
-__shmem_comms_quiet_request (void)
-{
-  GASNET_WAIT_PUTS ();
-  atomic_wait_put_zero ();
-
-  nb_table_wait ();
-
-  LOAD_STORE_FENCE ();
-  return;
-}
-
-void
-__shmem_comms_fence_request (void)
-{
-  __shmem_comms_quiet_request ();
 }
 
 
@@ -1959,35 +2402,34 @@ static const int nhandlers = TABLE_SIZE (handlers);
  * command-line rather than a launcher program.
  */
 
-static int argc;
-static char **argv;
+static int argc = 0;
+static char **argv = NULL;
 
 static const char *cmdline = "/proc/self/cmdline";
 static const char *cmdline_fmt = "/proc/%ld/cmdline";
 
 static
+inline
 void
 parse_cmdline(void)
 {
   FILE *fp;
-  char buf[1024];		/* TODO: arbitrary size */
-  char *p = buf;
+  char an_arg[1024];		/* TODO: arbitrary size */
+  char *p = an_arg;
   int i = 0;
   int c;
-
-  argc = 0;
 
   /*
    * try to find this process' command-line:
    * either from short-cut, or from pid
    */
-  fp = fopen(cmdline, "r");
-  if (fp == NULL)
+  fp = fopen (cmdline, "r");
+  if (EXPR_UNLIKELY (fp == NULL))
     {
-      char buf[MAXPATHLEN];
-      snprintf (buf, MAXPATHLEN, cmdline_fmt, getpid ());
-      fp = fopen(buf, "r");
-      if (fp == NULL)
+      char pidname[MAXPATHLEN];
+      snprintf (pidname, MAXPATHLEN, cmdline_fmt, getpid ());
+      fp = fopen (pidname, "r");
+      if (EXPR_UNLIKELY (fp == NULL))
 	{
 	  comms_bailout ("could not discover process' command-line (%s)",
 			 strerror (errno)
@@ -1997,17 +2439,17 @@ parse_cmdline(void)
     }
 
   /* first count the number of nuls in cmdline to see how many args */
-  while ((c = fgetc(fp)) != EOF)
+  while ((c = fgetc (fp)) != EOF)
     {
       if (c == '\0')
         {
           argc += 1;
         }
     }
-  rewind(fp);
+  rewind (fp);
 
   argv = (char **) malloc ((argc + 1) * sizeof (*argv));
-  if (argv == (char **) NULL)
+  if (EXPR_UNLIKELY (argv == (char **) NULL))
     {
       comms_bailout ("internal error: unable to allocate memory for faked command-line arguments");
       /* NOT REACHED */
@@ -2015,7 +2457,7 @@ parse_cmdline(void)
 
   while (1)
     {
-      int c = fgetc(fp);
+      int c = fgetc (fp);
       switch (c)
 	{
 	case EOF:		/* end of args */
@@ -2024,8 +2466,8 @@ parse_cmdline(void)
 	  break;
 	case '\0':		/* end of this arg */
 	  *p = c;
-	  argv[i++] = strdup(buf);
-	  p = buf;
+	  argv[i++] = strdup (an_arg); /* unchecked return */
+	  p = an_arg;
 	  break;
 	default:		/* copy out char in this arg  */
 	  *p++ = c;
@@ -2033,15 +2475,33 @@ parse_cmdline(void)
 	}
     }
  end:
-  fclose(fp);
+  fclose (fp);
+}
+
+static
+inline
+void
+release_cmdline (void)
+{
+  if (argv != NULL)
+    {
+      int i;
+      for (i = 0; i < argc; i += 1)
+	{
+	  if (argv[i] != NULL)
+	    {
+	      free (argv[i]);
+	    }
+	}
+    }
 }
 
 /**
  * GASNet does this timeout thing if its collective routines
  * (e.g. barrier) go idle, so make this as long as possible
  */
-
 static
+inline
 void
 maximize_gasnet_timeout (void)
 {
@@ -2050,13 +2510,14 @@ maximize_gasnet_timeout (void)
   setenv ("GASNET_ EXITTIMEOUT", buf, 1);
 }
 
-
 /**
  * -----------------------------------------------------------------------
  *
  * This is where the communications layer gets set up and torn down
  */
 
+static
+inline
 void
 __shmem_comms_init (void)
 {
@@ -2100,39 +2561,230 @@ __shmem_comms_init (void)
 }
 
 /**
- * bail out of run-time with STATUS error code
- */
-void
-__shmem_comms_exit (int status)
-{
-  __shmem_comms_barrier_all ();
-
-  /*
-   * tc: this messes up gprof, and probably other things:
-   * gasnet_exit (status);
-   */
-}
-
-/**
  * make sure everyone finishes stuff, then exit with STATUS.
  */
+static
+inline
 void
 __shmem_comms_finalize (int status)
 {
   __shmem_service_finalize ();
 
-  if (argv != NULL)
-    {
-      int i;
-      for (i = 0; i < argc; i += 1)
-	{
-	  if (argv[i] != NULL)
-	    {
-	      free (argv[i]);
-	    }
-	}
-      free (argv);
-    }
+  release_cmdline ();
 
   __shmem_comms_exit (status);
 }
+
+/* mcs-lock.c */
+
+/*
+ * ------------------------------------------------------------------
+ *
+ * Low-level lock routines
+ *
+ */
+
+/*
+ *    Copyright (c) 1996-2002 by Quadrics Supercomputers World Ltd.
+ *    Copyright (c) 2003-2005 by Quadrics Ltd.
+ *
+ *    For licensing information please see the supplied COPYING file
+ *
+ */
+
+/**
+ * Implement the CRAY SHMEM locking API using MCS locks
+ * 
+ * Mellor-Crummey & Scott, Algorithms for scalable synchronisation on
+ * shared-memory multiprocessors ACM Trans. Computer Systems, 1991
+ *
+ * With CRAY SHMEM locks we are given an 8-byte global symmetric
+ * object. This memory is pre-initialised to zero in all processes.
+ *
+ * We split this lock memory into two 32-bit halves where each half
+ * then represents a SHMEM_LOCK.  The SHMEM_LOCK struct consists of a
+ * 16-bit boolean flag (locked) and a 16-bit vp (next)
+ *
+ * One vp is chosen to the global lock owner process and here the 1st
+ * SHMEM_LOCK acts as the 'tail' of a globally distributed linked
+ * list.  In all processes the 2nd SHMEM_LOCK is used to hold and
+ * manage the distributed linked list state.
+ */
+
+#include <stdint.h>
+
+typedef struct
+{
+  union
+  {
+    struct
+    {
+      volatile uint16_t locked; /* boolean to indicate current state of lock */
+      volatile int16_t next;    /* vp of next requestor */
+    } s;
+    volatile uint32_t word;
+  } u;
+#define l_locked        u.s.locked
+#define l_next          u.s.next
+#define l_word          u.word
+} SHMEM_LOCK;
+
+enum
+  {
+    _SHMEM_LOCK_FREE = -1,
+    _SHMEM_LOCK_RESET,
+    _SHMEM_LOCK_SET
+  };
+
+/* Macro to map lock virtual address to owning process vp */
+#define LOCK_OWNER(LOCK) ( ((uintptr_t)(LOCK) >> 3) % (GET_STATE (numpes)) )
+
+static
+inline
+void
+__shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+{
+  SHMEM_LOCK tmp;
+  long locked, prev_pe;
+
+  node->l_next = _SHMEM_LOCK_FREE;
+
+  /* Form our lock request (integer) */
+  tmp.l_locked = 1;
+  tmp.l_next = this_pe;
+
+  LOAD_STORE_FENCE ();
+
+  /*
+   * Swap this_pe into the global lock owner, returning previous
+   * value, atomically
+   */
+  tmp.l_word =
+    shmem_int_swap ((int *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
+
+  /* Translate old (broken) default lock state */
+  if (tmp.l_word == _SHMEM_LOCK_FREE)
+    {
+      tmp.l_word = _SHMEM_LOCK_RESET;
+    }
+
+  /* Extract the global lock (tail) state */
+  prev_pe = tmp.l_next;
+  locked = tmp.l_locked;
+
+  /* Is the lock held by someone else ? */
+  if (locked)
+    {
+      /*
+       * This flag gets cleared (remotely) once the lock is dropped
+       */
+      node->l_locked = 1;
+
+      LOAD_STORE_FENCE ();
+
+      /*
+       * I'm now next in global linked list, update l_next in the
+       * prev_pe process with our vp
+       */
+      shmem_short_p ((short *) &node->l_next, this_pe, prev_pe);
+
+      /* Wait for flag to be released */
+      GASNET_BLOCKUNTIL ( ! (node->l_locked) );
+    }
+}
+
+static
+inline
+void
+__shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+{
+  /* Is there someone on the linked list ? */
+  if (node->l_next == _SHMEM_LOCK_FREE)
+    {
+      SHMEM_LOCK tmp;
+
+      /* Form the remote atomic compare value (int) */
+      tmp.l_locked = 1;
+      tmp.l_next = this_pe;
+
+      /*
+       * If global lock owner value still equals this_pe, load RESET
+       * into it & return prev value
+       */
+      tmp.l_word = shmem_int_cswap ((int *) &lock->l_word,
+				    tmp.l_word,
+				    _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
+
+      if (tmp.l_next == this_pe)
+	{
+	  /* We were still the only requestor, all done */
+	  return;
+	}
+
+      /*
+       * Somebody is about to chain themself off us, wait for them to do it.
+       *
+       * Quadrics: we have seen l_next being written as two individual
+       * bytes here when when the usercopy device is active, poll for
+       * it being valid as well as it being set to ensure both bytes
+       * are written before we try to use its value below.
+       *       
+       */
+      GASNET_BLOCKUNTIL ( !
+			  ((node->l_next == _SHMEM_LOCK_FREE) ||
+			   (node->l_next < 0))
+			  );
+
+    }
+
+  /* Be more strict about the test above,
+   * this memory consistency problem is a tricky one
+   */
+  GASNET_BLOCKUNTIL ( ! (node->l_next < 0) );
+
+  /*
+   * Release any waiters on the linked list
+   */
+
+  shmem_short_p ((short *) &node->l_locked, 0, node->l_next);
+}
+
+
+/*
+ * I am not sure this is strictly correct. The Cray man pages suggest
+ * that this routine should not block. With this implementation we could
+ * race with another PE doing the same and then block in the acquire
+ * Perhaps a conditional swap at the beginning would fix it ??
+ *
+ * (addy 12.10.05)
+ */
+static
+inline
+int
+__shmem_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+{
+  SHMEM_LOCK tmp;
+  int retval;
+
+  /* Read the remote global lock value */
+  tmp.l_word = shmem_int_g ((int *) &lock->l_word, LOCK_OWNER (lock));
+
+  /* Translate old (broken) default lock state */
+  if (tmp.l_word == _SHMEM_LOCK_FREE)
+    tmp.l_word = _SHMEM_LOCK_RESET;
+
+  /* If lock already set then return 1, otherwise grab the lock & return 0 */
+  if (tmp.l_word == _SHMEM_LOCK_RESET)
+    {
+      __shmem_comms_lock_acquire (node, lock, this_pe);
+      retval = 0;
+    }
+  else
+    {
+      retval = 1;
+    }
+
+  return retval;
+}
+
+/* end: mcs-lock.c */

@@ -51,6 +51,16 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
+UTHASH_DIR        =    ../uthash
+UTHASH_CPPFLAGS   =    -I$(UTHASH_DIR)
+
+# ---------------------------------------------------------
+
+GLOBALVAR_DIR        =    ../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
+
 
 CC               = @CC@
 CFLAGS           = @CFLAGS@
@@ -71,11 +81,14 @@ CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CPPFLAGS        += -I..
+include $(COMMS_DIR)/comms.mak
 
+CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += $(HASH_CFLAGS)

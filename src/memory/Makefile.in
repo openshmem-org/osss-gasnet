@@ -63,6 +63,11 @@ UTHASH_CPPFLAGS      =    -I$(UTHASH_DIR)
 
 # ---------------------------------------------------------
 
+ATOMIC_DIR           =    ../atomic
+ATOMIC_CPPFLAGS      =    -I$(ATOMIC_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -81,17 +86,18 @@ ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CPPFLAGS        += -I.
-CPPFLAGS        += -I..
+include $(COMMS_DIR)/comms.mak
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
+CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 
 .PHONY: all default
 .PHONY: clean

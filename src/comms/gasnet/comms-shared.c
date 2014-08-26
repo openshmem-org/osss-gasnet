@@ -35,27 +35,62 @@
  *
  */
 
-
-#ifndef _GASNET_SAFE_H
-#define _GASNET_SAFE_H 1
+/**
+ * all the non-inlined bits that need to be shared per-PE
+ *
+ */
 
 #include <gasnet.h>
 
 /**
- * trap gasnet errors gracefully
+ * This file provides the layer on top of GASNet, ARMCI or whatever.
+ * API should be formalized at some point.
+ */
+
+#include "comms-shared.h"
+
+/**
+ * set up segment/symmetric handling
  *
  */
-#define GASNET_SAFE(fncall) \
-  do {									\
-    const int _retval = fncall ;					\
-    if (_retval != GASNET_OK)						\
-      {									\
-	comms_bailout ("error calling: %s at %s:%i, %s (%s)\n",		\
-		       #fncall, __FILE__, __LINE__,			\
-		       gasnet_ErrorName (_retval),			\
-		       gasnet_ErrorDesc (_retval)			\
-		       );						\
-      }									\
-  } while(0)
 
-#endif /* _GASNET_SAFE_H */
+gasnet_seginfo_t *seginfo_table;
+
+#if ! defined(HAVE_MANAGED_SEGMENTS)
+
+/**
+ * this will be malloc'ed so we can respect setting from environment
+ * variable
+ */
+
+void *great_big_heap;
+
+/**
+ * remotely modified, stop it being put in a register
+ */
+volatile int seg_setup_replies_received = 0;
+
+gasnet_hsl_t setup_out_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
+
+#endif /* ! HAVE_MANAGED_SEGMENTS */
+
+
+/**
+ * Initialize handler locks
+ */
+
+gasnet_hsl_t amo_swap_lock    = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_cswap_lock   = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_fadd_lock    = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_add_lock     = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_finc_lock    = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_inc_lock     = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER;
+
+/**
+ * global barrier counters
+ */
+
+long barcount = 0;
+int barflag = 0;

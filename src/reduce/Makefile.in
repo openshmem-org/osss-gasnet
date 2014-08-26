@@ -36,6 +36,11 @@
 
 # ---------------------------------------------------------
 
+COMMS_DIR         =    ../comms
+COMMS_CPPFLAGS    =    -I$(COMMS_DIR)
+
+# ---------------------------------------------------------
+
 MEMORY_DIR        =    ../memory
 MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
@@ -43,6 +48,11 @@ MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
 
 UTILS_DIR         =    ../utils
 UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
+
+# ---------------------------------------------------------
+
+UTHASH_DIR        =    ../uthash
+UTHASH_CPPFLAGS   =    -I$(UTHASH_DIR)
 
 # ---------------------------------------------------------
 
@@ -88,12 +98,15 @@ ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CPPFLAGS        += -I..
+include $(COMMS_DIR)/comms.mak
+
+CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

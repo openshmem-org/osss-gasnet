@@ -44,6 +44,8 @@
 #include "utils.h"
 #include "atomic.h"
 
+#include "comms/comms.h"
+
 #include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM

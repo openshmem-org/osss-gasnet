@@ -79,6 +79,17 @@ BROADCAST_CPPFLAGS =    -I$(BROADCAST_DIR)
 
 # ---------------------------------------------------------
 
+UTHASH_DIR         =    ../uthash
+UTHASH_CPPFLAGS    =    -I$(UTHASH_DIR)
+
+# ---------------------------------------------------------
+
+COMMS_DIR         =    ../comms
+COMMS_CPPFLAGS    =    -I$(COMMS_DIR)
+
+# ---------------------------------------------------------
+
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
@@ -111,9 +122,12 @@ CPPFLAGS        += $(BARRIER_ALL_CPPFLAGS)
 CPPFLAGS        += $(COLLECT_CPPFLAGS)
 CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
+
+include $(COMMS_DIR)/comms.mak
 
 .PHONY: all default clean
 

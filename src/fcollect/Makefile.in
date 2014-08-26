@@ -56,18 +56,37 @@ PTP_CPPFLAGS      =    -I$(PTP_DIR)
 
 # ---------------------------------------------------------
 
+UTHASH_DIR        =    ../uthash
+UTHASH_CPPFLAGS   =    -I$(UTHASH_DIR)
+
+# ---------------------------------------------------------
+
+ATOMIC_DIR        =    ../atomic
+ATOMIC_CPPFLAGS   =    -I$(ATOMIC_DIR)
+
+# ---------------------------------------------------------
+
+GLOBALVAR_DIR        =    ../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CPPFLAGS        += -I..
+include $(COMMS_DIR)/comms.mak
 
+CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG

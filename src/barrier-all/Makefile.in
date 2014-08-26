@@ -56,19 +56,31 @@ UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
 
 # ---------------------------------------------------------
 
+UTHASH_DIR        =    ../uthash
+UTHASH_CPPFLAGS   =    -I$(UTHASH_DIR)
+
+# ---------------------------------------------------------
+
+GLOBALVAR_DIR        =    ../globalvar
+GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
+
+# ---------------------------------------------------------
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CPPFLAGS        += -I..
+include $(COMMS_DIR)/comms.mak
 
+CPPFLAGS        += -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += -I../modules
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 
 ifeq "@DEBUG@" "enabled"
 CPPFLAGS        += -DDEBUG

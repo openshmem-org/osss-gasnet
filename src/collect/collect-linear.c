@@ -44,6 +44,8 @@
 #include "trace.h"
 #include "utils.h"
 
+#include "comms/comms.h"
+
 #include "shmem.h"
 
 /**

@@ -44,15 +44,15 @@
  * memory classification and accessibility
  */
 
+extern int __shmem_symmetric_is_globalvar (void *addr);
+
 extern void __shmem_symmetric_globalvar_table_init (void);
 extern void __shmem_symmetric_globalvar_table_finalize (void);
 
-extern int __shmem_symmetric_is_globalvar (void *addr);
-
+#if 0
 extern void __shmem_symmetric_memory_init (void);
 extern void __shmem_symmetric_memory_finalize (void);
 
-#if 0
 extern void *__shmem_symmetric_var_base (int pe);
 extern int __shmem_symmetric_var_in_range (void *addr, int pe);
 #endif
