@@ -2237,8 +2237,10 @@ __shmem_comms_fence_request (void)
   do_quiet ();
 }
 
-
-typedef void *shmemx_request_handle_t;
+/**
+ * "nb" puts and gets
+ *
+ */
 
 static
 inline
