@@ -53,6 +53,15 @@ $ oshfort -g -o foo.exe foo.f90
 .RE
 .LP
 compiles the Fortran source code foo.f90 into the OpenSHMEM executable foo.exe.
+.SH ENVIRONMENT
+The underlying compiler/linker invoked by this wrapper is determined
+when the OpenSHMEM library is built.  To override, set the
+.LP
+.RS
+\f(CROSH_FC\fP
+.RE
+.LP
+environment variable.
 .SH NOTES
 The OpenSHMEM specification does not say anything about
 how OpenSHMEM programs and compiled, linked and launched.

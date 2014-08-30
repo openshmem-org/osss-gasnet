@@ -53,6 +53,15 @@ $ oshCC -g -o foo.exe foo.cxx
 .RE
 .LP
 compiles C++ source code foo.cxx into the OpenSHMEM executable foo.exe.
+.SH ENVIRONMENT
+The underlying compiler/linker invoked by this wrapper is determined
+when the OpenSHMEM library is built.  To override, set the
+.LP
+.RS
+\f(CROSH_CXX\fP
+.RE
+.LP
+environment variable.
 .SH NOTES
 The OpenSHMEM specification does not say anything about
 how OpenSHMEM programs and compiled, linked and launched.
