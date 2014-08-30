@@ -47,4 +47,22 @@ done
 
 driver="@DRIVER@"
 
+#
+# see if user wants to override from environment
+#
+case "$progname" in
+    oshcc)
+	driver="${OSH_CC-$driver}"
+	;;
+    oshcxx | oshCC)
+	driver="${OSH_CXX-$driver}"
+	;;
+    oshfort)
+	driver="${OSH_FC-$driver}"
+	;;
+    *)
+	# unknown driver program name
+	;;
+esac
+
 $driver -I$SHMEM_INC_DIR $@ $SHMEM_LDFLAGS $SHMEM_LIBS $GASNET_LIBS
