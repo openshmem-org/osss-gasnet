@@ -137,12 +137,6 @@ This script will eventually be the GNU autotools setup, but for now
 it's just a basic shell script to give the same kind of look-and-feel.
 The script accepts a --help option.
 
-**************************************************************************
-N.B. Configure now requires you to build in a separate directory
-outside the main source tree.  This helps with multiple configuration
-builds and keeps the source "sanitized".
-**************************************************************************
-
 After configure has run successfully, it will leave a file
 "config.status" in the top-level build directory containing the
 information required to recreate the selected configuration.  The file

@@ -107,7 +107,7 @@ shmem_fcollect32 (void *target, const void *source, size_t nelems,
   SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
   SYMMETRY_CHECK (pSync,  7, "shmem_fcollect32");
   PE_RANGE_CHECK (PE_start, 4);
-  PE_RANGE_CHECK (PE_size, 6);
+  /* PE_RANGE_CHECK (PE_size, 6); */
 
   func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
@@ -132,7 +132,7 @@ shmem_fcollect64 (void *target, const void *source, size_t nelems,
   SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
   SYMMETRY_CHECK (pSync,  7, "shmem_fcollect64");
   PE_RANGE_CHECK (PE_start, 4);
-  PE_RANGE_CHECK (PE_size, 6);
+  /* PE_RANGE_CHECK (PE_size, 6); */
 
   func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
