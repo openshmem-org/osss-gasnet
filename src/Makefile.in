@@ -330,14 +330,16 @@ OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
 
 # ---------------------------------------------------------
 
+all default:
+	$(MAKE) firstpass
+	$(MAKE) shmem-headers $(SHMEM_LIBRARY_A)
+
 #
 # very first thing we need to do is expose the inlined comms setup and
 # the paths to headers and make fragments
 #
 firstpass:
 	$(MAKE) -C $(COMMS_DIR) $@
-
-all default:	firstpass	shmem-headers $(SHMEM_LIBRARY_A)
 
 install:	all default install-lib install-include install-comms
 
