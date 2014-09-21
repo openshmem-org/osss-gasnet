@@ -142,10 +142,11 @@ table_init_helper (void)
 
   /*
    * This routine is either "elf_getshdrstrndx" in newer ELF
-   * libraries, or "elf_getshstrndx" in older ones.  Hard-code newer
-   * one for now, this will be detected by autoconf later
+   * libraries, or "elf_getshstrndx" in older ones.  Hard-code older
+   * one for now since it is in the newer libraries, although marked as
+   * deprecated.  This will be detected by autoconf later
    */
-  (void) elf_getshdrstrndx (e, &shstrndx);
+  (void) elf_getshstrndx (e, &shstrndx);
 
   /* walk sections, look for RO/BSS/DATA and symbol table */
   scn = NULL;

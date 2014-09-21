@@ -101,6 +101,7 @@ endif
 include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
