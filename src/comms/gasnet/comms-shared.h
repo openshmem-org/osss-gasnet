@@ -66,7 +66,7 @@ extern gasnet_seginfo_t *seginfo_table;
  * variable
  */
 
-#define DEFAULT_HEAP_SIZE 2000000000L	/* 2G */
+#define DEFAULT_HEAP_SIZE 33554432L	/* 32M */
 
 extern void *great_big_heap;
 
