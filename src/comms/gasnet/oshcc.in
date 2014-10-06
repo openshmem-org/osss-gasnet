@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2014 Intel Corporation. All rights reserved.
 # generated from OpenSHMEM src directory, don't edit installed version
 #
 
@@ -65,4 +66,4 @@ case "$progname" in
         ;;
 esac
 
-$driver -I$SHMEM_INC_DIR $SHMEM_LDFLAGS $GASNET_LDFLAGS $@ $SHMEM_LIBS $GASNET_LIBS
+$driver -I$SHMEM_INC_DIR "$@" $SHMEM_LDFLAGS $GASNET_LDFLAGS $SHMEM_LIBS $GASNET_LIBS
