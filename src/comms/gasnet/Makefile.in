@@ -66,6 +66,11 @@ include $(MAK_FILE)
 
 # ---------------------------------------------------------
 
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
+
+# ---------------------------------------------------------
+
 INSTALL          = install -c
 REMOVE           = rm -f
 
@@ -111,16 +116,14 @@ SHMEM_RUN        = oshrun
 # # -- start comms interface ---------------------------------
 # 
 
-all:	comms-shared.o	wrappers openshmem.pc
+all:	$(OBJECTS) wrappers openshmem.pc
 
-%.o:            %.c
-	$(CC) $(CPPFLAGS) $(COMMON_FLAGS) -c -o $@ $<
-
+#
+# Initialize setup for the inlining
+#
 firstpass:
 	cp comms-inline.h comms-shared.h ..
-	echo "CPPFLAGS += -I$(GASNET_INCDIR)" > ../comms.mak
-	echo "CPPFLAGS += -I$(GASNET_CONDUIT_INCDIR)" >> ../comms.mak
-	echo "CPPFLAGS += $(GASNET_CPPFLAGS)" >> ../comms.mak
+	echo "CPPFLAGS += -I$(GASNET_INCDIR) -I$(GASNET_CONDUIT_INCDIR) $(GASNET_CPPFLAGS)" > ../comms.mak
 
 # -- command wrappers depend on comms settings -------------
 
@@ -223,5 +226,6 @@ clean:
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
 	$(REMOVE) $(SHMEM_FC)
 	$(REMOVE) $(SHMEM_RUN)
+	$(REMOVE) $(OBJECTS)
 	$(REMOVE) openshmem.pc
-	$(REMOVE) ../comms-inline.h ../comms-shared.h
+	$(REMOVE) ../comms-inline.h ../comms-shared.h ../comms.mak

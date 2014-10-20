@@ -136,10 +136,7 @@ comms_bailout (char *fmt, ...)
 
 /* end: bail.c */
 
-
-
 /* service.c */
-
 
 /**
  * Do network service.  When code is not engaged in shmem calls,
@@ -147,8 +144,39 @@ comms_bailout (char *fmt, ...)
  * where "this" PE is a passive target can continue
  */
 
+/**
+ * choose thread implementation
+ */
+
+#undef SHMEM_USE_QTHREADS
+
+#if defined(SHMEM_USE_QTHREADS)
+
+#include <qthread.h>
+
+typedef aligned_t shmem_thread_return_t;
+typedef qthread_f shmem_thread_t;
+
+static shmem_thread_return_t thr_ret;
+
+#else
+
+/* defaulting to pthreads */
+
+#define SHMEM_USE_PTHREADS 1
 
 #include <pthread.h>
+
+typedef void     *shmem_thread_return_t;
+typedef pthread_t shmem_thread_t;
+
+/**
+ * new thread for progress-o-matic
+ */
+
+static shmem_thread_t thr;
+
+#endif /* threading model */
 
 /**
  * for hi-res timer
@@ -167,47 +195,28 @@ static long delay = 1000L; /* ns */
 static struct timespec delayspec;
 
 /**
- * new thread for progress-o-matic
- */
-
-static pthread_t thr;
-
-/**
  * polling sentinel
  */
 
-static volatile int done = 0;
-
-
-/**
- * traffic progress
- *
- */
-static
-inline
-void
-__shmem_comms_service (void)
-{
-  GASNET_SAFE (gasnet_AMPoll ());
-}
+static volatile short done = 0;
 
 /**
  * Does comms. service until told not to
  */
 
 static
-void *
+shmem_thread_return_t
 start_service (void *unused)
 {
   do
     {
-      __shmem_comms_service ();
+      gasnet_AMPoll ();
       pthread_yield ();
       nanosleep (&delayspec, NULL); /* back off */
     }
   while (! done);
 
-  return NULL;
+  return (shmem_thread_return_t) 0;
 }
 
 /**
@@ -228,7 +237,7 @@ waitmode_init (void)
    * this gives best performance in all cases observed by the author
    * (@ UH).  Could make this programmable.
    */
-  GASNET_SAFE (gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK));
+  gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK);
 }
 
 /**
@@ -293,12 +302,17 @@ __shmem_service_init (void)
 
   if (! use_conduit_thread)
     {
-      int s;
-
       delayspec.tv_sec = (time_t) 0;
       delayspec.tv_nsec = delay;
 
-      s = pthread_create (&thr, NULL, start_service, (void *) 0);
+#if defined(SHMEM_USE_PTHREADS)
+      const int s = pthread_create (&thr, NULL, start_service, (void *) 0);
+#elif defined(SHMEM_USE_QTHREADS)
+      qthread_initialize ();
+
+      const int s = qthread_fork (start_service, (void *) 0, &thr_ret);
+#endif
+
       if (EXPR_UNLIKELY (s != 0))
         {
 	  comms_bailout ("internal error: progress thread creation failed (%s)",
@@ -322,11 +336,11 @@ __shmem_service_finalize (void)
 {
   if (! use_conduit_thread)
     {
-      int s;
-
       done = 1;
 
-      s = pthread_join (thr, NULL);
+#if defined(SHMEM_USE_PTHREADS)
+      const int s = pthread_join (thr, NULL);
+
       if (EXPR_UNLIKELY (s != 0))
 	{
 	  comms_bailout ("internal error: progress thread termination failed (%s)",
@@ -334,10 +348,17 @@ __shmem_service_finalize (void)
 			 );
 	  /* NOT REACHED */
 	}
+#elif defined(SHMEM_USE_QTHREADS)
+      /**
+       * not sure if need readFF() here
+       */
+      qthread_finalize ();
+#endif
     }
 }
 
 /* end: service.c */
+
 
 /**
  * which node (PE) am I?
@@ -2621,10 +2642,10 @@ typedef struct
   {
     struct
     {
-      volatile uint16_t locked; /* boolean to indicate current state of lock */
-      volatile int16_t next;    /* vp of next requestor */
+      volatile uint32_t locked; /* boolean to indicate current state of lock */
+      volatile int32_t next;    /* vp of next requestor */
     } s;
-    volatile uint32_t word;
+    volatile uint64_t word;
   } u;
 #define l_locked        u.s.locked
 #define l_next          u.s.next
@@ -2647,7 +2668,8 @@ void
 __shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
   SHMEM_LOCK tmp;
-  long locked, prev_pe;
+  long locked;
+  int prev_pe;
 
   node->l_next = _SHMEM_LOCK_FREE;
 
@@ -2662,7 +2684,7 @@ __shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
    * value, atomically
    */
   tmp.l_word =
-    shmem_int_swap ((int *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
+    shmem_long_swap ((long *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
 
   /* Translate old (broken) default lock state */
   if (tmp.l_word == _SHMEM_LOCK_FREE)
@@ -2688,7 +2710,7 @@ __shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
        * I'm now next in global linked list, update l_next in the
        * prev_pe process with our vp
        */
-      shmem_short_p ((short *) &node->l_next, this_pe, prev_pe);
+      shmem_int_p ((int *) &node->l_next, this_pe, prev_pe);
 
       /* Wait for flag to be released */
       GASNET_BLOCKUNTIL ( ! (node->l_locked) );
@@ -2713,7 +2735,7 @@ __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
        * If global lock owner value still equals this_pe, load RESET
        * into it & return prev value
        */
-      tmp.l_word = shmem_int_cswap ((int *) &lock->l_word,
+      tmp.l_word = shmem_long_cswap ((long *) &lock->l_word,
 				    tmp.l_word,
 				    _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
 
@@ -2748,7 +2770,7 @@ __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
    * Release any waiters on the linked list
    */
 
-  shmem_short_p ((short *) &node->l_locked, 0, node->l_next);
+  shmem_int_p ((int *) &node->l_locked, 0, node->l_next);
 }
 
 
@@ -2769,7 +2791,7 @@ __shmem_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
   int retval;
 
   /* Read the remote global lock value */
-  tmp.l_word = shmem_int_g ((int *) &lock->l_word, LOCK_OWNER (lock));
+  tmp.l_word = shmem_long_g ((long *) &lock->l_word, LOCK_OWNER (lock));
 
   /* Translate old (broken) default lock state */
   if (tmp.l_word == _SHMEM_LOCK_FREE)

@@ -49,7 +49,7 @@
 
 #define IF_DEBUGGING(x) do { x ; } while (0)
 
-/*
+/**
  * if we haven't initialized through start_pes() then try to do
  * something constructive.  Obviously can't use __shmem_trace()
  * because nothing has been initialized.
@@ -58,12 +58,13 @@
 
 #define INIT_CHECK()							\
   IF_DEBUGGING(								\
-	       if (GET_STATE (pe_status) != PE_RUNNING)			\
+	       const int s = GET_STATE (pe_status);			\
+	       if (s != PE_RUNNING)					\
 		 {							\
-		   fprintf (stderr,					\
-			    "Error: OpenSHMEM library has not been initialized\n" \
-			    );						\
-		   exit (1);						\
+		   __shmem_trace (SHMEM_LOG_FATAL,			\
+				  "Library is not running, reason: %s", \
+				  __shmem_state_as_string (s)		\
+				  );					\
 		   /* NOT REACHED */					\
 		 }							\
 									)
@@ -77,16 +78,14 @@
 
 #define PE_RANGE_CHECK(pe, argpos)					\
   IF_DEBUGGING(								\
-	       {							\
-		 const int bot_pe = 0;					\
-		 const int top_pe = GET_STATE (numpes) - 1;		\
-		 if (pe < bot_pe || pe > top_pe) {			\
-		   __shmem_trace (SHMEM_LOG_FATAL,			\
-				  "PE %d in argument #%d not within allocated range %d .. %d", \
-				  pe, argpos, bot_pe, top_pe		\
-				  );					\
-		   /* NOT REACHED */					\
-		 }							\
+	       const int bot_pe = 0;					\
+	       const int top_pe = GET_STATE (numpes) - 1;		\
+	       if (pe < bot_pe || pe > top_pe) {			\
+		 __shmem_trace (SHMEM_LOG_FATAL,			\
+				"PE %d in argument #%d not within allocated range %d .. %d", \
+				pe, argpos, bot_pe, top_pe		\
+				);					\
+		 /* NOT REACHED */					\
 	       }							\
 									)
 
@@ -110,12 +109,42 @@
 		   /* NOT REACHED */					\
 		 }							\
 									)
+/*
+ * sanity-check the length of put/get operations
+ *
+ */
+
+#define TXRX_LENGTH_CHECK(len, argpos, subrname)			\
+  IF_DEBUGGING(								\
+	       if ((len) == 0)						\
+		 {							\
+		   __shmem_trace (SHMEM_LOG_INFO,			\
+				  "%s(), length in argument #%d is zero, call has no effect", \
+				  subrname,				\
+				  argpos				\
+				  );					\
+		   return;						\
+		   /* NOT REACHED */					\
+		 }							\
+	       if ((len) < 0)						\
+		 {							\
+		   __shmem_trace (SHMEM_LOG_INFO,			\
+				  "%s(), length in argument #%d is negative, call has no effect", \
+				  subrname,				\
+				  argpos				\
+				  );					\
+		   return;						\
+		   /* NOT REACHED */					\
+		 }							\
+									\
+									)
 
 #else /* ! HAVE_FEATURE_DEBUG */
 
 #define INIT_CHECK()
 #define PE_RANGE_CHECK(pe, argpos)
 #define SYMMETRY_CHECK(addr, argpos, subrname)
+#define TXRX_LENGTH_CHECK(len, argpos, subrname)
 
 #endif /* HAVE_FEATURE_DEBUG */
 
