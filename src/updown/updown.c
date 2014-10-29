@@ -38,7 +38,6 @@
 
 
 #include <stdio.h>		/* NULL                           */
-#include <stdlib.h>		/* atexit(), EXIT_ codes          */
 #include <sys/utsname.h>	/* uname()                        */
 #include <sys/types.h>		/* size_t                         */
 
@@ -73,83 +72,6 @@
 #include "version.h"
 
 /* ----------------------------------------------------------------- */
-
-/**
- * shut down shmem, and then hand off to the comms layer to shut
- * itself down
- *
- */
-void
-__shmem_exit (int status)
-{
-  /*
-   * calling multiple times is undefined, I'm just going to do nothing
-   */
-  if (GET_STATE (pe_status) == PE_SHUTDOWN)
-    {
-      return;
-    }
-
-  __shmem_comms_barrier_all ();
-  /* ok, no more pending I/O ... */
-
-  /* clean up atomics and memory */
-  __shmem_atomic_finalize ();
-  __shmem_symmetric_memory_finalize ();
-  __shmem_symmetric_globalvar_table_finalize ();
-
-  /* clean up plugin modules */
-  /* __shmem_modules_finalize (); */
-
-  /* tidy up binary inspector */
-  __shmem_executable_finalize ();
-
-  /* stop run time clock */
-  __shmem_elapsed_clock_finalize ();
-
-  /* update our state */
-  SET_STATE (pe_status, PE_SHUTDOWN);
-
-  __shmem_trace (SHMEM_LOG_FINALIZE,
-		 "finalizing shutdown, handing off to communications layer"
-		 );
-
-  /*
-   * TODO, tc: need to be better at cleanup for 1.2, since finalize
-   * doesn't imply follow-on exit, merely end of OpenSHMEM portion.
-   *
-   */
-  __shmem_comms_finalize (status);
-}
-
-/**
- * registered by start_pes() to trigger shutdown at exit
- *
- */
-static
-void
-exit_handler (void)
-{
-  __shmem_exit (EXIT_SUCCESS);
-}
-
-/**
- * find the short & (potentially) long host/node name
- *
- */
-static
-inline
-void
-place_init (void)
-{
-  const int s = uname (& GET_STATE (loc));
-  if (s != 0)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: can't find any node information"
-		     );
-    }
-}
 
 /**
  * I shouldn't really initialize more than once
@@ -246,55 +168,7 @@ start_pes (int npes)
       return;
     }
 
-  /* set up communications layer as early as possible */
   __shmem_comms_init ();
-
-  /* these have to happen first to enable messages */
-  __shmem_elapsed_clock_init ();
-  __shmem_tracers_init ();
-
-  /* find out what this executable image is */
-  __shmem_executable_init ();
-
-  /*
-   * find the global symbols (i.e. those addressable outside the
-   * symmetric heap)
-   */
-  __shmem_symmetric_globalvar_table_init ();
-
-  /* handle the heap */
-  __shmem_symmetric_memory_init ();
-
-  /* see if we want to say which message/trace levels are active */
-  __shmem_maybe_tracers_show_info ();
-  __shmem_tracers_show ();
-
-  /* set up the atomic ops handling */
-  __shmem_atomic_init ();
-
-  /* set up timeouts */
-  __shmem_ping_init ();
-
-  /* set up module selection */
-  /*  __shmem_modules_init (); */
-
-  __shmem_barrier_dispatch_init ();
-  __shmem_barrier_all_dispatch_init ();
-  __shmem_broadcast_dispatch_init ();
-  __shmem_collect_dispatch_init ();
-  __shmem_fcollect_dispatch_init ();
-
-  /* set up any locality information */
-  place_init ();
-
-  /* register shutdown handler */
-  if (atexit (exit_handler) != 0)
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: cannot register shutdown handler"
-		     );
-      /* NOT REACHED */
-    }
 
   /* just note start_pes() not passed 0, it's not a big deal */
   if (npes != 0)
@@ -305,14 +179,7 @@ start_pes (int npes)
 		     );
     }
 
-  SET_STATE (pe_status, PE_RUNNING);
-
   report_up ();
-
-  /*
-   * tc: not needed
-   * __shmem_comms_barrier_all ();
-   */
 
   /*
    * and we're up and running
@@ -337,7 +204,7 @@ shmemx_init (void)
 void
 shmemx_finalize (void)
 {
-  exit_handler ();
+  __shmem_comms_exit (0);
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

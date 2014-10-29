@@ -36,18 +36,22 @@
 
 # ---------------------------------------------------------
 
-HASH_DIR          =    ../uthash
-HASH_CPPFLAGS     =    -I$(HASH_DIR)
+COMMS_DIR        =     ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
-# ---------------------------------------------------------
-
-UTILS_DIR         =    ../utils
-UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
-
-UPDOWN_DIR        =    ../updown
-UPDOWN_CPPFLAGS   =    -I$(UPDOWN_DIR)
+MEMORY_CPPFLAGS  =    -I../memory
+UTHASH_CPPFLAGS  =    -I../uthash
+UTILS_CPPFLAGS   =    -I../utils
+UPDOWN_CPPFLAGS  =    -I../updown
+PTP_CPPFLAGS     =    -I../ptp
+ATOMIC_CPPFLAGS  =    -I../atomic
+GLOBALVAR_CPPFLAGS =  -I../globalvar
+MALLOC_CPPFLAGS  =    -I../dlmalloc
+COLL_CPPFLAGS    =    -I../barrier \
+                        -I../barrier-all \
+                        -I../broadcast \
+                        -I../collect \
+                        -I../fcollect
 
 # ---------------------------------------------------------
 
@@ -69,9 +73,17 @@ CPPFLAGS        += @EXE_HEADERS@
 
 # CPPFLAGS        += -I..
 
-CPPFLAGS        += $(HASH_CPPFLAGS)
+CPPFLAGS        += -I. -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
+CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
 CPPFLAGS        += $(UPDOWN_CPPFLAGS)
+CPPFLAGS        += $(PTP_CPPFLAGS)
+CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(MALLOC_CPPFLAGS)
+CPPFLAGS        += $(COLL_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

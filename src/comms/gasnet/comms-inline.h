@@ -63,6 +63,13 @@
 #include "ping.h"
 #include "exe.h"
 #include "globalvar.h"
+#include "clock.h"
+
+#include "barrier.h"
+#include "barrier-all.h"
+#include "broadcast.h"
+#include "collect.h"
+#include "fcollect.h"
 
 #include "trace.h"
 #include "utils.h"
@@ -87,16 +94,16 @@ static inline void *__shmem_symmetric_addr_lookup (void *dest, int pe);
  *
  */
 #define GASNET_SAFE(fncall) \
-  do {									\
+  do {                                    \
     const int _retval = fncall ;					\
-    if (_retval != GASNET_OK)						\
-      {									\
-	comms_bailout ("error calling: %s at %s:%i, %s (%s)\n",		\
-		       #fncall, __FILE__, __LINE__,			\
-		       gasnet_ErrorName (_retval),			\
-		       gasnet_ErrorDesc (_retval)			\
-		       );						\
-      }									\
+    if (_retval != GASNET_OK)             \
+      {                                                     \
+        comms_bailout ("error calling: %s at %s:%i, %s (%s)\n", \
+                       #fncall, __FILE__, __LINE__,             \
+                       gasnet_ErrorName (_retval),              \
+                       gasnet_ErrorDesc (_retval)               \
+                       );                                       \
+      }                                                         \
   } while(0)
 
 
@@ -402,22 +409,6 @@ __shmem_comms_barrier_all (void)
   GASNET_SAFE (gasnet_barrier_wait (barcount, barflag));
 
   barcount += 1;
-}
-
-/**
- * bail out of run-time with STATUS error code
- */
-static
-inline
-void
-__shmem_comms_exit (int status)
-{
-  __shmem_comms_barrier_all ();
-
-  /*
-   * tc: this messes up gprof, and probably other things:
-   * gasnet_exit (status);
-   */
 }
 
 /**
@@ -732,7 +723,7 @@ __shmem_symmetric_memory_init (void)
   __shmem_mem_init (seginfo_table[me].addr, seginfo_table[me].size);
 
   /* and make sure everyone is up-to-speed */
-  __shmem_comms_barrier_all ();
+  /* __shmem_comms_barrier_all (); */
 
 }
 
@@ -2434,7 +2425,7 @@ static const char *cmdline_fmt = "/proc/%ld/cmdline";
 static
 inline
 void
-parse_cmdline(void)
+parse_cmdline (void)
 {
   FILE *fp;
   char an_arg[1024];		/* TODO: arbitrary size */
@@ -2453,12 +2444,12 @@ parse_cmdline(void)
       snprintf (pidname, MAXPATHLEN, cmdline_fmt, getpid ());
       fp = fopen (pidname, "r");
       if (EXPR_UNLIKELY (fp == NULL))
-	{
-	  comms_bailout ("could not discover process' command-line (%s)",
-			 strerror (errno)
-			 );
-	  /* NOT REACHED */
-	}
+        {
+          comms_bailout ("could not discover process' command-line (%s)",
+                         strerror (errno)
+                         );
+          /* NOT REACHED */
+        }
     }
 
   /* first count the number of nuls in cmdline to see how many args */
@@ -2535,10 +2526,40 @@ maximize_gasnet_timeout (void)
 
 /**
  * -----------------------------------------------------------------------
- *
- * This is where the communications layer gets set up and torn down
  */
 
+/**
+ * registered by init to trigger shutdown at exit (thus not inlined)
+ *
+ */
+static
+void
+exit_handler (void)
+{
+  __shmem_comms_exit (EXIT_SUCCESS);
+}
+
+/**
+ * find the short & (potentially) long host/node name
+ *
+ */
+static
+inline
+void
+place_init (void)
+{
+  const int s = uname (& GET_STATE (loc));
+  if (EXPR_UNLIKELY (s != 0))
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: can't find any node information"
+		     );
+    }
+}
+
+/**
+ * This is where the communications layer gets set up and torn down
+ */
 static
 inline
 void
@@ -2548,17 +2569,12 @@ __shmem_comms_init (void)
 
   maximize_gasnet_timeout ();
 
-  /*
-   * let's get gasnet up and running
-   */
   GASNET_SAFE (gasnet_init (&argc, &argv));
 
-  /*
-   * now we can ask about the node count & heap
-   */
-  SET_STATE (mype, __shmem_comms_mynode ());
-  SET_STATE (numpes, __shmem_comms_nodes ());
-  SET_STATE (heapsize, __shmem_comms_get_segment_size ());
+  /* now we can ask about the node count & heap */
+  SET_STATE ( mype,     __shmem_comms_mynode ()           );
+  SET_STATE ( numpes,   __shmem_comms_nodes ()            );
+  SET_STATE ( heapsize, __shmem_comms_get_segment_size () );
 
   /*
    * not guarding the attach for different gasnet models,
@@ -2566,36 +2582,104 @@ __shmem_comms_init (void)
    */
   GASNET_SAFE (gasnet_attach (handlers, nhandlers, GET_STATE (heapsize), 0));
 
-  /*
-   * fire up any needed progress management
-   */
+  /* fire up any needed progress management */
   __shmem_service_init ();
 
-  /*
-   * tc: this may not actually be needed
-   *
-   * make sure all nodes are up to speed before "declaring"
-   * initialization done
-   *
-   * __shmem_comms_barrier_all ();
-   */
+  /* enable messages */
+  __shmem_elapsed_clock_init ();
+  __shmem_tracers_init ();
+
+  /* who am I? */
+  __shmem_executable_init ();
+
+  /* find global symbols */
+  __shmem_symmetric_globalvar_table_init ();
+
+  /* handle the heap */
+  __shmem_symmetric_memory_init ();
+
+  /* which message/trace levels are active */
+  __shmem_maybe_tracers_show_info ();
+  __shmem_tracers_show ();
+
+  /* set up the atomic ops handling */
+  __shmem_atomic_init ();
+
+  /* initialize collective algs */
+  __shmem_barrier_dispatch_init ();
+  __shmem_barrier_all_dispatch_init ();
+  __shmem_broadcast_dispatch_init ();
+  __shmem_collect_dispatch_init ();
+  __shmem_fcollect_dispatch_init ();
+
+  /* set up any locality information */
+  place_init ();
+
+  /* register shutdown handler */
+  if (EXPR_UNLIKELY (atexit (exit_handler) != 0))
+    {
+      __shmem_trace (SHMEM_LOG_FATAL,
+		     "internal error: cannot register shutdown handler"
+		     );
+      /* NOT REACHED */
+    }
+
+  SET_STATE (pe_status, PE_RUNNING);
 
   /* Up and running! */
 }
 
 /**
- * make sure everyone finishes stuff, then exit with STATUS.
+ * bail out of run-time with STATUS error code
  */
 static
 inline
 void
-__shmem_comms_finalize (int status)
+__shmem_comms_exit (int status)
 {
-  __shmem_service_finalize ();
+  /*
+   * calling multiple times is undefined, I'm just going to do nothing
+   */
+  if (EXPR_UNLIKELY (GET_STATE (pe_status) == PE_SHUTDOWN))
+    {
+      return;
+    }
+
+  /* ok, no more pending I/O ... */
+  __shmem_comms_barrier_all ();
 
   release_cmdline ();
 
-  __shmem_comms_exit (status);
+  __shmem_service_finalize ();
+
+  /* clean up atomics and memory */
+  __shmem_atomic_finalize ();
+  __shmem_symmetric_memory_finalize ();
+  __shmem_symmetric_globalvar_table_finalize ();
+
+  /* clean up plugin modules */
+  /* __shmem_modules_finalize (); */
+
+  /* tidy up binary inspector */
+  __shmem_executable_finalize ();
+
+  /* stop run time clock */
+  __shmem_elapsed_clock_finalize ();
+
+  /* update our state */
+  SET_STATE (pe_status, PE_SHUTDOWN);
+
+  __shmem_trace (SHMEM_LOG_FINALIZE,
+		 "finalizing shutdown, handing off to communications layer"
+		 );
+
+  /*
+   * TODO, tc: need to be better at cleanup for 1.2, since finalize
+   * doesn't imply follow-on exit, merely end of OpenSHMEM portion.
+   *
+   */
+
+  /* __shmem_comms_barrier_all (); */
 }
 
 /* mcs-lock.c */

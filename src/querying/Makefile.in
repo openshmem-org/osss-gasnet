@@ -36,33 +36,22 @@
 
 # ---------------------------------------------------------
 
-MEMORY_DIR        =    ../memory
-MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
+COMMS_DIR        =     ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
-# ---------------------------------------------------------
-
-GLOBALVAR_DIR        =    ../globalvar
-GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
-
-# ---------------------------------------------------------
-
-UTILS_DIR         =    ../utils
-UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
-
-UTHASH_DIR           =    ../uthash
-UTHASH_CPPFLAGS      =    -I$(UTHASH_DIR)
-
-# ---------------------------------------------------------
-
-ATOMIC_DIR           =    ../atomic
-ATOMIC_CPPFLAGS      =    -I$(ATOMIC_DIR)
-
-# ---------------------------------------------------------
-
-COMMS_DIR           =    ../comms
-COMMS_CPPFLAGS      =    -I$(COMMS_DIR)
+MEMORY_CPPFLAGS  =    -I../memory
+UTHASH_CPPFLAGS  =    -I../uthash
+UTILS_CPPFLAGS   =    -I../utils
+UPDOWN_CPPFLAGS  =    -I../updown
+PTP_CPPFLAGS     =    -I../ptp
+ATOMIC_CPPFLAGS  =    -I../atomic
+GLOBALVAR_CPPFLAGS =  -I../globalvar
+MALLOC_CPPFLAGS  =    -I../dlmalloc
+COLL_CPPFLAGS    =    -I../barrier \
+                        -I../barrier-all \
+                        -I../broadcast \
+                        -I../collect \
+                        -I../fcollect
 
 # ---------------------------------------------------------
 
@@ -89,14 +78,19 @@ ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-include $(COMMS_DIR)/comms.mak
+-include $(COMMS_DIR)/comms.mak
 
-CPPFLAGS        += -I..
-CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += -I. -I..
+CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
-CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(UTILS_CPPFLAGS)
+CPPFLAGS        += $(UPDOWN_CPPFLAGS)
+CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(MALLOC_CPPFLAGS)
+CPPFLAGS        += $(COLL_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@

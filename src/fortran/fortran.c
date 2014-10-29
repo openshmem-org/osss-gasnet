@@ -54,7 +54,7 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #ifdef HAVE_FEATURE_EXPERIMENTAL
-#include "shmemx.h"
+# include "shmemx.h"
 # include "pshmemx.h"
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
@@ -101,8 +101,11 @@ FORTRANIFY (start_pes) (int *npes)
 
 SHMEM_FORTRAN_QUERY_PE (my_pe, _my_pe);
 SHMEM_FORTRAN_QUERY_PE (num_pes, _num_pes);
+#if 0
+/* invalid Fortran symbol names */
 SHMEM_FORTRAN_QUERY_PE (_my_pe, _my_pe);
 SHMEM_FORTRAN_QUERY_PE (_num_pes, _num_pes);
+#endif
 SHMEM_FORTRAN_QUERY_PE (shmem_my_pe, shmem_my_pe);
 SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 

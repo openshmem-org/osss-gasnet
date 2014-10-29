@@ -36,43 +36,22 @@
 
 # ---------------------------------------------------------
 
-COMMS_DIR         =    ../comms
-COMMS_CPPFLAGS    =    -I$(COMMS_DIR)
+COMMS_DIR        =     ../comms
+COMMS_CPPFLAGS   =    -I$(COMMS_DIR)
 
-# ---------------------------------------------------------
-
-MEMORY_DIR        =    ../memory
-MEMORY_CPPFLAGS   =    -I$(MEMORY_DIR)
-
-# ---------------------------------------------------------
-
-UTILS_DIR         =    ../utils
-UTILS_CPPFLAGS    =    -I$(UTILS_DIR)
-
-# ---------------------------------------------------------
-
-UTHASH_DIR        =    ../uthash
-UTHASH_CPPFLAGS   =    -I$(UTHASH_DIR)
-
-# ---------------------------------------------------------
-
-GLOBALVAR_DIR        =    ../globalvar
-GLOBALVAR_CPPFLAGS   =    -I$(GLOBALVAR_DIR)
-
-# ---------------------------------------------------------
-
-UPDOWN_DIR        =    ../updown
-UPDOWN_CPPFLAGS   =    -I$(UPDOWN_DIR)
-
-# ---------------------------------------------------------
-
-PTP_DIR           =    ../ptp
-PTP_CPPFLAGS      =    -I$(PTP_DIR)
-
-# ---------------------------------------------------------
-
-ATOMIC_DIR        =    ../atomic
-ATOMIC_CPPFLAGS   =    -I$(ATOMIC_DIR)
+MEMORY_CPPFLAGS  =    -I../memory
+UTHASH_CPPFLAGS  =    -I../uthash
+UTILS_CPPFLAGS   =    -I../utils
+UPDOWN_CPPFLAGS  =    -I../updown
+PTP_CPPFLAGS     =    -I../ptp
+ATOMIC_CPPFLAGS  =    -I../atomic
+GLOBALVAR_CPPFLAGS =  -I../globalvar
+MALLOC_CPPFLAGS  =    -I../dlmalloc
+COLL_CPPFLAGS    =    -I../barrier \
+                        -I../barrier-all \
+                        -I../broadcast \
+                        -I../collect \
+                        -I../fcollect
 
 # ---------------------------------------------------------
 
@@ -103,11 +82,14 @@ include $(COMMS_DIR)/comms.mak
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(MEMORY_CPPFLAGS)
+CPPFLAGS        += $(UTHASH_CPPFLAGS)
 CPPFLAGS        += $(UTILS_CPPFLAGS)
-CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(UPDOWN_CPPFLAGS)
 CPPFLAGS        += $(PTP_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
-CPPFLAGS        += $(UTHASH_CPPFLAGS)
+CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
+CPPFLAGS        += $(MALLOC_CPPFLAGS)
+CPPFLAGS        += $(COLL_CPPFLAGS)
 
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
