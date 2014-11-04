@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011 - 2014
-#   University of Houston System and Oak Ridge National Laboratory.
+#  University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
 # 
@@ -33,6 +33,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
 # ---------------------------------------------------------
 
 COMMS_DIR        =     ../comms
@@ -54,18 +55,19 @@ COLL_CPPFLAGS    =    -I../barrier \
 
 # ---------------------------------------------------------
 
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
+
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
-endif
-
-ifeq "@HAVE_FEATURE_TRACE@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
@@ -74,10 +76,10 @@ endif
 
 ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-CFLAGS          += @PICFLAGS@
-CFLAGS          += @WARNFLAGS@
+-include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
@@ -91,12 +93,16 @@ CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(COLL_CPPFLAGS)
 
-.PHONY: all default clean
+CFLAGS          += @PICFLAGS@
+CFLAGS          += @WARNFLAGS@
+
+.PHONY: clean
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	$(OBJECTS)
+stamp:	$(OBJECTS)
+	touch $@
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) stamp

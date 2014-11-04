@@ -62,6 +62,10 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
+
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
 endif
@@ -75,7 +79,7 @@ CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-include $(COMMS_DIR)/comms.mak
+-include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
@@ -92,15 +96,13 @@ CPPFLAGS        += $(COLL_CPPFLAGS)
 CFLAGS          += @PICFLAGS@
 CFLAGS          += @WARNFLAGS@
 
-.PHONY: all default clean shmem-headers
+.PHONY: clean
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-all default:	shmem-headers $(OBJECTS)
-
-shmem-headers:
-	$(MAKE) -C .. $@
+stamp:	$(OBJECTS)
+	touch $@
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) stamp

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011 - 2014
-#   University of Houston System and Oak Ridge National Laboratory.
+#  University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
 # 
@@ -33,7 +33,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-SHELL                = /bin/sh
 
 # ---------------------------------------------------------
 
@@ -44,6 +43,7 @@ MEMORY_CPPFLAGS  =    -I../memory
 UTHASH_CPPFLAGS  =    -I../uthash
 UTILS_CPPFLAGS   =    -I../utils
 UPDOWN_CPPFLAGS  =    -I../updown
+PTP_CPPFLAGS     =    -I../ptp
 ATOMIC_CPPFLAGS  =    -I../atomic
 GLOBALVAR_CPPFLAGS =  -I../globalvar
 MALLOC_CPPFLAGS  =    -I../dlmalloc
@@ -55,32 +55,19 @@ COLL_CPPFLAGS    =    -I../barrier \
 
 # ---------------------------------------------------------
 
-#
-# this is where the C compiler gets chosen along with the various
-# flags that do PIC, dependency, debug/optimize and C99 compliance
-#
 
 CC               = @CC@
-CXX              = @CXX@
-FC               = @FC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-CFLAGS          += @C99FLAGS@
-CFLAGS          += @WARNFLAGS@
-
-# for "so" libraries
-CFLAGS          += @PICFLAGS@
-LDFLAGS         += @PICFLAGS@
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
-endif
-
-ifeq "@HAVE_FEATURE_TRACE@" "enabled"
-CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
@@ -89,7 +76,10 @@ endif
 
 ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
+
+-include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
@@ -103,30 +93,16 @@ CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(COLL_CPPFLAGS)
 
-# don't panic during clean
--include $(COMMS_DIR)/comms.mak
+CFLAGS          += @PICFLAGS@
+CFLAGS          += @WARNFLAGS@
 
-REMOVE           = rm -f
+.PHONY: clean
 
-# ---------------------------------------------------------
+SOURCES  = $(wildcard *.c)
+OBJECTS  = $(SOURCES:.c=.o)
 
-# internal
-SOURCES          = $(wildcard *.c)
-OBJECTS          = $(SOURCES:.c=.o)
+stamp:	$(OBJECTS)
+	touch $@
 
-# ---------------------------------------------------------
-
-.PHONY: all default
-.PHONY: tidy clean
-
-# ---------------------------------------------------------
-
-all default:	$(OBJECTS)
-
-# ---------------------------------------------------------
-
-tidy clean:
-	$(REMOVE) $(OBJECTS)
-
-distclean: clean
-	$(REMOVE) Makefile
+clean:
+	rm -f $(OBJECTS) stamp

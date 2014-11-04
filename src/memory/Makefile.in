@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011 - 2014
-#   University of Houston System and Oak Ridge National Laboratory.
+#  University of Houston System and Oak Ridge National Laboratory.
 # 
 # All rights reserved.
 # 
@@ -55,11 +55,16 @@ COLL_CPPFLAGS    =    -I../barrier \
 
 # ---------------------------------------------------------
 
+
 CC               = @CC@
 CFLAGS           = @CFLAGS@
 CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
+
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
 
 ifeq "@HAVE_FEATURE_DEBUG@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_DEBUG
@@ -71,12 +76,10 @@ endif
 
 ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
-include $(COMMS_DIR)/comms.mak
-
-CFLAGS          += @PICFLAGS@
-CFLAGS          += @WARNFLAGS@
+-include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
@@ -90,19 +93,16 @@ CPPFLAGS        += $(GLOBALVAR_CPPFLAGS)
 CPPFLAGS        += $(MALLOC_CPPFLAGS)
 CPPFLAGS        += $(COLL_CPPFLAGS)
 
-.PHONY: all default
+CFLAGS          += @PICFLAGS@
+CFLAGS          += @WARNFLAGS@
+
 .PHONY: clean
-.PHONY: shmem-headers
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-# ----------------------------------------------------------
-
-all default:	shmem-headers $(OBJECTS)
-
-shmem-headers:
-	$(MAKE) -C .. $@
+stamp:	$(OBJECTS)
+	touch $@
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) stamp

@@ -49,7 +49,8 @@ COMMS_LAYER          = @COMMS_LAYER@
 
 COMMS_DIR            = ./comms/$(COMMS_LAYER)
 COMMS_CPPFLAGS       = -I$(COMMS_DIR)
-COMMS_OBJ            = $(COMMS_DIR)/*.o
+COMMS_SRC            = $(COMMS_DIR)/*.c
+COMMS_OBJ            = $(COMMS_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -57,7 +58,8 @@ COMMS_OBJ            = $(COMMS_DIR)/*.o
 #
 UTILS_DIR             = ./utils
 UTILS_CPPFLAGS        = -I$(UTILS_DIR)
-UTILS_OBJ             = $(UTILS_DIR)/*.o
+UTILS_SRC             = $(UTILS_DIR)/*.c
+UTILS_OBJ             = $(UTILS_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -65,7 +67,8 @@ UTILS_OBJ             = $(UTILS_DIR)/*.o
 #
 ATOMIC_DIR           = ./atomic
 ATOMIC_CPPFLAGS      = -I$(ATOMIC_DIR)
-ATOMIC_OBJ           = $(ATOMIC_DIR)/*.o
+ATOMIC_SRC           = $(ATOMIC_DIR)/*.c
+ATOMIC_OBJ           = $(ATOMIC_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -73,7 +76,8 @@ ATOMIC_OBJ           = $(ATOMIC_DIR)/*.o
 #
 BROADCAST_DIR        = ./broadcast
 BROADCAST_CPPFLAGS   = -I$(BROADCAST_DIR)
-BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
+BROADCAST_SRC        = $(BROADCAST_DIR)/*.c
+BROADCAST_OBJ        = $(BROADCAST_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -81,11 +85,13 @@ BROADCAST_OBJ        = $(BROADCAST_DIR)/*.o
 #
 COLLECT_DIR          = ./collect
 COLLECT_CPPFLAGS     = -I$(COLLECT_DIR)
-COLLECT_OBJ          = $(COLLECT_DIR)/*.o
+COLLECT_SRC          = $(COLLECT_DIR)/*.c
+COLLECT_OBJ          = $(COLLECT_SRC:.c=.o)
 
 FCOLLECT_DIR         = ./fcollect
 FCOLLECT_CPPFLAGS    = -I$(FCOLLECT_DIR)
-FCOLLECT_OBJ         = $(FCOLLECT_DIR)/*.o
+FCOLLECT_SRC         = $(FCOLLECT_DIR)/*.c
+FCOLLECT_OBJ         = $(FCOLLECT_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -93,11 +99,13 @@ FCOLLECT_OBJ         = $(FCOLLECT_DIR)/*.o
 #
 BARRIER_DIR          = ./barrier
 BARRIER_CPPFLAGS     = -I$(BARRIER_DIR)
-BARRIER_OBJ          = $(BARRIER_DIR)/*.o
+BARRIER_SRC          = $(BARRIER_DIR)/*.c
+BARRIER_OBJ          = $(BARRIER_SRC:.c=.o)
 
 BARRIER_ALL_DIR      = ./barrier-all
 BARRIER_ALL_CPPFLAGS = -I$(BARRIER_ALL_DIR)
-BARRIER_ALL_OBJ      = $(BARRIER_ALL_DIR)/*.o
+BARRIER_ALL_SRC      = $(BARRIER_ALL_DIR)/*.c
+BARRIER_ALL_OBJ      = $(BARRIER_ALL_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -105,7 +113,8 @@ BARRIER_ALL_OBJ      = $(BARRIER_ALL_DIR)/*.o
 #
 GLOBALVAR_DIR        = ./globalvar
 GLOBALVAR_CPPFLAGS   = -I$(GLOBALVAR_DIR)
-GLOBALVAR_OBJ        = $(GLOBALVAR_DIR)/*.o
+GLOBALVAR_SRC        = $(GLOBALVAR_DIR)/*.c
+GLOBALVAR_OBJ        = $(GLOBALVAR_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -113,7 +122,8 @@ GLOBALVAR_OBJ        = $(GLOBALVAR_DIR)/*.o
 #
 MALLOC_DIR           = ./dlmalloc
 MALLOC_CPPFLAGS      = -I$(MALLOC_DIR)
-MALLOC_OBJ           = $(MALLOC_DIR)/*.o
+MALLOC_SRC           = $(MALLOC_DIR)/*.c
+MALLOC_OBJ           = $(MALLOC_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -121,15 +131,17 @@ MALLOC_OBJ           = $(MALLOC_DIR)/*.o
 #
 MEMORY_DIR           = ./memory
 MEMORY_CPPFLAGS      = -I$(MEMORY_DIR)
-MEMORY_OBJ           = $(MEMORY_DIR)/*.o
+MEMORY_SRC           = $(MEMORY_DIR)/*.c
+MEMORY_OBJ           = $(MEMORY_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
 # fortran interface
 #
-FORTRAN_DIR           = ./fortran
-FORTRAN_CPPFLAGS      = -I$(FORTRAN_DIR)
-FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
+FORTRAN_DIR          = ./fortran
+FORTRAN_CPPFLAGS     = -I$(FORTRAN_DIR)
+FORTRAN_SRC          = $(FORTRAN_DIR)/*.c
+FORTRAN_OBJ          = $(FORTRAN_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -137,7 +149,8 @@ FORTRAN_OBJ           = $(FORTRAN_DIR)/*.o
 #
 CACHE_DIR             = ./cache
 CACHE_CPPFLAGS        = -I$(CACHE_DIR)
-CACHE_OBJ             = $(CACHE_DIR)/*.o
+CACHE_SRC             = $(CACHE_DIR)/*.c
+CACHE_OBJ             = $(CACHE_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -145,7 +158,8 @@ CACHE_OBJ             = $(CACHE_DIR)/*.o
 #
 FENCE_DIR             = ./fence
 FENCE_CPPFLAGS        = -I$(FENCE_DIR)
-FENCE_OBJ             = $(FENCE_DIR)/*.o
+FENCE_SRC             = $(FENCE_DIR)/*.c
+FENCE_OBJ             = $(FENCE_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -153,7 +167,8 @@ FENCE_OBJ             = $(FENCE_DIR)/*.o
 #
 QUERY_DIR             = ./querying
 QUERY_CPPFLAGS        = -I$(QUERY_DIR)
-QUERY_OBJ             = $(QUERY_DIR)/*.o
+QUERY_SRC             = $(QUERY_DIR)/*.c
+QUERY_OBJ             = $(QUERY_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -161,7 +176,8 @@ QUERY_OBJ             = $(QUERY_DIR)/*.o
 #
 PTP_DIR               = ./ptp
 PTP_CPPFLAGS          = -I$(PTP_DIR)
-PTP_OBJ               = $(PTP_DIR)/*.o
+PTP_SRC               = $(PTP_DIR)/*.c
+PTP_OBJ               = $(PTP_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -169,7 +185,8 @@ PTP_OBJ               = $(PTP_DIR)/*.o
 #
 UPDOWN_DIR            = ./updown
 UPDOWN_CPPFLAGS       = -I$(UPDOWN_DIR)
-UPDOWN_OBJ            = $(UPDOWN_DIR)/*.o
+UPDOWN_SRC            = $(UPDOWN_DIR)/*.c
+UPDOWN_OBJ            = $(UPDOWN_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -177,7 +194,8 @@ UPDOWN_OBJ            = $(UPDOWN_DIR)/*.o
 #
 REDUCE_DIR            = ./reduce
 REDUCE_CPPFLAGS       = -I$(REDUCE_DIR)
-REDUCE_OBJ            = $(REDUCE_DIR)/*.o
+REDUCE_SRC            = $(REDUCE_DIR)/*.c
+REDUCE_OBJ            = $(REDUCE_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -185,7 +203,8 @@ REDUCE_OBJ            = $(REDUCE_DIR)/*.o
 #
 PROFILING_DIR         = ./profiling
 PROFILING_CPPFLAGS    = -I$(PROFILING_DIR)
-PROFILING_OBJ         = $(PROFILING_DIR)/*.o
+PROFILING_SRC         = $(PROFILING_DIR)/*.c
+PROFILING_OBJ         = $(PROFILING_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
@@ -193,7 +212,8 @@ PROFILING_OBJ         = $(PROFILING_DIR)/*.o
 #
 WTIME_DIR             = ./wtime
 WTIME_CPPFLAGS        = -I$(WTIME_DIR)
-WTIME_OBJ             = $(WTIME_DIR)/*.o
+WTIME_SRC             = $(WTIME_DIR)/*.c
+WTIME_OBJ             = $(WTIME_SRC:.c=.o)
 
 # ---------------------------------------------------------
 
@@ -290,39 +310,38 @@ REMOVE           = rm -f
 #
 # internal sub-API
 #
-INT_OBJ_GEN      =
-INT_OBJ_GEN     += utils-obj-gen
-INT_OBJ_GEN     += comms-obj-gen
-INT_OBJ_GEN     += globalvar-obj-gen
-INT_OBJ_GEN     += malloc-obj-gen
+INT_OBJ          =
+INT_OBJ         += $(UTILS_OBJ)
+INT_OBJ         += $(COMMS_OBJ)
+INT_OBJ         += $(GLOBALVAR_OBJ)
+INT_OBJ         += $(MALLOC_OBJ)
 #
 # API
 #
-API_OBJ_GEN      =
-API_OBJ_GEN     += updown-obj-gen
-API_OBJ_GEN     += query-obj-gen
-API_OBJ_GEN     += barrier-obj-gen
-API_OBJ_GEN     += barrier-all-obj-gen
-API_OBJ_GEN     += memory-obj-gen
-API_OBJ_GEN     += atomic-obj-gen
-API_OBJ_GEN     += fence-obj-gen
-API_OBJ_GEN     += cache-obj-gen
-API_OBJ_GEN     += ptp-obj-gen
-API_OBJ_GEN     += broadcast-obj-gen
-API_OBJ_GEN     += collect-obj-gen
-API_OBJ_GEN     += fcollect-obj-gen
-API_OBJ_GEN     += reduce-obj-gen
-API_OBJ_GEN     += fortran-obj-gen
-API_OBJ_GEN     += profiling-obj-gen
-API_OBJ_GEN     += wtime-obj-gen
+API_OBJ          =
+API_OBJ         += $(UPDOWN_OBJ)
+API_OBJ         += $(QUERY_OBJ)
+API_OBJ         += $(BARRIER_OBJ)
+API_OBJ         += $(BARRIER_ALL_OBJ)
+API_OBJ         += $(MEMORY_OBJ)
+API_OBJ         += $(ATOMIC_OBJ)
+API_OBJ         += $(FENCE_OBJ)
+API_OBJ         += $(CACHE_OBJ)
+API_OBJ         += $(PTP_OBJ)
+API_OBJ         += $(BROADCAST_OBJ)
+API_OBJ         += $(COLLECT_OBJ)
+API_OBJ         += $(FCOLLECT_OBJ)
+API_OBJ         += $(REDUCE_OBJ)
+API_OBJ         += $(FORTRAN_OBJ)
+API_OBJ         += $(PROFILING_OBJ)
+API_OBJ         += $(WTIME_OBJ)
 
-OBJ_GEN          = $(INT_OBJ_GEN) $(API_OBJ_GEN)
+OBJ              = $(INT_OBJ) $(API_OBJ)
 
 # ---------------------------------------------------------
 
 .PHONY: firstpass
 .PHONY: all default
-.PHONY:	$(OBJ_GEN)
 .PHONY:	shmem-headers
 .PHONY: install install-comms install-include
 .PHONY: uninstall uninstall-comms uninstall-include
@@ -404,66 +423,66 @@ shmem-headers:
 
 # -- build supporting objects as above ---------------------
 
-utils-obj-gen:
-	$(MAKE) -C $(UTILS_DIR) all
+$(UTILS_OBJ):
+	$(MAKE) -C $(UTILS_DIR) stamp
 
-comms-obj-gen:
-	$(MAKE) -C $(COMMS_DIR) all
+$(COMMS_OBJ):
+	$(MAKE) -C $(COMMS_DIR) stamp
 
-globalvar-obj-gen:
-	$(MAKE) -C $(GLOBALVAR_DIR) all
+$(GLOBALVAR_OBJ):
+	$(MAKE) -C $(GLOBALVAR_DIR) stamp
 
-malloc-obj-gen:
-	$(MAKE) -C $(MALLOC_DIR) all
+$(MALLOC_OBJ):
+	$(MAKE) -C $(MALLOC_DIR) stamp
 
 
-updown-obj-gen:
-	$(MAKE) -C $(UPDOWN_DIR) all
+$(UPDOWN_OBJ):
+	$(MAKE) -C $(UPDOWN_DIR) stamp
 
-query-obj-gen:
-	$(MAKE) -C $(QUERY_DIR) all
+$(QUERY_OBJ):
+	$(MAKE) -C $(QUERY_DIR) stamp
 
-barrier-obj-gen:
-	$(MAKE) -C $(BARRIER_DIR) all
+$(BARRIER_OBJ):
+	$(MAKE) -C $(BARRIER_DIR) stamp
 
-barrier-all-obj-gen:
-	$(MAKE) -C $(BARRIER_ALL_DIR) all
+$(BARRIER_ALL_OBJ):
+	$(MAKE) -C $(BARRIER_ALL_DIR) stamp
 
-memory-obj-gen:
-	$(MAKE) -C $(MEMORY_DIR) all
+$(MEMORY_OBJ):
+	$(MAKE) -C $(MEMORY_DIR) stamp
 
-atomic-obj-gen:
-	$(MAKE) -C $(ATOMIC_DIR) all
+$(ATOMIC_OBJ):
+	$(MAKE) -C $(ATOMIC_DIR) stamp
 
-fence-obj-gen:
-	$(MAKE) -C $(FENCE_DIR) all
+$(FENCE_OBJ):
+	$(MAKE) -C $(FENCE_DIR) stamp
 
-cache-obj-gen:
-	$(MAKE) -C $(CACHE_DIR) all
+$(CACHE_OBJ):
+	$(MAKE) -C $(CACHE_DIR) stamp
 
-ptp-obj-gen:
-	$(MAKE) -C $(PTP_DIR) all
+$(PTP_OBJ):
+	$(MAKE) -C $(PTP_DIR) stamp
 
-broadcast-obj-gen:
-	$(MAKE) -C $(BROADCAST_DIR) all
+$(BROADCAST_OBJ):
+	$(MAKE) -C $(BROADCAST_DIR) stamp
 
-collect-obj-gen:
-	$(MAKE) -C $(COLLECT_DIR) all
+$(COLLECT_OBJ):
+	$(MAKE) -C $(COLLECT_DIR) stamp
 
-fcollect-obj-gen:
-	$(MAKE) -C $(FCOLLECT_DIR) all
+$(FCOLLECT_OBJ):
+	$(MAKE) -C $(FCOLLECT_DIR) stamp
 
-reduce-obj-gen:
-	$(MAKE) -C $(REDUCE_DIR) all
+$(REDUCE_OBJ):
+	$(MAKE) -C $(REDUCE_DIR) stamp
 
-fortran-obj-gen:
-	$(MAKE) -C $(FORTRAN_DIR) all
+$(FORTRAN_OBJ):
+	$(MAKE) -C $(FORTRAN_DIR) stamp
 
-profiling-obj-gen:
-	$(MAKE) -C $(PROFILING_DIR) all
+$(PROFILING_OBJ):
+	$(MAKE) -C $(PROFILING_DIR) stamp
 
-wtime-obj-gen:
-	$(MAKE) -C $(WTIME_DIR) all
+$(WTIME_OBJ):
+	$(MAKE) -C $(WTIME_DIR) stamp
 
 # -- otherwise, compile everything else like this ---------
 
@@ -472,7 +491,7 @@ wtime-obj-gen:
 
 # -- generate the shared object library -------------------
 
-$(SHMEM_LIBRARY_SO):	$(OBJ_GEN)
+$(SHMEM_LIBRARY_SO):	$(OBJ_SO)
 	$(LD) \
 		$(LDFLAGS) $(SOFLAGS) \
 		-o $@ \
@@ -486,16 +505,11 @@ $(SHMEM_LIBRARY_SO):	$(OBJ_GEN)
 
 # -- generate the archive object library -------------------
 
-$(SHMEM_LIBRARY_A):	$(OBJ_GEN)
+$(SHMEM_LIBRARY_A):	$(OBJ)
 	$(AR) \
 		$(ARFLAGS) \
 		$@ \
-		$(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
-		$(MALLOC_OBJ) $(UPDOWN_OBJ) $(QUERY_OBJ) \
-		$(BARRIER_OBJ) $(BARRIER_ALL_OBJ) \
-		$(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) \
-		$(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) \
-		$(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(WTIME_OBJ)
+		$^
 	- $(RANLIB) $@
 
 # ---------------------------------------------------------

@@ -42,17 +42,22 @@ LDFLAGS          = @LDFLAGS@
 
 CFLAGS          += @PICFLAGS@
 
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
+
 #
 # needs to match what is in dlmalloc.h
 #
 DLMALLOC_CPPFLAGS = -DONLY_MSPACES=1 -DHAVE_MORECORE=0 -DUSE_LOCKS=1
 
-.PHONY: all default clean
+.PHONY: clean
 
-all default:	dlmalloc.o
+stamp:	dlmalloc.o
+	touch $@
 
 dlmalloc.o:	dlmalloc.c
 	$(CC) -c $(DLMALLOC_CPPFLAGS) $(CFLAGS) $^
 
 clean:
-	rm -f dlmalloc.o
+	rm -f dlmalloc.o stamp

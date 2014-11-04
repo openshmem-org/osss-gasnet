@@ -96,6 +96,10 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
+AR               = ar
+ARFLAGS          = cqv
+RANLIB           = ranlib
+
 # ---------------------------------------------------------
 
 SHMEM_CC         = oshcc
@@ -107,7 +111,6 @@ SHMEM_RUN        = oshrun
 # ---------------------------------------------------------
 
 .PHONY: firstpass
-.PHONY: all default
 .PHONY: wrappers
 .PHONY: install install-bin install-lib
 .PHONY: uninstall uninstall-bin uninstall-lib
@@ -116,14 +119,17 @@ SHMEM_RUN        = oshrun
 # # -- start comms interface ---------------------------------
 # 
 
-all:	$(OBJECTS) wrappers openshmem.pc
-
 #
 # Initialize setup for the inlining
 #
 firstpass:
 	cp comms-inline.h comms-shared.h ..
 	echo "CPPFLAGS += -I$(GASNET_INCDIR) -I$(GASNET_CONDUIT_INCDIR) $(GASNET_CPPFLAGS)" > ../comms.mak
+
+all:	stamp wrappers openshmem.pc
+
+stamp:	$(OBJECTS)
+	touch $@
 
 # -- command wrappers depend on comms settings -------------
 
@@ -226,6 +232,6 @@ clean:
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
 	$(REMOVE) $(SHMEM_FC)
 	$(REMOVE) $(SHMEM_RUN)
-	$(REMOVE) $(OBJECTS)
+	$(REMOVE) $(OBJECTS) stamp
 	$(REMOVE) openshmem.pc
 	$(REMOVE) ../comms-inline.h ../comms-shared.h ../comms.mak
