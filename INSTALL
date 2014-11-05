@@ -42,6 +42,50 @@ required by whichever conduit you want to use with GASNet, e.g. an
 MPI.  GASNet provides a portable communications layer for this
 implementation of OpenSHMEM to work on top of.
 
+Package Requirements on Linux Distributions
+===========================================
+
+Common
+======
+
+    * gcc, g++, gfortran
+    * git
+    * make, bison, flex
+    * m4
+    * autoconf, automake
+    * libtool, libtool-ltdl 
+
+Ubuntu
+======
+
+Software can be installed on the command-line with apt-get, or via
+package managers like synaptic and aptitude.
+
+    * environment-modules [optional]
+    * libelf-dev 
+
+and you will need to tell configure
+
+    --with-libelf-libdir=/usr/lib/x86_64-linux-gnu
+
+Fedora
+======
+
+    * environment-modules [optional]
+    * group install 'Development Tools'
+    * elfutils-libelf-devel 
+
+Redhat/CentOS
+=============
+
+    * Same as Fedora 
+
+SUSE/OpenSUSE
+=============
+
+    * Same as Fedora
+
+
 GASNet Versions
 ===============
 
