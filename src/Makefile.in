@@ -341,7 +341,7 @@ OBJ              = $(INT_OBJ) $(API_OBJ)
 # ---------------------------------------------------------
 
 .PHONY: firstpass
-.PHONY: all default
+.PHONY: all
 .PHONY:	shmem-headers
 .PHONY: install install-comms install-include
 .PHONY: uninstall uninstall-comms uninstall-include
@@ -349,24 +349,17 @@ OBJ              = $(INT_OBJ) $(API_OBJ)
 
 # ---------------------------------------------------------
 
-all default:
-	$(MAKE) firstpass
+all:
+	$(MAKE) -C $(COMMS_DIR) firstpass
 	$(MAKE) shmem-headers $(SHMEM_LIBRARY_A)
 
-#
-# very first thing we need to do is expose the inlined comms setup and
-# the paths to headers and make fragments
-#
-firstpass:
-	$(MAKE) -C $(COMMS_DIR) $@
+install: all install-lib install-include install-comms
 
-install:	all default install-lib install-include install-comms
-
-install-lib:    all
+install-lib:
 	mkdir -p $(DESTDIR)$(SHMEM_LIB_DIR)
 	$(INSTALL) $(SHMEM_LIBRARY_A) $(DESTDIR)$(SHMEM_LIB_DIR)
 
-install-include: all
+install-include:
 	mkdir -p $(DESTDIR)$(SHMEM_INC_DIR)/mpp
 	( \
 		for h in $(SHMEM_HEADERS); \
@@ -376,7 +369,7 @@ install-include: all
 		done \
 	)
 
-install-comms:	all
+install-comms:
 	$(MAKE) -C $(COMMS_DIR) install
 
 # we may be sharing the install area with other packages, so don't

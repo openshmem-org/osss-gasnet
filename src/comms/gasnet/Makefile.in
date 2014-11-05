@@ -111,6 +111,7 @@ SHMEM_RUN        = oshrun
 # ---------------------------------------------------------
 
 .PHONY: firstpass
+.PHONY: all
 .PHONY: wrappers
 .PHONY: install install-bin install-lib
 .PHONY: uninstall uninstall-bin uninstall-lib
@@ -119,17 +120,17 @@ SHMEM_RUN        = oshrun
 # # -- start comms interface ---------------------------------
 # 
 
+all:	stamp
+
+stamp:	$(OBJECTS) wrappers openshmem.pc
+	touch $@
+
 #
 # Initialize setup for the inlining
 #
 firstpass:
 	cp comms-inline.h comms-shared.h ..
 	echo "CPPFLAGS += -I$(GASNET_INCDIR) -I$(GASNET_CONDUIT_INCDIR) $(GASNET_CPPFLAGS)" > ../comms.mak
-
-all:	stamp wrappers openshmem.pc
-
-stamp:	$(OBJECTS)
-	touch $@
 
 # -- command wrappers depend on comms settings -------------
 
@@ -198,9 +199,9 @@ openshmem.pc:   openshmem-template.pc
 
 # ---------------------------------------------------------
 
-install:	install-bin install-lib
+install:	all install-bin install-lib
 
-install-bin:	all
+install-bin:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_CC)      $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_CXX)     $(DESTDIR)$(PREFIX)/bin
@@ -208,7 +209,7 @@ install-bin:	all
 	$(INSTALL) -m 755 $(SHMEM_FC)      $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -m 755 $(SHMEM_RUN)     $(DESTDIR)$(PREFIX)/bin
 
-install-lib:	all
+install-lib:
 	mkdir -p $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	$(INSTALL) -m 644 openshmem.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
 
@@ -234,4 +235,5 @@ clean:
 	$(REMOVE) $(SHMEM_RUN)
 	$(REMOVE) $(OBJECTS) stamp
 	$(REMOVE) openshmem.pc
-	$(REMOVE) ../comms-inline.h ../comms-shared.h ../comms.mak
+	$(REMOVE) ../comms-inline.h ../comms-shared.h
+	$(REMOVE) ../comms.mak

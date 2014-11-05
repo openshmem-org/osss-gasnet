@@ -33,6 +33,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+.NOTPARALLEL:
 
 .PHONY: all all-doc all-src
 .PHONY: install install-doc install-src install-module
