@@ -342,7 +342,6 @@ OBJ              = $(INT_OBJ) $(API_OBJ)
 
 .PHONY: firstpass
 .PHONY: all
-.PHONY:	shmem-headers
 .PHONY: install install-comms install-include
 .PHONY: uninstall uninstall-comms uninstall-include
 .PHONY: tidy clean distclean
@@ -351,7 +350,7 @@ OBJ              = $(INT_OBJ) $(API_OBJ)
 
 all:
 	$(MAKE) -C $(COMMS_DIR) firstpass
-	$(MAKE) shmem-headers $(SHMEM_LIBRARY_A)
+	$(MAKE) $(SHMEM_LIBRARY_A)
 
 install: all install-lib install-include install-comms
 
@@ -400,7 +399,7 @@ uninstall-lib:
 # these are now no-ops as experimental features have moved to
 # their own header <shmemx.h>
 
-shmem-headers:
+#shmem-headers:
 
 #shmem.h:	shmem.h.in
 #	$(M4) $(M4FLAGS) < $^ > $@
@@ -417,65 +416,65 @@ shmem-headers:
 # -- build supporting objects as above ---------------------
 
 $(UTILS_OBJ):
-	$(MAKE) -C $(UTILS_DIR) stamp
+	$(MAKE) -C $(UTILS_DIR) build-stamp
 
 $(COMMS_OBJ):
-	$(MAKE) -C $(COMMS_DIR) stamp
+	$(MAKE) -C $(COMMS_DIR) build-stamp
 
 $(GLOBALVAR_OBJ):
-	$(MAKE) -C $(GLOBALVAR_DIR) stamp
+	$(MAKE) -C $(GLOBALVAR_DIR) build-stamp
 
 $(MALLOC_OBJ):
-	$(MAKE) -C $(MALLOC_DIR) stamp
+	$(MAKE) -C $(MALLOC_DIR) build-stamp
 
 
 $(UPDOWN_OBJ):
-	$(MAKE) -C $(UPDOWN_DIR) stamp
+	$(MAKE) -C $(UPDOWN_DIR) build-stamp
 
 $(QUERY_OBJ):
-	$(MAKE) -C $(QUERY_DIR) stamp
+	$(MAKE) -C $(QUERY_DIR) build-stamp
 
 $(BARRIER_OBJ):
-	$(MAKE) -C $(BARRIER_DIR) stamp
+	$(MAKE) -C $(BARRIER_DIR) build-stamp
 
 $(BARRIER_ALL_OBJ):
-	$(MAKE) -C $(BARRIER_ALL_DIR) stamp
+	$(MAKE) -C $(BARRIER_ALL_DIR) build-stamp
 
 $(MEMORY_OBJ):
-	$(MAKE) -C $(MEMORY_DIR) stamp
+	$(MAKE) -C $(MEMORY_DIR) build-stamp
 
 $(ATOMIC_OBJ):
-	$(MAKE) -C $(ATOMIC_DIR) stamp
+	$(MAKE) -C $(ATOMIC_DIR) build-stamp
 
 $(FENCE_OBJ):
-	$(MAKE) -C $(FENCE_DIR) stamp
+	$(MAKE) -C $(FENCE_DIR) build-stamp
 
 $(CACHE_OBJ):
-	$(MAKE) -C $(CACHE_DIR) stamp
+	$(MAKE) -C $(CACHE_DIR) build-stamp
 
 $(PTP_OBJ):
-	$(MAKE) -C $(PTP_DIR) stamp
+	$(MAKE) -C $(PTP_DIR) build-stamp
 
 $(BROADCAST_OBJ):
-	$(MAKE) -C $(BROADCAST_DIR) stamp
+	$(MAKE) -C $(BROADCAST_DIR) build-stamp
 
 $(COLLECT_OBJ):
-	$(MAKE) -C $(COLLECT_DIR) stamp
+	$(MAKE) -C $(COLLECT_DIR) build-stamp
 
 $(FCOLLECT_OBJ):
-	$(MAKE) -C $(FCOLLECT_DIR) stamp
+	$(MAKE) -C $(FCOLLECT_DIR) build-stamp
 
 $(REDUCE_OBJ):
-	$(MAKE) -C $(REDUCE_DIR) stamp
+	$(MAKE) -C $(REDUCE_DIR) build-stamp
 
 $(FORTRAN_OBJ):
-	$(MAKE) -C $(FORTRAN_DIR) stamp
+	$(MAKE) -C $(FORTRAN_DIR) build-stamp
 
 $(PROFILING_OBJ):
-	$(MAKE) -C $(PROFILING_DIR) stamp
+	$(MAKE) -C $(PROFILING_DIR) build-stamp
 
 $(WTIME_OBJ):
-	$(MAKE) -C $(WTIME_DIR) stamp
+	$(MAKE) -C $(WTIME_DIR) build-stamp
 
 # -- otherwise, compile everything else like this ---------
 

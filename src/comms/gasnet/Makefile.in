@@ -120,9 +120,9 @@ SHMEM_RUN        = oshrun
 # # -- start comms interface ---------------------------------
 # 
 
-all:	stamp
+all:	build-stamp
 
-stamp:	$(OBJECTS) wrappers openshmem.pc
+build-stamp:	$(OBJECTS) wrappers openshmem.pc
 	touch $@
 
 #
@@ -233,7 +233,7 @@ clean:
 	$(REMOVE) $(SHMEM_CC) $(SHMEM_CXX) $(SHMEM_CXX_ALT)
 	$(REMOVE) $(SHMEM_FC)
 	$(REMOVE) $(SHMEM_RUN)
-	$(REMOVE) $(OBJECTS) stamp
+	$(REMOVE) $(OBJECTS) build-stamp
 	$(REMOVE) openshmem.pc
 	$(REMOVE) ../comms-inline.h ../comms-shared.h
 	$(REMOVE) ../comms.mak

@@ -53,11 +53,11 @@ DLMALLOC_CPPFLAGS = -DONLY_MSPACES=1 -DHAVE_MORECORE=0 -DUSE_LOCKS=1
 
 .PHONY: clean
 
-stamp:	dlmalloc.o
+build-stamp:	dlmalloc.o
 	touch $@
 
 dlmalloc.o:	dlmalloc.c
 	$(CC) -c $(DLMALLOC_CPPFLAGS) $(CFLAGS) $^
 
 clean:
-	rm -f dlmalloc.o stamp
+	rm -f dlmalloc.o build-stamp

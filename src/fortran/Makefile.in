@@ -103,8 +103,8 @@ CFLAGS          += @WARNFLAGS@
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
 
-stamp:	$(OBJECTS)
+build-stamp:	$(OBJECTS)
 	touch $@
 
 clean:
-	rm -f $(OBJECTS) stamp
+	rm -f $(OBJECTS) build-stamp
