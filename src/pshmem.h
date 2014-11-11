@@ -73,52 +73,52 @@ extern "C"
    */
 
   extern void pshmem_short_put (short *dest, const short *src, size_t nelems,
-				int pe);
+                                int pe);
   extern void pshmem_int_put (int *dest, const int *src, size_t nelems,
-			      int pe);
+                              int pe);
   extern void pshmem_long_put (long *dest, const long *src, size_t nelems,
-			       int pe);
+                               int pe);
   extern void pshmem_longlong_put (long long *dest, const long long *src,
-				   size_t nelems, int pe);
+                                   size_t nelems, int pe);
   extern void pshmem_longdouble_put (long double *dest,
-				     const long double *src, size_t nelems,
-				     int pe);
+                                     const long double *src, size_t nelems,
+                                     int pe);
   extern void pshmem_double_put (double *dest, const double *src,
-				 size_t nelems, int pe);
+                                 size_t nelems, int pe);
   extern void pshmem_float_put (float *dest, const float *src, size_t nelems,
-				int pe);
+                                int pe);
   extern void pshmem_putmem (void *dest, const void *src, size_t nelems,
-			     int pe);
+                             int pe);
   extern void pshmem_put32 (void *dest, const void *src, size_t nelems,
-			    int pe);
+                            int pe);
   extern void pshmem_put64 (void *dest, const void *src, size_t nelems,
-			    int pe);
+                            int pe);
   extern void pshmem_put128 (void *dest, const void *src, size_t nelems,
-			     int pe);
+                             int pe);
 
   extern void pshmem_short_get (short *dest, const short *src, size_t nelems,
-				int pe);
+                                int pe);
   extern void pshmem_int_get (int *dest, const int *src, size_t nelems,
-			      int pe);
+                              int pe);
   extern void pshmem_long_get (long *dest, const long *src, size_t nelems,
-			       int pe);
+                               int pe);
   extern void pshmem_longlong_get (long long *dest, const long long *src,
-				   size_t nelems, int pe);
+                                   size_t nelems, int pe);
   extern void pshmem_longdouble_get (long double *dest,
-				     const long double *src, size_t nelems,
-				     int pe);
+                                     const long double *src, size_t nelems,
+                                     int pe);
   extern void pshmem_double_get (double *dest, const double *src,
-				 size_t nelems, int pe);
+                                 size_t nelems, int pe);
   extern void pshmem_float_get (float *dest, const float *src, size_t nelems,
-				int pe);
+                                int pe);
   extern void pshmem_getmem (void *dest, const void *src, size_t nelems,
-			     int pe);
+                             int pe);
   extern void pshmem_get32 (void *dest, const void *src, size_t nelems,
-			    int pe);
+                            int pe);
   extern void pshmem_get64 (void *dest, const void *src, size_t nelems,
-			    int pe);
+                            int pe);
   extern void pshmem_get128 (void *dest, const void *src, size_t nelems,
-			     int pe);
+                             int pe);
 
   extern void pshmem_char_p (char *addr, char value, int pe);
   extern void pshmem_short_p (short *addr, short value, int pe);
@@ -128,7 +128,7 @@ extern "C"
   extern void pshmem_float_p (float *addr, float value, int pe);
   extern void pshmem_double_p (double *addr, double value, int pe);
   extern void pshmem_longdouble_p (long double *addr, long double value,
-				   int pe);
+                                   int pe);
 
   extern char pshmem_char_g (char *addr, int pe) _WUR;
   extern short pshmem_short_g (short *addr, int pe) _WUR;
@@ -145,79 +145,79 @@ extern "C"
    */
 
   extern void pshmem_double_iput (double *target, const double *source,
-				  ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				  int pe);
+                                  ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                  int pe);
 
   extern void pshmem_float_iput (float *target, const float *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				 int pe);
+                                 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                 int pe);
 
   extern void pshmem_int_iput (int *target, const int *source, ptrdiff_t tst,
-			       ptrdiff_t sst, size_t nelems, int pe);
+                               ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iput32 (void *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t nelems, int pe);
+                             ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iput64 (void *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t nelems, int pe);
+                             ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iput128 (void *target, const void *source, ptrdiff_t tst,
-			      ptrdiff_t sst, size_t nelems, int pe);
+                              ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_long_iput (long *target, const long *source,
-				ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				int pe);
+                                ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                int pe);
 
   extern void pshmem_longdouble_iput (long double *target,
-				      const long double *source,
-				      ptrdiff_t tst, ptrdiff_t sst,
-				      size_t nelems, int pe);
+                                      const long double *source,
+                                      ptrdiff_t tst, ptrdiff_t sst,
+                                      size_t nelems, int pe);
 
   extern void pshmem_longlong_iput (long long *target,
-				    const long long *source, ptrdiff_t tst,
-				    ptrdiff_t sst, size_t nelems, int pe);
+                                    const long long *source, ptrdiff_t tst,
+                                    ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_short_iput (short *target, const short *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				 int pe);
+                                 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                 int pe);
 
 
   extern void pshmem_double_iget (double *target, const double *source,
-				  ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				  int pe);
+                                  ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                  int pe);
 
   extern void pshmem_float_iget (float *target, const float *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				 int pe);
+                                 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                 int pe);
 
   extern void pshmem_int_iget (int *target, const int *source, ptrdiff_t tst,
-			       ptrdiff_t sst, size_t nelems, int pe);
+                               ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iget32 (void *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t nelems, int pe);
+                             ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iget64 (void *target, const void *source, ptrdiff_t tst,
-			     ptrdiff_t sst, size_t nelems, int pe);
+                             ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_iget128 (void *target, const void *source, ptrdiff_t tst,
-			      ptrdiff_t sst, size_t nelems, int pe);
+                              ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_long_iget (long *target, const long *source,
-				ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				int pe);
+                                ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                int pe);
 
   extern void pshmem_longdouble_iget (long double *target,
-				      const long double *source,
-				      ptrdiff_t tst, ptrdiff_t sst,
-				      size_t nelems, int pe);
+                                      const long double *source,
+                                      ptrdiff_t tst, ptrdiff_t sst,
+                                      size_t nelems, int pe);
 
   extern void pshmem_longlong_iget (long long *target,
-				    const long long *source, ptrdiff_t tst,
-				    ptrdiff_t sst, size_t nelems, int pe);
+                                    const long long *source, ptrdiff_t tst,
+                                    ptrdiff_t sst, size_t nelems, int pe);
 
   extern void pshmem_short_iget (short *target, const short *source,
-				 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-				 int pe);
+                                 ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
+                                 int pe);
 
 
   /*
@@ -226,7 +226,7 @@ extern "C"
 
   extern void pshmem_barrier_all (void);
   extern void pshmem_barrier (int PE_start, int logPE_stride, int PE_size,
-			      long *pSync);
+                              long *pSync);
   extern void pshmem_fence (void);
   extern void pshmem_quiet (void);
 
@@ -259,7 +259,7 @@ extern "C"
   extern void pshmem_int_wait_until (int *ivar, int cmp, int cmp_value);
   extern void pshmem_long_wait_until (long *ivar, int cmp, long cmp_value);
   extern void pshmem_longlong_wait_until (long long *ivar, int cmp,
-					  long long cmp_value);
+                                          long long cmp_value);
   extern void pshmem_wait_until (long *ivar, int cmp, long cmp_value);
 
   extern void pshmem_short_wait (short *ivar, short cmp_value);
@@ -275,17 +275,17 @@ extern "C"
   extern int pshmem_int_swap (int *target, int value, int pe) _WUR;
   extern long pshmem_long_swap (long *target, long value, int pe) _WUR;
   extern long long pshmem_longlong_swap (long long *target, long long value,
-					 int pe) _WUR;
+                                         int pe) _WUR;
   extern float pshmem_float_swap (float *target, float value, int pe) _WUR;
   extern double pshmem_double_swap (double *target, double value,
-				    int pe) _WUR;
+                                    int pe) _WUR;
   extern long pshmem_swap (long *target, long value, int pe) _WUR;
 
   extern int pshmem_int_cswap (int *target, int cond, int value, int pe) _WUR;
   extern long pshmem_long_cswap (long *target, long cond, long value,
-				 int pe) _WUR;
+                                 int pe) _WUR;
   extern long long pshmem_longlong_cswap (long long *target, long long cond,
-					  long long value, int pe) _WUR;
+                                          long long value, int pe) _WUR;
 
   /*
    * atomic fetch-{add,inc} & add,inc
@@ -294,7 +294,7 @@ extern "C"
   extern int pshmem_int_fadd (int *target, int value, int pe) _WUR;
   extern long pshmem_long_fadd (long *target, long value, int pe) _WUR;
   extern long long pshmem_longlong_fadd (long long *target, long long value,
-					 int pe) _WUR;
+                                         int pe) _WUR;
   extern int pshmem_int_finc (int *target, int pe) _WUR;
   extern long pshmem_long_finc (long *target, int pe) _WUR;
   extern long long pshmem_longlong_finc (long long *target, int pe) _WUR;
@@ -302,7 +302,7 @@ extern "C"
   extern void pshmem_int_add (int *target, int value, int pe);
   extern void pshmem_long_add (long *target, long value, int pe);
   extern void pshmem_longlong_add (long long *target, long long value,
-				   int pe);
+                                   int pe);
   extern void pshmem_int_inc (int *target, int pe);
   extern void pshmem_long_inc (long *target, int pe);
   extern void pshmem_longlong_inc (long long *target, int pe);
@@ -323,234 +323,234 @@ extern "C"
    */
 
   extern void pshmem_complexd_sum_to_all (COMPLEXIFY (double) * target,
-					  COMPLEXIFY (double) * source,
-					  int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size,
-					  COMPLEXIFY (double) * pWrk,
-					  long *pSync);
+                                          COMPLEXIFY (double) * source,
+                                          int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size,
+                                          COMPLEXIFY (double) * pWrk,
+                                          long *pSync);
   extern void pshmem_complexf_sum_to_all (COMPLEXIFY (float) * target,
-					  COMPLEXIFY (float) * source,
-					  int nreduce, int PE_start,
-					  int logPE_stride, int PE_size,
-					  COMPLEXIFY (float) * pWrk,
-					  long *pSync);
+                                          COMPLEXIFY (float) * source,
+                                          int nreduce, int PE_start,
+                                          int logPE_stride, int PE_size,
+                                          COMPLEXIFY (float) * pWrk,
+                                          long *pSync);
   extern void pshmem_double_sum_to_all (double *target, double *source,
-					int nreduce, int PE_start,
-					int logPE_stride, int PE_size,
-					double *pWrk, long *pSync);
+                                        int nreduce, int PE_start,
+                                        int logPE_stride, int PE_size,
+                                        double *pWrk, long *pSync);
   extern void pshmem_float_sum_to_all (float *target, float *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       float *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       float *pWrk, long *pSync);
   extern void pshmem_int_sum_to_all (int *target, int *source, int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, int *pWrk, long *pSync);
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_sum_to_all (long *target, long *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, long *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longdouble_sum_to_all (long double *target,
-					    long double *source, int nreduce,
-					    int PE_start, int logPE_stride,
-					    int PE_size, long double *pWrk,
-					    long *pSync);
+                                            long double *source, int nreduce,
+                                            int PE_start, int logPE_stride,
+                                            int PE_size, long double *pWrk,
+                                            long *pSync);
   extern void pshmem_longlong_sum_to_all (long long *target,
-					  long long *source, int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size, long long *pWrk,
-					  long *pSync);
+                                          long long *source, int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size, long long *pWrk,
+                                          long *pSync);
   extern void pshmem_short_sum_to_all (short *target, short *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       short *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       short *pWrk, long *pSync);
 
   extern void pshmem_complexd_prod_to_all (COMPLEXIFY (double) * target,
-					   COMPLEXIFY (double) * source,
-					   int nreduce,
-					   int PE_start, int logPE_stride,
-					   int PE_size,
-					   COMPLEXIFY (double) * pWrk,
-					   long *pSync);
+                                           COMPLEXIFY (double) * source,
+                                           int nreduce,
+                                           int PE_start, int logPE_stride,
+                                           int PE_size,
+                                           COMPLEXIFY (double) * pWrk,
+                                           long *pSync);
   extern void pshmem_complexf_prod_to_all (COMPLEXIFY (float) * target,
-					   COMPLEXIFY (float) * source,
-					   int nreduce, int PE_start,
-					   int logPE_stride, int PE_size,
-					   COMPLEXIFY (float) * pWrk,
-					   long *pSync);
+                                           COMPLEXIFY (float) * source,
+                                           int nreduce, int PE_start,
+                                           int logPE_stride, int PE_size,
+                                           COMPLEXIFY (float) * pWrk,
+                                           long *pSync);
   extern void pshmem_double_prod_to_all (double *target, double *source,
-					 int nreduce, int PE_start,
-					 int logPE_stride, int PE_size,
-					 double *pWrk, long *pSync);
+                                         int nreduce, int PE_start,
+                                         int logPE_stride, int PE_size,
+                                         double *pWrk, long *pSync);
   extern void pshmem_float_prod_to_all (float *target, float *source,
-					int nreduce, int PE_start,
-					int logPE_stride, int PE_size,
-					float *pWrk, long *pSync);
+                                        int nreduce, int PE_start,
+                                        int logPE_stride, int PE_size,
+                                        float *pWrk, long *pSync);
   extern void pshmem_int_prod_to_all (int *target, int *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, int *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_prod_to_all (long *target, long *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       long *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       long *pWrk, long *pSync);
   extern void pshmem_longdouble_prod_to_all (long double *target,
-					     long double *source, int nreduce,
-					     int PE_start, int logPE_stride,
-					     int PE_size, long double *pWrk,
-					     long *pSync);
+                                             long double *source, int nreduce,
+                                             int PE_start, int logPE_stride,
+                                             int PE_size, long double *pWrk,
+                                             long *pSync);
   extern void pshmem_longlong_prod_to_all (long long *target,
-					   long long *source, int nreduce,
-					   int PE_start, int logPE_stride,
-					   int PE_size, long long *pWrk,
-					   long *pSync);
+                                           long long *source, int nreduce,
+                                           int PE_start, int logPE_stride,
+                                           int PE_size, long long *pWrk,
+                                           long *pSync);
   extern void pshmem_short_prod_to_all (short *target, short *source,
-					int nreduce, int PE_start,
-					int logPE_stride, int PE_size,
-					short *pWrk, long *pSync);
+                                        int nreduce, int PE_start,
+                                        int logPE_stride, int PE_size,
+                                        short *pWrk, long *pSync);
 
   extern void pshmem_int_and_to_all (int *target,
-				     int *source,
-				     int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, int *pWrk, long *pSync);
+                                     int *source,
+                                     int nreduce,
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_and_to_all (long *target, long *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, long *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longlong_and_to_all (long long *target,
-					  long long *source, int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size, long long *pWrk,
-					  long *pSync);
+                                          long long *source, int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size, long long *pWrk,
+                                          long *pSync);
   extern void pshmem_short_and_to_all (short *target, short *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       short *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       short *pWrk, long *pSync);
 
   extern void pshmem_int_or_to_all (int *target,
-				    int *source,
-				    int nreduce,
-				    int PE_start, int logPE_stride,
-				    int PE_size, int *pWrk, long *pSync);
+                                    int *source,
+                                    int nreduce,
+                                    int PE_start, int logPE_stride,
+                                    int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_or_to_all (long *target, long *source, int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, long *pWrk, long *pSync);
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longlong_or_to_all (long long *target, long long *source,
-					 int nreduce, int PE_start,
-					 int logPE_stride, int PE_size,
-					 long long *pWrk, long *pSync);
+                                         int nreduce, int PE_start,
+                                         int logPE_stride, int PE_size,
+                                         long long *pWrk, long *pSync);
   extern void pshmem_short_or_to_all (short *target, short *source,
-				      int nreduce, int PE_start,
-				      int logPE_stride, int PE_size,
-				      short *pWrk, long *pSync);
+                                      int nreduce, int PE_start,
+                                      int logPE_stride, int PE_size,
+                                      short *pWrk, long *pSync);
 
   extern void pshmem_int_xor_to_all (int *target,
-				     int *source,
-				     int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, int *pWrk, long *pSync);
+                                     int *source,
+                                     int nreduce,
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_xor_to_all (long *target, long *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, long *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longlong_xor_to_all (long long *target,
-					  long long *source, int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size, long long *pWrk,
-					  long *pSync);
+                                          long long *source, int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size, long long *pWrk,
+                                          long *pSync);
   extern void pshmem_short_xor_to_all (short *target, short *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       short *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       short *pWrk, long *pSync);
 
   extern void pshmem_int_max_to_all (int *target,
-				     int *source,
-				     int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, int *pWrk, long *pSync);
+                                     int *source,
+                                     int nreduce,
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_max_to_all (long *target, long *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, long *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longlong_max_to_all (long long *target,
-					  long long *source, int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size, long long *pWrk,
-					  long *pSync);
+                                          long long *source, int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size, long long *pWrk,
+                                          long *pSync);
   extern void pshmem_short_max_to_all (short *target, short *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       short *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       short *pWrk, long *pSync);
   extern void pshmem_longdouble_max_to_all (long double *target,
-					    long double *source, int nreduce,
-					    int PE_start, int logPE_stride,
-					    int PE_size, long double *pWrk,
-					    long *pSync);
+                                            long double *source, int nreduce,
+                                            int PE_start, int logPE_stride,
+                                            int PE_size, long double *pWrk,
+                                            long *pSync);
   extern void pshmem_float_max_to_all (float *target, float *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       float *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       float *pWrk, long *pSync);
   extern void pshmem_double_max_to_all (double *target, double *source,
-					int nreduce, int PE_start,
-					int logPE_stride, int PE_size,
-					double *pWrk, long *pSync);
+                                        int nreduce, int PE_start,
+                                        int logPE_stride, int PE_size,
+                                        double *pWrk, long *pSync);
 
   extern void pshmem_int_min_to_all (int *target,
-				     int *source,
-				     int nreduce,
-				     int PE_start, int logPE_stride,
-				     int PE_size, int *pWrk, long *pSync);
+                                     int *source,
+                                     int nreduce,
+                                     int PE_start, int logPE_stride,
+                                     int PE_size, int *pWrk, long *pSync);
   extern void pshmem_long_min_to_all (long *target, long *source, int nreduce,
-				      int PE_start, int logPE_stride,
-				      int PE_size, long *pWrk, long *pSync);
+                                      int PE_start, int logPE_stride,
+                                      int PE_size, long *pWrk, long *pSync);
   extern void pshmem_longlong_min_to_all (long long *target,
-					  long long *source, int nreduce,
-					  int PE_start, int logPE_stride,
-					  int PE_size, long long *pWrk,
-					  long *pSync);
+                                          long long *source, int nreduce,
+                                          int PE_start, int logPE_stride,
+                                          int PE_size, long long *pWrk,
+                                          long *pSync);
   extern void pshmem_short_min_to_all (short *target, short *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       short *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       short *pWrk, long *pSync);
   extern void pshmem_longdouble_min_to_all (long double *target,
-					    long double *source, int nreduce,
-					    int PE_start, int logPE_stride,
-					    int PE_size, long double *pWrk,
-					    long *pSync);
+                                            long double *source, int nreduce,
+                                            int PE_start, int logPE_stride,
+                                            int PE_size, long double *pWrk,
+                                            long *pSync);
   extern void pshmem_float_min_to_all (float *target, float *source,
-				       int nreduce, int PE_start,
-				       int logPE_stride, int PE_size,
-				       float *pWrk, long *pSync);
+                                       int nreduce, int PE_start,
+                                       int logPE_stride, int PE_size,
+                                       float *pWrk, long *pSync);
   extern void pshmem_double_min_to_all (double *target, double *source,
-					int nreduce, int PE_start,
-					int logPE_stride, int PE_size,
-					double *pWrk, long *pSync);
+                                        int nreduce, int PE_start,
+                                        int logPE_stride, int PE_size,
+                                        double *pWrk, long *pSync);
 
   /*
    * broadcasts
    */
 
   extern void pshmem_broadcast32 (void *target, const void *source,
-				  size_t nelems, int PE_root, int PE_start,
-				  int logPE_stride, int PE_size, long *pSync);
+                                  size_t nelems, int PE_root, int PE_start,
+                                  int logPE_stride, int PE_size, long *pSync);
 
   extern void pshmem_broadcast64 (void *target, const void *source,
-				  size_t nelems, int PE_root, int PE_start,
-				  int logPE_stride, int PE_size, long *pSync);
+                                  size_t nelems, int PE_root, int PE_start,
+                                  int logPE_stride, int PE_size, long *pSync);
 
   /*
    * collects
    */
 
   extern void pshmem_fcollect32 (void *target, const void *source,
-				 size_t nelems, int PE_start,
-				 int logPE_stride, int PE_size, long *pSync);
+                                 size_t nelems, int PE_start,
+                                 int logPE_stride, int PE_size, long *pSync);
   extern void pshmem_fcollect64 (void *target, const void *source,
-				 size_t nelems, int PE_start,
-				 int logPE_stride, int PE_size, long *pSync);
+                                 size_t nelems, int PE_start,
+                                 int logPE_stride, int PE_size, long *pSync);
 
   extern void pshmem_collect32 (void *target, const void *source,
-				size_t nelems, int PE_start, int logPE_stride,
-				int PE_size, long *pSync);
+                                size_t nelems, int PE_start, int logPE_stride,
+                                int PE_size, long *pSync);
   extern void pshmem_collect64 (void *target, const void *source,
-				size_t nelems, int PE_start, int logPE_stride,
-				int PE_size, long *pSync);
+                                size_t nelems, int PE_start, int logPE_stride,
+                                int PE_size, long *pSync);
 
   /*
    * locks/critical section
