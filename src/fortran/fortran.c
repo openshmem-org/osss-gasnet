@@ -73,12 +73,6 @@
 # pragma weak num_pes_ = pnum_pes_
 # define num_pes_ pnum_pes_
 
-# pragma weak _my_pe_ = p_my_pe_
-# define _my_pe_ p_my_pe_
-
-# pragma weak _num_pes_ = p_num_pes_
-# define _num_pes_ p_num_pes_
-
 # pragma weak shmem_my_pe_ = pshmem_my_pe_
 # define shmem_my_pe_ pshmem_my_pe_
 
