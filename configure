@@ -654,14 +654,78 @@ esac
 
 # -- allow user to override from environment --
 
-cpp_flags=${CPPFLAGS-"$cpp_flags"}
-c_flags=${CFLAGS-"$c_flags"}
-cxx_cmd=${CXX-"$cxx_cmd"}
-cxx_flags=${CXXFLAGS-"$cxx_flags"}
-fc_cmd=${FC-"$fc_cmd"}
-fc_flags=${FFLAGS-"$fc_flags"}
-ld_cmd=${LD-"$ld_cmd"}
-ld_flags=${LDFLAGS-"$ld_flags"}
+if [ x"$CC" != x ]
+then
+    cc_cmd="$CC"
+    pass_CC="$CC"
+else
+    cc_cmd="$cc_cmd"
+fi
+
+if [ x"$CPPFLAGS" != x ]
+then
+    cpp_flags="$CPPFLAGS"
+    pass_CPPFLAGS="$CPPFLAGS"
+else
+    cpp_flags="$cpp_flags"
+fi
+
+if [ x"$CFLAGS" != x ]
+then
+    c_flags="$CFLAGS"
+    pass_CFLAGS="$CFLAGS"
+else
+    c_flags="$c_flags"
+fi
+
+if [ x"$CXX" != x ]
+then
+    cxx_cmd="$CXX"
+    pass_CXX="$CXX"
+else
+    cxx_cmd="$cxx_cmd"
+fi
+
+if [ x"$CXXFLAGS" != x ]
+then
+    cxx_flags="$CXXFLAGS"
+    pass_CXXFLAGS="$CXXFLAGS"
+else
+    cxx_flags="$cxx_flags"
+fi
+
+if [ x"$FC" != x ]
+then
+    fc_cmd="$FC"
+    pass_FC="$FC"
+else
+    fc_cmd="$fc_cmd"
+fi
+
+if [ x"$FCFLAGS" != x ]
+then
+    fc_flags="$FCFLAGS"
+    pass_FCFLAGS="$FCFLAGS"
+else
+    fc_flags="$fc_flags"
+fi
+
+if [ x"$LD" != x ]
+then
+    ld_cmd="$LD"
+    pass_LD="$LD"
+else
+    ld_cmd="$ld_cmd"
+fi
+
+if [ x"$LDFLAGS" != x ]
+then
+    ld_flags="$LDFLAGS"
+    pass_LDFLAGS="$LDFLAGS"
+else
+    ld_flags="$ld_flags"
+fi
+
 
 tell "  Compiler suite set to $cc_type"
 
@@ -1089,28 +1153,66 @@ cat > $tmpcs <<_EOT_
 #                         the current contents of this file.
 #
 
-CC="$cc_cmd"
-CPPFLAGS="$cpp_flags"
-CFLAGS="$c_flags"
-CXX="$cxx_cmd"
-CXXFLAGS="$cxx_flags"
-FC="$fc_cmd"
-FFLAGS="$fc_flags"
-LD="$ld_cmd"
-LDFLAGS="$ld_flags"
+_EOT_
 
-export CC
-export CXX
-export FC
-export CPPFLAGS
-export CFLAGS
-export CXXFLAGS
-export FFLAGS
-export LD
-export LDFLAGS
+save_config()
+{
+    cmd="$1"
+    shift
+    echo "$cmd=\"$@\""
+    echo "export $cmd"
+}
+
+if [ x"$pass_CC" != x ]
+then
+    save_config CC "$pass_CC" >> $tmpcs
+fi
+
+if [ x"$pass_CPPFLAGS" != x ]
+then
+    save_config CPPFLAGS "$pass_CPPFLAGS" >> $tmpcs
+fi
+
+if [ x"$pass_CFLAGS" != x ]
+then
+    save_config CFLAGS "$pass_CFLAGS" >> $tmpcs
+fi
+
+if [ x"$pass_CXX" != x ]
+then
+    save_config CXX "$pass_CXX" >> $tmpcs
+fi
+
+if [ x"$pass_CXXFLAGS" != x ]
+then
+    save_config CXXFLAGS "$pass_CXXFLAGS" >> $tmpcs
+fi
+
+if [ x"$pass_FC" != x ]
+then
+    save_config FC "$pass_FC" >> $tmpcs
+fi
+
+if [ x"$pass_FFLAGS" != x ]
+then
+    save_config FFLAGS "$pass_FFLAGS" >> $tmpcs
+fi
+
+if [ x"$pass_LD" != x ]
+then
+    save_config LD "$pass_LD" >> $tmpcs
+fi
+
+if [ x"$pass_LDFLAGS" != x ]
+then
+    save_config LDFLAGS "$pass_LDFLAGS" >> $tmpcs
+fi
+
+cat >> $tmpcs <<_EOT_
 
 $0 $@
 _EOT_
+
 cp $tmpcs $cs
 chmod +x $cs
 
