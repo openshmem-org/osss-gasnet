@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -98,15 +98,15 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
  * now deferred to the comms layer
  */
 
-#define SHMEM_TYPE_PUT(Name, Type)					\
-  void									\
+#define SHMEM_TYPE_PUT(Name, Type)                                      \
+  void                                                                  \
   shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
-  {									\
-    const int typed_nelems = sizeof (Type) * nelems;			\
-    INIT_CHECK ();							\
-    SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");			\
-    PE_RANGE_CHECK (pe, 4);						\
-    __shmem_comms_put (dest, (Type *) src, typed_nelems, pe);		\
+  {                                                                     \
+    const int typed_nelems = sizeof (Type) * nelems;                    \
+    INIT_CHECK ();                                                      \
+    SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");                    \
+    PE_RANGE_CHECK (pe, 4);                                             \
+    __shmem_comms_put (dest, (Type *) src, typed_nelems, pe);           \
   }
 
 SHMEM_TYPE_PUT (char, char);
@@ -185,15 +185,15 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
 /* # pragma weak shmem_get = pshmem_get */
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_GET(Name, Type)					\
-  void									\
+#define SHMEM_TYPE_GET(Name, Type)                                      \
+  void                                                                  \
   shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
-  {									\
-    const int typed_nelems = sizeof (Type) * nelems;			\
-    INIT_CHECK ();							\
-    SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");			\
-    PE_RANGE_CHECK (pe, 4);						\
-    __shmem_comms_get(dest, (void *) src, typed_nelems, pe);		\
+  {                                                                     \
+    const int typed_nelems = sizeof (Type) * nelems;                    \
+    INIT_CHECK ();                                                      \
+    SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");                     \
+    PE_RANGE_CHECK (pe, 4);                                             \
+    __shmem_comms_get(dest, (void *) src, typed_nelems, pe);            \
   }
 
 SHMEM_TYPE_GET (char, char);
@@ -257,10 +257,10 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 /*
  * gasnet_(get|get)_val can't handle bigger types..
  */
-#define SHMEM_TYPE_P_WRAPPER(Name, Type)				\
-  void									\
-  shmem_##Name##_p (Type *dest, Type value, int pe)			\
-  {									\
+#define SHMEM_TYPE_P_WRAPPER(Name, Type)            \
+  void                                              \
+  shmem_##Name##_p (Type *dest, Type value, int pe) \
+  {                                                 \
     shmem_##Name##_put (dest, &value, 1, pe);				\
   }
 
@@ -296,12 +296,12 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_G_WRAPPER(Name, Type)				\
-  Type									\
+  Type                                          \
   shmem_##Name##_g (Type *addr, int pe)					\
-  {									\
-    Type retval;							\
-    shmem_##Name##_get (&retval, addr, 1, pe);				\
-    return retval;							\
+  {                                             \
+    Type retval;                                \
+    shmem_##Name##_get (&retval, addr, 1, pe);  \
+    return retval;                              \
   }
 
 SHMEM_TYPE_G_WRAPPER (float, float);

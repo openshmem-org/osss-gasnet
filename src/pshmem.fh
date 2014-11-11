@@ -67,9 +67,9 @@
       Integer SHMEM_GROUP_WORLD
       parameter ( SHMEM_GROUP_WORLD = -1 )
 
-!     
+!
 !     shpalloc errors
-!     
+!
 
       integer SHMEM_MALLOC_OK
       parameter ( SHMEM_MALLOC_OK = 0 )
@@ -98,9 +98,9 @@
       integer SHMEM_MALLOC_SYMMSIZE_FAILED
       parameter ( SHMEM_MALLOC_SYMMSIZE_FAILED = -10 )
 
-!     
+!
 !     waits
-!     
+!
       integer SHMEM_CMP_EQ
       parameter ( SHMEM_CMP_EQ = 0 )
       integer SHMEM_CMP_NE
@@ -135,17 +135,17 @@
 !     integer pshmem_swap
 !     integer pshmem_real4_swap
 !     integer pshmem_real8_swap
-!     
+!
 !     integer pshmem_int4_cswap
 !     integer pshmem_int8_cswap
 !     integer pshmem_real4_cswap
 !     integer pshmem_real8_cswap
-!     
+!
 !     integer pshmem_int4_fadd
 !     integer pshmem_int8_fadd
-!     
+!
 !     integer pshmem_int4_finc
 !     integer pshmem_int8_finc
-!     
+!
 !     integer pshmem_test_lock
-      
+

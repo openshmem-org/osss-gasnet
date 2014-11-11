@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *  University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -75,7 +75,7 @@ void
 shmem_set_lock (long *lock)
 {
   __shmem_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
-			      &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+                              &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }
 
 void
@@ -85,12 +85,12 @@ shmem_clear_lock (long *lock)
   shmem_quiet ();
 
   __shmem_comms_lock_release (&((SHMEM_LOCK *) lock)[1],
-			      &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+                              &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }
 
 int
 shmem_test_lock (long *lock)
 {
   return __shmem_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
-				  &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+                                  &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }

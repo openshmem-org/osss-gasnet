@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -145,6 +145,8 @@ table_init_helper (void)
    * libraries, or "elf_getshstrndx" in older ones.  Hard-code older
    * one for now since it is in the newer libraries, although marked as
    * deprecated.  This will be detected by autoconf later
+   *
+   * DEPRECATED
    */
   (void) elf_getshstrndx (e, &shstrndx);
 
@@ -155,130 +157,130 @@ table_init_helper (void)
     {
 
       if (gelf_getshdr (scn, &shdr) != &shdr)
-	{
-	  goto bail;
-	}
+        {
+          goto bail;
+        }
       shstr_name = elf_strptr (e, shstrndx, shdr.sh_name);
       if (shstr_name == NULL)
-	{
-	  goto bail;
-	}
+        {
+          goto bail;
+        }
 
       /* found the read-only data */
       if (shdr.sh_type == SHT_PROGBITS &&
-	  strcmp (shstr_name, ".rodata") == 0)
-	{
+          strcmp (shstr_name, ".rodata") == 0)
+        {
 
-	  elfro.start = shdr.sh_addr;
-	  elfro.end = elfro.start + shdr.sh_size;
+          elfro.start = shdr.sh_addr;
+          elfro.end = elfro.start + shdr.sh_size;
 
-	  __shmem_trace (SHMEM_LOG_SYMBOLS,
-			 "ELF section .rodata for global variables = 0x%lX -> 0x%lX",
-			 elfro.start, elfro.end);
-	  continue;		/* move to next scan */
-	}
+          __shmem_trace (SHMEM_LOG_SYMBOLS,
+                         "ELF section .rodata for global variables = 0x%lX -> 0x%lX",
+                         elfro.start, elfro.end);
+          continue;		/* move to next scan */
+        }
 
       /* found the uninitialized globals */
       if (shdr.sh_type == SHT_NOBITS &&
-	  strcmp (shstr_name, ".bss") == 0)
-	{
+          strcmp (shstr_name, ".bss") == 0)
+        {
 
-	  elfbss.start = shdr.sh_addr;
-	  elfbss.end = elfbss.start + shdr.sh_size;
+          elfbss.start = shdr.sh_addr;
+          elfbss.end = elfbss.start + shdr.sh_size;
 
-	  __shmem_trace (SHMEM_LOG_SYMBOLS,
-			 "ELF section .bss for global variables = 0x%lX -> 0x%lX",
-			 elfbss.start, elfbss.end);
-	  continue;		/* move to next scan */
-	}
+          __shmem_trace (SHMEM_LOG_SYMBOLS,
+                         "ELF section .bss for global variables = 0x%lX -> 0x%lX",
+                         elfbss.start, elfbss.end);
+          continue;		/* move to next scan */
+        }
 
       /* found the initialized globals */
       if (shdr.sh_type == SHT_PROGBITS &&
-	  strcmp (shstr_name, ".data") == 0)
-	{
+          strcmp (shstr_name, ".data") == 0)
+        {
 
-	  elfdata.start = shdr.sh_addr;
-	  elfdata.end = elfdata.start + shdr.sh_size;
+          elfdata.start = shdr.sh_addr;
+          elfdata.end = elfdata.start + shdr.sh_size;
 
-	  __shmem_trace (SHMEM_LOG_SYMBOLS,
-			 "ELF section .data for global variables = 0x%lX -> 0x%lX",
-			 elfdata.start, elfdata.end);
-	  continue;		/* move to next scan */
-	}
+          __shmem_trace (SHMEM_LOG_SYMBOLS,
+                         "ELF section .data for global variables = 0x%lX -> 0x%lX",
+                         elfdata.start, elfdata.end);
+          continue;		/* move to next scan */
+        }
 
       /* keep looking until we find the symbol table */
       if (shdr.sh_type == SHT_SYMTAB)
-	{
-	  Elf_Data *data = NULL;
-	  while ((data = elf_getdata (scn, data)) != NULL)
-	    {
-	      GElf_Sym *es;
-	      GElf_Sym *last_es;
+        {
+          Elf_Data *data = NULL;
+          while ((data = elf_getdata (scn, data)) != NULL)
+            {
+              GElf_Sym *es;
+              GElf_Sym *last_es;
 
-	      es = (GElf_Sym *) data->d_buf;
-	      if (es == NULL)
-		{
-		  continue;
-		}
+              es = (GElf_Sym *) data->d_buf;
+              if (es == NULL)
+                {
+                  continue;
+                }
 
-	      /* find out how many entries to look for */
-	      last_es = (GElf_Sym *) ((char *) data->d_buf + data->d_size);
+              /* find out how many entries to look for */
+              last_es = (GElf_Sym *) ((char *) data->d_buf + data->d_size);
 
-	      for (; es < last_es; es += 1)
-		{
-		  char *name;
+              for (; es < last_es; es += 1)
+                {
+                  char *name;
 
-		  /*
-		   * need visible global or local (Fortran save) object with
-		   * some kind of content
-		   */
-		  if (es->st_value == 0 || es->st_size == 0)
-		    {
-		      continue;
-		    }
-		  /*
-		   * this macro handles a symbol that is present
-		   * in one libelf implementation but isn't in another
-		   * (elfutils vs. libelf)
-		   */
+                  /*
+                   * need visible global or local (Fortran save) object with
+                   * some kind of content
+                   */
+                  if (es->st_value == 0 || es->st_size == 0)
+                    {
+                      continue;
+                    }
+                  /*
+                   * this macro handles a symbol that is present
+                   * in one libelf implementation but isn't in another
+                   * (elfutils vs. libelf)
+                   */
 #ifndef GELF_ST_VISIBILITY
 # define GELF_ST_VISIBILITY(o) ELF64_ST_VISIBILITY(o)
 #endif
-		  if (GELF_ST_TYPE (es->st_info) != STT_OBJECT &&
-		      GELF_ST_VISIBILITY (es->st_info) != STV_DEFAULT)
-		    {
-		      continue;
-		    }
-		  name = elf_strptr (e, shdr.sh_link, (size_t) es->st_name);
-		  if (name == NULL || *name == '\0')
-		    {
-		      continue;
-		    }
-		  /* put the symbol and info into the symbol hash table */
-		  {
-		    globalvar_t *gv = (globalvar_t *) malloc (sizeof (*gv));
-		    if (gv == NULL)
-		      {
-			goto bail;
-		      }
-		    gv->name = strdup (name);
-		    if (gv->name == NULL)
-		      {
-			goto bail;
-		      }
-		    gv->addr = (void *) es->st_value;
-		    gv->size = es->st_size;
-		    HASH_ADD_PTR (gvp, addr, gv);
-		  }
-		}
-	    }
-	  /*
-	   * pulled out all the global symbols => success,
-	   * don't need to scan further
-	   */
-	  ret = 0;
-	  break;
-	}
+                  if (GELF_ST_TYPE (es->st_info) != STT_OBJECT &&
+                      GELF_ST_VISIBILITY (es->st_info) != STV_DEFAULT)
+                    {
+                      continue;
+                    }
+                  name = elf_strptr (e, shdr.sh_link, (size_t) es->st_name);
+                  if (name == NULL || *name == '\0')
+                    {
+                      continue;
+                    }
+                  /* put the symbol and info into the symbol hash table */
+                  {
+                    globalvar_t *gv = (globalvar_t *) malloc (sizeof (*gv));
+                    if (gv == NULL)
+                      {
+                        goto bail;
+                      }
+                    gv->name = strdup (name);
+                    if (gv->name == NULL)
+                      {
+                        goto bail;
+                      }
+                    gv->addr = (void *) es->st_value;
+                    gv->size = es->st_size;
+                    HASH_ADD_PTR (gvp, addr, gv);
+                  }
+                }
+            }
+          /*
+           * pulled out all the global symbols => success,
+           * don't need to scan further
+           */
+          ret = 0;
+          break;
+        }
     }
 
  bail:
@@ -322,11 +324,11 @@ print_global_var_table (shmem_trace_t msgtype)
   HASH_SORT (gvp, addr_sort);
 
   HASH_ITER (hh, gvp, g, tmp)
-  {
-    __shmem_trace (msgtype,
-		   "address %p: name \"%s\", size %ld",
-		   g->addr, g->name, g->size);
-  }
+    {
+      __shmem_trace (msgtype,
+                     "address %p: name \"%s\", size %ld",
+                     g->addr, g->name, g->size);
+    }
 
   __shmem_trace (msgtype, "-- end hash table --");
 }
@@ -342,7 +344,7 @@ __shmem_symmetric_globalvar_table_init (void)
   if (table_init_helper () != 0)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't read global symbols in executable");
+                     "internal error: couldn't read global symbols in executable");
       /* NOT REACHED */
     }
 
@@ -359,23 +361,23 @@ __shmem_symmetric_globalvar_table_finalize (void)
   globalvar_t *tmp;
 
   HASH_ITER (hh, gvp, current, tmp)
-  {
-    free (current->name);	/* was strdup'ed above */
-    HASH_DEL (gvp, current);
-    free (current);
-  }
+    {
+      free (current->name);	/* was strdup'ed above */
+      HASH_DEL (gvp, current);
+      free (current);
+    }
 }
 
 /*
  * helper to check address ranges
  */
-#define IN_RANGE(Area, Addr)					\
+#define IN_RANGE(Area, Addr)                                \
   ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
 
-#define IS_GLOBAL(Addr)				\
+#define IS_GLOBAL(Addr)                                                 \
   (IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a))
 
-  /*
+/*
  * check to see if address is global
  */
 int

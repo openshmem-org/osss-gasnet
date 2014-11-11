@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -60,85 +60,85 @@
  *
  */
 
-#define SHMEM_COLLECT(Bits, Bytes)					\
-  void									\
+#define SHMEM_COLLECT(Bits, Bytes)                                      \
+  void                                                                  \
   __shmem_collect##Bits##_linear(void *target, const void *source, size_t nelems, \
-				 int PE_start, int logPE_stride, int PE_size, \
-				 long *pSync)				\
-  {									\
-    const int step = 1 << logPE_stride;					\
-    const int last_pe = PE_start + step * (PE_size - 1);		\
-    const int me = GET_STATE(mype);					\
+                                 int PE_start, int logPE_stride, int PE_size, \
+                                 long *pSync)                           \
+  {                                                                     \
+    const int step = 1 << logPE_stride;                                 \
+    const int last_pe = PE_start + step * (PE_size - 1);                \
+    const int me = GET_STATE(mype);                                     \
     /* TODO: temp fix: I know barrier doesn't use this many indices */	\
-    long *acc_off = & (pSync[_SHMEM_COLLECT_SYNC_SIZE - 1]);		\
-									\
-    INIT_CHECK();							\
-    SYMMETRY_CHECK(target, 1, "shmem_collect");				\
-    SYMMETRY_CHECK(source, 2, "shmem_collect");				\
-									\
-    __shmem_trace(SHMEM_LOG_COLLECT,					\
-		  "nelems = %ld, PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \
-		  nelems,						\
-PE_start,								\
-		  step,							\
-		  PE_size,						\
-		  last_pe						\
-		  );							\
-									\
-    /* initialize left-most or wait for left-neighbor to notify */	\
-    if (me == PE_start) {						\
-      *acc_off = 0;							\
-    }									\
-    else {								\
-      shmem_long_wait(acc_off, _SHMEM_SYNC_VALUE);			\
-      __shmem_trace(SHMEM_LOG_COLLECT,					\
-		    "got acc_off = %ld",				\
-		    *acc_off						\
-		    );							\
-    }									\
-									\
-    /*									\
+    long *acc_off = & (pSync[_SHMEM_COLLECT_SYNC_SIZE - 1]);            \
+                                                                        \
+    INIT_CHECK();                                                       \
+    SYMMETRY_CHECK(target, 1, "shmem_collect");                         \
+    SYMMETRY_CHECK(source, 2, "shmem_collect");                         \
+                                                                        \
+    __shmem_trace(SHMEM_LOG_COLLECT,                                    \
+                  "nelems = %ld, PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \
+                  nelems,                                               \
+                  PE_start,                                             \
+                  step,                                                 \
+                  PE_size,                                              \
+                  last_pe                                               \
+                  );                                                    \
+                                                                        \
+    /* initialize left-most or wait for left-neighbor to notify */      \
+    if (me == PE_start) {                                               \
+      *acc_off = 0;                                                     \
+    }                                                                   \
+    else {                                                              \
+      shmem_long_wait(acc_off, _SHMEM_SYNC_VALUE);                      \
+      __shmem_trace(SHMEM_LOG_COLLECT,                                  \
+                    "got acc_off = %ld",                                \
+                    *acc_off                                            \
+                    );                                                  \
+    }                                                                   \
+                                                                        \
+    /*                                                                  \
      * forward my contribution to (notify) right neighbor if not last PE \
-     * in set								\
-     */									\
-    if (me < last_pe) {							\
-      const long next_off = *acc_off + nelems;				\
-      const int rnei = me + step;					\
-									\
-      shmem_long_p(acc_off, next_off, rnei);				\
-									\
-      __shmem_trace(SHMEM_LOG_COLLECT,					\
-		    "put next_off = %ld to rnei = %d",			\
-		    next_off,						\
-		    rnei						\
-		    );							\
-    }									\
-									\
-    /* send my array slice to target everywhere */			\
-    {									\
-      const long tidx = *acc_off * Bytes;				\
-      int i;								\
-      int pe = PE_start;						\
-									\
-      for (i = 0; i < PE_size; i += 1) {				\
-	shmem_put##Bits(target + tidx, source, nelems, pe);		\
-	__shmem_trace(SHMEM_LOG_COLLECT,				\
-		      "put%d: tidx = %ld -> %d",			\
-		      Bits,						\
-		      tidx,						\
-		      pe						\
-		      );						\
-	pe += step;							\
-      }									\
-    }									\
-									\
-    /* clean up, and wait for everyone to finish */			\
-    *acc_off = _SHMEM_SYNC_VALUE;					\
-    __shmem_trace(SHMEM_LOG_COLLECT,					\
-		  "acc_off before barrier = %ld",			\
-		  *acc_off						\
-		  );							\
-    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);		\
+     * in set                                                           \
+     */                                                                 \
+    if (me < last_pe) {                                                 \
+      const long next_off = *acc_off + nelems;                          \
+      const int rnei = me + step;                                       \
+                                                                        \
+      shmem_long_p(acc_off, next_off, rnei);                            \
+                                                                        \
+      __shmem_trace(SHMEM_LOG_COLLECT,                                  \
+                    "put next_off = %ld to rnei = %d",                  \
+                    next_off,                                           \
+                    rnei                                                \
+                    );                                                  \
+    }                                                                   \
+                                                                        \
+    /* send my array slice to target everywhere */                      \
+    {                                                                   \
+      const long tidx = *acc_off * Bytes;                               \
+      int i;                                                            \
+      int pe = PE_start;                                                \
+                                                                        \
+      for (i = 0; i < PE_size; i += 1) {                                \
+        shmem_put##Bits(target + tidx, source, nelems, pe);             \
+        __shmem_trace(SHMEM_LOG_COLLECT,                                \
+                      "put%d: tidx = %ld -> %d",                        \
+                      Bits,                                             \
+                      tidx,                                             \
+                      pe                                                \
+                      );                                                \
+        pe += step;                                                     \
+      }                                                                 \
+    }                                                                   \
+                                                                        \
+    /* clean up, and wait for everyone to finish */                     \
+    *acc_off = _SHMEM_SYNC_VALUE;                                       \
+    __shmem_trace(SHMEM_LOG_COLLECT,                                    \
+                  "acc_off before barrier = %ld",                       \
+                  *acc_off                                              \
+                  );                                                    \
+    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);              \
   }
 
 SHMEM_COLLECT (32, 4);

@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -85,7 +85,7 @@ __shmalloc_symmetry_check (size_t size)
   if (shmalloc_remote_size == (long *) NULL)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: couldn't allocate memory for symmetry check");
+                     "internal error: couldn't allocate memory for symmetry check");
       /* NOT REACHED */
     }
   *shmalloc_remote_size = size;
@@ -102,20 +102,20 @@ __shmalloc_symmetry_check (size_t size)
   for (pe = 0; pe < GET_STATE (numpes); pe += 1)
     {
       if (pe == GET_STATE (mype))
-	{
-	  continue;
-	}
+        {
+          continue;
+        }
       shmalloc_received_size = shmem_long_g (shmalloc_remote_size, pe);
       if (shmalloc_received_size != size)
-	{
-	  __shmem_trace (SHMEM_LOG_NOTICE,
-			 "shmalloc expected %ld, but saw %ld on PE %d",
-			 size, shmalloc_received_size, pe);
-	  malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
-	  any_failed_pe = pe;
-	  break;
-	  /* NOT REACHED */
-	}
+        {
+          __shmem_trace (SHMEM_LOG_NOTICE,
+                         "shmalloc expected %ld, but saw %ld on PE %d",
+                         size, shmalloc_received_size, pe);
+          malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+          any_failed_pe = pe;
+          break;
+          /* NOT REACHED */
+        }
     }
   /* make sure everyone is here before freeing things */
   shmem_barrier_all ();
@@ -186,8 +186,8 @@ shmalloc_nb (size_t size)
 #endif /* HAVE_FEATURE_DEBUG */
 
   __shmem_trace (SHMEM_LOG_MEMORY,
-		 "shmalloc(%ld bytes) passed symmetry check",
-		 size);
+                 "shmalloc(%ld bytes) passed symmetry check",
+                 size);
 
   addr = __shmalloc_no_check (size);
 
@@ -239,14 +239,14 @@ shfree_nb (void *addr)
   if (addr == (void *) NULL)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "address passed to shfree() already null");
+                     "address passed to shfree() already null");
       malloc_error = SHMEM_MALLOC_ALREADY_FREE;
       return;
       /* NOT REACHED */
     }
 
   __shmem_trace (SHMEM_LOG_MEMORY,
-		 "shfree(%p) in pool @ %p", addr, __shmem_mem_base ());
+                 "shfree(%p) in pool @ %p", addr, __shmem_mem_base ());
 
   __shmem_mem_free (addr);
 
@@ -290,7 +290,7 @@ shrealloc (void *addr, size_t size)
   if (addr == (void *) NULL)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "address passed to shrealloc() is null, handing to shmalloc()");
+                     "address passed to shrealloc() is null, handing to shmalloc()");
       return shmalloc (size);
       /* NOT REACHED */
     }
@@ -298,7 +298,7 @@ shrealloc (void *addr, size_t size)
   if (size == 0)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "size passed to shrealloc() is 0, handing to shfree()");
+                     "size passed to shrealloc() is 0, handing to shfree()");
       shfree (addr);
       return (void *) NULL;
       /* NOT REACHED */
@@ -318,8 +318,8 @@ shrealloc (void *addr, size_t size)
   if (newaddr == (void *) NULL)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "shrealloc(%ld bytes) failed @ original address %p",
-		     size, addr);
+                     "shrealloc(%ld bytes) failed @ original address %p",
+                     size, addr);
       malloc_error = SHMEM_MALLOC_REALLOC_FAILED;
     }
   else
@@ -363,8 +363,8 @@ shmemalign (size_t alignment, size_t size)
   if (addr == (void *) NULL)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "shmem_memalign(%ld bytes) couldn't realign to %ld",
-		     size, alignment);
+                     "shmem_memalign(%ld bytes) couldn't realign to %ld",
+                     size, alignment);
       malloc_error = SHMEM_MALLOC_MEMALIGN_FAILED;
     }
   else
@@ -431,10 +431,10 @@ sherror (void)
   for (i = 0; i < nerrors; i += 1)
     {
       if (malloc_error == etp->code)
-	{
-	  return etp->msg;
-	  /* NOT REACHED */
-	}
+        {
+          return etp->msg;
+          /* NOT REACHED */
+        }
       etp += 1;
     }
 

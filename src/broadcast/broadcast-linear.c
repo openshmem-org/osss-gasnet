@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -46,24 +46,24 @@
 
 #include "shmem.h"
 
-#define SHMEM_BROADCAST_TYPE(Name, Size)				\
-  void									\
+#define SHMEM_BROADCAST_TYPE(Name, Size)                              \
+  void                                                                \
   __shmem_broadcast##Name##_linear (void *target, const void *source,	\
-				    size_t nelems,			\
-				    int PE_root, int PE_start,		\
-				    int logPE_stride, int PE_size,	\
-				    long *pSync)			\
-  {									\
-    const int typed_nelems = nelems * Size;				\
-    const int step = 1 << logPE_stride;					\
-    const int root = (PE_root * step) + PE_start;			\
-    const int me = GET_STATE (mype);					\
-    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);		\
-    if (EXPR_LIKELY (me != root))					\
-      {									\
-	shmem_getmem (target, source, typed_nelems, root);		\
-      }									\
-  }									\
+                                    size_t nelems,                    \
+                                    int PE_root, int PE_start,        \
+                                    int logPE_stride, int PE_size,    \
+                                    long *pSync)                      \
+  {                                                                   \
+    const int typed_nelems = nelems * Size;                           \
+    const int step = 1 << logPE_stride;                               \
+    const int root = (PE_root * step) + PE_start;                     \
+    const int me = GET_STATE (mype);                                  \
+    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);           \
+    if (EXPR_LIKELY (me != root))                                     \
+      {                                                               \
+        shmem_getmem (target, source, typed_nelems, root);            \
+      }                                                               \
+  }                                                                   \
 
 SHMEM_BROADCAST_TYPE (32, 4);
 SHMEM_BROADCAST_TYPE (64, 8);

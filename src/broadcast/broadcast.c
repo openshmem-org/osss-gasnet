@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -80,20 +80,20 @@ __shmem_broadcast_dispatch_init (void)
   else
     if (strcmp (name, "tree") == 0)
       {
-	func32 = __shmem_broadcast32_tree;
-	func64 = __shmem_broadcast64_tree;
+        func32 = __shmem_broadcast32_tree;
+        func64 = __shmem_broadcast64_tree;
       }
     else
       {
-	; /* error */
+        ; /* error */
       }
   /*
    * report which broadcast implementation we set up
    */
   __shmem_trace (SHMEM_LOG_BROADCAST,
-		 "using broadcast \"%s\"",
-		 name
-		 );
+                 "using broadcast \"%s\"",
+                 name
+                 );
 }
 
 /*
@@ -108,8 +108,8 @@ __shmem_broadcast_dispatch_init (void)
 
 void
 shmem_broadcast32 (void *target, const void *source, size_t nelems,
-		   int PE_root, int PE_start, int logPE_stride, int PE_size,
-		   long *pSync)
+                   int PE_root, int PE_start, int logPE_stride, int PE_size,
+                   long *pSync)
 {
   INIT_CHECK ();
   SYMMETRY_CHECK (target, 1, "shmem_broadcast32");
@@ -118,7 +118,7 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
   PE_RANGE_CHECK (PE_start, 5);
 
   func32 (target, source, nelems,
-	  PE_root, PE_start, logPE_stride, PE_size, pSync);
+          PE_root, PE_start, logPE_stride, PE_size, pSync);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -128,8 +128,8 @@ shmem_broadcast32 (void *target, const void *source, size_t nelems,
 
 void
 shmem_broadcast64 (void *target, const void *source, size_t nelems,
-		   int PE_root, int PE_start, int logPE_stride, int PE_size,
-		   long *pSync)
+                   int PE_root, int PE_start, int logPE_stride, int PE_size,
+                   long *pSync)
 {
   INIT_CHECK ();
   SYMMETRY_CHECK (target, 1, "shmem_broadcast64");
@@ -138,5 +138,5 @@ shmem_broadcast64 (void *target, const void *source, size_t nelems,
   PE_RANGE_CHECK (PE_start, 5);
 
   func64 (target, source, nelems,
-	  PE_root, PE_start, logPE_stride, PE_size, pSync);
+          PE_root, PE_start, logPE_stride, PE_size, pSync);
 }

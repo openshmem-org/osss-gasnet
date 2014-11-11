@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -78,20 +78,20 @@ __shmem_barrier_dispatch_init (void)
   else
     if (strcmp (name, "tree") == 0)
       {
-	func = __shmem_barrier_tree;
+        func = __shmem_barrier_tree;
       }
     else
       {
-	; /* error */
+        ; /* error */
       }
 
   /*
    * report which broadcast implementation we set up
    */
   __shmem_trace (SHMEM_LOG_BARRIER,
-		 "using broadcast \"%s\"",
-		 name
-		 );
+                 "using broadcast \"%s\"",
+                 name
+                 );
 }
 
 /*

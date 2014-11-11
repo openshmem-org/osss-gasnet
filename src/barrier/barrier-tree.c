@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -47,13 +47,13 @@
 
 /*
  * Tree based barrier generates a binary tree with the PEs in the
- * active set.  
+ * active set.
  *
  */
 
 static void
 set_2tree (int PE_start, int PE_stride, int PE_size,
-	   int *parent, int *child_l, int *child_r, int my_pe)
+           int *parent, int *child_l, int *child_r, int my_pe)
 {
   int max_pe = PE_start + PE_stride * (PE_size - 1);
 
@@ -82,13 +82,13 @@ set_2tree (int PE_start, int PE_stride, int PE_size,
     }
 
   __shmem_trace (SHMEM_LOG_BARRIER,
-		 "set2tree: parent = %d, L_child = %d, R_child = %d",
-		 *parent, *child_l, *child_r);
+                 "set2tree: parent = %d, L_child = %d, R_child = %d",
+                 *parent, *child_l, *child_r);
 }
 
 void
 __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
-		      long *pSync)
+                      long *pSync)
 {
   int child_l, child_r, parent;
   const int step = 1 << logPE_stride;
@@ -113,78 +113,78 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
   no_children = 0;
 
   __shmem_trace (SHMEM_LOG_BARRIER,
-		 "before barrier, R_child = %d L_child = %d",
-		 child_r, child_l);
+                 "before barrier, R_child = %d L_child = %d",
+                 child_r, child_l);
 
   /* The actual barrier */
 
   if (PE_size > 1)
     {
       if (my_pe == PE_start)
-	{
-	  pSync[0] = _SHMEM_SYNC_VALUE;
+        {
+          pSync[0] = _SHMEM_SYNC_VALUE;
 
-	  if (child_l != -1)
-	    {
-	      shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
-	      while (lchild_ready != 0)
-		shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
-	      shmem_long_put (&pSync[0], &is_ready, 1, child_l);
-	      no_children = 1;
-	    }
+          if (child_l != -1)
+            {
+              shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+              while (lchild_ready != 0)
+                shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+              shmem_long_put (&pSync[0], &is_ready, 1, child_l);
+              no_children = 1;
+            }
 
-	  if (child_r != -1)
-	    {
-	      shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
-	      while (rchild_ready != 0)
-		shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
-	      shmem_long_put (&pSync[0], &is_ready, 1, child_r);
-	      no_children = 2;
-	    }
+          if (child_r != -1)
+            {
+              shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
+              while (rchild_ready != 0)
+                shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
+              shmem_long_put (&pSync[0], &is_ready, 1, child_r);
+              no_children = 2;
+            }
 
-	  shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, (long) no_children);
-	  pSync[1] = _SHMEM_SYNC_VALUE;
+          shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, (long) no_children);
+          pSync[1] = _SHMEM_SYNC_VALUE;
 
-	}
+        }
       else
-	{
-	  shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
+        {
+          shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
 
-	  __shmem_trace (SHMEM_LOG_BARRIER, "inside else");
+          __shmem_trace (SHMEM_LOG_BARRIER, "inside else");
 
-	  if (child_l != -1)
-	    {
-	      shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
-	      while (lchild_ready != 0)
-		shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
-	      shmem_long_put (&pSync[0], &is_ready, 1, child_l);
-	      no_children = 1;
-	    }
+          if (child_l != -1)
+            {
+              shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+              while (lchild_ready != 0)
+                shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+              shmem_long_put (&pSync[0], &is_ready, 1, child_l);
+              no_children = 1;
+            }
 
-	  if (child_r != -1)
-	    {
-	      shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
-	      while (rchild_ready != 0)
-		shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
-	      shmem_long_put (&pSync[0], &is_ready, 1, child_r);
-	      no_children = 2;
-	    }
-	  pSync[0] = _SHMEM_SYNC_VALUE;
+          if (child_r != -1)
+            {
+              shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
+              while (rchild_ready != 0)
+                shmem_long_get (&rchild_ready, &pSync[0], 1, child_r);
+              shmem_long_put (&pSync[0], &is_ready, 1, child_r);
+              no_children = 2;
+            }
+          pSync[0] = _SHMEM_SYNC_VALUE;
 
-	  if (no_children == 0)
-	    {
-	      pSync[1] = _SHMEM_SYNC_VALUE;
-	      shmem_long_inc (&pSync[1], parent);
-	    }
-	  else
-	    {
-	      shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
-				     (long) no_children);
-	      pSync[1] = _SHMEM_SYNC_VALUE;
-	      shmem_long_inc (&pSync[1], parent);
-	    }
+          if (no_children == 0)
+            {
+              pSync[1] = _SHMEM_SYNC_VALUE;
+              shmem_long_inc (&pSync[1], parent);
+            }
+          else
+            {
+              shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
+                                     (long) no_children);
+              pSync[1] = _SHMEM_SYNC_VALUE;
+              shmem_long_inc (&pSync[1], parent);
+            }
 
-	}
+        }
       __shmem_trace (SHMEM_LOG_BARRIER, "at the end of barrier");
 
     }

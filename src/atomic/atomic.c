@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -88,16 +88,16 @@ __shmem_atomic_finalize (void)
  * previous contents of target as an atomic operation.
  */
 
-#define SHMEM_TYPE_SWAP(Name, Type, Size)				\
-  Type									\
-  shmem_##Name##_swap (Type *target, Type value, int pe)		\
-  {									\
-    Type retval;							\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 3);						\
+#define SHMEM_TYPE_SWAP(Name, Type, Size)                             \
+  Type                                                                \
+  shmem_##Name##_swap (Type *target, Type value, int pe)              \
+  {                                                                   \
+    Type retval;                                                      \
+    INIT_CHECK ();                                                    \
+    PE_RANGE_CHECK (pe, 3);                                           \
     __shmem_comms_swap_request##Size (target, &value, sizeof (Type),	\
-				      pe, &retval);			\
-    return retval;							\
+                                      pe, &retval);                   \
+    return retval;                                                    \
   }
 
 /* SHMEM_TYPE_SWAP(short, short, 32) !! */
@@ -131,16 +131,16 @@ shmem_swap (long *target, long value, int pe)
  * contents of the data object in one atomic operation.
  */
 
-#define SHMEM_TYPE_CSWAP(Name, Type, Size)				\
-  Type									\
-  shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)	\
-  {									\
-    Type retval;							\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 4);						\
+#define SHMEM_TYPE_CSWAP(Name, Type, Size)                              \
+  Type                                                                  \
+  shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)    \
+  {                                                                     \
+    Type retval;                                                        \
+    INIT_CHECK ();                                                      \
+    PE_RANGE_CHECK (pe, 4);                                             \
     __shmem_comms_cswap_request##Size (target, &cond, &value, sizeof (Type), \
-				       pe, &retval);			\
-    return retval;							\
+                                       pe, &retval);                    \
+    return retval;                                                      \
   }
 
 SHMEM_TYPE_CSWAP (int, int, 32);
@@ -156,16 +156,16 @@ SHMEM_TYPE_CSWAP (longlong, long long, 64);
 # define shmem_longlong_fadd pshmem_longlong_fadd
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_FADD(Name, Type, Size)				\
-  Type									\
-  shmem_##Name##_fadd (Type *target, Type value, int pe)		\
-  {									\
-    Type retval;							\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 3);						\
+#define SHMEM_TYPE_FADD(Name, Type, Size)                             \
+  Type                                                                \
+  shmem_##Name##_fadd (Type *target, Type value, int pe)              \
+  {                                                                   \
+    Type retval;                                                      \
+    INIT_CHECK ();                                                    \
+    PE_RANGE_CHECK (pe, 3);                                           \
     __shmem_comms_fadd_request##Size (target, &value, sizeof (Type),	\
-				      pe, &retval);			\
-    return retval;							\
+                                      pe, &retval);                   \
+    return retval;                                                    \
   }
 
 SHMEM_TYPE_FADD (int, int, 32);
@@ -187,16 +187,16 @@ SHMEM_TYPE_FADD (longlong, long long, 64);
  * on another PE
  */
 
-#define SHMEM_TYPE_FINC(Name, Type, Size)				\
-  Type									\
-  shmem_##Name##_finc (Type *target, int pe)				\
-  {									\
-    Type retval;							\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 2);						\
-    __shmem_comms_finc_request##Size (target, sizeof (Type),		\
-				      pe, &retval);			\
-    return retval;							\
+#define SHMEM_TYPE_FINC(Name, Type, Size)                     \
+  Type                                                        \
+  shmem_##Name##_finc (Type *target, int pe)                  \
+  {                                                           \
+    Type retval;                                              \
+    INIT_CHECK ();                                            \
+    PE_RANGE_CHECK (pe, 2);                                   \
+    __shmem_comms_finc_request##Size (target, sizeof (Type),  \
+                                      pe, &retval);           \
+    return retval;                                            \
   }
 
 SHMEM_TYPE_FINC (int, int, 32);
@@ -216,14 +216,14 @@ SHMEM_TYPE_FINC (longlong, long long, 64);
  * remote atomic increment/add
  *
  */
-#define SHMEM_TYPE_ADD(Name, Type, Size)				\
-  void									\
-  shmem_##Name##_add (Type *target, Type value, int pe)			\
-  {									\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 3);						\
+#define SHMEM_TYPE_ADD(Name, Type, Size)                            \
+  void                                                              \
+  shmem_##Name##_add (Type *target, Type value, int pe)             \
+  {                                                                 \
+    INIT_CHECK ();                                                  \
+    PE_RANGE_CHECK (pe, 3);                                         \
     __shmem_comms_add_request##Size (target, &value, sizeof (Type),	\
-				     pe);				\
+                                     pe);                           \
   }
 
 SHMEM_TYPE_ADD (int, int, 32);
@@ -240,14 +240,14 @@ SHMEM_TYPE_ADD (longlong, long long, 64);
 # define shmem_longlong_inc pshmem_longlong_inc
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_INC(Name, Type, Size)				\
-  void									\
-  shmem_##Name##_inc (Type *target, int pe)				\
-  {									\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 2);						\
-    __shmem_comms_inc_request##Size (target, sizeof (Type),		\
-				     pe);				\
+#define SHMEM_TYPE_INC(Name, Type, Size)                    \
+  void                                                      \
+  shmem_##Name##_inc (Type *target, int pe)                 \
+  {                                                         \
+    INIT_CHECK ();                                          \
+    PE_RANGE_CHECK (pe, 2);                                 \
+    __shmem_comms_inc_request##Size (target, sizeof (Type), \
+                                     pe);                   \
   }
 
 SHMEM_TYPE_INC (int, int, 32);
@@ -267,27 +267,27 @@ SHMEM_TYPE_INC (longlong, long long, 64);
 # define shmemx_longlong_xor pshmemx_longlong_xor
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEMX_TYPE_XOR(Name, Type, Size)				\
-  void									\
-  shmemx_##Name##_xor(Type *target, Type value, int pe)			\
-  {									\
-    INIT_CHECK ();							\
-    PE_RANGE_CHECK (pe, 3);						\
+#define SHMEMX_TYPE_XOR(Name, Type, Size)                           \
+  void                                                              \
+  shmemx_##Name##_xor(Type *target, Type value, int pe)             \
+  {                                                                 \
+    INIT_CHECK ();                                                  \
+    PE_RANGE_CHECK (pe, 3);                                         \
     __shmem_comms_xor_request##Size (target, &value, sizeof (Type),	\
-				     pe);				\
+                                     pe);                           \
   }
 
- /**
-  * \brief These routines perform an atomic exclusive-or (xor) operation
-  * between a data value and the target data object.
-  *
-  * \b Synopsis:
-  *
-  * - C/C++:
-  * \code
-  *   void shmemx_int_xor (int *target, int value, int pe);
-  *   void shmemx_long_xor (long *target, long value, int pe);
-  *   void shmemx_longlong_xor (long long *target, long long value, int pe);
+/**
+ * \brief These routines perform an atomic exclusive-or (xor) operation
+ * between a data value and the target data object.
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void shmemx_int_xor (int *target, int value, int pe);
+ *   void shmemx_long_xor (long *target, long value, int pe);
+ *   void shmemx_longlong_xor (long long *target, long long value, int pe);
  * \endcode
  *
  * - Fortran:

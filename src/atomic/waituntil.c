@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -69,36 +69,36 @@
  * NB the _SHMEM_CMP values are identical to the SHMEM_CMP ones.
  */
 
-#define SHMEM_TYPE_WAIT_UNTIL(Name, Type)				\
-  void									\
-  shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)	\
-  {									\
-    switch (cmp) {							\
-    case SHMEM_CMP_EQ:							\
-      __shmem_comms_wait_##Name##_eq (ivar, cmp_value);			\
-      break;								\
-    case SHMEM_CMP_NE:							\
-      __shmem_comms_wait_##Name##_ne (ivar, cmp_value);			\
-      break;								\
-    case SHMEM_CMP_GT:							\
-      __shmem_comms_wait_##Name##_gt (ivar, cmp_value);			\
-      break;								\
-    case SHMEM_CMP_LE:							\
-      __shmem_comms_wait_##Name##_le (ivar, cmp_value);			\
-      break;								\
-    case SHMEM_CMP_LT:							\
-      __shmem_comms_wait_##Name##_lt (ivar, cmp_value);			\
-      break;								\
-    case SHMEM_CMP_GE:							\
-      __shmem_comms_wait_##Name##_ge (ivar, cmp_value);			\
-      break;								\
-    default:								\
-      __shmem_trace (SHMEM_LOG_FATAL,					\
-		     "unknown operator (code %d) in shmem_%s_wait_until()", \
-		     cmp,						\
-		     #Name						\
-		     );							\
-    }									\
+#define SHMEM_TYPE_WAIT_UNTIL(Name, Type)                               \
+  void                                                                  \
+  shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)       \
+  {                                                                     \
+    switch (cmp) {                                                      \
+    case SHMEM_CMP_EQ:                                                  \
+      __shmem_comms_wait_##Name##_eq (ivar, cmp_value);                 \
+      break;                                                            \
+    case SHMEM_CMP_NE:                                                  \
+      __shmem_comms_wait_##Name##_ne (ivar, cmp_value);                 \
+      break;                                                            \
+    case SHMEM_CMP_GT:                                                  \
+      __shmem_comms_wait_##Name##_gt (ivar, cmp_value);                 \
+      break;                                                            \
+    case SHMEM_CMP_LE:                                                  \
+      __shmem_comms_wait_##Name##_le (ivar, cmp_value);                 \
+      break;                                                            \
+    case SHMEM_CMP_LT:                                                  \
+      __shmem_comms_wait_##Name##_lt (ivar, cmp_value);                 \
+      break;                                                            \
+    case SHMEM_CMP_GE:                                                  \
+      __shmem_comms_wait_##Name##_ge (ivar, cmp_value);                 \
+      break;                                                            \
+    default:                                                            \
+      __shmem_trace (SHMEM_LOG_FATAL,                                   \
+                     "unknown operator (code %d) in shmem_%s_wait_until()", \
+                     cmp,                                               \
+                     #Name                                              \
+                     );                                                 \
+    }                                                                   \
   }
 
 SHMEM_TYPE_WAIT_UNTIL (short, short);
@@ -134,11 +134,11 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
  * wait is just wait_until with inequality/change test
  */
 
-#define SHMEM_TYPE_WAIT(Name, Type)					\
-  void									\
-  shmem_##Name##_wait(Type *ivar, Type cmp_value)			\
-  {									\
-    shmem_##Name##_wait_until (ivar, SHMEM_CMP_NE, cmp_value);		\
+#define SHMEM_TYPE_WAIT(Name, Type)                             \
+  void                                                          \
+  shmem_##Name##_wait(Type *ivar, Type cmp_value)               \
+  {                                                             \
+    shmem_##Name##_wait_until (ivar, SHMEM_CMP_NE, cmp_value);  \
   }
 
 SHMEM_TYPE_WAIT (short, short);

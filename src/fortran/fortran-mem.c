@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -74,7 +74,7 @@ extern char *sherror (void);
  *   POINTER (addr, A(1))
  *   INTEGER (length, errcode, abort)
  *   CALL SHPALLOC(addr, length, errcode, abort)
- * 
+ *
  * DESCRIPTION
  *   SHPALLOC  allocates a block of memory from the program's symmetric heap
  *   that is greater than or equal  to  the  size  requested.   To  maintain
@@ -131,8 +131,8 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
  *   POINTER (addr, A(1))
  *   INTEGER errcode, abort
  *   CALL SHPDEALLC(addr, errcode, abort)
- * 
- * 
+ *
+ *
  * DESCRIPTION
  *   SHPDEALLC  returns  a block of memory (allocated using SHPALLOC) to the
  *   list of available space in the symmetric heap.  To  maintain  symmetric
@@ -174,8 +174,8 @@ FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
  *   POINTER (addr, A(1))
  *   INTEGER length, status, abort
  *   CALL SHPCLMOVE (addr, length, status, abort)
- * 
- * 
+ *
+ *
  * DESCRIPTION
  *   The SHPCLMOVE function either extends a symmetric  heap  block  if  the
  *   block  is  followed by a large enough free block or copies the contents

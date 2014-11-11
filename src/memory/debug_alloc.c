@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -60,8 +60,8 @@ debug_alloc_new (void *a, size_t s)
   if (at == (alloc_table_t *) NULL)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: out of memory allocating address/size record"
-		     );
+                     "internal error: out of memory allocating address/size record"
+                     );
       /* NOT REACHED */
     }
   at->addr = a;
@@ -105,16 +105,16 @@ debug_alloc_check (void *a)
 
       /* if ( (s->size > off) && (off >= 0) ) */
       if (s->size > off)
-	{
-	  return 1;
-	  /* NOT REACHED */
-	}
+        {
+          return 1;
+          /* NOT REACHED */
+        }
     }
 
   __shmem_trace (SHMEM_LOG_MEMORY,
-		 "address %p is not in a known symmetric allocation",
-		 a
-		 );
+                 "address %p is not in a known symmetric allocation",
+                 a
+                 );
   return 0;
 }
 
@@ -143,9 +143,9 @@ debug_alloc_del (void *a)
   if (at == (alloc_table_t *) NULL)
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: no hash table entry for address %p",
-		     a
-		     );
+                     "internal error: no hash table entry for address %p",
+                     a
+                     );
       /* NOT REACHED */
     }
   HASH_DEL (atp, at);
@@ -187,8 +187,8 @@ debug_alloc_dump (void)
   HASH_ITER (hh, atp, s, tmp)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
-		     "addr = %p, size = %ld", s->addr, s->size
-		     );
+                     "addr = %p, size = %ld", s->addr, s->size
+                     );
     }
 }
 

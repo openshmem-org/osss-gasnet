@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and Oak Ridge National Laboratory.
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * o Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * 
+ *
  * o Neither the name of the University of Houston System, Oak Ridge
  *   National Laboratory nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -63,18 +63,18 @@
  *
  */
 
-#define SHMEM_MATH_FUNC(Name, Type)		\
-  static					\
-  Type						\
-  sum_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) + (b);				\
-  }						\
-  static					\
-  Type						\
-  prod_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) * (b);				\
+#define SHMEM_MATH_FUNC(Name, Type)             \
+  static                                        \
+  Type                                          \
+  sum_##Name##_func (Type a, Type b)            \
+  {                                             \
+    return (a) + (b);                           \
+  }                                             \
+  static                                        \
+  Type                                          \
+  prod_##Name##_func (Type a, Type b)           \
+  {                                             \
+    return (a) * (b);                           \
   }
 
 SHMEM_MATH_FUNC (short, short);
@@ -92,24 +92,24 @@ SHMEM_MATH_FUNC (complexf, float complex);
  *
  */
 
-#define SHMEM_LOGIC_FUNC(Name, Type)		\
-  static					\
-  Type						\
-  and_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) & (b);				\
-  }						\
-  static					\
-  Type						\
-  or_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) | (b);				\
-  }						\
-  static					\
-  Type						\
-  xor_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) ^ (b);				\
+#define SHMEM_LOGIC_FUNC(Name, Type)            \
+  static                                        \
+  Type                                          \
+  and_##Name##_func (Type a, Type b)            \
+  {                                             \
+    return (a) & (b);                           \
+  }                                             \
+  static                                        \
+  Type                                          \
+  or_##Name##_func (Type a, Type b)             \
+  {                                             \
+    return (a) | (b);                           \
+  }                                             \
+  static                                        \
+  Type                                          \
+  xor_##Name##_func (Type a, Type b)            \
+  {                                             \
+    return (a) ^ (b);                           \
   }
 
 SHMEM_LOGIC_FUNC (short, short);
@@ -122,18 +122,18 @@ SHMEM_LOGIC_FUNC (longlong, long long);
  *
  */
 
-#define SHMEM_MINIMAX_FUNC(Name, Type)		\
-  static					\
-  Type						\
-  min_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) < (b) ? (a) : (b);		\
-  }						\
-  static					\
-  Type						\
-  max_##Name##_func (Type a, Type b)		\
-  {						\
-    return (a) > (b) ? (a) : (b);		\
+#define SHMEM_MINIMAX_FUNC(Name, Type)          \
+  static                                        \
+  Type                                          \
+  min_##Name##_func (Type a, Type b)            \
+  {                                             \
+    return (a) < (b) ? (a) : (b);               \
+  }                                             \
+  static                                        \
+  Type                                          \
+  max_##Name##_func (Type a, Type b)            \
+  {                                             \
+    return (a) > (b) ? (a) : (b);               \
   }
 
 SHMEM_MINIMAX_FUNC (short, short);
@@ -161,95 +161,95 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
 #define INRANGE_CHECK(a, b, n)  ( ( (a) >= (b) ) && ( (a) < ( (b) + (n) ) ) )
 #define OVERLAP_CHECK(t, s, n) ( INRANGE_CHECK(t, s, n) || INRANGE_CHECK(s, t, n) )
 
-#define SHMEM_UDR_TYPE_OP(Name, Type)					\
-  static								\
-  void									\
-  __shmem_udr_##Name##_to_all (Type (*the_op)(Type, Type),		\
-			       Type *target, Type *source, int nreduce,	\
-			       int PE_start, int logPE_stride, int PE_size, \
-			       Type *pWrk, long *pSync)			\
-  {									\
-    const int step = 1 << logPE_stride;					\
-    const int nloops = nreduce / _SHMEM_REDUCE_MIN_WRKDATA_SIZE;		\
-    const int nrem = nreduce % _SHMEM_REDUCE_MIN_WRKDATA_SIZE;			\
-    const int snred = sizeof(Type) * nreduce;				\
-    const int overlap = OVERLAP_CHECK (target, source, snred);		\
-    size_t nget;							\
-    int i, j;								\
-    int pe;								\
-    Type *tmptrg = NULL;						\
-    Type *write_to;							\
-    if (overlap)							\
-      {									\
-	/* use temp target in case source/target overlap/same */	\
-	tmptrg = (Type *) malloc (snred);				\
-	if (tmptrg == (Type *) NULL) {					\
-	  __shmem_trace (SHMEM_LOG_FATAL,				\
-			 "internal error: out of memory allocating temporary reduction buffer" \
-			 );						\
-	}								\
-	write_to = tmptrg;						\
-	__shmem_trace (SHMEM_LOG_REDUCTION,				\
-		       "target (%p) and source (%p, size %ld) overlap, using temporary target", \
-		       target, source, snred				\
-		       );						\
-      }									\
-    else								\
-      {									\
-	write_to = target;						\
-	__shmem_trace (SHMEM_LOG_REDUCTION,				\
-		       "target (%p) and source (%p, size %ld) do not overlap", \
-		       target, source, snred				\
-		       );						\
-      } /* end overlap check */						\
-    /* everyone must initialize */					\
-    for (j = 0; j < nreduce; j += 1)					\
-      {									\
-	write_to[j] = source[j];					\
-      }									\
-    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);		\
-    /* now go through other PEs and get source */			\
-    pe = PE_start;							\
-    for (i = 0; i < PE_size; i+= 1)					\
-      {									\
-	if (GET_STATE (mype) != pe)					\
-	  {								\
-	    int k;							\
-	    int ti = 0, si = 0; /* target and source index walk */	\
-	    /* pull in all the full chunks */				\
-	    nget = _SHMEM_REDUCE_MIN_WRKDATA_SIZE * sizeof (Type);		\
-	    for (k = 0; k < nloops; k += 1)				\
-	      {								\
-		shmem_getmem (pWrk, & (source[si]), nget, pe);		\
-		for (j = 0; j < _SHMEM_REDUCE_MIN_WRKDATA_SIZE; j += 1)	\
-		  {							\
-		    write_to[ti] = (*the_op) (write_to[ti], pWrk[j]);	\
-		    ti += 1;						\
-		  }							\
-		si += _SHMEM_REDUCE_MIN_WRKDATA_SIZE;				\
-	      }								\
-	    nget = nrem * sizeof (Type);				\
-	    /* now get remaining part of source */			\
-	    shmem_getmem (pWrk, & (source[si]), nget, pe);		\
-	    for (j = 0; j < nrem; j += 1)				\
-	      {								\
-		write_to[ti] = (*the_op) (write_to[ti], pWrk[j]);	\
-		ti += 1;						\
-	      }								\
-	  }								\
-	pe += step;							\
-      }									\
-    /* everyone has to have finished */					\
-    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);	\
-    if (overlap)							\
-      {									\
-	/* write to real local target and free temp */			\
-	memcpy (target, tmptrg, snred);					\
-	free (tmptrg);							\
-	tmptrg = NULL;							\
-	/* shmem_barrier(PE_start, logPE_stride, PE_size, pSync); */	\
-	/* shmem_quiet (); */						\
-      }									\
+#define SHMEM_UDR_TYPE_OP(Name, Type)                                   \
+  static                                                                \
+  void                                                                  \
+  __shmem_udr_##Name##_to_all (Type (*the_op)(Type, Type),              \
+                               Type *target, Type *source, int nreduce,	\
+                               int PE_start, int logPE_stride, int PE_size, \
+                               Type *pWrk, long *pSync)                 \
+  {                                                                     \
+    const int step = 1 << logPE_stride;                                 \
+    const int nloops = nreduce / _SHMEM_REDUCE_MIN_WRKDATA_SIZE;        \
+    const int nrem = nreduce % _SHMEM_REDUCE_MIN_WRKDATA_SIZE;          \
+    const int snred = sizeof(Type) * nreduce;                           \
+    const int overlap = OVERLAP_CHECK (target, source, snred);          \
+    size_t nget;                                                        \
+    int i, j;                                                           \
+    int pe;                                                             \
+    Type *tmptrg = NULL;                                                \
+    Type *write_to;                                                     \
+    if (overlap)                                                        \
+      {                                                                 \
+        /* use temp target in case source/target overlap/same */        \
+        tmptrg = (Type *) malloc (snred);                               \
+        if (tmptrg == (Type *) NULL) {                                  \
+          __shmem_trace (SHMEM_LOG_FATAL,                               \
+                         "internal error: out of memory allocating temporary reduction buffer" \
+                         );                                             \
+        }                                                               \
+        write_to = tmptrg;                                              \
+        __shmem_trace (SHMEM_LOG_REDUCTION,                             \
+                       "target (%p) and source (%p, size %ld) overlap, using temporary target", \
+                       target, source, snred                            \
+                       );                                               \
+      }                                                                 \
+    else                                                                \
+      {                                                                 \
+        write_to = target;                                              \
+        __shmem_trace (SHMEM_LOG_REDUCTION,                             \
+                       "target (%p) and source (%p, size %ld) do not overlap", \
+                       target, source, snred                            \
+                       );                                               \
+      } /* end overlap check */                                         \
+    /* everyone must initialize */                                      \
+    for (j = 0; j < nreduce; j += 1)                                    \
+      {                                                                 \
+        write_to[j] = source[j];                                        \
+      }                                                                 \
+    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);             \
+    /* now go through other PEs and get source */                       \
+    pe = PE_start;                                                      \
+    for (i = 0; i < PE_size; i+= 1)                                     \
+      {                                                                 \
+        if (GET_STATE (mype) != pe)                                     \
+          {                                                             \
+            int k;                                                      \
+            int ti = 0, si = 0; /* target and source index walk */      \
+            /* pull in all the full chunks */                           \
+            nget = _SHMEM_REDUCE_MIN_WRKDATA_SIZE * sizeof (Type);      \
+            for (k = 0; k < nloops; k += 1)                             \
+              {                                                         \
+                shmem_getmem (pWrk, & (source[si]), nget, pe);          \
+                for (j = 0; j < _SHMEM_REDUCE_MIN_WRKDATA_SIZE; j += 1)	\
+                  {                                                     \
+                    write_to[ti] = (*the_op) (write_to[ti], pWrk[j]);   \
+                    ti += 1;                                            \
+                  }                                                     \
+                si += _SHMEM_REDUCE_MIN_WRKDATA_SIZE;                   \
+              }                                                         \
+            nget = nrem * sizeof (Type);                                \
+            /* now get remaining part of source */                      \
+            shmem_getmem (pWrk, & (source[si]), nget, pe);              \
+            for (j = 0; j < nrem; j += 1)                               \
+              {                                                         \
+                write_to[ti] = (*the_op) (write_to[ti], pWrk[j]);       \
+                ti += 1;                                                \
+              }                                                         \
+          }                                                             \
+        pe += step;                                                     \
+      }                                                                 \
+    /* everyone has to have finished */                                 \
+    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);             \
+    if (overlap)                                                        \
+      {                                                                 \
+        /* write to real local target and free temp */                  \
+        memcpy (target, tmptrg, snred);                                 \
+        free (tmptrg);                                                  \
+        tmptrg = NULL;                                                  \
+        /* shmem_barrier(PE_start, logPE_stride, PE_size, pSync); */    \
+        /* shmem_quiet (); */                                           \
+      }                                                                 \
   }
 
 SHMEM_UDR_TYPE_OP (short, short);
@@ -362,19 +362,19 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
  *
  */
 
-#define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)			\
-  void									\
+#define SHMEM_REDUCE_TYPE_OP(OpCall, Name, Type)                        \
+  void                                                                  \
   shmem_##Name##_##OpCall##_to_all(Type *target, Type *source, int nreduce, \
-				    int PE_start, int logPE_stride, int PE_size, \
-				    Type *pWrk, long *pSync)		\
-  {									\
-    INIT_CHECK();							\
-    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all");	\
-    SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all");	\
-    __shmem_udr_##Name##_to_all(OpCall##_##Name##_func,			\
-				target, source, nreduce,		\
-				PE_start, logPE_stride, PE_size,	\
-				pWrk, pSync);				\
+                                   int PE_start, int logPE_stride, int PE_size, \
+                                   Type *pWrk, long *pSync)             \
+  {                                                                     \
+    INIT_CHECK();                                                       \
+    SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all");    \
+    SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all");    \
+    __shmem_udr_##Name##_to_all(OpCall##_##Name##_func,                 \
+                                target, source, nreduce,                \
+                                PE_start, logPE_stride, PE_size,        \
+                                pWrk, pSync);                           \
   }
 
 SHMEM_REDUCE_TYPE_OP (sum,       short,         short);
