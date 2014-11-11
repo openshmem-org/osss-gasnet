@@ -49,6 +49,8 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -93,11 +95,11 @@ static inline void *__shmem_symmetric_addr_lookup (void *dest, int pe);
  * trap gasnet errors gracefully
  *
  */
-#define GASNET_SAFE(fncall) \
-  do {                                    \
-    const int _retval = fncall ;					\
-    if (_retval != GASNET_OK)             \
-      {                                                     \
+#define GASNET_SAFE(fncall)                                     \
+  do {                                                          \
+    const int _retval = fncall ;                                \
+    if (_retval != GASNET_OK)                                   \
+      {                                                         \
         comms_bailout ("error calling: %s at %s:%i, %s (%s)\n", \
                        #fncall, __FILE__, __LINE__,             \
                        gasnet_ErrorName (_retval),              \
@@ -205,7 +207,7 @@ static struct timespec delayspec;
  * polling sentinel
  */
 
-static volatile short done = 0;
+static volatile bool done = false;
 
 /**
  * Does comms. service until told not to
@@ -229,7 +231,7 @@ start_service (void *unused)
 /**
  * assume initially we need to manage progress ourselves
  */
-static int use_conduit_thread = 0;
+static bool use_conduit_thread = false;
 
 /**
  * tell a PE how to contend for updates
@@ -262,8 +264,8 @@ __shmem_service_init (void)
    *
    */
 #if 0
-#if defined(GASNETC_IBV_RCV_THREAD) && \
-    (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI))
+#if defined(GASNETC_IBV_RCV_THREAD) &&                          \
+  (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI))
   /*
    * if we have an IBV progress thread configured, then check env for
    * GASNET_RCV_THREAD.
@@ -282,26 +284,26 @@ __shmem_service_init (void)
   char *rtv = __shmem_comms_getenv (grt_str);
   if (EXPR_LIKELY (rtv == NULL))
     {
-      use_conduit_thread = 1;
+      use_conduit_thread = true;
     }
   else
     {
       switch (*rtv)
-	{
-	case '0':
-	case 'n':
-	case 'N':
-	  use_conduit_thread = 0;
-	  break;
-	case '1':
-	case 'y':
-	case 'Y':
-	  use_conduit_thread = 1;
-	  break;
-	default:
-	  use_conduit_thread = 1;
-	  break;
-	}
+        {
+        case '0':
+        case 'n':
+        case 'N':
+          use_conduit_thread = false;
+          break;
+        case '1':
+        case 'y':
+        case 'Y':
+          use_conduit_thread = true;
+          break;
+        default:
+          use_conduit_thread = true;
+          break;
+        }
     }
 #endif /* defined(GASNETC_IBV_RCV_THREAD) &&
           (defined(GASNET_CONDUIT_IBV) || defined(GASNET_CONDUIT_VAPI)) */
@@ -322,10 +324,10 @@ __shmem_service_init (void)
 
       if (EXPR_UNLIKELY (s != 0))
         {
-	  comms_bailout ("internal error: progress thread creation failed (%s)",
-			 strerror (s)
-			 );
-	  /* NOT REACHED */
+          comms_bailout ("internal error: progress thread creation failed (%s)",
+                         strerror (s)
+                         );
+          /* NOT REACHED */
         }
     }
 
@@ -343,18 +345,18 @@ __shmem_service_finalize (void)
 {
   if (! use_conduit_thread)
     {
-      done = 1;
+      done = true;
 
 #if defined(SHMEM_USE_PTHREADS)
       const int s = pthread_join (thr, NULL);
 
       if (EXPR_UNLIKELY (s != 0))
-	{
-	  comms_bailout ("internal error: progress thread termination failed (%s)",
-			 strerror (s)
-			 );
-	  /* NOT REACHED */
-	}
+        {
+          comms_bailout ("internal error: progress thread termination failed (%s)",
+                         strerror (s)
+                         );
+          /* NOT REACHED */
+        }
 #elif defined(SHMEM_USE_QTHREADS)
       /**
        * not sure if need readFF() here
@@ -473,11 +475,11 @@ __shmem_symmetric_addr_lookup (void *dest, int pe)
 
     if ( EXPR_LIKELY ( offset < au ) )
       {
-	/* and where it is in the remote heap */
-	char *rdest = SHMEM_SYMMETRIC_VAR_BASE (pe) + offset;
-	
-	/* assume this is good */
-	return rdest;
+        /* and where it is in the remote heap */
+        char *rdest = SHMEM_SYMMETRIC_VAR_BASE (pe) + offset;
+
+        /* assume this is good */
+        return rdest;
       }
   }
 
@@ -516,7 +518,7 @@ enum
     GASNET_HANDLER_GLOBALVAR_GET_OUT,
     GASNET_HANDLER_GLOBALVAR_GET_BAK,
   };
-		
+
 /**
  * can't just call getenv, it might not pass through environment
  * info to other nodes from launch.
@@ -560,10 +562,10 @@ __shmem_comms_get_segment_size (void)
       const size_t mod = retval % GASNET_PAGESIZE;
 
       if (EXPR_UNLIKELY (mod != 0))
-	{
-	  const size_t div = retval / GASNET_PAGESIZE;
-	  retval = (div + 1) * GASNET_PAGESIZE;
-	}
+        {
+          const size_t div = retval / GASNET_PAGESIZE;
+          retval = (div + 1) * GASNET_PAGESIZE;
+        }
 
       return retval;
       /* NOT REACHED */
@@ -594,7 +596,7 @@ __shmem_comms_get_segment_size (void)
 static
 void
 handler_segsetup_out (gasnet_token_t token,
-		      void *buf, size_t bufsiz)
+                      void *buf, size_t bufsiz)
 {
   gasnet_node_t src_pe;
   gasnet_seginfo_t *gsp = (gasnet_seginfo_t *) buf;
@@ -614,8 +616,8 @@ handler_segsetup_out (gasnet_token_t token,
   /* gasnet_hsl_unlock(& setup_out_lock); */
 
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SETUP_BAK,
-			 (void *) NULL, 0
-			 );
+                         (void *) NULL, 0
+                         );
 }
 
 /**
@@ -656,8 +658,8 @@ __shmem_symmetric_memory_init (void)
   if (EXPR_UNLIKELY (seginfo_table == (gasnet_seginfo_t *) NULL))
     {
       comms_bailout ("could not allocate GASNet segments (%s)",
-		     strerror (errno)
-		     );
+                     strerror (errno)
+                     );
       /* NOT REACHED */
     }
 
@@ -681,10 +683,10 @@ __shmem_symmetric_memory_init (void)
     pm_r = posix_memalign (&great_big_heap, GASNET_PAGESIZE, heapsize);
     if (EXPR_UNLIKELY (pm_r != 0))
       {
-	comms_bailout ("unable to allocate symmetric heap (%s)",
-		       strerror (pm_r)
-		       );
-	/* NOT REACHED */
+        comms_bailout ("unable to allocate symmetric heap (%s)",
+                       strerror (pm_r)
+                       );
+        /* NOT REACHED */
       }
 
     /* everyone has their local info before exchanging messages */
@@ -702,15 +704,15 @@ __shmem_symmetric_memory_init (void)
       gs.size = heapsize;
 
       for (pe = 0; pe < npes; pe += 1)
-	{
-	  /* send to everyone else */
-	  if (EXPR_LIKELY (me != pe))
-	    {
-	      gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
-				       &gs, sizeof (gs)
-				       );
-	    }
-	}
+        {
+          /* send to everyone else */
+          if (EXPR_LIKELY (me != pe))
+            {
+              gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
+                                       &gs, sizeof (gs)
+                                       );
+            }
+        }
 
       /* now wait on the AM replies (0-based AND don't count myself) */
       GASNET_BLOCKUNTIL (seg_setup_replies_received == npes - 1);
@@ -778,24 +780,24 @@ get_lock_for (void *addr)
       gasnet_hsl_t *L = (gasnet_hsl_t *) malloc (sizeof (*L));
 
       if (EXPR_UNLIKELY (L == (gasnet_hsl_t *) NULL))
-	{
-	  comms_bailout ("internal error: unable to allocate lock for address %p",
-			 addr
-			 );
-	  /* NOT REACHED */
-	}
+        {
+          comms_bailout ("internal error: unable to allocate lock for address %p",
+                         addr
+                         );
+          /* NOT REACHED */
+        }
 
       try = (lock_table_t *) malloc (sizeof (*try));
       if (EXPR_UNLIKELY (try == (lock_table_t *) NULL))
-	{
-	  comms_bailout ("internal error: unable to allocate lock table entry for address %p",
-			 addr
-			 );
-	  /* NOT REACHED */
-	}
+        {
+          comms_bailout ("internal error: unable to allocate lock table entry for address %p",
+                         addr
+                         );
+          /* NOT REACHED */
+        }
 
       gasnet_hsl_init (L);
-
+      
       try->addr = addr;
       try->lock = L;
 
@@ -816,27 +818,14 @@ get_lock_for (void *addr)
 
 #define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
 
-#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)				\
-  static								\
-  inline								\
-  void									\
+#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                     \
+  static                                                            \
+  inline                                                            \
+  void                                                              \
   __shmem_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
-  {									\
-    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
+  {                                                                 \
+    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );      \
   }
-
-#if 0
-
-#define SHMEM_WAIT_LOOP_FRAGMENT(Type, Var, Op, CmpValue)	\
-
-    while ( ! ( VOLATILIZE (Type, var) Op cmp_value))			\
-      {									\
-	__shmem_comms_service ();					\
-      }									\
-
-    GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );		\
-
-#endif
 
 COMMS_WAIT_TYPE (short, short, eq, ==);
 COMMS_WAIT_TYPE (int, int, eq, ==);
@@ -877,7 +866,7 @@ COMMS_WAIT_TYPE (longlong, long long, ge, >=);
 static
 void
 handler_swap_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   long long old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
@@ -903,7 +892,7 @@ handler_swap_out (gasnet_token_t token,
 static
 void
 handler_swap_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -927,7 +916,7 @@ static
 inline
 void
 make_swap_request (void *target, void *value, size_t nbytes,
-		   int pe, void *retval)
+                   int pe, void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -961,7 +950,7 @@ static
 inline
 void
 __shmem_comms_swap_request32 (void *target, void *value,
-			      size_t nbytes, int pe, void *retval)
+                              size_t nbytes, int pe, void *retval)
 {
   make_swap_request (target, value, nbytes, pe, retval);
 }
@@ -970,7 +959,7 @@ static
 inline
 void
 __shmem_comms_swap_request64 (void *target, void *value,
-			      size_t nbytes, int pe, void *retval)
+                              size_t nbytes, int pe, void *retval)
 {
   make_swap_request (target, value, nbytes, pe, retval);
 }
@@ -982,7 +971,7 @@ __shmem_comms_swap_request64 (void *target, void *value,
 static
 void
 handler_cswap_out (gasnet_token_t token,
-		   void *buf, size_t bufsiz)
+                   void *buf, size_t bufsiz)
 {
   void *old;
   atomic_payload_t *pp = (atomic_payload_t *) buf;
@@ -1023,7 +1012,7 @@ handler_cswap_out (gasnet_token_t token,
 static
 void
 handler_cswap_bak (gasnet_token_t token,
-		   void *buf, size_t bufsiz)
+                   void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1047,7 +1036,7 @@ static
 inline
 void
 make_cswap_request (void *target, void *cond, void *value,
-		    size_t nbytes, int pe, void *retval)
+                    size_t nbytes, int pe, void *retval)
 {
   atomic_payload_t *cp = (atomic_payload_t *) malloc (sizeof (*cp));
   if (EXPR_UNLIKELY (cp == (atomic_payload_t *) NULL))
@@ -1074,7 +1063,7 @@ static
 inline
 void
 __shmem_comms_cswap_request32 (void *target, void *cond, void *value,
-			       size_t nbytes, int pe, void *retval)
+                               size_t nbytes, int pe, void *retval)
 {
   make_cswap_request (target, cond, value, nbytes, pe, retval);
 }
@@ -1083,7 +1072,7 @@ static
 inline
 void
 __shmem_comms_cswap_request64 (void *target, void *cond, void *value,
-			       size_t nbytes, int pe, void *retval)
+                               size_t nbytes, int pe, void *retval)
 {
   make_cswap_request (target, cond, value, nbytes, pe, retval);
 }
@@ -1099,7 +1088,7 @@ __shmem_comms_cswap_request64 (void *target, void *cond, void *value,
 static
 void
 handler_fadd_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
@@ -1127,7 +1116,7 @@ handler_fadd_out (gasnet_token_t token,
 static
 void
 handler_fadd_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1151,7 +1140,7 @@ static
 inline
 void
 make_fadd_request (void *target, void *value, size_t nbytes, int pe,
-		   void *retval)
+                   void *retval)
 {
   atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
   if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL))
@@ -1175,7 +1164,7 @@ static
 inline
 void
 __shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
-			      void *retval)
+                              void *retval)
 {
   make_fadd_request (target, value, nbytes, pe, retval);
 }
@@ -1184,7 +1173,7 @@ static
 inline
 void
 __shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
-			      void *retval)
+                              void *retval)
 {
   make_fadd_request (target, value, nbytes, pe, retval);
 }
@@ -1200,7 +1189,7 @@ __shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
 static
 void
 handler_finc_out (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
@@ -1228,7 +1217,7 @@ handler_finc_out (gasnet_token_t token,
 static
 void
 handler_finc_bak (gasnet_token_t token,
-		  void *buf, size_t bufsiz)
+                  void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1297,7 +1286,7 @@ __shmem_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
 static
 void
 handler_add_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
@@ -1324,7 +1313,7 @@ handler_add_out (gasnet_token_t token,
 static
 void
 handler_add_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1366,10 +1355,10 @@ make_add_request (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
- __shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
- {
-   make_add_request (target, value, nbytes, pe);
- }
+__shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_add_request (target, value, nbytes, pe);
+}
 
 static
 inline
@@ -1389,7 +1378,7 @@ __shmem_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
 static
 void
 handler_inc_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   long long old = 0;
   long long plus;
@@ -1421,7 +1410,7 @@ handler_inc_out (gasnet_token_t token,
 static
 void
 handler_inc_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1468,10 +1457,10 @@ make_inc_request (void *target, size_t nbytes, int pe)
 static
 inline
 void
- __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
- {
-   make_inc_request (target, nbytes, pe);
- }
+__shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
+{
+  make_inc_request (target, nbytes, pe);
+}
 
 static
 inline
@@ -1494,7 +1483,7 @@ __shmem_comms_inc_request64 (void *target, size_t nbytes, int pe)
 static
 void
 handler_xor_out (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
   long long v;
@@ -1519,7 +1508,7 @@ handler_xor_out (gasnet_token_t token,
 static
 void
 handler_xor_bak (gasnet_token_t token,
-		 void *buf, size_t bufsiz)
+                 void *buf, size_t bufsiz)
 {
   atomic_payload_t *pp = (atomic_payload_t *) buf;
 
@@ -1559,10 +1548,10 @@ make_xor_request (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
- __shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
- {
-   make_xor_request (target, value, nbytes, pe);
- }
+__shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
+{
+  make_xor_request (target, value, nbytes, pe);
+}
 
 static
 inline
@@ -1709,8 +1698,8 @@ allocate_buffer_and_check (void **buf, size_t siz)
       break;
     default:
       comms_bailout ("internal error: unknown error with global variable payload (posix_memalign returned %d)",
-		     r
-		     );
+                     r
+                     );
       /* NOT REACHED */
       break;
     }
@@ -1728,7 +1717,7 @@ allocate_buffer_and_check (void **buf, size_t siz)
 static
 void
 handler_globalvar_put_out (gasnet_token_t token,
-			   void *buf, size_t bufsiz)
+                           void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   void *data = buf + sizeof (*pp);
@@ -1738,8 +1727,8 @@ handler_globalvar_put_out (gasnet_token_t token,
 
   /* return ack, just need the control structure */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
-			 buf, sizeof (*pp)
-			 );
+                         buf, sizeof (*pp)
+                         );
 }
 
 /**
@@ -1748,7 +1737,7 @@ handler_globalvar_put_out (gasnet_token_t token,
 static
 void
 handler_globalvar_put_bak (gasnet_token_t token,
-			   void *buf, size_t bufsiz)
+                           void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
@@ -1766,8 +1755,8 @@ static
 inline
 void
 put_a_chunk (void *buf, size_t bufsize,
-	     void *target, void *source,
-	     size_t offset, size_t bytes_to_send, int pe)
+             void *target, void *source,
+             size_t offset, size_t bytes_to_send, int pe)
 {
   globalvar_payload_t *p = buf;
   void *data = buf + sizeof (*p);
@@ -1789,8 +1778,8 @@ put_a_chunk (void *buf, size_t bufsize,
   LOAD_STORE_FENCE ();
 
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT,
-			   p, bufsize
-			   );
+                           p, bufsize
+                           );
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1804,7 +1793,7 @@ static
 inline
 void
 __shmem_comms_globalvar_put_request (void *target, void *source,
-				     size_t nbytes, int pe)
+                                     size_t nbytes, int pe)
 {
   /* get the buffer size and chop off control structure */
   const size_t max_req = gasnet_AMMaxMedium ();
@@ -1828,12 +1817,12 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
       size_t i;
 
       for (i = 0; i < nchunks; i += 1)
-	{
-	  put_a_chunk (put_buf, alloc_size,
-		       target, source, offset, payload_size, pe
-		       );
-	  offset += payload_size;
-	}
+        {
+          put_a_chunk (put_buf, alloc_size,
+                       target, source, offset, payload_size, pe
+                       );
+          offset += payload_size;
+        }
     }
 
   if (EXPR_LIKELY (rem_send > 0))
@@ -1841,8 +1830,8 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
       payload_size = rem_send;
 
       put_a_chunk (put_buf, alloc_size,
-		   target, source, offset, payload_size, pe
-		   );
+                   target, source, offset, payload_size, pe
+                   );
     }
 
   free (put_buf);
@@ -1859,7 +1848,7 @@ __shmem_comms_globalvar_put_request (void *target, void *source,
 static
 void
 handler_globalvar_get_out (gasnet_token_t token,
-			   void *buf, size_t bufsiz)
+                           void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
   globalvar_payload_t *datap = buf + sizeof (*pp);
@@ -1870,8 +1859,8 @@ handler_globalvar_get_out (gasnet_token_t token,
 
   /* return ack, copied data is returned */
   gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
-			 buf, bufsiz
-			 );
+                         buf, bufsiz
+                         );
 }
 
 /**
@@ -1880,7 +1869,7 @@ handler_globalvar_get_out (gasnet_token_t token,
 static
 void
 handler_globalvar_get_bak (gasnet_token_t token,
-			   void *buf, size_t bufsiz)
+                           void *buf, size_t bufsiz)
 {
   globalvar_payload_t *pp = (globalvar_payload_t *) buf;
 
@@ -1899,8 +1888,8 @@ static
 inline
 void
 get_a_chunk (globalvar_payload_t * p, size_t bufsize,
-	     void *target, void *source,
-	     size_t offset, size_t bytes_to_send, int pe)
+             void *target, void *source,
+             size_t offset, size_t bytes_to_send, int pe)
 {
   /*
    * build payload to send
@@ -1915,8 +1904,8 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
   atomic_inc_get_counter ();
 
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_GET_OUT,
-			   p, bufsize
-			   );
+                           p, bufsize
+                           );
 
   WAIT_ON_COMPLETION (p->completed);
 
@@ -1931,7 +1920,7 @@ static
 inline
 void
 __shmem_comms_globalvar_get_request (void *target, void *source,
-				     size_t nbytes, int pe)
+                                     size_t nbytes, int pe)
 {
   /* get the buffer size and chop off control structure */
   const size_t max_req = gasnet_AMMaxMedium ();
@@ -1956,12 +1945,12 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
       payload_size = max_data;
 
       for (i = 0; i < nchunks; i += 1)
-	{
-	  get_a_chunk (get_buf, alloc_size,
-		       target, source, offset, payload_size, pe
-		       );
-	  offset += payload_size;
-	}
+        {
+          get_a_chunk (get_buf, alloc_size,
+                       target, source, offset, payload_size, pe
+                       );
+          offset += payload_size;
+        }
     }
 
   if (EXPR_LIKELY (rem_send > 0))
@@ -1969,8 +1958,8 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
       payload_size = rem_send;
 
       get_a_chunk (get_buf, alloc_size,
-		   target, source, offset, payload_size, pe
-		   );
+                   target, source, offset, payload_size, pe
+                   );
     }
 
   free (get_buf);
@@ -2138,10 +2127,10 @@ static nb_table_t *nb_table = NULL;
  * couple of simple helper macros
  */
 
-#define HASH_FIND_NB_TABLE(head, findnb, out)			\
+#define HASH_FIND_NB_TABLE(head, findnb, out)                 \
   HASH_FIND(hh, head, findnb, sizeof (gasnet_handle_t), out)
 
-#define HASH_ADD_NB_TABLE(head, nbfield, add)			\
+#define HASH_ADD_NB_TABLE(head, nbfield, add)                 \
   HASH_ADD(hh, head, nbfield, sizeof (gasnet_handle_t), add)
 
 /**
@@ -2183,19 +2172,19 @@ nb_table_wait (void)
   if (EXPR_UNLIKELY (g != NULL))
     {
       HASH_ITER (hh, nb_table, current, tmp)
-	{
-	  g[i] = current->handle;
-	  i += 1;
-	}
+        {
+          g[i] = current->handle;
+          i += 1;
+        }
       gasnet_wait_syncnb_all (g, n);
       free (g);
     }
   else
     {
       HASH_ITER (hh, nb_table, current, tmp)
-	{
-	  gasnet_wait_syncnb (current->handle);
-	}
+        {
+          gasnet_wait_syncnb (current->handle);
+        }
     }
 }
 
@@ -2206,9 +2195,9 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
 {
   void *n;
   gasnet_handle_t g = gasnet_put_nb_bulk (pe,
-					  (void *) dst,
-					  (void *) src,
-					  len);
+                                          (void *) dst,
+                                          (void *) src,
+                                          len);
   n = nb_table_add (g);
   return n;
 }
@@ -2283,9 +2272,9 @@ get_nb_helper (void *dst, void *src, size_t len, int pe)
 {
   void *n;
   gasnet_handle_t g = gasnet_get_nb_bulk ((void *) dst,
-					  pe,
-					  (void *) src,
-					  len);
+                                          pe,
+                                          (void *) src,
+                                          len);
   n = nb_table_add (g);
   return n;
 }
@@ -2355,9 +2344,9 @@ __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
       /* have we already waited on this handle? */
       HASH_FIND_NB_TABLE (nb_table, n, res);
       if (res == NULL)
-	{
-	  *flag = 1;		/* cleared => complete */
-	}
+        {
+          *flag = 1;		/* cleared => complete */
+        }
 
       /* if gasnet says "ok", then complete */
       s = gasnet_try_syncnb (n->handle);
@@ -2473,20 +2462,20 @@ parse_cmdline (void)
     {
       int c = fgetc (fp);
       switch (c)
-	{
-	case EOF:		/* end of args */
-	  argv[i] = NULL;
-	  goto end;
-	  break;
-	case '\0':		/* end of this arg */
-	  *p = c;
-	  argv[i++] = strdup (an_arg); /* unchecked return */
-	  p = an_arg;
-	  break;
-	default:		/* copy out char in this arg  */
-	  *p++ = c;
-	  break;
-	}
+        {
+        case EOF:		/* end of args */
+          argv[i] = NULL;
+          goto end;
+          break;
+        case '\0':		/* end of this arg */
+          *p = c;
+          argv[i++] = strdup (an_arg); /* unchecked return */
+          p = an_arg;
+          break;
+        default:		/* copy out char in this arg  */
+          *p++ = c;
+          break;
+        }
     }
  end:
   fclose (fp);
@@ -2501,12 +2490,12 @@ release_cmdline (void)
     {
       int i;
       for (i = 0; i < argc; i += 1)
-	{
-	  if (argv[i] != NULL)
-	    {
-	      free (argv[i]);
-	    }
-	}
+        {
+          if (argv[i] != NULL)
+            {
+              free (argv[i]);
+            }
+        }
     }
 }
 
@@ -2552,8 +2541,8 @@ place_init (void)
   if (EXPR_UNLIKELY (s != 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: can't find any node information"
-		     );
+                     "internal error: can't find any node information"
+                     );
     }
 }
 
@@ -2619,8 +2608,8 @@ __shmem_comms_init (void)
   if (EXPR_UNLIKELY (atexit (exit_handler) != 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: cannot register shutdown handler"
-		     );
+                     "internal error: cannot register shutdown handler"
+                     );
       /* NOT REACHED */
     }
 
@@ -2670,8 +2659,8 @@ __shmem_comms_exit (int status)
   SET_STATE (pe_status, PE_SHUTDOWN);
 
   __shmem_trace (SHMEM_LOG_FINALIZE,
-		 "finalizing shutdown, handing off to communications layer"
-		 );
+                 "finalizing shutdown, handing off to communications layer"
+                 );
 
   /*
    * TODO, tc: need to be better at cleanup for 1.2, since finalize
@@ -2717,8 +2706,6 @@ __shmem_comms_exit (int status)
  * list.  In all processes the 2nd SHMEM_LOCK is used to hold and
  * manage the distributed linked list state.
  */
-
-#include <stdint.h>
 
 typedef struct
 {
@@ -2820,14 +2807,14 @@ __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
        * into it & return prev value
        */
       tmp.l_word = shmem_long_cswap ((long *) &lock->l_word,
-				    tmp.l_word,
-				    _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
+                                     tmp.l_word,
+                                     _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
 
       if (tmp.l_next == this_pe)
-	{
-	  /* We were still the only requestor, all done */
-	  return;
-	}
+        {
+          /* We were still the only requestor, all done */
+          return;
+        }
 
       /*
        * Somebody is about to chain themself off us, wait for them to do it.
@@ -2839,9 +2826,9 @@ __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
        *
        */
       GASNET_BLOCKUNTIL ( !
-			  ((node->l_next == _SHMEM_LOCK_FREE) ||
-			   (node->l_next < 0))
-			  );
+                          ((node->l_next == _SHMEM_LOCK_FREE) ||
+                           (node->l_next < 0))
+                          );
 
     }
 
