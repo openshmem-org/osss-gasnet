@@ -1,0 +1,28 @@
+# Emacs: -*- mode: text; mode: auto-fill; -*-
+
+Updates in Release 1.0h:
+========================
+
+Configure
+---------
+
+  * IMPORTANT:
+
+      The library is now compiled as a statically linked archive,
+      rather than as a shared object.  Strongly recommend completely
+      uninstalling previous release(s) if installing over the top.
+
+      The "config" file for selecting collective implementations has
+      been removed, use environment variables instead.
+
+  * Run configure with "--help" to see all options/flags.
+
+  * Updated INSTALL instructions to help with different distributions.
+
+Build
+-----
+
+    * Simplified build process.
+
+    * Using faster broadcast and barrier methods as default.
+
