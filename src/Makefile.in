@@ -230,9 +230,6 @@ CPPFLAGS         = @CPPFLAGS@
 LD               = @LD@
 LDFLAGS          = @LDFLAGS@
 
-M4               = m4
-M4FLAGS          =
-
 AR               = ar
 ARFLAGS          = cqv
 RANLIB           = ranlib
@@ -269,7 +266,6 @@ endif
 
 ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
-M4FLAGS          = -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
 CFLAGS          += @THREADFLAGS@
