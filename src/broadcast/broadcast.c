@@ -53,7 +53,7 @@
 
 #include "broadcast-impl.h"
 
-static char *default_implementation = "linear";
+static char *default_implementation = "tree";
 
 static void (*func32) ();
 static void (*func64) ();

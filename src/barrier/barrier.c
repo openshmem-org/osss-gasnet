@@ -52,7 +52,7 @@
 # include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static char *default_implementation = "linear";
+static char *default_implementation = "tree";
 
 static void (*func) ();
 
