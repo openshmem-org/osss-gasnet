@@ -151,7 +151,7 @@ $(SHMEM_CC):	$(SHMEM_CC).in
 		-e "s%@SHMEM_LDFLAGS@%$(SHMEM_LDFLAGS)%" \
 		-e "s%@SHMEM_LIBS@%$(SHMEM_LIBS)%" \
 		-e "s%@SHMEM_INC_DIR@%$(SHMEM_INC_DIR)%" \
-		-e "s%@GASNET_LDFLAGS@%$(LDFLAGS)%" \
+		-e "s%@GASNET_LDFLAGS@%$(GASNET_LDFLAGS)%" \
 		-e "s%@GASNET_LIBS@%$(GASNET_LIBS)%" \
 		-e "s%@DRIVER@%$(GASNET_LD)%" \
 		-e "s%[ |\\t][ |\\t]*$$%%g" \
