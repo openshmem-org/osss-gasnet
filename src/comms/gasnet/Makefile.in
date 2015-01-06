@@ -6,6 +6,7 @@
 #   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
 #   (shmem) is released by Open Source Software Solutions, Inc., under an
 #   agreement with Silicon Graphics International Corp. (SGI).
+# Copyright (c) 2015 Intel Corporation. All rights reserved.
 #
 # All rights reserved.
 #
@@ -49,10 +50,10 @@ SHMEM_LIB_DIR    = @LIB_DIR@
 SHMEM_LIBNAME    = openshmem
 # !! hardwired !!
 SHMEM_LIBS       = -l$(SHMEM_LIBNAME)
-SHMEM_LIBS      += @EXE_LIBS@ -lelf
+SHMEM_LIBS      += -lelf
 # SHMEM_LIBS      += @(SHMEM_LIBS) -ldl
 # SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) -Wl,-rpath,$(SHMEM_LIB_DIR)
-SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR)
+SHMEM_LDFLAGS    = -L$(SHMEM_LIB_DIR) @EXE_LIBS@
 
 #
 # GASNet installation root, and setup
