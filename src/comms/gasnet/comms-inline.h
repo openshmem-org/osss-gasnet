@@ -2838,9 +2838,9 @@ shmemi_comms_init (void)
  * With CRAY SHMEM locks we are given an 8-byte global symmetric
  * object. This memory is pre-initialised to zero in all processes.
  *
- * We split this lock memory into two 32-bit halves where each half
- * then represents a SHMEM_LOCK.  The SHMEM_LOCK struct consists of a
- * 16-bit boolean flag (locked) and a 16-bit vp (next)
+ * The size of SHMEM_LOCK must be limited to 4 bytes for correctness.
+ * Two locks must fit in an 8-byte long. To support as many PEs as possible,
+ * the next field is 3 bytes for a max of 2^24-1 ranks.
  *
  * One vp is chosen to the global lock owner process and here the 1st
  * SHMEM_LOCK acts as the 'tail' of a globally distributed linked
@@ -2854,9 +2854,8 @@ typedef struct
     {
         struct
         {
-            volatile uint16_t locked;   /* boolean to indicate current state
-                                           of lock */
-            volatile int16_t next;  /* vp of next requestor */
+            volatile uint8_t locked; /* boolean to indicate state of lock */
+            volatile int8_t next[3];    /* vp of next requestor */
         } s;
         volatile uint32_t word;
     } u;
@@ -2875,6 +2874,20 @@ enum
 /* Macro to map lock virtual address to owning process vp */
 #define LOCK_OWNER(LOCK) ( ((uintptr_t)(LOCK) >> 3) % (GET_STATE (numpes)) )
 
+static inline int
+__shmem_comms_lock_extract_next(SHMEM_LOCK * lock)
+{
+    return lock->l_next[0] | (lock->l_next[1] << 8) | (lock->l_next[2] << 16);
+}
+
+static inline void
+__shmem_comms_lock_insert_next(SHMEM_LOCK * lock, int next)
+{
+    lock->l_next[0] = next;
+    lock->l_next[1] = next >> 8;
+    lock->l_next[2] = next >> 16;
+}
+
 static inline void
 shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
@@ -2882,11 +2895,11 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
     long locked;
     int prev_pe;
 
-    node->l_next = SHMEM_LOCK_FREE;
+    __shmem_comms_lock_insert_next (node, SHMEM_LOCK_FREE);
 
     /* Form our lock request (integer) */
     tmp.l_locked = 1;
-    tmp.l_next = this_pe;
+    __shmem_comms_lock_insert_next (&tmp, this_pe);
 
     LOAD_STORE_FENCE ();
 
@@ -2903,11 +2916,15 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
     }
 
     /* Extract the global lock (tail) state */
-    prev_pe = tmp.l_next;
+    prev_pe = __shmem_comms_lock_extract_next (&tmp);
     locked = tmp.l_locked;
 
     /* Is the lock held by someone else ? */
     if (locked) {
+        SHMEM_LOCK this_pe_lock;
+
+        __shmem_comms_lock_insert_next (&this_pe_lock, this_pe);
+
         /*
          * This flag gets cleared (remotely) once the lock is dropped
          */
@@ -2919,7 +2936,8 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
          * I'm now next in global linked list, update l_next in the
          * prev_pe process with our vp
          */
-        shmem_short_p ((short *) &node->l_next, this_pe, prev_pe);
+        shmem_putmem ((void *) node->l_next, (void *)this_pe_lock.l_next,
+                sizeof (this_pe_lock.l_next), prev_pe);
 
         /* Wait for flag to be released */
         GASNET_BLOCKUNTIL (!(node->l_locked));
@@ -2930,12 +2948,12 @@ static inline void
 shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
     /* Is there someone on the linked list ? */
-    if (node->l_next == SHMEM_LOCK_FREE) {
+    if (__shmem_comms_lock_extract_next(node) == SHMEM_LOCK_FREE) {
         SHMEM_LOCK tmp;
 
         /* Form the remote atomic compare value (int) */
         tmp.l_locked = 1;
-        tmp.l_next = this_pe;
+        __shmem_comms_lock_insert_next (&tmp, this_pe);
 
         /*
          * If global lock owner value still equals this_pe, load RESET
@@ -2945,7 +2963,7 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
                                       tmp.l_word,
                                       SHMEM_LOCK_RESET, LOCK_OWNER (lock));
 
-        if (tmp.l_next == this_pe) {
+        if (__shmem_comms_lock_extract_next (&tmp) == this_pe) {
             /* We were still the only requestor, all done */
             return;
         }
@@ -2960,21 +2978,22 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
          *
          */
         GASNET_BLOCKUNTIL (!
-                           ((node->l_next == SHMEM_LOCK_FREE) ||
-                            (node->l_next < 0))
+                           ((__shmem_comms_lock_extract_next (node) ==
+                                    SHMEM_LOCK_FREE) ||
+                            (__shmem_comms_lock_extract_next (node) < 0))
             );
 
     }
 
     /* Be more strict about the test above, this memory consistency problem is
        a tricky one */
-    GASNET_BLOCKUNTIL (!(node->l_next < 0));
+    GASNET_BLOCKUNTIL (!(__shmem_comms_lock_extract_next (node) < 0));
 
     /*
      * Release any waiters on the linked list
      */
 
-    shmem_short_p ((short *) &node->l_locked, 0, node->l_next);
+    shmem_char_p ((char *) &node->l_locked, 0, __shmem_comms_lock_extract_next (node));
 }
 
 
