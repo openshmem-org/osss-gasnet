@@ -140,6 +140,7 @@ report_up (void)
  * - C/C++:
  * \code
  *   void start_pes (int npes);
+ *   void shmem_init (void);
  * \endcode
  *
  * - Fortran:
@@ -186,25 +187,24 @@ start_pes (int npes)
    */
 }
 
-#ifdef HAVE_FEATURE_EXPERIMENTAL
-
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmemx_init = pshmemx_init
-# define shmemx_init pshmemx_init
-# pragma weak shmemx_finalize = pshmemx_finalize
-# define shmemx_finalize pshmemx_finalize
+# pragma weak shmem_init = pshmem_init
+# define shmem_init pshmem_init
+# pragma weak shmem_finalize = pshmem_finalize
+# define shmem_finalize pshmem_finalize
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
-shmemx_init (void)
+shmem_init (void)
 {
   start_pes (0);
 }
 
+/*
+ * TODO: make sure atexit() knows if finalize already called explicitly
+ */
 void
-shmemx_finalize (void)
+shmem_finalize (void)
 {
   __shmem_comms_exit (0);
 }
-
-#endif /* HAVE_FEATURE_EXPERIMENTAL */

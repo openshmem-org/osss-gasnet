@@ -1256,3 +1256,15 @@ FORTRANIFY (shmemx_wtime) (void)
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
+
+void
+FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
+{
+  shmem_info_get_version (major, minor);
+}
+
+void
+FORTRANIFY (shmem_info_get_name) (char *name)
+{
+  shmem_info_get_name (name);
+}

@@ -76,14 +76,14 @@ extern "C"
    * OpenSHMEM release
    */
 #define SHMEM_VERSION_MAJOR 1
-#define SHMEM_VERSION_MINOR 0
+#define SHMEM_VERSION_MINOR 2
 
-  /*
-   * This tracks maintenance/bugfix
-   * releases of Major.Minor versions
-   * (Internal use, not API)
-   */
-#define SHMEM_VERSION_BUGFIX 'f'
+#define _SHMEM_MAX_NAME_LEN 64
+
+#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
+
+  extern void shmem_info_get_version (int *major, int *minor);
+  extern void shmem_info_get_name (char *name);
 
   /*
    * not all compilers support this annotation
@@ -102,7 +102,9 @@ extern "C"
    * init & query
    */
 
-  extern void start_pes (int npes);
+  extern void start_pes (int npes); /* deprecated */
+  extern void shmem_init (void);
+  extern void shmem_finalize (void);
 
   extern int _my_pe (void) _WUR;
   extern int shmem_my_pe (void) _WUR;
