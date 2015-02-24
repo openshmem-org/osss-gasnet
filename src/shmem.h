@@ -310,10 +310,16 @@ extern "C"
   extern long malloc_error;
 #endif				/* not present in SGI version */
 
+  /* deprecated calls from 1.2 ++ */
   extern void *shmalloc (size_t size) _WUR;
   extern void shfree (void *ptr);
   extern void *shrealloc (void *ptr, size_t size) _WUR;
   extern void *shmemalign (size_t alignment, size_t size) _WUR;
+
+  extern void *shmem_malloc (size_t size) _WUR;
+  extern void shmem_free (void *ptr);
+  extern void *shmem_realloc (void *ptr, size_t size) _WUR;
+  extern void *shmem_align (size_t alignment, size_t size) _WUR;
 
   /*
    * wait operations

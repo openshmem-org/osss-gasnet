@@ -208,14 +208,31 @@ shmalloc_nb (size_t size)
  * everyone will be ready for remote memory use afterward
  */
 
+static
+inline
 void *
-shmalloc (size_t size)
+shmalloc_private (size_t size)
 {
   void *addr = shmalloc_nb (size);
 
   shmem_barrier_all ();
 
   return addr;
+}
+
+/*
+ * Deprecated call as of 1.2
+ */
+void *
+shmalloc (size_t size)
+{
+  return shmalloc_private (size);
+}
+
+void *
+shmem_malloc (size_t size)
+{
+  return shmalloc_private (size);
 }
 
 
@@ -263,12 +280,29 @@ shfree_nb (void *addr)
  * everyone has synched beforehand
  */
 
+static
+inline
 void
-shfree (void *addr)
+shfree_private (void *addr)
 {
   shmem_barrier_all ();
 
   shfree_nb (addr);
+}
+
+/*
+ * Deprecated call as of 1.2
+ */
+void
+shfree (void *addr)
+{
+  shfree_private (addr);
+}
+
+void
+shmem_free (void *addr)
+{
+  shfree_private (addr);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -280,8 +314,10 @@ shfree (void *addr)
  * Resize previously allocated symmetric memory
  */
 
+static
+inline
 void *
-shrealloc (void *addr, size_t size)
+shrealloc_private (void *addr, size_t size)
 {
   void *newaddr;
 
@@ -332,6 +368,21 @@ shrealloc (void *addr, size_t size)
   return newaddr;
 }
 
+/*
+ * Deprecated call as of 1.2
+ */
+void *
+shrealloc (void *addr, size_t size)
+{
+  return shrealloc_private (addr, size);
+}
+
+void *
+shmem_realloc (void *addr, size_t size)
+{
+  return shrealloc_private (addr, size);
+}
+
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmemalign = pshmemalign
 # define shmemalign pshmemalign
@@ -342,8 +393,10 @@ shrealloc (void *addr, size_t size)
  * has a byte alignment specified by the alignment argument.
  */
 
+static
+inline
 void *
-shmemalign (size_t alignment, size_t size)
+shmemalign_private (size_t alignment, size_t size)
 {
   void *addr;
 
@@ -375,6 +428,22 @@ shmemalign (size_t alignment, size_t size)
   shmem_barrier_all ();
 
   return addr;
+}
+
+
+/*
+ * Deprecated call as of 1.2
+ */
+void *
+shmemalign (size_t alignment, size_t size)
+{
+  return shmemalign_private (alignment, size);
+}
+
+void *
+shmem_align (size_t alignment, size_t size)
+{
+  return shmemalign_private (alignment, size);
 }
 
 /**

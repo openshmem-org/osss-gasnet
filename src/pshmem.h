@@ -1,8 +1,4 @@
 /*
- * Emacs: -*- mode: c -*-
- */
-
-/*
  *
  * Copyright (c) 2011 - 2015
  *   University of Houston System and Oak Ridge National Laboratory.
@@ -40,12 +36,6 @@
  */
 
 
-
-/*
- * NOT INSTALLED, PART OF SOURCE TREE ONLY
- *
- */
-
 #ifndef _PSHMEM_H
 #define _PSHMEM_H 1
 
@@ -54,13 +44,18 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif				/* __cplusplus */
+#endif	/* __cplusplus */
+
+  extern void pshmem_info_get_version (int *major, int *minor);
+  extern void pshmem_info_get_name (char *name);
 
   /*
    * init & query
    */
 
   extern void pstart_pes (int npes);
+  extern void pshmem_init (void);
+  extern void pshmem_finalize (void);
 
   extern int p_my_pe (void) _WUR;
   extern int pshmem_my_pe (void) _WUR;

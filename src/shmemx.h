@@ -49,9 +49,6 @@
 
 typedef void *shmemx_request_handle_t;
 
-extern void shmemx_init (void);
-extern void shmemx_finalize (void);
-
 extern void shmemx_short_put_nb (short *dest, const short *src, size_t nelems,
                                  int pe, shmemx_request_handle_t *desc);
 extern void shmemx_int_put_nb (int *dest, const int *src, size_t nelems,
@@ -111,11 +108,6 @@ extern void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
  * renamed & non-blocking memory management
  *
  */
-#define shmemx_malloc(s)      shmalloc(s)
-#define shmemx_free(a)        shfree(a)
-#define shmemx_realloc(p, s)  shrealloc(p, s)
-#define shmemx_align(a, s)    shmemalign(a, s)
-
 extern void *shmalloc_nb (size_t size) _WUR;
 extern void  shfree_nb (void *addr);
 
