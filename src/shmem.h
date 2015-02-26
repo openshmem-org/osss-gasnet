@@ -88,9 +88,6 @@ extern "C"
   /*
    * not all compilers support this annotation
    *
-   * Yes: GNU, PGI, Intel, Open64/UH   (others?)
-   * No: Sun/Oracle Studio
-   *
    */
 #if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
@@ -99,17 +96,26 @@ extern "C"
 #endif
 
   /*
+   * TODO: need better detection
+   */
+#if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
+# define _DEP(...)  __attribute__((deprecated("use " # __VA_ARGS__ " instead")))
+#else
+# define _DEP(...)
+#endif
+
+  /*
    * init & query
    */
 
-  extern void start_pes (int npes); /* deprecated */
+  extern void start_pes (int npes) _DEP(shmem_init);
   extern void shmem_init (void);
   extern void shmem_finalize (void);
 
-  extern int _my_pe (void) _WUR;
+  extern int _my_pe (void) _WUR _DEP(shmem_my_pe);
   extern int shmem_my_pe (void) _WUR;
 
-  extern int _num_pes (void) _WUR;
+  extern int _num_pes (void) _WUR _DEP(shmem_n_pes);
   extern int shmem_n_pes (void) _WUR;
 
   /*
@@ -311,10 +317,10 @@ extern "C"
 #endif				/* not present in SGI version */
 
   /* deprecated calls from 1.2 ++ */
-  extern void *shmalloc (size_t size) _WUR;
-  extern void shfree (void *ptr);
-  extern void *shrealloc (void *ptr, size_t size) _WUR;
-  extern void *shmemalign (size_t alignment, size_t size) _WUR;
+  extern void *shmalloc (size_t size) _WUR _DEP(shmem_malloc);
+  extern void shfree (void *ptr) _DEP(shmem_free);
+  extern void *shrealloc (void *ptr, size_t size) _WUR _DEP(shmem_realloc);
+  extern void *shmemalign (size_t alignment, size_t size) _WUR _DEP(shmem_align);
 
   extern void *shmem_malloc (size_t size) _WUR;
   extern void shmem_free (void *ptr);
@@ -399,12 +405,12 @@ extern "C"
    * cache flushing (deprecated)
    */
 
-  extern void shmem_clear_cache_inv (void);
-  extern void shmem_set_cache_inv (void);
-  extern void shmem_clear_cache_line_inv (void *target);
-  extern void shmem_set_cache_line_inv (void *target);
-  extern void shmem_udcflush (void);
-  extern void shmem_udcflush_line (void *target);
+  extern void shmem_clear_cache_inv (void) _DEP();
+  extern void shmem_set_cache_inv (void) _DEP();
+  extern void shmem_clear_cache_line_inv (void *target) _DEP();
+  extern void shmem_set_cache_line_inv (void *target) _DEP();
+  extern void shmem_udcflush (void) _DEP();
+  extern void shmem_udcflush_line (void *target) _DEP();
 
   /*
    * reductions

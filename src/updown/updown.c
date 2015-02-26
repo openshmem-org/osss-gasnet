@@ -214,5 +214,5 @@ start_pes (int npes)
 void
 shmem_finalize (void)
 {
-  __shmem_comms_exit (0);
+  __shmem_comms_finalize ();
 }

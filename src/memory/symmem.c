@@ -64,7 +64,7 @@ long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
 #ifdef HAVE_FEATURE_DEBUG
 
 /**
- * check that all PEs see the same shmalloc size: return first
+ * check that all PEs see the same symmetric malloc size: return first
  * mis-matching PE id if there's a mis-match, return -1 to record
  * correct symmetry (no offending PE)
  */
@@ -327,7 +327,7 @@ shrealloc_private (void *addr, size_t size)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
                      "address passed to shrealloc() is null, handing to shmalloc()");
-      return shmalloc (size);
+      return shmem_malloc (size);
       /* NOT REACHED */
     }
 
@@ -335,7 +335,7 @@ shrealloc_private (void *addr, size_t size)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
                      "size passed to shrealloc() is 0, handing to shfree()");
-      shfree (addr);
+      shmem_free (addr);
       return (void *) NULL;
       /* NOT REACHED */
     }

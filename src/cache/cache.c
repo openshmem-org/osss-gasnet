@@ -69,19 +69,6 @@
 # define shmem_udcflush_line pshmem_udcflush_line
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static
-inline
-void
-cache_helper (const char *name)
-{
-  INIT_CHECK ();
-  __shmem_trace (SHMEM_LOG_CACHE,
-		 "operation \"%s\" is a no-op",
-		 name
-		 );
-  return;
-}
-
 /**
  * \brief shmem_set_cache_inv has no effect.
  *
@@ -108,7 +95,6 @@ cache_helper (const char *name)
 void
 shmem_set_cache_inv (void)
 {
-  cache_helper ("shmem_set_cache_inv");
 }
 
 /**
@@ -137,7 +123,6 @@ shmem_set_cache_inv (void)
 void
 shmem_clear_cache_inv (void)
 {
-  cache_helper ("shmem_clear_cache_inv");
 }
 
 /**
@@ -165,10 +150,8 @@ shmem_clear_cache_inv (void)
  *
  */
 
-void
-shmem_set_cache_line_inv (void *target)
+void shmem_set_cache_line_inv (void *target)
 {
-  cache_helper ("shmem_set_cache_line_inv");
 }
 
 /**
@@ -199,7 +182,6 @@ shmem_set_cache_line_inv (void *target)
 void
 shmem_clear_cache_line_inv (void *target)
 {
-  cache_helper ("shmem_clear_cache_line_inv");
 }
 
 /**
@@ -228,7 +210,6 @@ shmem_clear_cache_line_inv (void *target)
 void
 shmem_udcflush (void)
 {
-  cache_helper ("shmem_udcflush");
 }
 
 /**
@@ -259,5 +240,4 @@ shmem_udcflush (void)
 void
 shmem_udcflush_line (void *target)
 {
-  cache_helper ("shmem_udcflush_line");
 }

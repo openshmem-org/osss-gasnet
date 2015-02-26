@@ -47,7 +47,7 @@ void
 __shmem_barrier_linear (int PE_start, int logPE_stride, int PE_size,
                         long *pSync)
 {
-  const int me = _my_pe ();
+  const int me = shmem_my_pe ();
   const int step = 1 << logPE_stride;
   const long nreplies = _SHMEM_SYNC_VALUE + PE_size - 1;
   int i, round;

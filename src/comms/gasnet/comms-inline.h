@@ -2518,12 +2518,14 @@ maximize_gasnet_timeout (void)
  */
 
 /**
- * registered by init to trigger shutdown at exit (thus not inlined)
+ * finalize can now happen in 2 ways: (1) program finishes via
+ * atexit(), or (2) user explicitly calls shmem_finalize().  Need to
+ * detect explicit call and not terminate program until exit.
  *
  */
 static
 void
-exit_handler (void)
+__shmem_comms_finalize (void)
 {
   __shmem_comms_exit (EXIT_SUCCESS);
 }
@@ -2605,10 +2607,10 @@ __shmem_comms_init (void)
   place_init ();
 
   /* register shutdown handler */
-  if (EXPR_UNLIKELY (atexit (exit_handler) != 0))
+  if (EXPR_UNLIKELY (atexit (__shmem_comms_finalize) != 0))
     {
       __shmem_trace (SHMEM_LOG_FATAL,
-                     "internal error: cannot register shutdown handler"
+                     "internal error: cannot register OpenSHMEM finalize handler"
                      );
       /* NOT REACHED */
     }
