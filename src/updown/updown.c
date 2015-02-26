@@ -132,37 +132,10 @@ report_up (void)
 # define start_pes pstart_pes
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/**
- * \brief This routine initializes the OpenSHMEM environment on the calling PE.
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   void start_pes (int npes);
- *   void shmem_init (void);
- * \endcode
- *
- * - Fortran:
- * \code
- *   INTEGER npes
- *
- *   CALL START_PES (npes)
- * \endcode
- *
- * \param npes the number of PEs participating in the program.  This
- * is ignored and should be set to 0.
- *
- * \b Effect:
- *
- * Initializes the OpenSHMEM environment on the calling PE.
- *
- * \return None.
- *
- */
-
+static
+inline
 void
-start_pes (int npes)
+shmem_init_private (int npes)
 {
   if ( ! check_pe_status ())
     {
@@ -187,6 +160,35 @@ start_pes (int npes)
    */
 }
 
+/**
+ * \brief This routine initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \b Synopsis:
+ *
+ * - C/C++:
+ * \code
+ *   void shmem_init (void);
+ *   void start_pes (int npes);
+ * \endcode
+ *
+ * - Fortran:
+ * \code
+ *   INTEGER npes
+ *
+ *   CALL START_PES (npes)
+ * \endcode
+ *
+ * \param npes the number of PEs participating in the program.  This
+ * is ignored and should be set to 0.
+ *
+ * \b Effect:
+ *
+ * Initializes the OpenSHMEM environment on the calling PE.
+ *
+ * \return None.
+ *
+ */
+
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_init = pshmem_init
 # define shmem_init pshmem_init
@@ -197,7 +199,13 @@ start_pes (int npes)
 void
 shmem_init (void)
 {
-  start_pes (0);
+  shmem_init_private (0);
+}
+
+void
+start_pes (int npes)
+{
+  shmem_init_private (npes);
 }
 
 /*

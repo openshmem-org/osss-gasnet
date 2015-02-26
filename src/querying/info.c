@@ -35,6 +35,8 @@
  *
  */
 
+#include <string.h>
+
 #include "version.h"
 
 #include "shmem.h"
