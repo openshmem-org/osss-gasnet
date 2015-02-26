@@ -99,23 +99,28 @@ extern "C"
    * TODO: need better detection
    */
 #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
-# define _DEP(...)  __attribute__((deprecated("use " # __VA_ARGS__ " instead")))
+# define _DEPRECATED_BY(...) __attribute__((deprecated("use " # __VA_ARGS__ " instead")))
+# define _DEPRECATED() __attribute__((deprecated))
 #else
-# define _DEP(...)
+# define _DEPRECATED_BY()
+# define _DEPRECATED()
 #endif
 
   /*
    * init & query
    */
 
-  extern void start_pes (int npes) _DEP(shmem_init);
+  extern void start_pes (int npes)
+    _DEPRECATED_BY(shmem_init);
   extern void shmem_init (void);
   extern void shmem_finalize (void);
 
-  extern int _my_pe (void) _WUR _DEP(shmem_my_pe);
+  extern int _my_pe (void)
+    _WUR _DEPRECATED_BY(shmem_my_pe);
   extern int shmem_my_pe (void) _WUR;
 
-  extern int _num_pes (void) _WUR _DEP(shmem_n_pes);
+  extern int _num_pes (void)
+    _WUR _DEPRECATED_BY(shmem_n_pes);
   extern int shmem_n_pes (void) _WUR;
 
   /*
@@ -317,10 +322,14 @@ extern "C"
 #endif				/* not present in SGI version */
 
   /* deprecated calls from 1.2 ++ */
-  extern void *shmalloc (size_t size) _WUR _DEP(shmem_malloc);
-  extern void shfree (void *ptr) _DEP(shmem_free);
-  extern void *shrealloc (void *ptr, size_t size) _WUR _DEP(shmem_realloc);
-  extern void *shmemalign (size_t alignment, size_t size) _WUR _DEP(shmem_align);
+  extern void *shmalloc (size_t size)
+    _WUR _DEPRECATED_BY(shmem_malloc);
+  extern void shfree (void *ptr)
+    _DEPRECATED_BY(shmem_free);
+  extern void *shrealloc (void *ptr, size_t size)
+    _WUR _DEPRECATED_BY(shmem_realloc);
+  extern void *shmemalign (size_t alignment, size_t size)
+    _WUR _DEPRECATED_BY(shmem_align);
 
   extern void *shmem_malloc (size_t size) _WUR;
   extern void shmem_free (void *ptr);
@@ -405,12 +414,12 @@ extern "C"
    * cache flushing (deprecated)
    */
 
-  extern void shmem_clear_cache_inv (void) _DEP();
-  extern void shmem_set_cache_inv (void) _DEP();
-  extern void shmem_clear_cache_line_inv (void *target) _DEP();
-  extern void shmem_set_cache_line_inv (void *target) _DEP();
-  extern void shmem_udcflush (void) _DEP();
-  extern void shmem_udcflush_line (void *target) _DEP();
+  extern void shmem_clear_cache_inv (void) _DEPRECATED();
+  extern void shmem_set_cache_inv (void) _DEPRECATED();
+  extern void shmem_clear_cache_line_inv (void *target) _DEPRECATED();
+  extern void shmem_set_cache_line_inv (void *target) _DEPRECATED();
+  extern void shmem_udcflush (void) _DEPRECATED();
+  extern void shmem_udcflush_line (void *target) _DEPRECATED();
 
   /*
    * reductions
