@@ -86,6 +86,9 @@ FORTRANIFY (start_pes) (int *npes)
   start_pes (*npes);
 }
 
+FORTRANIFY_VOID_VOID (shmem_init);
+FORTRANIFY_VOID_VOID (shmem_finalize);
+
 #define SHMEM_FORTRAN_QUERY_PE(FName, CName)    \
   int                                           \
   FORTRANIFY(FName)(void)                       \
