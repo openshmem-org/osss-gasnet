@@ -75,8 +75,8 @@ extern "C"
   /*
    * OpenSHMEM release
    */
-#define _SHMEM_VERSION_MAJOR 1
-#define _SHMEM_VERSION_MINOR 2
+#define _SHMEM_MAJOR_VERSION 1
+#define _SHMEM_MINOR_VERSION 2
 
 #define _SHMEM_MAX_NAME_LEN 64
 

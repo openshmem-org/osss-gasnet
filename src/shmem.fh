@@ -36,10 +36,10 @@
 
 ! OpenSHMEM release
 
-      integer SHMEM_VERSION_MAJOR
-      parameter ( SHMEM_VERSION_MAJOR = 1 )
-      integer SHMEM_VERSION_MINOR
-      parameter ( SHMEM_VERSION_MINOR = 2 )
+      integer SHMEM_MAJOR_VERSION
+      parameter ( SHMEM_MAJOR_VERSION = 1 )
+      integer SHMEM_MINOR_VERSION
+      parameter ( SHMEM_MINOR_VERSION = 2 )
 
       integer SHMEM_MAX_NAME_LEN
       parameter ( SHMEM_MAX_NAME_LEN = 64 )
