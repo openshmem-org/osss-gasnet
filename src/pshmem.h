@@ -57,6 +57,8 @@ extern "C"
   extern void pshmem_init (void);
   extern void pshmem_finalize (void);
 
+  extern void pshmem_global_exit (int status);
+
   extern int p_my_pe (void) _WUR;
   extern int pshmem_my_pe (void) _WUR;
 

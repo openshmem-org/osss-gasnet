@@ -517,6 +517,8 @@ enum
     GASNET_HANDLER_GLOBALVAR_PUT_BAK,
     GASNET_HANDLER_GLOBALVAR_GET_OUT,
     GASNET_HANDLER_GLOBALVAR_GET_BAK,
+    GASNET_HANDLER_GLOBALEXIT_OUT,
+    GASNET_HANDLER_GLOBALEXIT_BAK,
   };
 
 /**
@@ -626,7 +628,7 @@ handler_segsetup_out (gasnet_token_t token,
 static
 void
 handler_segsetup_bak (gasnet_token_t token,
-		      void *buf, size_t bufsiz)
+                      void *buf, size_t bufsiz)
 {
   gasnet_hsl_lock (&setup_bak_lock);
 
@@ -1967,7 +1969,6 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 
 #endif /* HAVE_MANAGED_SEGMENTS */
 
-
 /**
  * ---------------------------------------------------------------------------
  */
@@ -2212,7 +2213,7 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-do_quiet (void)
+do_fence (void)
 {
   atomic_wait_put_zero ();
   GASNET_WAIT_PUTS ();
@@ -2227,7 +2228,7 @@ inline
 void
 __shmem_comms_quiet_request (void)
 {
-  do_quiet ();
+  do_fence ();
 }
 
 static
@@ -2235,7 +2236,7 @@ inline
 void
 __shmem_comms_fence_request (void)
 {
-  do_quiet ();
+  do_fence ();
 }
 
 /**
@@ -2358,6 +2359,72 @@ __shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
     }
 }
 
+/* global exit */
+
+/**
+ * called by remote PE when global_exit demanded
+ */
+static
+void
+handler_globalexit_out (gasnet_token_t token,
+                        void *buf, size_t bufsiz)
+{
+  int status = *(int *) buf;
+
+#if 0
+  /* return ack, copied data is returned */
+  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALEXIT_BAK,
+                         buf, bufsiz
+                         );
+#endif
+
+  _exit (status);
+}
+
+static
+void
+handler_globalexit_bak (gasnet_token_t token,
+                        void *buf, size_t bufsiz)
+{
+  gasnet_hsl_lock (&globalexit_bak_lock);
+
+  globalexit_replies_received += 1;
+
+  gasnet_hsl_unlock (&globalexit_bak_lock);
+}
+
+/**
+ * called by initiator PE of global_exit
+ */
+static
+void
+__shmem_comms_globalexit_request (int status)
+{
+  const int me = GET_STATE (mype);
+  const int npes = GET_STATE (numpes);
+  int pe;
+
+  for (pe = 0; pe < npes; pe += 1)
+    {
+      /* send to everyone else */
+      if (EXPR_LIKELY (me != pe))
+        {
+          gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALEXIT_OUT,
+                                   &status, sizeof (status)
+                                   );
+        }
+    }
+
+#if 0
+  /* now wait on the AM replies (0-based AND don't count myself) */
+  GASNET_BLOCKUNTIL (globalexit_replies_received == npes - 1);
+#endif
+
+  _exit (status);
+}
+
+/* end: global exit */
+
 
 /**
  * ---------------------------------------------------------------------------
@@ -2392,6 +2459,8 @@ handlers[] =
     {GASNET_HANDLER_GLOBALVAR_GET_OUT, 	handler_globalvar_get_out},
     {GASNET_HANDLER_GLOBALVAR_GET_BAK, 	handler_globalvar_get_bak},
 #endif /* HAVE_MANAGED_SEGMENTS */
+    {GASNET_HANDLER_GLOBALEXIT_OUT,     handler_globalexit_out},
+    {GASNET_HANDLER_GLOBALEXIT_BAK,     handler_globalexit_bak},
   };
 static const int nhandlers = TABLE_SIZE (handlers);
 

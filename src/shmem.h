@@ -115,6 +115,8 @@ extern "C"
   extern void shmem_init (void);
   extern void shmem_finalize (void);
 
+  extern void shmem_global_exit (int status);
+
   extern int _my_pe (void)
     _WUR _DEPRECATED_BY(shmem_my_pe);
   extern int shmem_my_pe (void) _WUR;

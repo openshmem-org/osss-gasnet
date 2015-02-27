@@ -75,6 +75,13 @@ gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
+/**
+ * remotely modified, stop it being put in a register
+ */
+volatile int globalexit_replies_received = 0;
+
+gasnet_hsl_t globalexit_out_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t globalexit_bak_lock = GASNET_HSL_INITIALIZER;
 
 /**
  * Initialize handler locks

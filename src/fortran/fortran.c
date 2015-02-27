@@ -81,13 +81,19 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
-FORTRANIFY (start_pes) (int *npes)
+FORTRANIFY (start_pes) (int *npes /* unused */)
 {
-  start_pes (*npes);
+  shmem_init ();
 }
 
 FORTRANIFY_VOID_VOID (shmem_init);
 FORTRANIFY_VOID_VOID (shmem_finalize);
+
+void
+FORTRANIFY (shmem_global_exit) (int *status)
+{
+  shmem_global_exit (*status);
+}
 
 #define SHMEM_FORTRAN_QUERY_PE(FName, CName)    \
   int                                           \
@@ -96,13 +102,14 @@ FORTRANIFY_VOID_VOID (shmem_finalize);
     return CName ();                            \
   }
 
-SHMEM_FORTRAN_QUERY_PE (my_pe, _my_pe);
-SHMEM_FORTRAN_QUERY_PE (num_pes, _num_pes);
+SHMEM_FORTRAN_QUERY_PE (my_pe, shmem_my_pe);
+SHMEM_FORTRAN_QUERY_PE (num_pes, shmem_n_pes);
 #if 0
 /* invalid Fortran symbol names */
-SHMEM_FORTRAN_QUERY_PE (_my_pe, _my_pe);
-SHMEM_FORTRAN_QUERY_PE (_num_pes, _num_pes);
+SHMEM_FORTRAN_QUERY_PE (_my_pe, shmem_my_pe);
+SHMEM_FORTRAN_QUERY_PE (_num_pes, shmem_n_pes);
 #endif
+
 SHMEM_FORTRAN_QUERY_PE (shmem_my_pe, shmem_my_pe);
 SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
 
@@ -560,7 +567,7 @@ FORTRANIFY_VOID_VOID (shmem_udcflush);
   void                                          \
   FORTRANIFY(Name) (void *target)               \
   {                                             \
-    Name(target);                               \
+    Name (target);                              \
   }
 
 FORTRANIFY_CACHE (shmem_set_cache_line_inv);

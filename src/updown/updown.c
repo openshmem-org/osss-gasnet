@@ -216,3 +216,9 @@ shmem_finalize (void)
 {
   __shmem_comms_finalize ();
 }
+
+void
+shmem_global_exit (int status)
+{
+  __shmem_comms_globalexit_request (status);
+}

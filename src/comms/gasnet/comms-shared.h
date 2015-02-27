@@ -91,6 +91,14 @@ extern volatile int seg_setup_replies_received;
 extern gasnet_hsl_t setup_out_lock;
 extern gasnet_hsl_t setup_bak_lock;
 
+/**
+ * remotely modified, stop it being put in a register
+ */
+extern volatile int globalexit_replies_received;
+
+extern gasnet_hsl_t globalexit_out_lock;
+extern gasnet_hsl_t globalexit_bak_lock;
+
 
 /**
  * handler locks
