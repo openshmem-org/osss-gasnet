@@ -89,8 +89,8 @@ extern "C"
    * not all compilers support this annotation
    *
    */
-#if defined(__GNUC__) || defined(__PGIC__) || \
-  defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
+#if defined(__GNUC__) || defined(__PGIC__) \
+  || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR
@@ -99,7 +99,8 @@ extern "C"
   /*
    * TODO: need better detection
    */
-#if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
+#if ( defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__) ) \
+  && ! defined(__OPEN64__)
 # define _DEPRECATED_BY(...) \
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
 # define _DEPRECATED \
