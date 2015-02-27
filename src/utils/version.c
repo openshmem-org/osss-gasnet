@@ -48,10 +48,11 @@
 int
 __shmem_version (int *major, int *minor)
 {
-#if ! defined(SHMEM_VERSION_MAJOR) && ! defined(SHMEM_VERSION_MINOR)
-  return -1;
-#endif /* ! SHMEM_VERSION_MAJOR && ! SHMEM_VERSION_MINOR */
-  *major = SHMEM_VERSION_MAJOR;
-  *minor = SHMEM_VERSION_MINOR;
+#if defined(_SHMEM_VERSION_MAJOR) && defined(_SHMEM_VERSION_MINOR)
+  *major = _SHMEM_VERSION_MAJOR;
+  *minor = _SHMEM_VERSION_MINOR;
   return 0;
+#else
+  return -1;
+#endif  /* _SHMEM_VERSION_MAJOR && _SHMEM_VERSION_MINOR */
 }

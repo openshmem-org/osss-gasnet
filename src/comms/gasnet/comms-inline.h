@@ -517,8 +517,8 @@ enum
     GASNET_HANDLER_GLOBALVAR_PUT_BAK,
     GASNET_HANDLER_GLOBALVAR_GET_OUT,
     GASNET_HANDLER_GLOBALVAR_GET_BAK,
-    GASNET_HANDLER_GLOBALEXIT_OUT,
-    GASNET_HANDLER_GLOBALEXIT_BAK,
+    GASNET_HANDLER_GLOBALEXIT_OUT
+    /* no reply partner for global_exit */
   };
 
 /**
@@ -1447,11 +1447,11 @@ make_inc_request (void *target, size_t nbytes, int pe)
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
 
   WAIT_ON_COMPLETION (p->completed);
 
-  __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
+  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
 
   free (p);
 }
@@ -2381,6 +2381,7 @@ handler_globalexit_out (gasnet_token_t token,
   _exit (status);
 }
 
+#if 0
 static
 void
 handler_globalexit_bak (gasnet_token_t token,
@@ -2392,6 +2393,7 @@ handler_globalexit_bak (gasnet_token_t token,
 
   gasnet_hsl_unlock (&globalexit_bak_lock);
 }
+#endif
 
 /**
  * called by initiator PE of global_exit
@@ -2459,8 +2461,8 @@ handlers[] =
     {GASNET_HANDLER_GLOBALVAR_GET_OUT, 	handler_globalvar_get_out},
     {GASNET_HANDLER_GLOBALVAR_GET_BAK, 	handler_globalvar_get_bak},
 #endif /* HAVE_MANAGED_SEGMENTS */
-    {GASNET_HANDLER_GLOBALEXIT_OUT,     handler_globalexit_out},
-    {GASNET_HANDLER_GLOBALEXIT_BAK,     handler_globalexit_bak},
+    {GASNET_HANDLER_GLOBALEXIT_OUT,     handler_globalexit_out}
+    /* no reply partner for global_exit */
   };
 static const int nhandlers = TABLE_SIZE (handlers);
 

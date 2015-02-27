@@ -58,7 +58,7 @@
  * code, because Fortran needs it.  Removed from shmem.h.
  *
  */
-long malloc_error = SHMEM_MALLOC_OK;	/* exposed for error codes */
+long malloc_error = _SHMEM_MALLOC_OK; /* exposed for error codes */
 
 
 #ifdef HAVE_FEATURE_DEBUG
@@ -91,7 +91,7 @@ __shmalloc_symmetry_check (size_t size)
   *shmalloc_remote_size = size;
   shmem_barrier_all ();
 
-  malloc_error = SHMEM_MALLOC_OK;
+  malloc_error = _SHMEM_MALLOC_OK;
 
   /*
    * everyone checks everyone else's sizes, barf if mis-match
@@ -111,7 +111,7 @@ __shmalloc_symmetry_check (size_t size)
           __shmem_trace (SHMEM_LOG_NOTICE,
                          "shmalloc expected %ld, but saw %ld on PE %d",
                          size, shmalloc_received_size, pe);
-          malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+          malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
           any_failed_pe = pe;
           break;
           /* NOT REACHED */
@@ -143,11 +143,11 @@ __shmalloc_no_check (size_t size)
   if (addr == (void *) NULL)
     {
       __shmem_trace (SHMEM_LOG_NOTICE, "shmalloc(%ld bytes) failed", size);
-      malloc_error = SHMEM_MALLOC_FAIL;
+      malloc_error = _SHMEM_MALLOC_FAIL;
     }
   else
     {
-      malloc_error = SHMEM_MALLOC_OK;
+      malloc_error = _SHMEM_MALLOC_OK;
     }
 
   __shmem_trace (SHMEM_LOG_MEMORY, "shmalloc(%ld bytes) @ %p", size, addr);
@@ -179,7 +179,7 @@ shmalloc_nb (size_t size)
 #ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
-      malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
@@ -192,8 +192,8 @@ shmalloc_nb (size_t size)
   addr = __shmalloc_no_check (size);
 
   malloc_error = (addr != NULL)
-    ? SHMEM_MALLOC_OK
-    : SHMEM_MALLOC_FAIL;
+    ? _SHMEM_MALLOC_OK
+    : _SHMEM_MALLOC_FAIL;
 
   return addr;
 }
@@ -257,7 +257,7 @@ shfree_nb (void *addr)
     {
       __shmem_trace (SHMEM_LOG_MEMORY,
                      "address passed to shfree() already null");
-      malloc_error = SHMEM_MALLOC_ALREADY_FREE;
+      malloc_error = _SHMEM_MALLOC_ALREADY_FREE;
       return;
       /* NOT REACHED */
     }
@@ -267,7 +267,7 @@ shfree_nb (void *addr)
 
   __shmem_mem_free (addr);
 
-  malloc_error = SHMEM_MALLOC_OK;
+  malloc_error = _SHMEM_MALLOC_OK;
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -343,7 +343,7 @@ shrealloc_private (void *addr, size_t size)
 #ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
-      malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
@@ -356,11 +356,11 @@ shrealloc_private (void *addr, size_t size)
       __shmem_trace (SHMEM_LOG_MEMORY,
                      "shrealloc(%ld bytes) failed @ original address %p",
                      size, addr);
-      malloc_error = SHMEM_MALLOC_REALLOC_FAILED;
+      malloc_error = _SHMEM_MALLOC_REALLOC_FAILED;
     }
   else
     {
-      malloc_error = SHMEM_MALLOC_OK;
+      malloc_error = _SHMEM_MALLOC_OK;
     }
 
   shmem_barrier_all ();
@@ -405,7 +405,7 @@ shmemalign_private (size_t alignment, size_t size)
 #ifdef HAVE_FEATURE_DEBUG
   if (__shmalloc_symmetry_check (size) != -1)
     {
-      malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
+      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
       return (void *) NULL;
       /* NOT REACHED */
     }
@@ -418,11 +418,11 @@ shmemalign_private (size_t alignment, size_t size)
       __shmem_trace (SHMEM_LOG_MEMORY,
                      "shmem_memalign(%ld bytes) couldn't realign to %ld",
                      size, alignment);
-      malloc_error = SHMEM_MALLOC_MEMALIGN_FAILED;
+      malloc_error = _SHMEM_MALLOC_MEMALIGN_FAILED;
     }
   else
     {
-      malloc_error = SHMEM_MALLOC_OK;
+      malloc_error = _SHMEM_MALLOC_OK;
     }
 
   shmem_barrier_all ();
@@ -458,23 +458,23 @@ typedef struct
 
 static malloc_error_code_t error_table[] =
   {
-    {SHMEM_MALLOC_OK,
+    {_SHMEM_MALLOC_OK,
      "no symmetric memory allocation error"},
-    {SHMEM_MALLOC_FAIL,
+    {_SHMEM_MALLOC_FAIL,
      "symmetric memory allocation failed"},
-    {SHMEM_MALLOC_ALREADY_FREE,
+    {_SHMEM_MALLOC_ALREADY_FREE,
      "attempt to free already null symmetric memory address"},
-    {SHMEM_MALLOC_MEMALIGN_FAILED,
+    {_SHMEM_MALLOC_MEMALIGN_FAILED,
      "attempt to align symmetric memory address failed"},
-    {SHMEM_MALLOC_REALLOC_FAILED,
+    {_SHMEM_MALLOC_REALLOC_FAILED,
      "attempt to reallocate symmetric memory address failed"},
-    {SHMEM_MALLOC_SYMMSIZE_FAILED,
+    {_SHMEM_MALLOC_SYMMSIZE_FAILED,
      "asymmetric sizes passed to symmetric memory allocator"},
-    {SHMEM_MALLOC_BAD_SIZE,
+    {_SHMEM_MALLOC_BAD_SIZE,
      "size of data to allocate can not be negative"},
-    {SHMEM_MALLOC_NOT_ALIGNED,
+    {_SHMEM_MALLOC_NOT_ALIGNED,
      "address is not block-aligned"},
-    {SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
+    {_SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
      "address falls outside of symmetric heap"},
   };
 static const int nerrors = TABLE_SIZE (error_table);

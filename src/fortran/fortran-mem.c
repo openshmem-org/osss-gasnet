@@ -105,7 +105,7 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
+  if (malloc_error == _SHMEM_MALLOC_OK)
     {
       *addr = symm_addr;
 
@@ -156,7 +156,7 @@ FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
+  if (malloc_error == _SHMEM_MALLOC_OK)
     {
       return;
       /* NOT REACHED */
@@ -198,7 +198,7 @@ FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
   *errcode = malloc_error;
 
   /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
+  if (malloc_error == _SHMEM_MALLOC_OK)
     {
       return;
       /* NOT REACHED */

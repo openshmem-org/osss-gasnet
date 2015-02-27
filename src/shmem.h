@@ -75,8 +75,8 @@ extern "C"
   /*
    * OpenSHMEM release
    */
-#define SHMEM_VERSION_MAJOR 1
-#define SHMEM_VERSION_MINOR 2
+#define _SHMEM_VERSION_MAJOR 1
+#define _SHMEM_VERSION_MINOR 2
 
 #define _SHMEM_MAX_NAME_LEN 64
 
@@ -89,7 +89,8 @@ extern "C"
    * not all compilers support this annotation
    *
    */
-#if defined(__GNUC__) || defined(__PGIC__) || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
+#if defined(__GNUC__) || defined(__PGIC__) || \
+  defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR
@@ -99,11 +100,13 @@ extern "C"
    * TODO: need better detection
    */
 #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
-# define _DEPRECATED_BY(...) __attribute__((deprecated("use " # __VA_ARGS__ " instead")))
-# define _DEPRECATED() __attribute__((deprecated))
+# define _DEPRECATED_BY(...) \
+  __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+# define _DEPRECATED \
+  __attribute__((deprecated))
 #else
-# define _DEPRECATED_BY()
-# define _DEPRECATED()
+# define _DEPRECATED_BY(...)
+# define _DEPRECATED
 #endif
 
   /*
@@ -297,27 +300,34 @@ extern "C"
 
   /* lower numbers match Fortran return values */
 
-#define SHMEM_MALLOC_OK                   (0L)
-#define SHMEM_MALLOC_BAD_SIZE             (-1L)
-#define SHMEM_MALLOC_FAIL                 (-2L)
-#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
-#define SHMEM_MALLOC_ALREADY_FREE         (-4L)
-#define SHMEM_MALLOC_NOT_ALIGNED          (-5L)
+#define _SHMEM_MALLOC_OK                   (0L)
+#define _SHMEM_MALLOC_BAD_SIZE             (-1L)
+#define _SHMEM_MALLOC_FAIL                 (-2L)
+#define _SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
+#define _SHMEM_MALLOC_ALREADY_FREE         (-4L)
+#define _SHMEM_MALLOC_NOT_ALIGNED          (-5L)
 
-#define SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
-#define SHMEM_MALLOC_REALLOC_FAILED       (-12L)
-#define SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
+#define _SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
+#define _SHMEM_MALLOC_REALLOC_FAILED       (-12L)
+#define _SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
 
-#define	_SHMEM_MALLOC_OK                  SHMEM_MALLOC_OK
-#define _SHMEM_MALLOC_BAD_SIZE            SHMEM_MALLOC_BAD_SIZE
-#define	_SHMEM_MALLOC_FAIL                SHMEM_MALLOC_FAIL
-#define _SHMEM_MALLOC_NOT_IN_SYMM_HEAP    SHMEM_MALLOC_NOT_IN_SYMM_HEAP
-#define	_SHMEM_MALLOC_ALREADY_FREE        SHMEM_MALLOC_ALREADY_FREE
-#define	_SHMEM_MALLOC_NOT_ALIGNED         SHMEM_MALLOC_NOT_ALIGNED
+#if 0
 
-#define	_SHMEM_MALLOC_MEMALIGN_FAILED     SHMEM_MALLOC_MEMALIGN_FAILED
-#define	_SHMEM_MALLOC_REALLOC_FAILED      SHMEM_MALLOC_REALLOC_FAILED
-#define	_SHMEM_MALLOC_SYMMSIZE_FAILED     SHMEM_MALLOC_SYMMSIZE_FAILED
+  /**
+   * old names not used any more in 1.2
+   */
+
+#define	SHMEM_MALLOC_OK                   _SHMEM_MALLOC_OK
+#define SHMEM_MALLOC_BAD_SIZE             _SHMEM_MALLOC_BAD_SIZE
+#define	SHMEM_MALLOC_FAIL                 _SHMEM_MALLOC_FAIL
+#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     _SHMEM_MALLOC_NOT_IN_SYMM_HEAP
+#define	SHMEM_MALLOC_ALREADY_FREE         _SHMEM_MALLOC_ALREADY_FREE
+#define	SHMEM_MALLOC_NOT_ALIGNED          _SHMEM_MALLOC_NOT_ALIGNED
+
+#define	SHMEM_MALLOC_MEMALIGN_FAILED      _SHMEM_MALLOC_MEMALIGN_FAILED
+#define	SHMEM_MALLOC_REALLOC_FAILED       _SHMEM_MALLOC_REALLOC_FAILED
+#define	SHMEM_MALLOC_SYMMSIZE_FAILED      _SHMEM_MALLOC_SYMMSIZE_FAILED
+#endif
 
 #if 0
   extern long malloc_error;
@@ -416,12 +426,12 @@ extern "C"
    * cache flushing (deprecated)
    */
 
-  extern void shmem_clear_cache_inv (void) _DEPRECATED();
-  extern void shmem_set_cache_inv (void) _DEPRECATED();
-  extern void shmem_clear_cache_line_inv (void *target) _DEPRECATED();
-  extern void shmem_set_cache_line_inv (void *target) _DEPRECATED();
-  extern void shmem_udcflush (void) _DEPRECATED();
-  extern void shmem_udcflush_line (void *target) _DEPRECATED();
+  extern void shmem_clear_cache_inv (void) _DEPRECATED;
+  extern void shmem_set_cache_inv (void) _DEPRECATED;
+  extern void shmem_clear_cache_line_inv (void *target) _DEPRECATED;
+  extern void shmem_set_cache_line_inv (void *target) _DEPRECATED;
+  extern void shmem_udcflush (void) _DEPRECATED;
+  extern void shmem_udcflush_line (void *target) _DEPRECATED;
 
   /*
    * reductions
