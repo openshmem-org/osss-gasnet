@@ -181,8 +181,8 @@ __shmem_broadcast32_tree (void *target, const void *source,
   lchild_ready = -1;
   rchild_ready = -1;
 
-  shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
-  shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+  shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+  shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
 
   pSync[0] = 0;
   pSync[1] = 0;
@@ -228,13 +228,13 @@ __shmem_broadcast32_tree (void *target, const void *source,
               no_children = 2;
             }
 
-          shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, (long) no_children);
+          shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, (long) no_children);
           pSync[1] = _SHMEM_SYNC_VALUE;
 
         }
       else
         {
-          shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
+          shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
           pSync[0] = _SHMEM_SYNC_VALUE;
           __shmem_trace (SHMEM_LOG_BROADCAST, "inside else");
           memcpy (source_ptr, target_ptr, nlong * sizeof (int));
@@ -265,19 +265,12 @@ __shmem_broadcast32_tree (void *target, const void *source,
           if (no_children == 0)
             {
               pSync[1] = _SHMEM_SYNC_VALUE;
-              /*TO
-               * DO:
-               * Is
-               * check
-               * for
-               * parents
-               * pSync
-               * required?*/
+              /*TO DO: Is check for parents pSync required?*/
               shmem_long_inc (&pSync[1], parent);
             }
           else
             {
-              shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
+              shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
                                      (long) no_children);
               pSync[1] = _SHMEM_SYNC_VALUE;
               /*printf("PE

@@ -101,8 +101,8 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
   lchild_ready = -1;
   rchild_ready = -1;
 
-  shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
-  shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+  shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+  shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
 
   pSync[0] = 0;
   pSync[1] = 0;
@@ -142,13 +142,13 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
               no_children = 2;
             }
 
-          shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, (long) no_children);
+          shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, (long) no_children);
           pSync[1] = _SHMEM_SYNC_VALUE;
 
         }
       else
         {
-          shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
+          shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
 
           __shmem_trace (SHMEM_LOG_BARRIER, "inside else");
 
@@ -178,7 +178,7 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
             }
           else
             {
-              shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
+              shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
                                      (long) no_children);
               pSync[1] = _SHMEM_SYNC_VALUE;
               shmem_long_inc (&pSync[1], parent);

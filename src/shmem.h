@@ -359,18 +359,20 @@ extern "C"
 
   enum
     {
-      SHMEM_CMP_EQ = 0,
-      SHMEM_CMP_NE,
-      SHMEM_CMP_GT,
-      SHMEM_CMP_LE,
-      SHMEM_CMP_LT,
-      SHMEM_CMP_GE,
       _SHMEM_CMP_EQ = 0,
       _SHMEM_CMP_NE,
       _SHMEM_CMP_GT,
       _SHMEM_CMP_LE,
       _SHMEM_CMP_LT,
       _SHMEM_CMP_GE,
+#if 0
+      SHMEM_CMP_EQ = 0,
+      SHMEM_CMP_NE,
+      SHMEM_CMP_GT,
+      SHMEM_CMP_LE,
+      SHMEM_CMP_LT,
+      SHMEM_CMP_GE,
+#endif
     };
 
   extern void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
@@ -441,23 +443,30 @@ extern "C"
   /*
    * cf. Fortran values are multiples of these (different types)
    */
-#define F2C_SCALE ( sizeof (long) / sizeof (int) )
+#define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define SHMEM_BCAST_SYNC_SIZE (128L / F2C_SCALE)
-#define SHMEM_BARRIER_SYNC_SIZE (128L / F2C_SCALE)
-#define SHMEM_REDUCE_SYNC_SIZE (256L / F2C_SCALE)
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / F2C_SCALE)
+#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
-#define _SHMEM_BCAST_SYNC_SIZE SHMEM_BCAST_SYNC_SIZE
-#define _SHMEM_BARRIER_SYNC_SIZE SHMEM_BARRIER_SYNC_SIZE
-#define _SHMEM_SYNC_VALUE SHMEM_SYNC_VALUE
-#define _SHMEM_REDUCE_SYNC_SIZE SHMEM_REDUCE_SYNC_SIZE
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE SHMEM_REDUCE_MIN_WRKDATA_SIZE
+#if 0
+
+#define SHMEM_BCAST_SYNC_SIZE _SHMEM_BCAST_SYNC_SIZE
+#define SHMEM_BARRIER_SYNC_SIZE _SHMEM_BARRIER_SYNC_SIZE
+#define SHMEM_REDUCE_SYNC_SIZE _SHMEM_REDUCE_SYNC_SIZE
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE _SHMEM_REDUCE_MIN_WRKDATA_SIZE
+
+#endif
 
   /*
    * Initialize sync arrays to this
    */
-#define SHMEM_SYNC_VALUE (-1L)
+#define _SHMEM_SYNC_VALUE (-1L)
+
+#if 0
+#define SHMEM_SYNC_VALUE _SHMEM_SYNC_VALUE
+#endif
 
   extern void shmem_complexd_sum_to_all (COMPLEXIFY (double) * target,
                                          COMPLEXIFY (double) * source,
@@ -669,8 +678,8 @@ extern "C"
    * collects
    */
 
-#define SHMEM_COLLECT_SYNC_SIZE (128L / F2C_SCALE)
-#define _SHMEM_COLLECT_SYNC_SIZE SHMEM_COLLECT_SYNC_SIZE
+#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_COLLECT_SYNC_SIZE _SHMEM_COLLECT_SYNC_SIZE
 
   extern void shmem_fcollect32 (void *target, const void *source,
                                 size_t nelems, int PE_start, int logPE_stride,

@@ -74,22 +74,22 @@
   shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)       \
   {                                                                     \
     switch (cmp) {                                                      \
-    case SHMEM_CMP_EQ:                                                  \
+    case _SHMEM_CMP_EQ:                                                 \
       __shmem_comms_wait_##Name##_eq (ivar, cmp_value);                 \
       break;                                                            \
-    case SHMEM_CMP_NE:                                                  \
+    case _SHMEM_CMP_NE:                                                 \
       __shmem_comms_wait_##Name##_ne (ivar, cmp_value);                 \
       break;                                                            \
-    case SHMEM_CMP_GT:                                                  \
+    case _SHMEM_CMP_GT:                                                 \
       __shmem_comms_wait_##Name##_gt (ivar, cmp_value);                 \
       break;                                                            \
-    case SHMEM_CMP_LE:                                                  \
+    case _SHMEM_CMP_LE:                                                 \
       __shmem_comms_wait_##Name##_le (ivar, cmp_value);                 \
       break;                                                            \
-    case SHMEM_CMP_LT:                                                  \
+    case _SHMEM_CMP_LT:                                                 \
       __shmem_comms_wait_##Name##_lt (ivar, cmp_value);                 \
       break;                                                            \
-    case SHMEM_CMP_GE:                                                  \
+    case _SHMEM_CMP_GE:                                                 \
       __shmem_comms_wait_##Name##_ge (ivar, cmp_value);                 \
       break;                                                            \
     default:                                                            \
@@ -138,7 +138,7 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
   void                                                          \
   shmem_##Name##_wait(Type *ivar, Type cmp_value)               \
   {                                                             \
-    shmem_##Name##_wait_until (ivar, SHMEM_CMP_NE, cmp_value);  \
+    shmem_##Name##_wait_until (ivar, _SHMEM_CMP_NE, cmp_value); \
   }
 
 SHMEM_TYPE_WAIT (short, short);
