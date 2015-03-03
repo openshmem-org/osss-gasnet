@@ -2371,32 +2371,15 @@ handler_globalexit_out (gasnet_token_t token,
 {
   int status = *(int *) buf;
 
-#if 0
-  /* return ack, copied data is returned */
-  gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALEXIT_BAK,
-                         buf, bufsiz
-                         );
-#endif
+  __shmem_comms_fence_request ();
 
   _exit (status);
 }
 
-#if 0
-static
-void
-handler_globalexit_bak (gasnet_token_t token,
-                        void *buf, size_t bufsiz)
-{
-  gasnet_hsl_lock (&globalexit_bak_lock);
-
-  globalexit_replies_received += 1;
-
-  gasnet_hsl_unlock (&globalexit_bak_lock);
-}
-#endif
-
 /**
  * called by initiator PE of global_exit
+ *
+ * TODO: tree-based setup would be more scalable.
  */
 static
 void
@@ -2417,10 +2400,7 @@ __shmem_comms_globalexit_request (int status)
         }
     }
 
-#if 0
-  /* now wait on the AM replies (0-based AND don't count myself) */
-  GASNET_BLOCKUNTIL (globalexit_replies_received == npes - 1);
-#endif
+  __shmem_comms_fence_request ();
 
   _exit (status);
 }
