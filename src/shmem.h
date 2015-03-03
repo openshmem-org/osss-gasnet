@@ -99,15 +99,39 @@ extern "C"
   /*
    * TODO: need better detection
    */
-#if ( defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__) ) \
-  && ! defined(__OPEN64__)
-# define _DEPRECATED_BY(...) \
+#if defined(__INTEL_COMPILER) || defined(__clang__)
+
+# define _DEPRECATED_BY(...)                                  \
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
-# define _DEPRECATED \
+# define _DEPRECATED                            \
+  __attribute__((deprecated))
+
+#elif defined(__OPEN64__)
+
+#  define _DEPRECATED_BY(...)
+#  define _DEPRECATED
+
+#elif defined(__GNUC__)
+
+  /* GCC has extended attribute syntax from 4.5 onward */
+
+# if __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
+#  define _DEPRECATED_BY(...)                                 \
+  __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+#  define _DEPRECATED                           \
   __attribute__((deprecated))
 #else
 # define _DEPRECATED_BY(...)
 # define _DEPRECATED
+#endif
+
+#else
+
+  /* fallback */
+
+# define _DEPRECATED_BY(...)
+# define _DEPRECATED
+
 #endif
 
   /*
