@@ -51,7 +51,7 @@
 
 /**
  * if we haven't initialized through start_pes() then try to do
- * something constructive.  Obviously can't use __shmem_trace()
+ * something constructive.  Obviously can't use shmemi_trace()
  * because nothing has been initialized.
  *
  */
@@ -61,9 +61,9 @@
 	       const int s = GET_STATE (pe_status);			\
 	       if (s != PE_RUNNING)					\
 		 {							\
-		   __shmem_trace (SHMEM_LOG_FATAL,			\
+		   shmemi_trace (SHMEM_LOG_FATAL,			\
 				  "Library is not running, reason: %s", \
-				  __shmem_state_as_string (s)		\
+				  shmemi_state_as_string (s)		\
 				  );					\
 		   /* NOT REACHED */					\
 		 }							\
@@ -81,7 +81,7 @@
 	       const int bot_pe = 0;					\
 	       const int top_pe = GET_STATE (numpes) - 1;		\
 	       if (pe < bot_pe || pe > top_pe) {			\
-		 __shmem_trace (SHMEM_LOG_FATAL,			\
+		 shmemi_trace (SHMEM_LOG_FATAL,			\
 				"PE %d in argument #%d not within allocated range %d .. %d", \
 				pe, argpos, bot_pe, top_pe		\
 				);					\
@@ -98,9 +98,9 @@
 
 #define SYMMETRY_CHECK(addr, argpos, subrname)				\
   IF_DEBUGGING(								\
-	       if (__shmem_symmetric_addr_lookup ((void *) addr, GET_STATE (mype)) == NULL) \
+	       if (shmemi_symmetric_addr_lookup ((void *) addr, GET_STATE (mype)) == NULL) \
 		 {							\
-		   __shmem_trace (SHMEM_LOG_FATAL,			\
+		   shmemi_trace (SHMEM_LOG_FATAL,			\
 				  "%s(), argument #%d @ %p is not symmetric", \
 				  subrname,				\
 				  argpos,				\
@@ -118,7 +118,7 @@
   IF_DEBUGGING(								\
 	       if ((len) == 0)						\
 		 {							\
-		   __shmem_trace (SHMEM_LOG_INFO,			\
+		   shmemi_trace (SHMEM_LOG_INFO,			\
 				  "%s(), length in argument #%d is zero, call has no effect", \
 				  subrname,				\
 				  argpos				\
@@ -128,7 +128,7 @@
 		 }							\
 	       if ((len) < 0)						\
 		 {							\
-		   __shmem_trace (SHMEM_LOG_INFO,			\
+		   shmemi_trace (SHMEM_LOG_INFO,			\
 				  "%s(), length in argument #%d is negative, call has no effect", \
 				  subrname,				\
 				  argpos				\

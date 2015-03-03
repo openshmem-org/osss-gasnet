@@ -174,7 +174,7 @@ table_init_helper (void)
           elfro.start = shdr.sh_addr;
           elfro.end = elfro.start + shdr.sh_size;
 
-          __shmem_trace (SHMEM_LOG_SYMBOLS,
+          shmemi_trace (SHMEM_LOG_SYMBOLS,
                          "ELF section .rodata for global variables = 0x%lX -> 0x%lX",
                          elfro.start, elfro.end);
           continue;		/* move to next scan */
@@ -188,7 +188,7 @@ table_init_helper (void)
           elfbss.start = shdr.sh_addr;
           elfbss.end = elfbss.start + shdr.sh_size;
 
-          __shmem_trace (SHMEM_LOG_SYMBOLS,
+          shmemi_trace (SHMEM_LOG_SYMBOLS,
                          "ELF section .bss for global variables = 0x%lX -> 0x%lX",
                          elfbss.start, elfbss.end);
           continue;		/* move to next scan */
@@ -202,7 +202,7 @@ table_init_helper (void)
           elfdata.start = shdr.sh_addr;
           elfdata.end = elfdata.start + shdr.sh_size;
 
-          __shmem_trace (SHMEM_LOG_SYMBOLS,
+          shmemi_trace (SHMEM_LOG_SYMBOLS,
                          "ELF section .data for global variables = 0x%lX -> 0x%lX",
                          elfdata.start, elfdata.end);
           continue;		/* move to next scan */
@@ -314,23 +314,23 @@ print_global_var_table (shmem_trace_t msgtype)
   globalvar_t *g;
   globalvar_t *tmp;
 
-  if (! __shmem_trace_is_enabled (msgtype))
+  if (! shmemi_trace_is_enabled (msgtype))
     {
       return;
     }
 
-  __shmem_trace (msgtype, "-- start hash table --");
+  shmemi_trace (msgtype, "-- start hash table --");
 
   HASH_SORT (gvp, addr_sort);
 
   HASH_ITER (hh, gvp, g, tmp)
     {
-      __shmem_trace (msgtype,
+      shmemi_trace (msgtype,
                      "address %p: name \"%s\", size %ld",
                      g->addr, g->name, g->size);
     }
 
-  __shmem_trace (msgtype, "-- end hash table --");
+  shmemi_trace (msgtype, "-- end hash table --");
 }
 
 #endif /* 0: unused debugging routines */
@@ -339,11 +339,11 @@ print_global_var_table (shmem_trace_t msgtype)
  * read in the symbol table and global data areas
  */
 void
-__shmem_symmetric_globalvar_table_init (void)
+shmemi_symmetric_globalvar_table_init (void)
 {
   if (table_init_helper () != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: couldn't read global symbols in executable");
       /* NOT REACHED */
     }
@@ -355,7 +355,7 @@ __shmem_symmetric_globalvar_table_init (void)
  * free hash table here
  */
 void
-__shmem_symmetric_globalvar_table_finalize (void)
+shmemi_symmetric_globalvar_table_finalize (void)
 {
   globalvar_t *current;
   globalvar_t *tmp;
@@ -381,7 +381,7 @@ __shmem_symmetric_globalvar_table_finalize (void)
  * check to see if address is global
  */
 int
-__shmem_symmetric_is_globalvar (void *addr)
+shmemi_symmetric_is_globalvar (void *addr)
 {
   const size_t a = (size_t) addr;
 

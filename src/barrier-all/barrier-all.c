@@ -58,9 +58,9 @@ static char *default_implementation = "linear";
 static void (*func) ();
 
 void
-__shmem_barrier_all_dispatch_init (void)
+shmemi_barrier_all_dispatch_init (void)
 {
-  char *name = __shmem_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
+  char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
 
   if (EXPR_LIKELY (name == (char *) NULL))
     {
@@ -69,7 +69,7 @@ __shmem_barrier_all_dispatch_init (void)
 
   if (strcmp (name, "linear") == 0)
     {
-      func = __shmem_barrier_all_linear;
+      func = shmemi_barrier_all_linear;
     }
   else
     {
@@ -79,7 +79,7 @@ __shmem_barrier_all_dispatch_init (void)
   /*
    * report which broadcast implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BARRIER,
+  shmemi_trace (SHMEM_LOG_BARRIER,
                  "using broadcast \"%s\"",
                  name
                  );

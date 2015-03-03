@@ -54,13 +54,13 @@
  */
 
 void
-__shmem_symmetric_test_with_abort (void *remote_addr,
+shmemi_symmetric_test_with_abort (void *remote_addr,
                                    void *local_addr,
                                    const char *name, const char *routine)
 {
   if (EXPR_UNLIKELY (remote_addr == NULL))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "shmem_%s_%s: address %p is not symmetric",
                      name, routine, local_addr);
       /* NOT REACHED */
@@ -72,9 +72,9 @@ __shmem_symmetric_test_with_abort (void *remote_addr,
  *
  */
 int
-__shmem_symmetric_addr_accessible (void *addr, int pe)
+shmemi_symmetric_addr_accessible (void *addr, int pe)
 {
-  if (EXPR_LIKELY (__shmem_symmetric_addr_lookup (addr, pe) != NULL))
+  if (EXPR_LIKELY (shmemi_symmetric_addr_lookup (addr, pe) != NULL))
     {
       return 1;
     }
@@ -90,9 +90,9 @@ __shmem_symmetric_addr_accessible (void *addr, int pe)
  *
  */
 int
-__shmem_is_symmetric (void *addr)
+shmemi_is_symmetric (void *addr)
 {
-  if (EXPR_LIKELY ( __shmem_symmetric_addr_lookup (addr, GET_STATE (mype)) != NULL))
+  if (EXPR_LIKELY ( shmemi_symmetric_addr_lookup (addr, GET_STATE (mype)) != NULL))
     {
       return 1;
     }

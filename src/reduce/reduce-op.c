@@ -164,7 +164,7 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
 #define SHMEM_UDR_TYPE_OP(Name, Type)                                   \
   static                                                                \
   void                                                                  \
-  __shmem_udr_##Name##_to_all (Type (*the_op)(Type, Type),              \
+  shmemi_udr_##Name##_to_all (Type (*the_op)(Type, Type),              \
                                Type *target, Type *source, int nreduce,	\
                                int PE_start, int logPE_stride, int PE_size, \
                                Type *pWrk, long *pSync)                 \
@@ -184,12 +184,12 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
         /* use temp target in case source/target overlap/same */        \
         tmptrg = (Type *) malloc (snred);                               \
         if (tmptrg == (Type *) NULL) {                                  \
-          __shmem_trace (SHMEM_LOG_FATAL,                               \
+          shmemi_trace (SHMEM_LOG_FATAL,                               \
                          "internal error: out of memory allocating temporary reduction buffer" \
                          );                                             \
         }                                                               \
         write_to = tmptrg;                                              \
-        __shmem_trace (SHMEM_LOG_REDUCTION,                             \
+        shmemi_trace (SHMEM_LOG_REDUCTION,                             \
                        "target (%p) and source (%p, size %ld) overlap, using temporary target", \
                        target, source, snred                            \
                        );                                               \
@@ -197,7 +197,7 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
     else                                                                \
       {                                                                 \
         write_to = target;                                              \
-        __shmem_trace (SHMEM_LOG_REDUCTION,                             \
+        shmemi_trace (SHMEM_LOG_REDUCTION,                             \
                        "target (%p) and source (%p, size %ld) do not overlap", \
                        target, source, snred                            \
                        );                                               \
@@ -371,7 +371,7 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
     INIT_CHECK();                                                       \
     SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all");    \
     SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all");    \
-    __shmem_udr_##Name##_to_all(OpCall##_##Name##_func,                 \
+    shmemi_udr_##Name##_to_all(OpCall##_##Name##_func,                 \
                                 target, source, nreduce,                \
                                 PE_start, logPE_stride, PE_size,        \
                                 pWrk, pSync);                           \

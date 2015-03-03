@@ -75,25 +75,25 @@
   {                                                                     \
     switch (cmp) {                                                      \
     case _SHMEM_CMP_EQ:                                                 \
-      __shmem_comms_wait_##Name##_eq (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_eq (ivar, cmp_value);                 \
       break;                                                            \
     case _SHMEM_CMP_NE:                                                 \
-      __shmem_comms_wait_##Name##_ne (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_ne (ivar, cmp_value);                 \
       break;                                                            \
     case _SHMEM_CMP_GT:                                                 \
-      __shmem_comms_wait_##Name##_gt (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_gt (ivar, cmp_value);                 \
       break;                                                            \
     case _SHMEM_CMP_LE:                                                 \
-      __shmem_comms_wait_##Name##_le (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_le (ivar, cmp_value);                 \
       break;                                                            \
     case _SHMEM_CMP_LT:                                                 \
-      __shmem_comms_wait_##Name##_lt (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_lt (ivar, cmp_value);                 \
       break;                                                            \
     case _SHMEM_CMP_GE:                                                 \
-      __shmem_comms_wait_##Name##_ge (ivar, cmp_value);                 \
+      shmemi_comms_wait_##Name##_ge (ivar, cmp_value);                 \
       break;                                                            \
     default:                                                            \
-      __shmem_trace (SHMEM_LOG_FATAL,                                   \
+      shmemi_trace (SHMEM_LOG_FATAL,                                   \
                      "unknown operator (code %d) in shmem_%s_wait_until()", \
                      cmp,                                               \
                      #Name                                              \

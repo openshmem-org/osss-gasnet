@@ -59,7 +59,7 @@ debug_alloc_new (void *a, size_t s)
 
   if (at == (alloc_table_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: out of memory allocating address/size record"
                      );
       /* NOT REACHED */
@@ -111,7 +111,7 @@ debug_alloc_check (void *a)
         }
     }
 
-  __shmem_trace (SHMEM_LOG_MEMORY,
+  shmemi_trace (SHMEM_LOG_MEMORY,
                  "address %p is not in a known symmetric allocation",
                  a
                  );
@@ -142,7 +142,7 @@ debug_alloc_del (void *a)
 
   if (at == (alloc_table_t *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: no hash table entry for address %p",
                      a
                      );
@@ -186,7 +186,7 @@ debug_alloc_dump (void)
 
   HASH_ITER (hh, atp, s, tmp)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "addr = %p, size = %ld", s->addr, s->size
                      );
     }

@@ -81,10 +81,10 @@ __shmalloc_symmetry_check (size_t size)
 
   /* record for everyone else to see */
   shmalloc_remote_size =
-    (long *) __shmem_mem_alloc (sizeof (*shmalloc_remote_size));
+    (long *) shmemi_mem_alloc (sizeof (*shmalloc_remote_size));
   if (shmalloc_remote_size == (long *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: couldn't allocate memory for symmetry check");
       /* NOT REACHED */
     }
@@ -108,7 +108,7 @@ __shmalloc_symmetry_check (size_t size)
       shmalloc_received_size = shmem_long_g (shmalloc_remote_size, pe);
       if (shmalloc_received_size != size)
         {
-          __shmem_trace (SHMEM_LOG_NOTICE,
+          shmemi_trace (SHMEM_LOG_NOTICE,
                          "shmalloc expected %ld, but saw %ld on PE %d",
                          size, shmalloc_received_size, pe);
           malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
@@ -119,7 +119,7 @@ __shmalloc_symmetry_check (size_t size)
     }
   /* make sure everyone is here before freeing things */
   shmem_barrier_all ();
-  __shmem_mem_free (shmalloc_remote_size);
+  shmemi_mem_free (shmalloc_remote_size);
   return any_failed_pe;
 }
 #endif /* HAVE_FEATURE_DEBUG */
@@ -138,11 +138,11 @@ __shmalloc_no_check (size_t size)
 {
   void *addr;
 
-  addr = __shmem_mem_alloc (size);
+  addr = shmemi_mem_alloc (size);
 
   if (addr == (void *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_NOTICE, "shmalloc(%ld bytes) failed", size);
+      shmemi_trace (SHMEM_LOG_NOTICE, "shmalloc(%ld bytes) failed", size);
       malloc_error = _SHMEM_MALLOC_FAIL;
     }
   else
@@ -150,7 +150,7 @@ __shmalloc_no_check (size_t size)
       malloc_error = _SHMEM_MALLOC_OK;
     }
 
-  __shmem_trace (SHMEM_LOG_MEMORY, "shmalloc(%ld bytes) @ %p", size, addr);
+  shmemi_trace (SHMEM_LOG_MEMORY, "shmalloc(%ld bytes) @ %p", size, addr);
 
   return addr;
 }
@@ -185,7 +185,7 @@ shmalloc_nb (size_t size)
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  __shmem_trace (SHMEM_LOG_MEMORY,
+  shmemi_trace (SHMEM_LOG_MEMORY,
                  "shmalloc(%ld bytes) passed symmetry check",
                  size);
 
@@ -255,17 +255,17 @@ shfree_nb (void *addr)
 
   if (addr == (void *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "address passed to shfree() already null");
       malloc_error = _SHMEM_MALLOC_ALREADY_FREE;
       return;
       /* NOT REACHED */
     }
 
-  __shmem_trace (SHMEM_LOG_MEMORY,
-                 "shfree(%p) in pool @ %p", addr, __shmem_mem_base ());
+  shmemi_trace (SHMEM_LOG_MEMORY,
+                 "shfree(%p) in pool @ %p", addr, shmemi_mem_base ());
 
-  __shmem_mem_free (addr);
+  shmemi_mem_free (addr);
 
   malloc_error = _SHMEM_MALLOC_OK;
 }
@@ -325,7 +325,7 @@ shrealloc_private (void *addr, size_t size)
 
   if (addr == (void *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "address passed to shrealloc() is null, handing to shmalloc()");
       return shmem_malloc (size);
       /* NOT REACHED */
@@ -333,7 +333,7 @@ shrealloc_private (void *addr, size_t size)
 
   if (size == 0)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "size passed to shrealloc() is 0, handing to shfree()");
       shmem_free (addr);
       return (void *) NULL;
@@ -349,11 +349,11 @@ shrealloc_private (void *addr, size_t size)
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  newaddr = __shmem_mem_realloc (addr, size);
+  newaddr = shmemi_mem_realloc (addr, size);
 
   if (newaddr == (void *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "shrealloc(%ld bytes) failed @ original address %p",
                      size, addr);
       malloc_error = _SHMEM_MALLOC_REALLOC_FAILED;
@@ -411,11 +411,11 @@ shmemalign_private (size_t alignment, size_t size)
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  addr = __shmem_mem_align (alignment, size);
+  addr = shmemi_mem_align (alignment, size);
 
   if (addr == (void *) NULL)
     {
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "shmem_memalign(%ld bytes) couldn't realign to %ld",
                      size, alignment);
       malloc_error = _SHMEM_MALLOC_MEMALIGN_FAILED;

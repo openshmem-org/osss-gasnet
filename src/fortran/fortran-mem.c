@@ -109,7 +109,7 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
     {
       *addr = symm_addr;
 
-      __shmem_trace (SHMEM_LOG_MEMORY,
+      shmemi_trace (SHMEM_LOG_MEMORY,
                      "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
                      addr, *length, *errcode, *abort);
 
@@ -118,7 +118,7 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
     }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+  shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
                  "shpalloc() was given non-symmetric memory sizes");
   /* MAYBE NOT REACHED */
 
@@ -146,7 +146,7 @@ FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
 {
   INIT_CHECK ();
 
-  __shmem_trace (SHMEM_LOG_MEMORY,
+  shmemi_trace (SHMEM_LOG_MEMORY,
                  "shpdeallc(addr = %p, errcode = %d, abort = %d)",
                  addr, *errcode, *abort);
 
@@ -163,7 +163,7 @@ FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
     }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+  shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
                  "shpdeallc() failed: %s", sherror ());
   /* MAYBE NOT REACHED */
 }
@@ -205,7 +205,7 @@ FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
     }
 
   /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+  shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
                  "shpdeallc() failed: %s", sherror ());
   /* MAYBE NOT REACHED */
 }

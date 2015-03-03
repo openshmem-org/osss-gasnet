@@ -59,5 +59,5 @@ void
 shmem_fence (void)
 {
   INIT_CHECK ();
-  __shmem_comms_fence_request ();
+  shmemi_comms_fence_request ();
 }

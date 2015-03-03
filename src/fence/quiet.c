@@ -59,5 +59,5 @@ void
 shmem_quiet (void)
 {
   INIT_CHECK ();
-  __shmem_comms_quiet_request ();
+  shmemi_comms_quiet_request ();
 }

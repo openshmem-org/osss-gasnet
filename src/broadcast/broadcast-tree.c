@@ -77,7 +77,7 @@ set_2tree (int PE_start, int PE_stride, int PE_size,
     {
       *child_r = -1;
     }
-  __shmem_trace (SHMEM_LOG_BROADCAST,
+  shmemi_trace (SHMEM_LOG_BROADCAST,
                  "set2tree: parent = %d, L_child = %d, R_child = %d",
                  *parent, *child_l, *child_r);
 }
@@ -164,7 +164,7 @@ build_tree (int PE_start, int step, int PE_root, int PE_size,
 }
 
 void
-__shmem_broadcast32_tree (void *target, const void *source,
+shmemi_broadcast32_tree (void *target, const void *source,
                           size_t nlong,
                           int PE_root, int PE_start,
                           int logPE_stride, int PE_size, long *pSync)
@@ -194,7 +194,7 @@ __shmem_broadcast32_tree (void *target, const void *source,
   no_children = 0;
   build_tree (PE_start, step, PE_root, PE_size,
               &parent, &child_l, &child_r, my_pe);
-  __shmem_trace (SHMEM_LOG_BROADCAST,
+  shmemi_trace (SHMEM_LOG_BROADCAST,
                  "before broadcast, R_child = %d L_child = %d",
                  child_r, child_l);
   /* The actual broadcast */
@@ -236,7 +236,7 @@ __shmem_broadcast32_tree (void *target, const void *source,
         {
           shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
           pSync[0] = _SHMEM_SYNC_VALUE;
-          __shmem_trace (SHMEM_LOG_BROADCAST, "inside else");
+          shmemi_trace (SHMEM_LOG_BROADCAST, "inside else");
           memcpy (source_ptr, target_ptr, nlong * sizeof (int));
           if (child_l != -1)
             {
@@ -284,7 +284,7 @@ __shmem_broadcast32_tree (void *target, const void *source,
               shmem_long_inc (&pSync[1], parent);
             }
         }
-      __shmem_trace (SHMEM_LOG_BROADCAST, "at the end of bcast32");
+      shmemi_trace (SHMEM_LOG_BROADCAST, "at the end of bcast32");
       /* shmem_barrier(PE_start,
        * logPE_stride,
        * PE_size,
@@ -293,11 +293,11 @@ __shmem_broadcast32_tree (void *target, const void *source,
 }
 
 void
-__shmem_broadcast64_tree (void *target, const void *source, size_t nlong,
+shmemi_broadcast64_tree (void *target, const void *source, size_t nlong,
                           int PE_root, int PE_start,
                           int logPE_stride, int PE_size, long *pSync)
 {
-  __shmem_broadcast32_tree (target, source,
+  shmemi_broadcast32_tree (target, source,
                             nlong * 2,
                             PE_root, PE_start,
                             logPE_stride, PE_size, pSync);

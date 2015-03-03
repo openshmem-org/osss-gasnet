@@ -99,7 +99,7 @@ parse_unit (char u, size_t *sp, int *ok)
  */
 
 void
-__shmem_parse_size (char *size_str, size_t *bytes_p, int *ok_p)
+shmemi_parse_size (char *size_str, size_t *bytes_p, int *ok_p)
 {
   char unit = '\0';
   size_t ret = 0;

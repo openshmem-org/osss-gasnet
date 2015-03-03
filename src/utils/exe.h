@@ -43,7 +43,7 @@
 /*
  * inspect our own executable to find out what it is
  */
-extern void __shmem_executable_init (void);
-extern void __shmem_executable_finalize (void);
+extern void shmemi_executable_init (void);
+extern void shmemi_executable_finalize (void);
 
 #endif /* _EXE_H */

@@ -40,7 +40,7 @@
 #include "comms.h"
 
 void
-__shmem_barrier_all_linear (void)
+shmemi_barrier_all_linear (void)
 {
-  __shmem_comms_barrier_all ();
+  shmemi_comms_barrier_all ();
 }

@@ -92,12 +92,12 @@ parse_alarm_time (double ts, struct itimerval *ivp)
  *
  */
 void
-__shmem_set_ping_timeout (double secs)
+shmemi_set_ping_timeout (double secs)
 {
 #if 0
   parse_alarm_time (secs, &GET_STATE (ping_timeout));
 
-  __shmem_trace (SHMEM_LOG_INIT,
+  shmemi_trace (SHMEM_LOG_INIT,
 		 "PE accessibility timeout set to %f sec", secs);
 #endif
 }
@@ -108,11 +108,11 @@ __shmem_set_ping_timeout (double secs)
  *
  */
 void
-__shmem_ping_init (void)
+shmemi_ping_init (void)
 {
 #if 0
   double timeout = DEFAULT_PE_ACCESSIBLE_TIMEOUT;
-  char *pt = __shmem_comms_getenv (ping_timeout_envvar);
+  char *pt = shmemi_comms_getenv (ping_timeout_envvar);
 
   if (pt != (char *) NULL)
     {
@@ -124,12 +124,12 @@ __shmem_ping_init (void)
     {
       double ot = timeout;
       timeout = DEFAULT_PE_ACCESSIBLE_TIMEOUT;
-      __shmem_trace (SHMEM_LOG_INIT,
+      shmemi_trace (SHMEM_LOG_INIT,
 		     "PE accessibility timeout %f negative, reset to default %f sec",
 		     ot, timeout);
     }
 
-  __shmem_set_ping_timeout (timeout);
+  shmemi_set_ping_timeout (timeout);
 
   assign_timer (0, 0, &zero);
 #endif
@@ -140,13 +140,13 @@ __shmem_ping_init (void)
  *
  */
 void
-__shmem_ping_set_alarm (void)
+shmemi_ping_set_alarm (void)
 {
 #if 0
   int s = setitimer (ITIMER_REAL, &GET_STATE (ping_timeout), NULL);
   if (s != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
 		     "internal error: couldn't set accessibility timer (%s)",
 		     strerror (errno));
     }
@@ -158,13 +158,13 @@ __shmem_ping_set_alarm (void)
  *
  */
 void
-__shmem_ping_clear_alarm (void)
+shmemi_ping_clear_alarm (void)
 {
 #if 0
   int s = setitimer (ITIMER_REAL, &zero, NULL);
   if (s != 0)
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
 		     "internal error: couldn't clear accessibility timer (%s)",
 		     strerror (errno));
     }

@@ -62,7 +62,7 @@ shmem_pcontrol (int level)
       break;
     }
 
-  __shmem_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
+  shmemi_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
   return;
 }
 

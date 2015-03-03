@@ -58,9 +58,9 @@ static void (*func32) ();
 static void (*func64) ();
 
 void
-__shmem_fcollect_dispatch_init (void)
+shmemi_fcollect_dispatch_init (void)
 {
-  char *name = __shmem_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
+  char *name = shmemi_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
 
   if (EXPR_LIKELY (name == (char *) NULL))
     {
@@ -69,8 +69,8 @@ __shmem_fcollect_dispatch_init (void)
 
   if (strcmp (name, "linear") == 0)
     {
-      func32 = __shmem_fcollect32_linear;
-      func64 = __shmem_fcollect64_linear;
+      func32 = shmemi_fcollect32_linear;
+      func64 = shmemi_fcollect64_linear;
     }
   else
     {
@@ -80,7 +80,7 @@ __shmem_fcollect_dispatch_init (void)
   /*
    * report which implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
+  shmemi_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
 }
 
 /*

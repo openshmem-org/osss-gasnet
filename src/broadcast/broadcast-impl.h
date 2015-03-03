@@ -37,10 +37,10 @@
 
 #ifndef _BROADCAST_IMPL_H
 
-extern void __shmem_broadcast32_linear ();
-extern void __shmem_broadcast64_linear ();
+extern void shmemi_broadcast32_linear ();
+extern void shmemi_broadcast64_linear ();
 
-extern void __shmem_broadcast32_tree ();
-extern void __shmem_broadcast64_tree ();
+extern void shmemi_broadcast32_tree ();
+extern void shmemi_broadcast64_tree ();
 
 #endif

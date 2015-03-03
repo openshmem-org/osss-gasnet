@@ -40,17 +40,17 @@
 #ifndef _SYMMTEST_H
 #define _SYMMTEST_H 1
 
-extern void __shmem_symmetric_test_with_abort (void *remote_addr,
+extern void shmemi_symmetric_test_with_abort (void *remote_addr,
 					       void *local_addr,
 					       const char *name,
 					       const char *routine);
 
 #if 0
-extern void *__shmem_symmetric_addr_lookup (void *dest, int pe);
+extern void *shmemi_symmetric_addr_lookup (void *dest, int pe);
 #endif
 
-extern int __shmem_symmetric_addr_accessible (void *addr, int pe);
+extern int shmemi_symmetric_addr_accessible (void *addr, int pe);
 
-extern int __shmem_is_symmetric (void *addr);
+extern int shmemi_is_symmetric (void *addr);
 
 #endif /* _SYMMTEST_H */

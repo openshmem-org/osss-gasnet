@@ -47,7 +47,7 @@
  * and see end of file for tidy-up
  */
 #ifdef I
-# define __shmem_h_I_already_defined__
+# define shmemi_h_I_already_defined__
 #endif /* I */
 
 
@@ -715,10 +715,10 @@ extern "C"
  * tidy-up complex "I" macro detection.
  *
  */
-#ifdef  __shmem_h_I_already_defined__
-# undef  __shmem_h_I_already_defined__
+#ifdef  shmemi_h_I_already_defined__
+# undef  shmemi_h_I_already_defined__
 #else
 # undef I
-#endif /* __shmem_h_I_already_defined__ */
+#endif /* shmemi_h_I_already_defined__ */
 
 #endif	/* _SHMEM_H */

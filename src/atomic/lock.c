@@ -74,7 +74,7 @@
 void
 shmem_set_lock (long *lock)
 {
-  __shmem_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
+  shmemi_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
                               &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }
 
@@ -84,13 +84,13 @@ shmem_clear_lock (long *lock)
   /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
   shmem_quiet ();
 
-  __shmem_comms_lock_release (&((SHMEM_LOCK *) lock)[1],
+  shmemi_comms_lock_release (&((SHMEM_LOCK *) lock)[1],
                               &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }
 
 int
 shmem_test_lock (long *lock)
 {
-  return __shmem_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
+  return shmemi_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
                                   &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
 }

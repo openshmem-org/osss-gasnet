@@ -67,7 +67,7 @@ read_clock (void)
   s = gettimeofday (&tv, (struct timezone *) NULL);
   if (EXPR_UNLIKELY (s != 0))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
 		     "internal error: can't read system clock (%s)",
 		     strerror (errno)
 		     );
@@ -84,7 +84,7 @@ read_clock (void)
  * start the clock running
  */
 void
-__shmem_elapsed_clock_init (void)
+shmemi_elapsed_clock_init (void)
 {
   epoch = read_clock ();
 }
@@ -93,7 +93,7 @@ __shmem_elapsed_clock_init (void)
  * stop the clock
  */
 void
-__shmem_elapsed_clock_finalize (void)
+shmemi_elapsed_clock_finalize (void)
 {
   return;
 }
@@ -102,7 +102,7 @@ __shmem_elapsed_clock_finalize (void)
  * read the current run time
  */
 double
-__shmem_elapsed_clock_get (void)
+shmemi_elapsed_clock_get (void)
 {
   double now = read_clock ();
 

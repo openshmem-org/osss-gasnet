@@ -44,7 +44,7 @@
 void
 shmem_info_get_version (int *major, int *minor)
 {
-  (void) __shmem_version (major, minor);
+  (void) shmemi_version (major, minor);
 }
 
 void

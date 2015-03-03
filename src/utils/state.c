@@ -90,7 +90,7 @@ static const int nd = TABLE_SIZE (d);
 
 const
 char *
-__shmem_state_as_string (pe_status_t s)
+shmemi_state_as_string (pe_status_t s)
 {
   struct state_desc *dp = d;
   int i;

@@ -63,7 +63,7 @@ shmem_pe_accessible (int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe, 1);
-  return __shmem_comms_ping_request (pe);
+  return shmemi_comms_ping_request (pe);
 }
 
 /**
@@ -75,5 +75,5 @@ shmem_addr_accessible (void *addr, int pe)
 {
   INIT_CHECK ();
   PE_RANGE_CHECK (pe, 2);
-  return __shmem_symmetric_addr_accessible (addr, pe);
+  return shmemi_symmetric_addr_accessible (addr, pe);
 }

@@ -64,9 +64,9 @@ static void (*func64) ();
  */
 
 void
-__shmem_broadcast_dispatch_init (void)
+shmemi_broadcast_dispatch_init (void)
 {
-  char *name = __shmem_comms_getenv ("SHMEM_BROADCAST_ALGORITHM");
+  char *name = shmemi_comms_getenv ("SHMEM_BROADCAST_ALGORITHM");
   if (EXPR_LIKELY (name == (char *) NULL))
     {
       name = default_implementation;
@@ -74,14 +74,14 @@ __shmem_broadcast_dispatch_init (void)
 
   if (strcmp (name, "linear") == 0)
     {
-      func32 = __shmem_broadcast32_linear;
-      func64 = __shmem_broadcast64_linear;
+      func32 = shmemi_broadcast32_linear;
+      func64 = shmemi_broadcast64_linear;
     }
   else
     if (strcmp (name, "tree") == 0)
       {
-        func32 = __shmem_broadcast32_tree;
-        func64 = __shmem_broadcast64_tree;
+        func32 = shmemi_broadcast32_tree;
+        func64 = shmemi_broadcast64_tree;
       }
     else
       {
@@ -90,7 +90,7 @@ __shmem_broadcast_dispatch_init (void)
   /*
    * report which broadcast implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BROADCAST,
+  shmemi_trace (SHMEM_LOG_BROADCAST,
                  "using broadcast \"%s\"",
                  name
                  );

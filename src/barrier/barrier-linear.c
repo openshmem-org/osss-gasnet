@@ -44,7 +44,7 @@
 #include "shmem.h"
 
 void
-__shmem_barrier_linear (int PE_start, int logPE_stride, int PE_size,
+shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size,
                         long *pSync)
 {
   const int me = shmem_my_pe ();
@@ -63,7 +63,7 @@ __shmem_barrier_linear (int PE_start, int logPE_stride, int PE_size,
             {
               shmem_long_inc (&pSync[round], thatpe);
 
-              __shmem_trace (SHMEM_LOG_BARRIER,
+              shmemi_trace (SHMEM_LOG_BARRIER,
                              "round = %d, sent increment to PE %d",
                              round, thatpe);
             }

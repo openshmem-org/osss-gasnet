@@ -129,7 +129,7 @@ static const int n_tracers = TABLE_SIZE (tracers);
 static
 inline
 int
-__shmem_trace_enable_text (char *trace)
+shmemi_trace_enable_text (char *trace)
 {
   int i;
   trace_table_t *t = tracers;
@@ -154,7 +154,7 @@ __shmem_trace_enable_text (char *trace)
 static
 inline
 void
-__shmem_trace_enable_all (void)
+shmemi_trace_enable_all (void)
 {
   int i;
   trace_table_t *t = tracers;
@@ -198,7 +198,7 @@ __level_to_string (shmem_trace_t level)
  */
 
 int
-__shmem_trace_is_enabled (shmem_trace_t level)
+shmemi_trace_is_enabled (shmem_trace_t level)
 {
   int i;
   trace_table_t *t = tracers;
@@ -237,7 +237,7 @@ logging_filestream_init (void)
 
   trace_log_stream = stderr;
 
-  shlf = __shmem_comms_getenv (SHMEM_LOGFILE_ENVVAR);
+  shlf = shmemi_comms_getenv (SHMEM_LOGFILE_ENVVAR);
   if (shlf == (char *) NULL)
     {
       return;
@@ -264,31 +264,31 @@ sgi_compat_environment_init (void)
   char *sma;
 
   /* this one "prints out copious data" so turn on all debugging */
-  sma = __shmem_comms_getenv ("SMA_DEBUG");
+  sma = shmemi_comms_getenv ("SMA_DEBUG");
   if (sma != (char *) NULL)
     {
       (void) setenv ("SHMEM_LOG_LEVELS", "all", overwrite);
     }
   /* this one shows information about env vars, pass through */
-  sma = __shmem_comms_getenv ("SMA_INFO");
+  sma = shmemi_comms_getenv ("SMA_INFO");
   if (sma != (char *) NULL)
     {
       (void) setenv ("SHMEM_LOG_LEVELS", "info", overwrite);
     }
   /* turn on symmetric memory debugging */
-  sma = __shmem_comms_getenv ("SMA_MALLOC_DEBUG");
+  sma = shmemi_comms_getenv ("SMA_MALLOC_DEBUG");
   if (sma != (char *) NULL)
     {
       (void) setenv ("SHMEM_LOG_LEVELS", "memory", overwrite);
     }
   /* version information.  "version" trace facility can cover this */
-  sma = __shmem_comms_getenv ("SMA_VERSION");
+  sma = shmemi_comms_getenv ("SMA_VERSION");
   if (sma != (char *) NULL)
     {
       (void) setenv ("SHMEM_LOG_LEVELS", "version", overwrite);
     }
   /* if heap size given, translate into our env var */
-  sma = __shmem_comms_getenv ("SMA_SYMMETRIC_SIZE");
+  sma = shmemi_comms_getenv ("SMA_SYMMETRIC_SIZE");
   if (sma != (char *) NULL)
     {
       (void) setenv ("SHMEM_SYMMETRIC_HEAP_SIZE", sma, overwrite);
@@ -304,7 +304,7 @@ inline
 void
 parse_log_levels (void)
 {
-  char *shll = __shmem_comms_getenv (SHMEM_LOGLEVELS_ENVVAR);
+  char *shll = shmemi_comms_getenv (SHMEM_LOGLEVELS_ENVVAR);
   const char *delims = ",:;";
   char *opt = strtok (shll, delims);
 
@@ -314,11 +314,11 @@ parse_log_levels (void)
         {
           if (strcasecmp (opt, "all") == 0)
             {
-              __shmem_trace_enable_all ();
+              shmemi_trace_enable_all ();
               break;
               /* NOT REACHED */
             }
-          (void) __shmem_trace_enable_text (opt);
+          (void) shmemi_trace_enable_text (opt);
           opt = strtok ((char *) NULL, delims);
         }
     }
@@ -330,14 +330,14 @@ parse_log_levels (void)
  */
 
 #define INFO_MSG(Var, Text)                     \
-  __shmem_trace (SHMEM_LOG_INFO,                \
+  shmemi_trace (SHMEM_LOG_INFO,                \
                  "%-28s %s",                    \
                  Var,                           \
                  Text                           \
                  );
 
 void
-__shmem_maybe_tracers_show_info (void)
+shmemi_maybe_tracers_show_info (void)
 {
   /* only "master" dumps this out */
   if (GET_STATE (mype) != 0)
@@ -345,20 +345,20 @@ __shmem_maybe_tracers_show_info (void)
       return;
     }
 
-  if (! __shmem_trace_is_enabled (SHMEM_LOG_INFO))
+  if (! shmemi_trace_is_enabled (SHMEM_LOG_INFO))
     {
       return;
     }
 
-  __shmem_trace (SHMEM_LOG_INFO,
+  shmemi_trace (SHMEM_LOG_INFO,
                  "We understand these SGI compatibility environment variables:");
   INFO_MSG ("SMA_VERSION", "Print OpenSHMEM version.");
   INFO_MSG ("SMA_INFO", "Print this message.");
   INFO_MSG ("SMA_SYMMETRIC_SIZE",
             "Specify the size in bytes of symmetric memory.");
   INFO_MSG ("SMA_DEBUG", "Print internal debug information.");
-  __shmem_trace (SHMEM_LOG_INFO, "");
-  __shmem_trace (SHMEM_LOG_INFO,
+  shmemi_trace (SHMEM_LOG_INFO, "");
+  shmemi_trace (SHMEM_LOG_INFO,
                  "We also understand these new environment variables:");
   INFO_MSG ("SHMEM_LOG_LEVELS",
             "Select which kinds of trace messages are enabled");
@@ -379,7 +379,7 @@ __shmem_maybe_tracers_show_info (void)
  */
 
 void
-__shmem_tracers_init (void)
+shmemi_tracers_init (void)
 {
   logging_filestream_init ();
 
@@ -396,9 +396,9 @@ __shmem_tracers_init (void)
  */
 
 void
-__shmem_tracers_show (void)
+shmemi_tracers_show (void)
 {
-  if (__shmem_trace_is_enabled (SHMEM_LOG_INIT))
+  if (shmemi_trace_is_enabled (SHMEM_LOG_INIT))
     {
       char buf[TRACE_MSG_BUF_SIZE];
       char *p = buf;
@@ -416,7 +416,7 @@ __shmem_tracers_show (void)
             }
           t += 1;
         }
-      __shmem_trace (SHMEM_LOG_INIT, p);
+      shmemi_trace (SHMEM_LOG_INIT, p);
     }
 }
 
@@ -425,9 +425,9 @@ __shmem_tracers_show (void)
  */
 
 void
-__shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
+shmemi_trace (shmem_trace_t msg_type, char *fmt, ...)
 {
-  if (__shmem_trace_is_enabled (msg_type))
+  if (shmemi_trace_is_enabled (msg_type))
     {
       char tmp1[TRACE_MSG_BUF_SIZE];
       char tmp2[TRACE_MSG_BUF_SIZE];
@@ -435,7 +435,7 @@ __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 
       snprintf (tmp1, TRACE_MSG_BUF_SIZE,
                 "%-8.8f PE %d: %s: ",
-                __shmem_elapsed_clock_get (),
+                shmemi_elapsed_clock_get (),
                 GET_STATE (mype), __level_to_string (msg_type));
 
       va_start (ap, fmt);
@@ -459,27 +459,27 @@ __shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
 #else /* HAVE_FEATURE_TRACE */
 
 void
-__shmem_tracers_init (void)
+shmemi_tracers_init (void)
 {
 }
 
 void
-__shmem_tracers_show (void)
+shmemi_tracers_show (void)
 {
 }
 
 void
-__shmem_maybe_tracers_show_info (void)
+shmemi_maybe_tracers_show_info (void)
 {
 }
 
 void
-__shmem_trace (shmem_trace_t msg_type, char *fmt, ...)
+shmemi_trace (shmem_trace_t msg_type, char *fmt, ...)
 {
 }
 
 int
-__shmem_trace_is_enabled (shmem_trace_t level)
+shmemi_trace_is_enabled (shmem_trace_t level)
 {
   return 0;
 }

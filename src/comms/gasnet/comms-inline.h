@@ -40,7 +40,7 @@
 /**
  * This file provides the layer on top of GASNet, ARMCI or whatever.
  * API should be formalized at some point, but basically everything
- * non-static that starts with "__shmem_comms_"
+ * non-static that starts with "shmemi_comms_"
  */
 
 #include <ctype.h>
@@ -88,8 +88,8 @@
  */
 
 static inline void comms_bailout (char *fmt, ...);
-static inline void __shmem_comms_exit (int status);
-static inline void *__shmem_symmetric_addr_lookup (void *dest, int pe);
+static inline void shmemi_comms_exit (int status);
+static inline void *shmemi_symmetric_addr_lookup (void *dest, int pe);
 
 /**
  * trap gasnet errors gracefully
@@ -140,7 +140,7 @@ comms_bailout (char *fmt, ...)
   fputs (tmp1, stderr);
   fflush (stderr);
 
-  __shmem_comms_exit (1);
+  shmemi_comms_exit (1);
 }
 
 /* end: bail.c */
@@ -256,7 +256,7 @@ waitmode_init (void)
 static
 inline
 void
-__shmem_service_init (void)
+shmemi_service_init (void)
 {
   /*
    * Zap this code for now.  Problems with IBV conduit thread if all
@@ -281,7 +281,7 @@ __shmem_service_init (void)
    */
 
   const char *grt_str = "GASNET_RCV_THREAD";
-  char *rtv = __shmem_comms_getenv (grt_str);
+  char *rtv = shmemi_comms_getenv (grt_str);
   if (EXPR_LIKELY (rtv == NULL))
     {
       use_conduit_thread = true;
@@ -341,7 +341,7 @@ __shmem_service_init (void)
 static
 inline
 void
-__shmem_service_finalize (void)
+shmemi_service_finalize (void)
 {
   if (! use_conduit_thread)
     {
@@ -375,7 +375,7 @@ __shmem_service_finalize (void)
 static
 inline
 int
-__shmem_comms_mynode (void)
+shmemi_comms_mynode (void)
 {
   return (int) gasnet_mynode ();
 }
@@ -386,7 +386,7 @@ __shmem_comms_mynode (void)
 static
 inline
 int
-__shmem_comms_nodes (void)
+shmemi_comms_nodes (void)
 {
   return (int) gasnet_nodes ();
 }
@@ -402,7 +402,7 @@ __shmem_comms_nodes (void)
 static
 inline
 void
-__shmem_comms_barrier_all (void)
+shmemi_comms_barrier_all (void)
 {
   /* GASNET_BEGIN_FUNCTION(); */
 
@@ -457,10 +457,10 @@ __shmem_comms_barrier_all (void)
 static
 inline
 void *
-__shmem_symmetric_addr_lookup (void *dest, int pe)
+shmemi_symmetric_addr_lookup (void *dest, int pe)
 {
   /* globals are in same place everywhere */
-  if (__shmem_symmetric_is_globalvar (dest))
+  if (shmemi_symmetric_is_globalvar (dest))
     {
       return dest;
     }
@@ -528,7 +528,7 @@ enum
 static
 inline
 char *
-__shmem_comms_getenv (const char *name)
+shmemi_comms_getenv (const char *name)
 {
   return gasnet_getenv (name);
 }
@@ -542,9 +542,9 @@ __shmem_comms_getenv (const char *name)
 static
 inline
 size_t
-__shmem_comms_get_segment_size (void)
+shmemi_comms_get_segment_size (void)
 {
-  char *mlss_str = __shmem_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
+  char *mlss_str = shmemi_comms_getenv ("SHMEM_SYMMETRIC_HEAP_SIZE");
   size_t retval;
   int ok;
 
@@ -557,7 +557,7 @@ __shmem_comms_get_segment_size (void)
 #endif
     }
 
-  __shmem_parse_size (mlss_str, &retval, &ok);
+  shmemi_parse_size (mlss_str, &retval, &ok);
   if (EXPR_LIKELY (ok))
     {
       /* make sure aligned to page size multiples */
@@ -647,7 +647,7 @@ handler_segsetup_bak (gasnet_token_t token,
 static
 inline
 void
-__shmem_symmetric_memory_init (void)
+shmemi_symmetric_memory_init (void)
 {
   const int me = GET_STATE (mype);
   const int npes = GET_STATE (numpes);
@@ -692,7 +692,7 @@ __shmem_symmetric_memory_init (void)
       }
 
     /* everyone has their local info before exchanging messages */
-    __shmem_comms_barrier_all ();
+    shmemi_comms_barrier_all ();
 
     /* store my own heap entry */
     seginfo_table[me].addr = great_big_heap;
@@ -724,10 +724,10 @@ __shmem_symmetric_memory_init (void)
   }
 
   /* initialize my heap */
-  __shmem_mem_init (seginfo_table[me].addr, seginfo_table[me].size);
+  shmemi_mem_init (seginfo_table[me].addr, seginfo_table[me].size);
 
   /* and make sure everyone is up-to-speed */
-  /* __shmem_comms_barrier_all (); */
+  /* shmemi_comms_barrier_all (); */
 
 }
 
@@ -737,9 +737,9 @@ __shmem_symmetric_memory_init (void)
 static
 inline
 void
-__shmem_symmetric_memory_finalize (void)
+shmemi_symmetric_memory_finalize (void)
 {
-  __shmem_mem_finalize ();
+  shmemi_mem_finalize ();
 #if ! defined(HAVE_MANAGED_SEGMENTS)
   free (great_big_heap);
 #endif /* HAVE_MANAGED_SEGMENTS */
@@ -824,7 +824,7 @@ get_lock_for (void *addr)
   static                                                            \
   inline                                                            \
   void                                                              \
-  __shmem_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
+  shmemi_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
   {                                                                 \
     GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );      \
   }
@@ -927,7 +927,7 @@ make_swap_request (void *target, void *value, size_t nbytes,
     }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -951,7 +951,7 @@ make_swap_request (void *target, void *value, size_t nbytes,
 static
 inline
 void
-__shmem_comms_swap_request32 (void *target, void *value,
+shmemi_comms_swap_request32 (void *target, void *value,
                               size_t nbytes, int pe, void *retval)
 {
   make_swap_request (target, value, nbytes, pe, retval);
@@ -960,7 +960,7 @@ __shmem_comms_swap_request32 (void *target, void *value,
 static
 inline
 void
-__shmem_comms_swap_request64 (void *target, void *value,
+shmemi_comms_swap_request64 (void *target, void *value,
                               size_t nbytes, int pe, void *retval)
 {
   make_swap_request (target, value, nbytes, pe, retval);
@@ -1047,7 +1047,7 @@ make_cswap_request (void *target, void *cond, void *value,
     }
   /* build payload to send */
   cp->local_store = retval;
-  cp->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  cp->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   cp->nbytes = nbytes;
   cp->value = cp->cond = 0LL;
   memmove (&(cp->value), value, nbytes);
@@ -1064,7 +1064,7 @@ make_cswap_request (void *target, void *cond, void *value,
 static
 inline
 void
-__shmem_comms_cswap_request32 (void *target, void *cond, void *value,
+shmemi_comms_cswap_request32 (void *target, void *cond, void *value,
                                size_t nbytes, int pe, void *retval)
 {
   make_cswap_request (target, cond, value, nbytes, pe, retval);
@@ -1073,7 +1073,7 @@ __shmem_comms_cswap_request32 (void *target, void *cond, void *value,
 static
 inline
 void
-__shmem_comms_cswap_request64 (void *target, void *cond, void *value,
+shmemi_comms_cswap_request64 (void *target, void *cond, void *value,
                                size_t nbytes, int pe, void *retval)
 {
   make_cswap_request (target, cond, value, nbytes, pe, retval);
@@ -1151,7 +1151,7 @@ make_fadd_request (void *target, void *value, size_t nbytes, int pe,
     }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1165,7 +1165,7 @@ make_fadd_request (void *target, void *value, size_t nbytes, int pe,
 static
 inline
 void
-__shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
+shmemi_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
                               void *retval)
 {
   make_fadd_request (target, value, nbytes, pe, retval);
@@ -1174,7 +1174,7 @@ __shmem_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
 static
 inline
 void
-__shmem_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
+shmemi_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
                               void *retval)
 {
   make_fadd_request (target, value, nbytes, pe, retval);
@@ -1251,7 +1251,7 @@ make_finc_request (void *target, size_t nbytes, int pe, void *retval)
     }
   /* build payload to send */
   p->local_store = retval;
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
@@ -1264,7 +1264,7 @@ make_finc_request (void *target, size_t nbytes, int pe, void *retval)
 static
 inline
 void
-__shmem_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
+shmemi_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
 {
   make_finc_request (target, nbytes, pe, retval);
 }
@@ -1272,7 +1272,7 @@ __shmem_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
 static
 inline
 void
-__shmem_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
+shmemi_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
 {
   make_finc_request (target, nbytes, pe, retval);
 }
@@ -1343,7 +1343,7 @@ make_add_request (void *target, void *value, size_t nbytes, int pe)
       comms_bailout ("internal error: unable to allocate remote add payload memory");
     }
   /* build payload to send */
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1357,7 +1357,7 @@ make_add_request (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
+shmemi_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
 {
   make_add_request (target, value, nbytes, pe);
 }
@@ -1365,7 +1365,7 @@ __shmem_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
+shmemi_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
 {
   make_add_request (target, value, nbytes, pe);
 }
@@ -1388,9 +1388,9 @@ handler_inc_out (gasnet_token_t token,
 
   gasnet_hsl_lock (& amo_inc_lock);
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc out: nbytes in payload = %d\n", pp->nbytes);
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc out: nbytes in payload = %d\n", pp->nbytes);
 
   /* save and update */
   (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
@@ -1398,7 +1398,7 @@ handler_inc_out (gasnet_token_t token,
   (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
   LOAD_STORE_FENCE ();
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
 
   gasnet_hsl_unlock (& amo_inc_lock);
 
@@ -1418,7 +1418,7 @@ handler_inc_bak (gasnet_token_t token,
 
   gasnet_hsl_lock (& amo_inc_lock);
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
 
   /* done it */
   *(pp->completed_addr) = 1;
@@ -1440,18 +1440,18 @@ make_inc_request (void *target, size_t nbytes, int pe)
       comms_bailout ("internal error: unable to allocate remote increment payload memory");
     }
   /* build payload to send */
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->completed = 0;
   p->completed_addr = &(p->completed);
   /* fire off request */
   gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
 
   WAIT_ON_COMPLETION (p->completed);
 
-  // __shmem_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
+  // shmemi_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
 
   free (p);
 }
@@ -1459,7 +1459,7 @@ make_inc_request (void *target, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
+shmemi_comms_inc_request32 (void *target, size_t nbytes, int pe)
 {
   make_inc_request (target, nbytes, pe);
 }
@@ -1467,7 +1467,7 @@ __shmem_comms_inc_request32 (void *target, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_inc_request64 (void *target, size_t nbytes, int pe)
+shmemi_comms_inc_request64 (void *target, size_t nbytes, int pe)
 {
   make_inc_request (target, nbytes, pe);
 }
@@ -1536,7 +1536,7 @@ make_xor_request (void *target, void *value, size_t nbytes, int pe)
       comms_bailout ("internal error: unable to allocate remote exclusive-or payload memory");
     }
   /* build payload to send */
-  p->r_symm_addr = __shmem_symmetric_addr_lookup (target, pe);
+  p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
   p->nbytes = nbytes;
   p->value = *(long long *) value;
   p->completed = 0;
@@ -1550,7 +1550,7 @@ make_xor_request (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
+shmemi_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
 {
   make_xor_request (target, value, nbytes, pe);
 }
@@ -1558,7 +1558,7 @@ __shmem_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 void
-__shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
+shmemi_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
 {
   make_xor_request (target, value, nbytes, pe);
 }
@@ -1572,7 +1572,7 @@ __shmem_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
 static
 inline
 int
-__shmem_comms_ping_request (int pe)
+shmemi_comms_ping_request (int pe)
 {
   return 1;
 }
@@ -1794,7 +1794,7 @@ put_a_chunk (void *buf, size_t bufsize,
 static
 inline
 void
-__shmem_comms_globalvar_put_request (void *target, void *source,
+shmemi_comms_globalvar_put_request (void *target, void *source,
                                      size_t nbytes, int pe)
 {
   /* get the buffer size and chop off control structure */
@@ -1921,7 +1921,7 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 static
 inline
 void
-__shmem_comms_globalvar_get_request (void *target, void *source,
+shmemi_comms_globalvar_get_request (void *target, void *source,
                                      size_t nbytes, int pe)
 {
   /* get the buffer size and chop off control structure */
@@ -1976,20 +1976,20 @@ __shmem_comms_globalvar_get_request (void *target, void *source,
 static
 inline
 void
-__shmem_comms_put (void *dst, void *src, size_t len, int pe)
+shmemi_comms_put (void *dst, void *src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (dst))
+  if (shmemi_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+      shmemi_comms_globalvar_put_request (dst, src, len, pe);
     }
   else
     {
-      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+      void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
       GASNET_PUT (pe, their_dst, src, len);
     }
 #else
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+  void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
   GASNET_PUT (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -1997,20 +1997,20 @@ __shmem_comms_put (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-__shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
+shmemi_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (dst))
+  if (shmemi_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+      shmemi_comms_globalvar_put_request (dst, src, len, pe);
     }
   else
     {
-      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+      void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
       GASNET_PUT_BULK (pe, their_dst, src, len);
     }
 #else
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+  void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
   GASNET_PUT_BULK (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2018,20 +2018,20 @@ __shmem_comms_put_bulk (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-__shmem_comms_get (void *dst, void *src, size_t len, int pe)
+shmemi_comms_get (void *dst, void *src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (src))
+  if (shmemi_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+      shmemi_comms_globalvar_get_request (dst, src, len, pe);
     }
   else
     {
-      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+      void *their_src = shmemi_symmetric_addr_lookup (src, pe);
       GASNET_GET (dst, pe, their_src, len);
     }
 #else
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+  void *their_src = shmemi_symmetric_addr_lookup (src, pe);
   GASNET_GET (dst, pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2039,20 +2039,20 @@ __shmem_comms_get (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-__shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
+shmemi_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (src))
+  if (shmemi_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+      shmemi_comms_globalvar_get_request (dst, src, len, pe);
     }
   else
     {
-      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+      void *their_src = shmemi_symmetric_addr_lookup (src, pe);
       GASNET_GET_BULK (dst, pe, their_src, len);
     }
 #else
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+  void *their_src = shmemi_symmetric_addr_lookup (src, pe);
   GASNET_GET_BULK (dst, pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2065,20 +2065,20 @@ __shmem_comms_get_bulk (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-__shmem_comms_put_val (void *dst, long src, size_t len, int pe)
+shmemi_comms_put_val (void *dst, long src, size_t len, int pe)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (dst))
+  if (shmemi_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (dst, &src, len, pe);
+      shmemi_comms_globalvar_put_request (dst, &src, len, pe);
     }
   else
     {
-      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+      void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
       GASNET_PUT_VAL (pe, their_dst, src, len);
     }
 #else
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+  void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
   GASNET_PUT_VAL (pe, their_dst, src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2086,21 +2086,21 @@ __shmem_comms_put_val (void *dst, long src, size_t len, int pe)
 static
 inline
 long
-__shmem_comms_get_val (void *src, size_t len, int pe)
+shmemi_comms_get_val (void *src, size_t len, int pe)
 {
   long retval;
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (src))
+  if (shmemi_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (&retval, src, len, pe);
+      shmemi_comms_globalvar_get_request (&retval, src, len, pe);
     }
   else
     {
-      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+      void *their_src = shmemi_symmetric_addr_lookup (src, pe);
       retval = gasnet_get_val (pe, their_src, len);
     }
 #else
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+  void *their_src = shmemi_symmetric_addr_lookup (src, pe);
   retval = gasnet_get_val (pe, their_src, len);
 #endif /* HAVE_MANAGED_SEGMENTS */
 
@@ -2226,7 +2226,7 @@ do_fence (void)
 static
 inline
 void
-__shmem_comms_quiet_request (void)
+shmemi_comms_quiet_request (void)
 {
   do_fence ();
 }
@@ -2234,7 +2234,7 @@ __shmem_comms_quiet_request (void)
 static
 inline
 void
-__shmem_comms_fence_request (void)
+shmemi_comms_fence_request (void)
 {
   do_fence ();
 }
@@ -2247,21 +2247,21 @@ __shmem_comms_fence_request (void)
 static
 inline
 void
-__shmem_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
+shmemi_comms_put_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (dst))
+  if (shmemi_symmetric_is_globalvar (dst))
     {
-      __shmem_comms_globalvar_put_request (dst, src, len, pe);
+      shmemi_comms_globalvar_put_request (dst, src, len, pe);
       *desc = NULL;			/* masquerade as _nb for now */
     }
   else
     {
-      void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+      void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
       *desc = put_nb_helper (their_dst, src, len, pe);
     }
 #else
-  void *their_dst = __shmem_symmetric_addr_lookup (dst, pe);
+  void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
   *desc = put_nb_helper (their_dst, src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2283,21 +2283,21 @@ get_nb_helper (void *dst, void *src, size_t len, int pe)
 static
 inline
 void
-__shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
+shmemi_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_handle_t *desc)
 {
 #if defined(HAVE_MANAGED_SEGMENTS)
-  if (__shmem_symmetric_is_globalvar (src))
+  if (shmemi_symmetric_is_globalvar (src))
     {
-      __shmem_comms_globalvar_get_request (dst, src, len, pe);
+      shmemi_comms_globalvar_get_request (dst, src, len, pe);
       *desc = NULL;			/* masquerade for now */
     }
   else
     {
-      void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+      void *their_src = shmemi_symmetric_addr_lookup (src, pe);
       *desc = get_nb_helper (dst, their_src, len, pe);
     }
 #else
-  void *their_src = __shmem_symmetric_addr_lookup (src, pe);
+  void *their_src = shmemi_symmetric_addr_lookup (src, pe);
   *desc = get_nb_helper (dst, their_src, len, pe);
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
@@ -2308,7 +2308,7 @@ __shmem_comms_get_nb (void *dst, void *src, size_t len, int pe, shmemx_request_h
 static
 inline
 void
-__shmem_comms_wait_req (shmemx_request_handle_t desc)
+shmemi_comms_wait_req (shmemx_request_handle_t desc)
 {
   if (desc != NULL)
     {
@@ -2323,7 +2323,7 @@ __shmem_comms_wait_req (shmemx_request_handle_t desc)
     }
   else
     {
-      __shmem_comms_quiet_request (); /* no specific handle, so quiet for all */
+      shmemi_comms_quiet_request (); /* no specific handle, so quiet for all */
     }
 }
 
@@ -2334,7 +2334,7 @@ __shmem_comms_wait_req (shmemx_request_handle_t desc)
 static
 inline
 void
-__shmem_comms_test_req (shmemx_request_handle_t desc, int *flag)
+shmemi_comms_test_req (shmemx_request_handle_t desc, int *flag)
 {
   if (desc != NULL)
     {
@@ -2371,7 +2371,7 @@ handler_globalexit_out (gasnet_token_t token,
 {
   int status = *(int *) buf;
 
-  __shmem_comms_fence_request ();
+  shmemi_comms_fence_request ();
 
   _exit (status);
 }
@@ -2383,7 +2383,7 @@ handler_globalexit_out (gasnet_token_t token,
  */
 static
 void
-__shmem_comms_globalexit_request (int status)
+shmemi_comms_globalexit_request (int status)
 {
   const int me = GET_STATE (mype);
   const int npes = GET_STATE (numpes);
@@ -2400,7 +2400,7 @@ __shmem_comms_globalexit_request (int status)
         }
     }
 
-  __shmem_comms_fence_request ();
+  shmemi_comms_fence_request ();
 
   _exit (status);
 }
@@ -2576,9 +2576,9 @@ maximize_gasnet_timeout (void)
  */
 static
 void
-__shmem_comms_finalize (void)
+shmemi_comms_finalize (void)
 {
-  __shmem_comms_exit (EXIT_SUCCESS);
+  shmemi_comms_exit (EXIT_SUCCESS);
 }
 
 /**
@@ -2593,7 +2593,7 @@ place_init (void)
   const int s = uname (& GET_STATE (loc));
   if (EXPR_UNLIKELY (s != 0))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: can't find any node information"
                      );
     }
@@ -2605,7 +2605,7 @@ place_init (void)
 static
 inline
 void
-__shmem_comms_init (void)
+shmemi_comms_init (void)
 {
   parse_cmdline ();
 
@@ -2614,9 +2614,9 @@ __shmem_comms_init (void)
   GASNET_SAFE (gasnet_init (&argc, &argv));
 
   /* now we can ask about the node count & heap */
-  SET_STATE ( mype,     __shmem_comms_mynode ()           );
-  SET_STATE ( numpes,   __shmem_comms_nodes ()            );
-  SET_STATE ( heapsize, __shmem_comms_get_segment_size () );
+  SET_STATE ( mype,     shmemi_comms_mynode ()           );
+  SET_STATE ( numpes,   shmemi_comms_nodes ()            );
+  SET_STATE ( heapsize, shmemi_comms_get_segment_size () );
 
   /*
    * not guarding the attach for different gasnet models,
@@ -2625,42 +2625,42 @@ __shmem_comms_init (void)
   GASNET_SAFE (gasnet_attach (handlers, nhandlers, GET_STATE (heapsize), 0));
 
   /* fire up any needed progress management */
-  __shmem_service_init ();
+  shmemi_service_init ();
 
   /* enable messages */
-  __shmem_elapsed_clock_init ();
-  __shmem_tracers_init ();
+  shmemi_elapsed_clock_init ();
+  shmemi_tracers_init ();
 
   /* who am I? */
-  __shmem_executable_init ();
+  shmemi_executable_init ();
 
   /* find global symbols */
-  __shmem_symmetric_globalvar_table_init ();
+  shmemi_symmetric_globalvar_table_init ();
 
   /* handle the heap */
-  __shmem_symmetric_memory_init ();
+  shmemi_symmetric_memory_init ();
 
   /* which message/trace levels are active */
-  __shmem_maybe_tracers_show_info ();
-  __shmem_tracers_show ();
+  shmemi_maybe_tracers_show_info ();
+  shmemi_tracers_show ();
 
   /* set up the atomic ops handling */
-  __shmem_atomic_init ();
+  shmemi_atomic_init ();
 
   /* initialize collective algs */
-  __shmem_barrier_dispatch_init ();
-  __shmem_barrier_all_dispatch_init ();
-  __shmem_broadcast_dispatch_init ();
-  __shmem_collect_dispatch_init ();
-  __shmem_fcollect_dispatch_init ();
+  shmemi_barrier_dispatch_init ();
+  shmemi_barrier_all_dispatch_init ();
+  shmemi_broadcast_dispatch_init ();
+  shmemi_collect_dispatch_init ();
+  shmemi_fcollect_dispatch_init ();
 
   /* set up any locality information */
   place_init ();
 
   /* register shutdown handler */
-  if (EXPR_UNLIKELY (atexit (__shmem_comms_finalize) != 0))
+  if (EXPR_UNLIKELY (atexit (shmemi_comms_finalize) != 0))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
                      "internal error: cannot register OpenSHMEM finalize handler"
                      );
       /* NOT REACHED */
@@ -2677,7 +2677,7 @@ __shmem_comms_init (void)
 static
 inline
 void
-__shmem_comms_exit (int status)
+shmemi_comms_exit (int status)
 {
   /*
    * calling multiple times is undefined, I'm just going to do nothing
@@ -2688,30 +2688,30 @@ __shmem_comms_exit (int status)
     }
 
   /* ok, no more pending I/O ... */
-  __shmem_comms_barrier_all ();
+  shmemi_comms_barrier_all ();
 
   release_cmdline ();
 
-  __shmem_service_finalize ();
+  shmemi_service_finalize ();
 
   /* clean up atomics and memory */
-  __shmem_atomic_finalize ();
-  __shmem_symmetric_memory_finalize ();
-  __shmem_symmetric_globalvar_table_finalize ();
+  shmemi_atomic_finalize ();
+  shmemi_symmetric_memory_finalize ();
+  shmemi_symmetric_globalvar_table_finalize ();
 
   /* clean up plugin modules */
-  /* __shmem_modules_finalize (); */
+  /* shmemi_modules_finalize (); */
 
   /* tidy up binary inspector */
-  __shmem_executable_finalize ();
+  shmemi_executable_finalize ();
 
   /* stop run time clock */
-  __shmem_elapsed_clock_finalize ();
+  shmemi_elapsed_clock_finalize ();
 
   /* update our state */
   SET_STATE (pe_status, PE_SHUTDOWN);
 
-  __shmem_trace (SHMEM_LOG_FINALIZE,
+  shmemi_trace (SHMEM_LOG_FINALIZE,
                  "finalizing shutdown, handing off to communications layer"
                  );
 
@@ -2721,7 +2721,7 @@ __shmem_comms_exit (int status)
    *
    */
 
-  /* __shmem_comms_barrier_all (); */
+  /* shmemi_comms_barrier_all (); */
 }
 
 /* mcs-lock.c */
@@ -2789,7 +2789,7 @@ enum
 static
 inline
 void
-__shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
   SHMEM_LOCK tmp;
   long locked;
@@ -2844,7 +2844,7 @@ __shmem_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 static
 inline
 void
-__shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
   /* Is there someone on the linked list ? */
   if (node->l_next == _SHMEM_LOCK_FREE)
@@ -2909,7 +2909,7 @@ __shmem_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 static
 inline
 int
-__shmem_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
+shmemi_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
   SHMEM_LOCK tmp;
   int retval;
@@ -2924,7 +2924,7 @@ __shmem_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
   /* If lock already set then return 1, otherwise grab the lock & return 0 */
   if (tmp.l_word == _SHMEM_LOCK_RESET)
     {
-      __shmem_comms_lock_acquire (node, lock, this_pe);
+      shmemi_comms_lock_acquire (node, lock, this_pe);
       retval = 0;
     }
   else

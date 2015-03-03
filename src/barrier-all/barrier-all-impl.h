@@ -37,6 +37,6 @@
 
 #ifndef _BARRIER_ALL_IMPL_H
 
-extern void __shmem_barrier_all_linear ();
+extern void shmemi_barrier_all_linear ();
 
 #endif

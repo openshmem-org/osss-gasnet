@@ -94,7 +94,7 @@ extern void shmemx_put_nb (long *dest, const long *src, size_t nelems,
     INIT_CHECK ();                                                      \
     SYMMETRY_CHECK (target, 1, "shmemx_" #Name "_put_nb");              \
     PE_RANGE_CHECK (pe, 4);                                             \
-    __shmem_comms_put_nb ((Type *) target, (Type *) source,             \
+    shmemi_comms_put_nb ((Type *) target, (Type *) source,             \
                           typed_nelems, pe, desc);                      \
   }
 
@@ -148,7 +148,7 @@ shmemx_putmem_nb (void *target, const void *source, size_t nelems,
   INIT_CHECK ();
   SYMMETRY_CHECK (target, 1, "shmemx_putmem_nb");
   PE_RANGE_CHECK (pe, 4);
-  __shmem_comms_put_nb (target, (void *) source, nelems, pe, desc);
+  shmemi_comms_put_nb (target, (void *) source, nelems, pe, desc);
 }
 
 void
@@ -196,7 +196,7 @@ extern void shmemx_get_nb (long *dest, const long *src, size_t nelems,
     INIT_CHECK ();                                                      \
     SYMMETRY_CHECK (source, 2, "shmemx_" #Name "_get_nb");              \
     PE_RANGE_CHECK (pe, 4);                                             \
-    __shmem_comms_get_nb ((Type *) target, (Type *) source,             \
+    shmemi_comms_get_nb ((Type *) target, (Type *) source,             \
                           typed_nelems, pe, desc);                      \
   }
 
@@ -251,7 +251,7 @@ shmemx_getmem_nb (void *target, const void *source, size_t nelems,
   INIT_CHECK ();
   SYMMETRY_CHECK (source, 2, "shmemx_getmem_nb");
   PE_RANGE_CHECK (pe, 4);
-  __shmem_comms_get_nb (target, (void *) source, nelems, pe, desc);
+  shmemi_comms_get_nb (target, (void *) source, nelems, pe, desc);
 }
 
 void
@@ -274,7 +274,7 @@ shmemx_get_nb (long *target, const long *source, size_t nelems,
 
 void shmemx_wait_req (shmemx_request_handle_t desc)
 {
-  __shmem_comms_wait_req (desc);
+  shmemi_comms_wait_req (desc);
 }
 
 /**
@@ -284,7 +284,7 @@ void shmemx_wait_req (shmemx_request_handle_t desc)
 void
 shmemx_test_req (shmemx_request_handle_t desc, int *flag)
 {
-  __shmem_comms_test_req (desc, flag);
+  shmemi_comms_test_req (desc, flag);
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

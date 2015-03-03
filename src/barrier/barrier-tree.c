@@ -81,13 +81,13 @@ set_2tree (int PE_start, int PE_stride, int PE_size,
       *child_r = -1;
     }
 
-  __shmem_trace (SHMEM_LOG_BARRIER,
+  shmemi_trace (SHMEM_LOG_BARRIER,
                  "set2tree: parent = %d, L_child = %d, R_child = %d",
                  *parent, *child_l, *child_r);
 }
 
 void
-__shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
+shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size,
                       long *pSync)
 {
   int child_l, child_r, parent;
@@ -112,7 +112,7 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
 
   no_children = 0;
 
-  __shmem_trace (SHMEM_LOG_BARRIER,
+  shmemi_trace (SHMEM_LOG_BARRIER,
                  "before barrier, R_child = %d L_child = %d",
                  child_r, child_l);
 
@@ -150,7 +150,7 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
         {
           shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
 
-          __shmem_trace (SHMEM_LOG_BARRIER, "inside else");
+          shmemi_trace (SHMEM_LOG_BARRIER, "inside else");
 
           if (child_l != -1)
             {
@@ -185,7 +185,7 @@ __shmem_barrier_tree (int PE_start, int logPE_stride, int PE_size,
             }
 
         }
-      __shmem_trace (SHMEM_LOG_BARRIER, "at the end of barrier");
+      shmemi_trace (SHMEM_LOG_BARRIER, "at the end of barrier");
 
     }
 }

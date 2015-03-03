@@ -93,9 +93,9 @@ check_pe_status (void)
     case PE_RUNNING:
     case PE_SHUTDOWN:
     case PE_FAILED:
-      __shmem_trace (SHMEM_LOG_INFO,
+      shmemi_trace (SHMEM_LOG_INFO,
 		     "OpenSHMEM has already been initialized (%s)",
-		     __shmem_state_as_string (s)
+		     shmemi_state_as_string (s)
 		     );
       yn = 0;
       break;
@@ -116,9 +116,9 @@ report_up (void)
   const int n = GET_STATE (numpes);
   const size_t h = GET_STATE (heapsize);
 
-  if (__shmem_version (&maj, &min) == 0)
+  if (shmemi_version (&maj, &min) == 0)
     {
-      __shmem_trace (SHMEM_LOG_INIT,
+      shmemi_trace (SHMEM_LOG_INIT,
 		     "version %d.%d running on %d PE%s, using %zd bytes of symmetric heap",
 		     maj, min,
 		     n, (n == 1) ? "" : "s",
@@ -142,12 +142,12 @@ shmem_init_private (int npes)
       return;
     }
 
-  __shmem_comms_init ();
+  shmemi_comms_init ();
 
   /* just note start_pes() not passed 0, it's not a big deal */
   if (npes != 0)
     {
-      __shmem_trace (SHMEM_LOG_INFO,
+      shmemi_trace (SHMEM_LOG_INFO,
 		     "start_pes() was passed %d, should be 0",
                      npes
 		     );
@@ -214,11 +214,11 @@ start_pes (int npes)
 void
 shmem_finalize (void)
 {
-  __shmem_comms_finalize ();
+  shmemi_comms_finalize ();
 }
 
 void
 shmem_global_exit (int status)
 {
-  __shmem_comms_globalexit_request (status);
+  shmemi_comms_globalexit_request (status);
 }

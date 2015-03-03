@@ -62,9 +62,9 @@ static void (*func) ();
  */
 
 void
-__shmem_barrier_dispatch_init (void)
+shmemi_barrier_dispatch_init (void)
 {
-  char *name = __shmem_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
+  char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
 
   if (EXPR_LIKELY (name == (char *) NULL))
     {
@@ -73,12 +73,12 @@ __shmem_barrier_dispatch_init (void)
 
   if (strcmp (name, "linear") == 0)
     {
-      func = __shmem_barrier_linear;
+      func = shmemi_barrier_linear;
     }
   else
     if (strcmp (name, "tree") == 0)
       {
-        func = __shmem_barrier_tree;
+        func = shmemi_barrier_tree;
       }
     else
       {
@@ -88,7 +88,7 @@ __shmem_barrier_dispatch_init (void)
   /*
    * report which broadcast implementation we set up
    */
-  __shmem_trace (SHMEM_LOG_BARRIER,
+  shmemi_trace (SHMEM_LOG_BARRIER,
                  "using broadcast \"%s\"",
                  name
                  );

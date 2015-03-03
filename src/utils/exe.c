@@ -61,7 +61,7 @@ static const char *self_fmt = "/proc/%ld/exe";
  * file descriptor
  */
 void
-__shmem_executable_init (void)
+shmemi_executable_init (void)
 {
   ssize_t s;
   int fd;
@@ -80,7 +80,7 @@ __shmem_executable_init (void)
   /* dunno who I am, complain */
   if (EXPR_UNLIKELY (s < 0))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
 		     "can't find my own executable name (%s)",
 		     strerror (errno));
       /* NOT REACHED */
@@ -93,7 +93,7 @@ __shmem_executable_init (void)
   fd = open (GET_STATE (exe_name), O_RDONLY, 0);
   if (EXPR_UNLIKELY (fd < 0))
     {
-      __shmem_trace (SHMEM_LOG_FATAL,
+      shmemi_trace (SHMEM_LOG_FATAL,
 		     "can't open \"%s\" (%s)",
 		     GET_STATE (exe_name), strerror (errno));
       /* NOT REACHED */
@@ -107,7 +107,7 @@ __shmem_executable_init (void)
  * descriptor
  */
 void
-__shmem_executable_finalize (void)
+shmemi_executable_finalize (void)
 {
   close (GET_STATE (exe_fd));
 }
