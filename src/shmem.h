@@ -101,29 +101,32 @@ extern "C"
    */
 #if defined(__INTEL_COMPILER) || defined(__clang__)
 
-# define _DEPRECATED_BY(...)                                  \
+# define _DEPRECATED_BY(...) \
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
-# define _DEPRECATED                            \
+# define _DEPRECATED \
   __attribute__((deprecated))
 
 #elif defined(__OPEN64__)
 
-#  define _DEPRECATED_BY(...)
-#  define _DEPRECATED
+  /* not supported */
+
+# define _DEPRECATED_BY(...)
+# define _DEPRECATED
 
 #elif defined(__GNUC__)
 
   /* GCC has extended attribute syntax from 4.5 onward */
 
 # if __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
-#  define _DEPRECATED_BY(...)                                 \
+#  define _DEPRECATED_BY(...) \
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
-#  define _DEPRECATED                           \
-  __attribute__((deprecated))
 #else
-# define _DEPRECATED_BY(...)
-# define _DEPRECATED
+# define _DEPRECATED_BY(...) \
+  __attribute__((deprecated))
 #endif
+
+#define _DEPRECATED \
+  __attribute__((deprecated))
 
 #else
 
@@ -132,7 +135,7 @@ extern "C"
 # define _DEPRECATED_BY(...)
 # define _DEPRECATED
 
-#endif
+#endif /* compiler deprecation check */
 
   /*
    * init & query
