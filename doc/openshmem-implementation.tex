@@ -679,19 +679,21 @@ An outline file is:
 #include <...>
 
 void
-__shmem_broadcast32_clever (...)
+shmemi_broadcast32_clever (...)
 {
   ...
 }
 
 void
-__shmem_broadcast64_clever (...)
+shmemi_broadcast64_clever (...)
 {
   ...
 }
 \end{lstlisting}
 \end{minipage}
 \vspace{0.1in}
+
+``shmemi\_'' is the internal implementation namespace.
 
 The names of the new routines are added to the ``impl.h'' file in the
 sub-directory, and the loader file in the collective's sub-directory
