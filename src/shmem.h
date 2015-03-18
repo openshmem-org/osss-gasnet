@@ -141,19 +141,223 @@ extern "C"
    * init & query
    */
 
+  /**
+   * \brief This routine initializes the OpenSHMEM environment on the calling PE.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void start_pes (int npes);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER npes
+   *
+   *   CALL START_PES (npes)
+   * \endcode
+   *
+   * \param npes the number of PEs participating in the program.  This
+   * is ignored and should be set to 0.
+   *
+   * \b Effect:
+   *
+   * Initializes the OpenSHMEM environment on the calling PE.
+   *
+   * \return None.
+   *
+   * \deprecated in favor of shmem_init()
+   *
+   */
   extern void start_pes (int npes)
     _DEPRECATED_BY(shmem_init);
+  /**
+   * \brief initializes the OpenSHMEM environment on the calling PE.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_init (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_INIT ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * Initializes the OpenSHMEM environment on the calling PE.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_init (void);
+  /**
+   * \brief finalizes the OpenSHMEM environment on the calling PE.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_finalize (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_FINALIZE ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * A collective finalization of the OpenSHMEM environment on the
+   * calling PE.  After a finalize call, no further OpenSHMEM calls
+   * are permitted.  Any use has undefined effects.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_finalize (void);
 
+  /**
+   * \brief causes immediate exit from the OpenSHMEM program on all PEs.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_global_exit (int status);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER STATUS
+   *
+   *   CALL SHMEM_FINALIZE (STATUS)
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * Called on 1 or more PEs, Causes immediate termination of the
+   * program on all PEs.  Pending communication is flushed, files are
+   * closed.  "status" allows the call to pass back information to the
+   * execution environment.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_global_exit (int status);
 
+  /**
+   * \brief returns the "rank" or identity of the calling PE
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   int _my_pe (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER I
+   *
+   *   I = MY_PE ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \return Rank of calling PE
+   *
+   * \deprecated in favor of shmem_my_pe ()
+   *
+   */
   extern int _my_pe (void)
     _WUR _DEPRECATED_BY(shmem_my_pe);
+  /**
+   * \brief returns the "rank" or identity of the calling PE
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   int shmem_my_pe (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER I
+   *
+   *   I = SHMEM_MY_PE ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \return Rank of calling PE
+   *
+   */
   extern int shmem_my_pe (void) _WUR;
 
+  /**
+   * \brief These routines return the number of PEs in the program
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   int _num_pes (void);
+   *   int shmem_n_pes (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER I
+   *
+   *   I = NUM_PES ()
+   *   I = SHMEM_N_PES ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \return Number of PEs in program
+   *
+   * \deprecated in favor of shmem_n_pes ():
+   *
+   */
   extern int _num_pes (void)
     _WUR _DEPRECATED_BY(shmem_n_pes);
+  /**
+   * \brief returns the number of PEs in the program
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   int shmem_n_pes (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   INTEGER I
+   *
+   *   I = SHMEM_N_PES ()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \return Number of PEs in program
+   *
+   */
   extern int shmem_n_pes (void) _WUR;
 
   /*
@@ -456,11 +660,166 @@ extern "C"
    * cache flushing (deprecated)
    */
 
+  /**
+   * \brief shmem_clear_cache_inv has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_clear_cache_inv (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_CLEAR_CACHE_INV()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_clear_cache_inv (void) _DEPRECATED;
+
+  /**
+   * \brief shmem_set_cache_inv has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_set_cache_inv (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_SET_CACHE_INV()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.  Included for legacy use only.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_set_cache_inv (void) _DEPRECATED;
+
+  /**
+   * \brief shmem_clear_cache_line_inv has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_clear_cache_line_inv (void *target);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_CLEAR_CACHE_LINE_INV(target)
+   * \endcode
+   *
+   * \param target is the address of the cache line.
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_clear_cache_line_inv (void *target) _DEPRECATED;
+
+  /**
+   * \brief shmem_set_cache_line_inv has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_set_cache_line_inv (void *target);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_SET_CACHE_LINE_INV(target)
+   * \endcode
+   *
+   * \param target is the address of the cache line.
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_set_cache_line_inv (void *target) _DEPRECATED;
+
+  /**
+   * \brief shmem_udcflush has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_udcflush (void);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_UDCFLUSH()
+   * \endcode
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_udcflush (void) _DEPRECATED;
+
+  /**
+   * \brief shmem_udcflush_line has no effect.
+   *
+   * \b Synopsis:
+   *
+   * - C/C++:
+   * \code
+   *   void shmem_udcflush_line (void *target);
+   * \endcode
+   *
+   * - Fortran:
+   * \code
+   *   CALL SHMEM_UDCFLUSH_LINE(target)
+   * \endcode
+   *
+   * \param target is the address of the cache line.
+   *
+   * \b Effect:
+   *
+   * None.
+   *
+   * \deprecated Included for legacy use only.
+   *
+   * \return None.
+   *
+   */
   extern void shmem_udcflush_line (void *target) _DEPRECATED;
 
   /*

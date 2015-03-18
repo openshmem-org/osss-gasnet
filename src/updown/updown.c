@@ -160,35 +160,6 @@ shmem_init_private (int npes)
    */
 }
 
-/**
- * \brief This routine initializes the OpenSHMEM environment on the calling PE.
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   void shmem_init (void);
- *   void start_pes (int npes);
- * \endcode
- *
- * - Fortran:
- * \code
- *   INTEGER npes
- *
- *   CALL START_PES (npes)
- * \endcode
- *
- * \param npes the number of PEs participating in the program.  This
- * is ignored and should be set to 0.
- *
- * \b Effect:
- *
- * Initializes the OpenSHMEM environment on the calling PE.
- *
- * \return None.
- *
- */
-
 #ifdef HAVE_FEATURE_PSHMEM
 # pragma weak shmem_init = pshmem_init
 # define shmem_init pshmem_init
