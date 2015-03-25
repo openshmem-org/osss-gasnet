@@ -37,9 +37,9 @@
 
 
 
-#include <stdio.h>		/* NULL                           */
-#include <sys/utsname.h>	/* uname()                        */
-#include <sys/types.h>		/* size_t                         */
+#include <stdio.h>              /* NULL */
+#include <sys/utsname.h>        /* uname() */
+#include <sys/types.h>          /* size_t */
 
 #include "globalvar.h"
 #include "state.h"
@@ -62,11 +62,11 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #ifdef HAVE_FEATURE_EXPERIMENTAL
-# include "pshmemx.h"
+#include "pshmemx.h"
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 #include "version.h"
@@ -76,107 +76,91 @@
 /**
  * I shouldn't really initialize more than once
  */
-static
-inline
-int
+static inline int
 check_pe_status (void)
 {
-  int yn = 1;
-  const pe_status_t s = GET_STATE (pe_status);
+    int yn = 1;
+    const pe_status_t s = GET_STATE (pe_status);
 
-  switch (s)
-    {
-    case PE_UNINITIALIZED:	/* this is what it should be */
-      yn = 1;
-      break;
+    switch (s) {
+    case PE_UNINITIALIZED:     /* this is what it should be */
+        yn = 1;
+        break;
     case PE_UNKNOWN:
     case PE_RUNNING:
     case PE_SHUTDOWN:
     case PE_FAILED:
-      shmemi_trace (SHMEM_LOG_INFO,
-		     "OpenSHMEM has already been initialized (%s)",
-		     shmemi_state_as_string (s)
-		     );
-      yn = 0;
-      break;
-    default:			/* shouldn't be here */
-      yn = 0;
-      break;
+        shmemi_trace (SHMEM_LOG_INFO,
+                      "OpenSHMEM has already been initialized (%s)",
+                      shmemi_state_as_string (s));
+        yn = 0;
+        break;
+    default:                   /* shouldn't be here */
+        yn = 0;
+        break;
     }
 
-  return yn;
+    return yn;
 }
 
-static
-inline
-void
+static inline void
 report_up (void)
 {
-  int maj, min;
-  const int n = GET_STATE (numpes);
-  const size_t h = GET_STATE (heapsize);
+    int maj, min;
+    const int n = GET_STATE (numpes);
+    const size_t h = GET_STATE (heapsize);
 
-  if (shmemi_version (&maj, &min) == 0)
-    {
-      shmemi_trace (SHMEM_LOG_INIT,
-		     "version %d.%d running on %d PE%s, using %zd bytes of symmetric heap",
-		     maj, min,
-		     n, (n == 1) ? "" : "s",
-		     h
-		     );
+    if (shmemi_version (&maj, &min) == 0) {
+        shmemi_trace (SHMEM_LOG_INIT,
+                      "version %d.%d running on %d PE%s, using %zd bytes of symmetric heap",
+                      maj, min, n, (n == 1) ? "" : "s", h);
     }
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak start_pes = pstart_pes
-# define start_pes pstart_pes
+#pragma weak start_pes = pstart_pes
+#define start_pes pstart_pes
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static
-inline
-void
+static inline void
 shmem_init_private (int npes)
 {
-  if ( ! check_pe_status ())
-    {
-      return;
+    if (!check_pe_status ()) {
+        return;
     }
 
-  shmemi_comms_init ();
+    shmemi_comms_init ();
 
-  /* just note start_pes() not passed 0, it's not a big deal */
-  if (npes != 0)
-    {
-      shmemi_trace (SHMEM_LOG_INFO,
-		     "start_pes() was passed %d, should be 0",
-                     npes
-		     );
+    /* just note start_pes() not passed 0, it's not a big deal */
+    if (npes != 0) {
+        shmemi_trace (SHMEM_LOG_INFO,
+                      "start_pes() was passed %d, should be 0", npes);
     }
 
-  report_up ();
+    report_up ();
 
-  /*
-   * and we're up and running
-   */
+    /* 
+     * and we're up and running
+     */
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_init = pshmem_init
-# define shmem_init pshmem_init
-# pragma weak shmem_finalize = pshmem_finalize
-# define shmem_finalize pshmem_finalize
+#pragma weak shmem_init = pshmem_init
+#define shmem_init pshmem_init
+#pragma weak shmem_finalize = pshmem_finalize
+#define shmem_finalize pshmem_finalize
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
 shmem_init (void)
 {
-  shmem_init_private (0);
+    shmem_init_private (0);
 }
 
 void
 start_pes (int npes)
 {
-  shmem_init_private (npes);
+    shmem_init_private (npes);
 }
 
 /*
@@ -185,11 +169,11 @@ start_pes (int npes)
 void
 shmem_finalize (void)
 {
-  shmemi_comms_finalize ();
+    shmemi_comms_finalize ();
 }
 
 void
 shmem_global_exit (int status)
 {
-  shmemi_comms_globalexit_request (status);
+    shmemi_comms_globalexit_request (status);
 }

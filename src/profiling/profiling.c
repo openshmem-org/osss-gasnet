@@ -47,23 +47,22 @@
 void
 shmem_pcontrol (int level)
 {
-  char *msg = NULL;
+    char *msg = NULL;
 
-  switch (level)
-    {
+    switch (level) {
     case 0:
-      msg = "disabled";
-      break;
+        msg = "disabled";
+        break;
     case 1:
-      msg = "enabled (default detail)";
-      break;
+        msg = "enabled (default detail)";
+        break;
     default:
-      msg = "tool-specific";
-      break;
+        msg = "tool-specific";
+        break;
     }
 
-  shmemi_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
-  return;
+    shmemi_trace (SHMEM_LOG_INFO, "shmem_pcontrol(%d) is %s", level, msg);
+    return;
 }
 
 #endif /* HAVE_FEATURE_PSHMEM */

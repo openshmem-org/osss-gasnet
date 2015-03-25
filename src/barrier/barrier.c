@@ -49,7 +49,7 @@
 #include "barrier-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 static char *default_implementation = "tree";
@@ -64,34 +64,26 @@ static void (*func) ();
 void
 shmemi_barrier_dispatch_init (void)
 {
-  char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
+    char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALGORITHM");
 
-  if (EXPR_LIKELY (name == (char *) NULL))
-    {
-      name = default_implementation;
+    if (EXPR_LIKELY (name == (char *) NULL)) {
+        name = default_implementation;
     }
 
-  if (strcmp (name, "linear") == 0)
-    {
-      func = shmemi_barrier_linear;
+    if (strcmp (name, "linear") == 0) {
+        func = shmemi_barrier_linear;
     }
-  else
-    if (strcmp (name, "tree") == 0)
-      {
+    else if (strcmp (name, "tree") == 0) {
         func = shmemi_barrier_tree;
-      }
-    else
-      {
-        ; /* error */
-      }
+    }
+    else {
+        ;                       /* error */
+    }
 
-  /*
-   * report which broadcast implementation we set up
-   */
-  shmemi_trace (SHMEM_LOG_BARRIER,
-                 "using broadcast \"%s\"",
-                 name
-                 );
+    /*
+     * report which broadcast implementation we set up
+     */
+    shmemi_trace (SHMEM_LOG_BARRIER, "using broadcast \"%s\"", name);
 }
 
 /*
@@ -103,16 +95,16 @@ shmemi_barrier_dispatch_init (void)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_barrier = pshmem_barrier
-# define shmem_barrier pshmem_barrier
+#pragma weak shmem_barrier = pshmem_barrier
+#define shmem_barrier pshmem_barrier
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
 shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  shmem_quiet ();
+    shmem_quiet ();
 
-  func (PE_start, logPE_stride, PE_size, pSync);
+    func (PE_start, logPE_stride, PE_size, pSync);
 }

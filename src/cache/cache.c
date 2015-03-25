@@ -50,33 +50,51 @@
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
-# define shmem_clear_cache_inv pshmem_clear_cache_inv
-# pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
-# define shmem_set_cache_inv pshmem_set_cache_inv
-# pragma weak shmem_set_cache_line_inv = pshmem_set_cache_line_inv
-# define shmem_set_cache_line_inv pshmem_set_cache_line_inv
-# pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
-# define shmem_clear_cache_line_inv pshmem_clear_cache_line_inv
-# pragma weak shmem_udcflush = pshmem_udcflush
-# define shmem_udcflush pshmem_udcflush
-# pragma weak shmem_udcflush_line = pshmem_udcflush_line
-# define shmem_udcflush_line pshmem_udcflush_line
+#pragma weak shmem_clear_cache_inv = pshmem_clear_cache_inv
+#define shmem_clear_cache_inv pshmem_clear_cache_inv
+#pragma weak shmem_set_cache_inv = pshmem_set_cache_inv
+#define shmem_set_cache_inv pshmem_set_cache_inv
+#pragma weak shmem_set_cache_line_inv = pshmem_set_cache_line_inv
+#define shmem_set_cache_line_inv pshmem_set_cache_line_inv
+#pragma weak shmem_clear_cache_line_inv = pshmem_clear_cache_line_inv
+#define shmem_clear_cache_line_inv pshmem_clear_cache_line_inv
+#pragma weak shmem_udcflush = pshmem_udcflush
+#define shmem_udcflush pshmem_udcflush
+#pragma weak shmem_udcflush_line = pshmem_udcflush_line
+#define shmem_udcflush_line pshmem_udcflush_line
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void shmem_set_cache_inv (void) { }
+void
+shmem_set_cache_inv (void)
+{
+}
 
-void shmem_clear_cache_inv (void) { }
+void
+shmem_clear_cache_inv (void)
+{
+}
 
-void shmem_set_cache_line_inv (void *target) { }
+void
+shmem_set_cache_line_inv (void *target)
+{
+}
 
-void shmem_clear_cache_line_inv (void *target) { }
+void
+shmem_clear_cache_line_inv (void *target)
+{
+}
 
-void shmem_udcflush (void) { }
+void
+shmem_udcflush (void)
+{
+}
 
-void shmem_udcflush_line (void *target) { }
+void
+shmem_udcflush_line (void *target)
+{
+}

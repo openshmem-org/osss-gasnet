@@ -44,11 +44,11 @@
 void
 shmem_info_get_version (int *major, int *minor)
 {
-  (void) shmemi_version (major, minor);
+    (void) shmemi_version (major, minor);
 }
 
 void
 shmem_info_get_name (char *name)
 {
-  strncpy (name, _SHMEM_VENDOR_STRING, _SHMEM_MAX_NAME_LEN);
+    strncpy (name, _SHMEM_VENDOR_STRING, _SHMEM_MAX_NAME_LEN);
 }

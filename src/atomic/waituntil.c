@@ -47,59 +47,59 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_short_wait_until = pshmem_short_wait_until
-# define shmem_short_wait_until pshmem_short_wait_until
-# pragma weak shmem_int_wait_until = pshmem_int_wait_until
-# define shmem_int_wait_until pshmem_int_wait_until
-# pragma weak shmem_long_wait_until = pshmem_long_wait_until
-# define shmem_long_wait_until pshmem_long_wait_until
-# pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
-# define shmem_longlong_wait_until pshmem_longlong_wait_until
-# pragma weak shmem_wait_until = pshmem_wait_until
-# define shmem_wait_until pshmem_wait_until
+#pragma weak shmem_short_wait_until = pshmem_short_wait_until
+#define shmem_short_wait_until pshmem_short_wait_until
+#pragma weak shmem_int_wait_until = pshmem_int_wait_until
+#define shmem_int_wait_until pshmem_int_wait_until
+#pragma weak shmem_long_wait_until = pshmem_long_wait_until
+#define shmem_long_wait_until pshmem_long_wait_until
+#pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
+#define shmem_longlong_wait_until pshmem_longlong_wait_until
+#pragma weak shmem_wait_until = pshmem_wait_until
+#define shmem_wait_until pshmem_wait_until
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * wait_until with operator dispatchers, type-parameterized.
  * NB the _SHMEM_CMP values are identical to the SHMEM_CMP ones.
  */
-
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)                               \
-  void                                                                  \
-  shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)       \
-  {                                                                     \
-    switch (cmp) {                                                      \
-    case _SHMEM_CMP_EQ:                                                 \
-      shmemi_comms_wait_##Name##_eq (ivar, cmp_value);                 \
-      break;                                                            \
-    case _SHMEM_CMP_NE:                                                 \
-      shmemi_comms_wait_##Name##_ne (ivar, cmp_value);                 \
-      break;                                                            \
-    case _SHMEM_CMP_GT:                                                 \
-      shmemi_comms_wait_##Name##_gt (ivar, cmp_value);                 \
-      break;                                                            \
-    case _SHMEM_CMP_LE:                                                 \
-      shmemi_comms_wait_##Name##_le (ivar, cmp_value);                 \
-      break;                                                            \
-    case _SHMEM_CMP_LT:                                                 \
-      shmemi_comms_wait_##Name##_lt (ivar, cmp_value);                 \
-      break;                                                            \
-    case _SHMEM_CMP_GE:                                                 \
-      shmemi_comms_wait_##Name##_ge (ivar, cmp_value);                 \
-      break;                                                            \
-    default:                                                            \
-      shmemi_trace (SHMEM_LOG_FATAL,                                   \
-                     "unknown operator (code %d) in shmem_%s_wait_until()", \
-                     cmp,                                               \
-                     #Name                                              \
-                     );                                                 \
-    }                                                                   \
-  }
+    void                                                                \
+    shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)     \
+    {                                                                   \
+        switch (cmp) {                                                  \
+        case _SHMEM_CMP_EQ:                                             \
+            shmemi_comms_wait_##Name##_eq (ivar, cmp_value);            \
+            break;                                                      \
+        case _SHMEM_CMP_NE:                                             \
+            shmemi_comms_wait_##Name##_ne (ivar, cmp_value);            \
+            break;                                                      \
+        case _SHMEM_CMP_GT:                                             \
+            shmemi_comms_wait_##Name##_gt (ivar, cmp_value);            \
+            break;                                                      \
+        case _SHMEM_CMP_LE:                                             \
+            shmemi_comms_wait_##Name##_le (ivar, cmp_value);            \
+            break;                                                      \
+        case _SHMEM_CMP_LT:                                             \
+            shmemi_comms_wait_##Name##_lt (ivar, cmp_value);            \
+            break;                                                      \
+        case _SHMEM_CMP_GE:                                             \
+            shmemi_comms_wait_##Name##_ge (ivar, cmp_value);            \
+            break;                                                      \
+        default:                                                        \
+            shmemi_trace (SHMEM_LOG_FATAL,                              \
+                          "unknown operator (code %d) in shmem_%s_wait_until()", \
+                          cmp,                                          \
+                          #Name                                         \
+                          );                                            \
+            break;                                                      \
+        }                                                               \
+    }
 
 SHMEM_TYPE_WAIT_UNTIL (short, short);
 SHMEM_TYPE_WAIT_UNTIL (int, int);
@@ -110,36 +110,35 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
  * and a special case for the untyped call
  */
 
-inline
-void
+inline void
 shmem_wait_until (long *ivar, int cmp, long cmp_value)
 {
-  shmem_long_wait_until (ivar, cmp, cmp_value);
+    shmem_long_wait_until (ivar, cmp, cmp_value);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_short_wait = pshmem_short_wait
-# define shmem_short_wait pshmem_short_wait
-# pragma weak shmem_int_wait = pshmem_int_wait
-# define shmem_int_wait pshmem_int_wait
-# pragma weak shmem_long_wait = pshmem_long_wait
-# define shmem_long_wait pshmem_long_wait
-# pragma weak shmem_longlong_wait = pshmem_longlong_wait
-# define shmem_longlong_wait pshmem_longlong_wait
-# pragma weak shmem_wait = pshmem_wait
-# define shmem_wait pshmem_wait
+#pragma weak shmem_short_wait = pshmem_short_wait
+#define shmem_short_wait pshmem_short_wait
+#pragma weak shmem_int_wait = pshmem_int_wait
+#define shmem_int_wait pshmem_int_wait
+#pragma weak shmem_long_wait = pshmem_long_wait
+#define shmem_long_wait pshmem_long_wait
+#pragma weak shmem_longlong_wait = pshmem_longlong_wait
+#define shmem_longlong_wait pshmem_longlong_wait
+#pragma weak shmem_wait = pshmem_wait
+#define shmem_wait pshmem_wait
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * wait is just wait_until with inequality/change test
  */
 
-#define SHMEM_TYPE_WAIT(Name, Type)                             \
-  void                                                          \
-  shmem_##Name##_wait(Type *ivar, Type cmp_value)               \
-  {                                                             \
-    shmem_##Name##_wait_until (ivar, _SHMEM_CMP_NE, cmp_value); \
-  }
+#define SHMEM_TYPE_WAIT(Name, Type)                                 \
+    void                                                            \
+    shmem_##Name##_wait(Type *ivar, Type cmp_value)                 \
+    {                                                               \
+        shmem_##Name##_wait_until (ivar, _SHMEM_CMP_NE, cmp_value); \
+    }
 
 SHMEM_TYPE_WAIT (short, short);
 SHMEM_TYPE_WAIT (int, int);
@@ -153,5 +152,5 @@ SHMEM_TYPE_WAIT (longlong, long long);
 void
 shmem_wait (long *ivar, long cmp_value)
 {
-  shmem_long_wait (ivar, cmp_value);
+    shmem_long_wait (ivar, cmp_value);
 }

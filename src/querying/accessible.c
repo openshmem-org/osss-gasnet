@@ -44,14 +44,14 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_pe_accessible = pshmem_pe_accessible
-# define shmem_pe_accessible pshmem_pe_accessible
-# pragma weak shmem_addr_accessible = pshmem_addr_accessible
-# define shmem_addr_accessible pshmem_addr_accessible
+#pragma weak shmem_pe_accessible = pshmem_pe_accessible
+#define shmem_pe_accessible pshmem_pe_accessible
+#pragma weak shmem_addr_accessible = pshmem_addr_accessible
+#define shmem_addr_accessible pshmem_addr_accessible
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -61,9 +61,9 @@
 int
 shmem_pe_accessible (int pe)
 {
-  INIT_CHECK ();
-  PE_RANGE_CHECK (pe, 1);
-  return shmemi_comms_ping_request (pe);
+    INIT_CHECK ();
+    PE_RANGE_CHECK (pe, 1);
+    return shmemi_comms_ping_request (pe);
 }
 
 /**
@@ -73,7 +73,7 @@ shmem_pe_accessible (int pe)
 int
 shmem_addr_accessible (void *addr, int pe)
 {
-  INIT_CHECK ();
-  PE_RANGE_CHECK (pe, 2);
-  return shmemi_symmetric_addr_accessible (addr, pe);
+    INIT_CHECK ();
+    PE_RANGE_CHECK (pe, 2);
+    return shmemi_symmetric_addr_accessible (addr, pe);
 }

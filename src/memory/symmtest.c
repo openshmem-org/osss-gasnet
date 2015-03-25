@@ -37,7 +37,7 @@
 
 
 
-#include <stdio.h>		/* NULL                           */
+#include <stdio.h>              /* NULL */
 
 #include "trace.h"
 #include "globalvar.h"
@@ -55,15 +55,14 @@
 
 void
 shmemi_symmetric_test_with_abort (void *remote_addr,
-                                   void *local_addr,
-                                   const char *name, const char *routine)
+                                  void *local_addr,
+                                  const char *name, const char *routine)
 {
-  if (EXPR_UNLIKELY (remote_addr == NULL))
-    {
-      shmemi_trace (SHMEM_LOG_FATAL,
-                     "shmem_%s_%s: address %p is not symmetric",
-                     name, routine, local_addr);
-      /* NOT REACHED */
+    if (EXPR_UNLIKELY (remote_addr == NULL)) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "shmem_%s_%s: address %p is not symmetric",
+                      name, routine, local_addr);
+        /* NOT REACHED */
     }
 }
 
@@ -74,13 +73,11 @@ shmemi_symmetric_test_with_abort (void *remote_addr,
 int
 shmemi_symmetric_addr_accessible (void *addr, int pe)
 {
-  if (EXPR_LIKELY (shmemi_symmetric_addr_lookup (addr, pe) != NULL))
-    {
-      return 1;
+    if (EXPR_LIKELY (shmemi_symmetric_addr_lookup (addr, pe) != NULL)) {
+        return 1;
     }
-  else
-    {
-      return 0;
+    else {
+        return 0;
     }
 }
 
@@ -92,13 +89,12 @@ shmemi_symmetric_addr_accessible (void *addr, int pe)
 int
 shmemi_is_symmetric (void *addr)
 {
-  if (EXPR_LIKELY ( shmemi_symmetric_addr_lookup (addr, GET_STATE (mype)) != NULL))
-    {
-      return 1;
+    if (EXPR_LIKELY
+        (shmemi_symmetric_addr_lookup (addr, GET_STATE (mype)) != NULL)) {
+        return 1;
     }
-  else
-    {
-      return 0;
+    else {
+        return 0;
     }
 }
 #endif /* not used */

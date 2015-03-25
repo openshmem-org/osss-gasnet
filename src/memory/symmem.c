@@ -50,7 +50,7 @@
 #include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /*
@@ -58,7 +58,7 @@
  * code, because Fortran needs it.  Removed from shmem.h.
  *
  */
-long malloc_error = _SHMEM_MALLOC_OK; /* exposed for error codes */
+long malloc_error = _SHMEM_MALLOC_OK;   /* exposed for error codes */
 
 
 #ifdef HAVE_FEATURE_DEBUG
@@ -69,58 +69,52 @@ long malloc_error = _SHMEM_MALLOC_OK; /* exposed for error codes */
  * correct symmetry (no offending PE)
  */
 
-static
-inline
-int
+static inline int
 __shmalloc_symmetry_check (size_t size)
 {
-  int pe;
-  int any_failed_pe = -1;
-  long shmalloc_received_size;
-  long *shmalloc_remote_size;
+    int pe;
+    int any_failed_pe = -1;
+    long shmalloc_received_size;
+    long *shmalloc_remote_size;
 
-  /* record for everyone else to see */
-  shmalloc_remote_size =
-    (long *) shmemi_mem_alloc (sizeof (*shmalloc_remote_size));
-  if (shmalloc_remote_size == (long *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_FATAL,
-                     "internal error: couldn't allocate memory for symmetry check");
-      /* NOT REACHED */
+    /* record for everyone else to see */
+    shmalloc_remote_size =
+        (long *) shmemi_mem_alloc (sizeof (*shmalloc_remote_size));
+    if (shmalloc_remote_size == (long *) NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: couldn't allocate memory for symmetry check");
+        /* NOT REACHED */
     }
-  *shmalloc_remote_size = size;
-  shmem_barrier_all ();
+    *shmalloc_remote_size = size;
+    shmem_barrier_all ();
 
-  malloc_error = _SHMEM_MALLOC_OK;
+    malloc_error = _SHMEM_MALLOC_OK;
 
-  /*
-   * everyone checks everyone else's sizes, barf if mis-match
-   *
-   * TODO: probably some kind of Eureka! optimization opportunity here
-   *
-   */
-  for (pe = 0; pe < GET_STATE (numpes); pe += 1)
-    {
-      if (pe == GET_STATE (mype))
-        {
-          continue;
+    /* 
+     * everyone checks everyone else's sizes, barf if mis-match
+     *
+     * TODO: probably some kind of Eureka! optimization opportunity here
+     *
+     */
+    for (pe = 0; pe < GET_STATE (numpes); pe += 1) {
+        if (pe == GET_STATE (mype)) {
+            continue;
         }
-      shmalloc_received_size = shmem_long_g (shmalloc_remote_size, pe);
-      if (shmalloc_received_size != size)
-        {
-          shmemi_trace (SHMEM_LOG_NOTICE,
-                         "shmalloc expected %ld, but saw %ld on PE %d",
-                         size, shmalloc_received_size, pe);
-          malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
-          any_failed_pe = pe;
-          break;
-          /* NOT REACHED */
+        shmalloc_received_size = shmem_long_g (shmalloc_remote_size, pe);
+        if (shmalloc_received_size != size) {
+            shmemi_trace (SHMEM_LOG_NOTICE,
+                          "shmalloc expected %ld, but saw %ld on PE %d",
+                          size, shmalloc_received_size, pe);
+            malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
+            any_failed_pe = pe;
+            break;
+            /* NOT REACHED */
         }
     }
-  /* make sure everyone is here before freeing things */
-  shmem_barrier_all ();
-  shmemi_mem_free (shmalloc_remote_size);
-  return any_failed_pe;
+    /* make sure everyone is here before freeing things */
+    shmem_barrier_all ();
+    shmemi_mem_free (shmalloc_remote_size);
+    return any_failed_pe;
 }
 #endif /* HAVE_FEATURE_DEBUG */
 
@@ -131,36 +125,32 @@ __shmalloc_symmetry_check (size_t size)
  *
  */
 
-static
-inline
-void *
+static inline void *
 __shmalloc_no_check (size_t size)
 {
-  void *addr;
+    void *addr;
 
-  addr = shmemi_mem_alloc (size);
+    addr = shmemi_mem_alloc (size);
 
-  if (addr == (void *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_NOTICE, "shmalloc(%ld bytes) failed", size);
-      malloc_error = _SHMEM_MALLOC_FAIL;
+    if (addr == (void *) NULL) {
+        shmemi_trace (SHMEM_LOG_NOTICE, "shmalloc(%ld bytes) failed", size);
+        malloc_error = _SHMEM_MALLOC_FAIL;
     }
-  else
-    {
-      malloc_error = _SHMEM_MALLOC_OK;
+    else {
+        malloc_error = _SHMEM_MALLOC_OK;
     }
 
-  shmemi_trace (SHMEM_LOG_MEMORY, "shmalloc(%ld bytes) @ %p", size, addr);
+    shmemi_trace (SHMEM_LOG_MEMORY, "shmalloc(%ld bytes) @ %p", size, addr);
 
-  return addr;
+    return addr;
 }
 
 
 
 #ifdef HAVE_FEATURE_EXPERIMENTAL
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmalloc_nb = pshmalloc_nb
-# define shmalloc_nb pshmalloc_nb
+#pragma weak shmalloc_nb = pshmalloc_nb
+#define shmalloc_nb pshmalloc_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
@@ -172,35 +162,32 @@ __shmalloc_no_check (size_t size)
 void *
 shmalloc_nb (size_t size)
 {
-  void *addr;
+    void *addr;
 
-  INIT_CHECK ();
+    INIT_CHECK ();
 
 #ifdef HAVE_FEATURE_DEBUG
-  if (__shmalloc_symmetry_check (size) != -1)
-    {
-      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
-      return (void *) NULL;
-      /* NOT REACHED */
+    if (__shmalloc_symmetry_check (size) != -1) {
+        malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
+        return (void *) NULL;
+        /* NOT REACHED */
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  shmemi_trace (SHMEM_LOG_MEMORY,
-                 "shmalloc(%ld bytes) passed symmetry check",
-                 size);
+    shmemi_trace (SHMEM_LOG_MEMORY,
+                  "shmalloc(%ld bytes) passed symmetry check", size);
 
-  addr = __shmalloc_no_check (size);
+    addr = __shmalloc_no_check (size);
 
-  malloc_error = (addr != NULL)
-    ? _SHMEM_MALLOC_OK
-    : _SHMEM_MALLOC_FAIL;
+    malloc_error = (addr != NULL)
+        ? _SHMEM_MALLOC_OK : _SHMEM_MALLOC_FAIL;
 
-  return addr;
+    return addr;
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmalloc = pshmalloc
-# define shmalloc pshmalloc
+#pragma weak shmalloc = pshmalloc
+#define shmalloc pshmalloc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -208,16 +195,14 @@ shmalloc_nb (size_t size)
  * everyone will be ready for remote memory use afterward
  */
 
-static
-inline
-void *
+static inline void *
 shmalloc_private (size_t size)
 {
-  void *addr = shmalloc_nb (size);
+    void *addr = shmalloc_nb (size);
 
-  shmem_barrier_all ();
+    shmem_barrier_all ();
 
-  return addr;
+    return addr;
 }
 
 /*
@@ -226,20 +211,20 @@ shmalloc_private (size_t size)
 void *
 shmalloc (size_t size)
 {
-  return shmalloc_private (size);
+    return shmalloc_private (size);
 }
 
 void *
 shmem_malloc (size_t size)
 {
-  return shmalloc_private (size);
+    return shmalloc_private (size);
 }
 
 
 #ifdef HAVE_FEATURE_EXPERIMENTAL
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shfree_nb = pshfree_nb
-# define shfree_nb pshfree_nb
+#pragma weak shfree_nb = pshfree_nb
+#define shfree_nb pshfree_nb
 #endif /* HAVE_FEATURE_PSHMEM */
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
@@ -251,28 +236,27 @@ shmem_malloc (size_t size)
 void
 shfree_nb (void *addr)
 {
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  if (addr == (void *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "address passed to shfree() already null");
-      malloc_error = _SHMEM_MALLOC_ALREADY_FREE;
-      return;
-      /* NOT REACHED */
+    if (addr == (void *) NULL) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "address passed to shfree() already null");
+        malloc_error = _SHMEM_MALLOC_ALREADY_FREE;
+        return;
+        /* NOT REACHED */
     }
 
-  shmemi_trace (SHMEM_LOG_MEMORY,
-                 "shfree(%p) in pool @ %p", addr, shmemi_mem_base ());
+    shmemi_trace (SHMEM_LOG_MEMORY,
+                  "shfree(%p) in pool @ %p", addr, shmemi_mem_base ());
 
-  shmemi_mem_free (addr);
+    shmemi_mem_free (addr);
 
-  malloc_error = _SHMEM_MALLOC_OK;
+    malloc_error = _SHMEM_MALLOC_OK;
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shfree = pshfree
-# define shfree pshfree
+#pragma weak shfree = pshfree
+#define shfree pshfree
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -280,14 +264,12 @@ shfree_nb (void *addr)
  * everyone has synched beforehand
  */
 
-static
-inline
-void
+static inline void
 shfree_private (void *addr)
 {
-  shmem_barrier_all ();
+    shmem_barrier_all ();
 
-  shfree_nb (addr);
+    shfree_nb (addr);
 }
 
 /*
@@ -296,76 +278,69 @@ shfree_private (void *addr)
 void
 shfree (void *addr)
 {
-  shfree_private (addr);
+    shfree_private (addr);
 }
 
 void
 shmem_free (void *addr)
 {
-  shfree_private (addr);
+    shfree_private (addr);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shrealloc = pshrealloc
-# define shrealloc pshrealloc
+#pragma weak shrealloc = pshrealloc
+#define shrealloc pshrealloc
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
  * Resize previously allocated symmetric memory
  */
 
-static
-inline
-void *
+static inline void *
 shrealloc_private (void *addr, size_t size)
 {
-  void *newaddr;
+    void *newaddr;
 
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  if (addr == (void *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "address passed to shrealloc() is null, handing to shmalloc()");
-      return shmem_malloc (size);
-      /* NOT REACHED */
+    if (addr == (void *) NULL) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "address passed to shrealloc() is null, handing to shmalloc()");
+        return shmem_malloc (size);
+        /* NOT REACHED */
     }
 
-  if (size == 0)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "size passed to shrealloc() is 0, handing to shfree()");
-      shmem_free (addr);
-      return (void *) NULL;
-      /* NOT REACHED */
+    if (size == 0) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "size passed to shrealloc() is 0, handing to shfree()");
+        shmem_free (addr);
+        return (void *) NULL;
+        /* NOT REACHED */
     }
 
 #ifdef HAVE_FEATURE_DEBUG
-  if (__shmalloc_symmetry_check (size) != -1)
-    {
-      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
-      return (void *) NULL;
-      /* NOT REACHED */
+    if (__shmalloc_symmetry_check (size) != -1) {
+        malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
+        return (void *) NULL;
+        /* NOT REACHED */
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  newaddr = shmemi_mem_realloc (addr, size);
+    newaddr = shmemi_mem_realloc (addr, size);
 
-  if (newaddr == (void *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "shrealloc(%ld bytes) failed @ original address %p",
-                     size, addr);
-      malloc_error = _SHMEM_MALLOC_REALLOC_FAILED;
+    if (newaddr == (void *) NULL) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "shrealloc(%ld bytes) failed @ original address %p",
+                      size, addr);
+        malloc_error = _SHMEM_MALLOC_REALLOC_FAILED;
     }
-  else
-    {
-      malloc_error = _SHMEM_MALLOC_OK;
+    else {
+        malloc_error = _SHMEM_MALLOC_OK;
     }
 
-  shmem_barrier_all ();
+    shmem_barrier_all ();
 
-  return newaddr;
+    return newaddr;
 }
 
 /*
@@ -374,18 +349,18 @@ shrealloc_private (void *addr, size_t size)
 void *
 shrealloc (void *addr, size_t size)
 {
-  return shrealloc_private (addr, size);
+    return shrealloc_private (addr, size);
 }
 
 void *
 shmem_realloc (void *addr, size_t size)
 {
-  return shrealloc_private (addr, size);
+    return shrealloc_private (addr, size);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmemalign = pshmemalign
-# define shmemalign pshmemalign
+#pragma weak shmemalign = pshmemalign
+#define shmemalign pshmemalign
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -393,41 +368,36 @@ shmem_realloc (void *addr, size_t size)
  * has a byte alignment specified by the alignment argument.
  */
 
-static
-inline
-void *
+static inline void *
 shmemalign_private (size_t alignment, size_t size)
 {
-  void *addr;
+    void *addr;
 
-  INIT_CHECK ();
+    INIT_CHECK ();
 
 #ifdef HAVE_FEATURE_DEBUG
-  if (__shmalloc_symmetry_check (size) != -1)
-    {
-      malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
-      return (void *) NULL;
-      /* NOT REACHED */
+    if (__shmalloc_symmetry_check (size) != -1) {
+        malloc_error = _SHMEM_MALLOC_SYMMSIZE_FAILED;
+        return (void *) NULL;
+        /* NOT REACHED */
     }
 #endif /* HAVE_FEATURE_DEBUG */
 
-  addr = shmemi_mem_align (alignment, size);
+    addr = shmemi_mem_align (alignment, size);
 
-  if (addr == (void *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "shmem_memalign(%ld bytes) couldn't realign to %ld",
-                     size, alignment);
-      malloc_error = _SHMEM_MALLOC_MEMALIGN_FAILED;
+    if (addr == (void *) NULL) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "shmem_memalign(%ld bytes) couldn't realign to %ld",
+                      size, alignment);
+        malloc_error = _SHMEM_MALLOC_MEMALIGN_FAILED;
     }
-  else
-    {
-      malloc_error = _SHMEM_MALLOC_OK;
+    else {
+        malloc_error = _SHMEM_MALLOC_OK;
     }
 
-  shmem_barrier_all ();
+    shmem_barrier_all ();
 
-  return addr;
+    return addr;
 }
 
 
@@ -437,13 +407,13 @@ shmemalign_private (size_t alignment, size_t size)
 void *
 shmemalign (size_t alignment, size_t size)
 {
-  return shmemalign_private (alignment, size);
+    return shmemalign_private (alignment, size);
 }
 
 void *
 shmem_align (size_t alignment, size_t size)
 {
-  return shmemalign_private (alignment, size);
+    return shmemalign_private (alignment, size);
 }
 
 /**
@@ -452,12 +422,11 @@ shmem_align (size_t alignment, size_t size)
 
 typedef struct
 {
-  long code;
-  char *msg;
+    long code;
+    char *msg;
 } malloc_error_code_t;
 
-static malloc_error_code_t error_table[] =
-  {
+static malloc_error_code_t error_table[] = {
     {_SHMEM_MALLOC_OK,
      "no symmetric memory allocation error"},
     {_SHMEM_MALLOC_FAIL,
@@ -476,13 +445,14 @@ static malloc_error_code_t error_table[] =
      "address is not block-aligned"},
     {_SHMEM_MALLOC_NOT_IN_SYMM_HEAP,
      "address falls outside of symmetric heap"},
-  };
+};
+
 static const int nerrors = TABLE_SIZE (error_table);
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern char *sherror (void); /* ! API */
-# pragma weak sherror = psherror
-# define sherror psherror
+extern char *sherror (void);    /* ! API */
+#pragma weak sherror = psherror
+#define sherror psherror
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -492,20 +462,18 @@ extern char *sherror (void); /* ! API */
 char *
 sherror (void)
 {
-  malloc_error_code_t *etp = error_table;
-  int i;
+    malloc_error_code_t *etp = error_table;
+    int i;
 
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  for (i = 0; i < nerrors; i += 1)
-    {
-      if (malloc_error == etp->code)
-        {
-          return etp->msg;
-          /* NOT REACHED */
+    for (i = 0; i < nerrors; i += 1) {
+        if (malloc_error == etp->code) {
+            return etp->msg;
+            /* NOT REACHED */
         }
-      etp += 1;
+        etp += 1;
     }
 
-  return "unknown memory error";
+    return "unknown memory error";
 }

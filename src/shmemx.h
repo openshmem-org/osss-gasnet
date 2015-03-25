@@ -120,34 +120,34 @@ extern void  shfree_nb (void *addr);
  */
 
 /**
- * \brief These routines perform an atomic exclusive-or (xor) operation
+ * @brief These routines perform an atomic exclusive-or (xor) operation
  * between a data value and the target data object.
  *
- * \b Synopsis:
+ * @b Synopsis:
  *
  * - C/C++:
- * \code
- *   void shmemx_int_xor (int *target, int value, int pe);
- *   void shmemx_long_xor (long *target, long value, int pe);
- *   void shmemx_longlong_xor (long long *target, long long value, int pe);
- * \endcode
+ * @code
+   void shmemx_int_xor (int *target, int value, int pe);
+   void shmemx_long_xor (long *target, long value, int pe);
+   void shmemx_longlong_xor (long long *target, long long value, int pe);
+ * @endcode
  *
  * - Fortran:
- * \code
- *   INTEGER pe
+ * @code
+   INTEGER pe
+
+   SHMEMX_INT4_XOR (target, value, pe)
+   SHMEMX_INT8_XOR (target, value, pe)
+ * @endcode
  *
- *   SHMEMX_INT4_XOR (target, value, pe)
- *   SHMEMX_INT8_XOR (target, value, pe)
- * \endcode
- *
- * \param target    Address of the symmetric data object where to save the data on the target pe.
- * \param value     The value with which the exclusive-or operation is atomically
+ * @param target    Address of the symmetric data object where to save the data on the target pe.
+ * @param value     The value with which the exclusive-or operation is atomically
  *                performed with the data at address target.
- * \param pe        An integer that indicates the PE number upon
+ * @param pe        An integer that indicates the PE number upon
  *                which target is to be updated. If you are using Fortran, it must
  *                be a default integer value.
  *
- * \b Constraints:
+ * @b Constraints:
  *      - target must be the address of a symmetric data object.
  *      - If using C/C++, the type of value must match that implied in the Synopsis
  *      section. When calling from Fortran, the data type of value must be as follows:
@@ -158,14 +158,14 @@ extern void  shfree_nb (void *addr);
  *      - value must be the same type as the target data object.
  *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
  *
- * \b Effect:
+ * @b Effect:
  *
  * The atomic exclusive-or routines perform an xor-operation between
  * value and the data at address target on PE pe. The operation must
  * be completed without the possibility of another process updating
  * target between the time of the fetch and the update.
  *
- * \return None.
+ * @return None.
  *
  */
 extern void shmemx_int_xor (int *target, int value, int pe);
@@ -176,6 +176,33 @@ extern void shmemx_longlong_xor (long long *target, long long value, int pe);
  * wallclock time
  *
  */
+
+/**
+ * @brief returns the number of seconds since the program
+ * started running
+ *
+ * @section Synopsis:
+ *
+ * @substitute c C/C++
+ * @code
+   double shmemx_wtime (void);
+ * @endcode
+ *
+ * @subsection f Fortran
+ * @code
+   double precision shmemx_wtime()
+ * @endcode
+ *
+ * @return Returns the number of seconds since the program started (epoch).
+ *
+ * @section Note: shmemx_wtime does not indicate any error code; if it
+ * is unable to detect the elapsed time, the return value is
+ * undefined.  The time may be different on each PE, but the epoch
+ * from which the time is measured will not change while OpenSHMEM is
+ * active.
+ *
+ */
+
 extern double shmemx_wtime (void);
 
 #endif /* _SHMEMX_H */

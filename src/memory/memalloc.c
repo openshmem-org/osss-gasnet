@@ -58,7 +58,7 @@ static mspace myspace;
 void
 shmemi_mem_init (void *base, size_t capacity)
 {
-  myspace = create_mspace_with_base (base, capacity, 1);
+    myspace = create_mspace_with_base (base, capacity, 1);
 }
 
 /**
@@ -67,7 +67,7 @@ shmemi_mem_init (void *base, size_t capacity)
 void
 shmemi_mem_finalize (void)
 {
-  destroy_mspace (myspace);
+    destroy_mspace (myspace);
 }
 
 /**
@@ -76,7 +76,7 @@ shmemi_mem_finalize (void)
 void *
 shmemi_mem_base (void)
 {
-  return myspace;
+    return myspace;
 }
 
 /**
@@ -88,13 +88,13 @@ shmemi_mem_base (void)
 void *
 shmemi_mem_alloc (size_t size)
 {
-  void *addr = mspace_malloc (myspace, size);
+    void *addr = mspace_malloc (myspace, size);
 
 #ifdef HAVE_FEATURE_DEBUG
-  debug_alloc_add (addr, size);
+    debug_alloc_add (addr, size);
 #endif /* HAVE_FEATURE_DEBUG */
 
-  return addr;
+    return addr;
 }
 
 /**
@@ -103,10 +103,10 @@ shmemi_mem_alloc (size_t size)
 void
 shmemi_mem_free (void *addr)
 {
-  mspace_free (myspace, addr);
+    mspace_free (myspace, addr);
 
 #ifdef HAVE_FEATURE_DEBUG
-  debug_alloc_del (addr);
+    debug_alloc_del (addr);
 #endif /* HAVE_FEATURE_DEBUG */
 }
 
@@ -116,13 +116,13 @@ shmemi_mem_free (void *addr)
 void *
 shmemi_mem_realloc (void *addr, size_t new_size)
 {
-  void *new_addr = mspace_realloc (myspace, addr, new_size);
+    void *new_addr = mspace_realloc (myspace, addr, new_size);
 
 #ifdef HAVE_FEATURE_DEBUG
-  debug_alloc_replace (addr, new_size);
+    debug_alloc_replace (addr, new_size);
 #endif /* HAVE_FEATURE_DEBUG */
 
-  return new_addr;
+    return new_addr;
 }
 
 /**
@@ -131,11 +131,11 @@ shmemi_mem_realloc (void *addr, size_t new_size)
 void *
 shmemi_mem_align (size_t alignment, size_t size)
 {
-  void *aligned_addr = mspace_memalign (myspace, alignment, size);
+    void *aligned_addr = mspace_memalign (myspace, alignment, size);
 
 #ifdef HAVE_FEATURE_DEBUG
-  debug_alloc_add (aligned_addr, size);
+    debug_alloc_add (aligned_addr, size);
 #endif /* HAVE_FEATURE_DEBUG */
 
-  return aligned_addr;
+    return aligned_addr;
 }

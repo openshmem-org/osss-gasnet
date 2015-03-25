@@ -49,7 +49,7 @@
 #include "fcollect-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 static char *default_implementation = "linear";
@@ -60,27 +60,24 @@ static void (*func64) ();
 void
 shmemi_fcollect_dispatch_init (void)
 {
-  char *name = shmemi_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
+    char *name = shmemi_comms_getenv ("SHMEM_FCOLLECT_ALGORITHM");
 
-  if (EXPR_LIKELY (name == (char *) NULL))
-    {
-      name = default_implementation;
+    if (EXPR_LIKELY (name == (char *) NULL)) {
+        name = default_implementation;
     }
 
-  if (strcmp (name, "linear") == 0)
-    {
-      func32 = shmemi_fcollect32_linear;
-      func64 = shmemi_fcollect64_linear;
+    if (strcmp (name, "linear") == 0) {
+        func32 = shmemi_fcollect32_linear;
+        func64 = shmemi_fcollect64_linear;
     }
-  else
-    {
-      ; /* error */
+    else {
+        ;                       /* error */
     }
 
-  /*
-   * report which implementation we set up
-   */
-  shmemi_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
+    /* 
+     * report which implementation we set up
+     */
+    shmemi_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);
 }
 
 /*
@@ -89,8 +86,8 @@ shmemi_fcollect_dispatch_init (void)
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_fcollect32 = pshmem_fcollect32
-# define shmem_fcollect32 pshmem_fcollect32
+#pragma weak shmem_fcollect32 = pshmem_fcollect32
+#define shmem_fcollect32 pshmem_fcollect32
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -102,20 +99,20 @@ void
 shmem_fcollect32 (void *target, const void *source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  INIT_CHECK ();
-  SYMMETRY_CHECK (target, 1, "shmem_fcollect32");
-  SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
-  SYMMETRY_CHECK (pSync,  7, "shmem_fcollect32");
-  PE_RANGE_CHECK (PE_start, 4);
-  /* PE_RANGE_CHECK (PE_size, 6); */
+    INIT_CHECK ();
+    SYMMETRY_CHECK (target, 1, "shmem_fcollect32");
+    SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
+    SYMMETRY_CHECK (pSync, 7, "shmem_fcollect32");
+    PE_RANGE_CHECK (PE_start, 4);
+    /* PE_RANGE_CHECK (PE_size, 6); */
 
-  func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
+    func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_fcollect64 = pshmem_fcollect64
-# define shmem_fcollect64 pshmem_fcollect64
+#pragma weak shmem_fcollect64 = pshmem_fcollect64
+#define shmem_fcollect64 pshmem_fcollect64
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -127,12 +124,12 @@ void
 shmem_fcollect64 (void *target, const void *source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-  INIT_CHECK ();
-  SYMMETRY_CHECK (target, 1, "shmem_fcollect64");
-  SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
-  SYMMETRY_CHECK (pSync,  7, "shmem_fcollect64");
-  PE_RANGE_CHECK (PE_start, 4);
-  /* PE_RANGE_CHECK (PE_size, 6); */
+    INIT_CHECK ();
+    SYMMETRY_CHECK (target, 1, "shmem_fcollect64");
+    SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
+    SYMMETRY_CHECK (pSync, 7, "shmem_fcollect64");
+    PE_RANGE_CHECK (PE_start, 4);
+    /* PE_RANGE_CHECK (PE_size, 6); */
 
-  func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
+    func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }

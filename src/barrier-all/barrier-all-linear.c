@@ -42,5 +42,5 @@
 void
 shmemi_barrier_all_linear (void)
 {
-  shmemi_comms_barrier_all ();
+    shmemi_comms_barrier_all ();
 }

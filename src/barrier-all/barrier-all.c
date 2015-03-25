@@ -49,7 +49,7 @@
 #include "barrier-all-impl.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
@@ -60,29 +60,23 @@ static void (*func) ();
 void
 shmemi_barrier_all_dispatch_init (void)
 {
-  char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
+    char *name = shmemi_comms_getenv ("SHMEM_BARRIER_ALL_ALGORITHM");
 
-  if (EXPR_LIKELY (name == (char *) NULL))
-    {
-      name = default_implementation;
+    if (EXPR_LIKELY (name == (char *) NULL)) {
+        name = default_implementation;
     }
 
-  if (strcmp (name, "linear") == 0)
-    {
-      func = shmemi_barrier_all_linear;
+    if (strcmp (name, "linear") == 0) {
+        func = shmemi_barrier_all_linear;
     }
-  else
-    {
-      ; /* error */
+    else {
+        ;                       /* error */
     }
 
-  /*
-   * report which broadcast implementation we set up
-   */
-  shmemi_trace (SHMEM_LOG_BARRIER,
-                 "using broadcast \"%s\"",
-                 name
-                 );
+    /* 
+     * report which broadcast implementation we set up
+     */
+    shmemi_trace (SHMEM_LOG_BARRIER, "using broadcast \"%s\"", name);
 }
 
 /* the rest is what library users see
@@ -94,16 +88,16 @@ shmemi_barrier_all_dispatch_init (void)
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_barrier_all = pshmem_barrier_all
-# define shmem_barrier_all pshmem_barrier_all
+#pragma weak shmem_barrier_all = pshmem_barrier_all
+#define shmem_barrier_all pshmem_barrier_all
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
 shmem_barrier_all (void)
 {
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  shmem_quiet ();
+    shmem_quiet ();
 
-  func ();
+    func ();
 }

@@ -42,13 +42,13 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_fence = pshmem_fence
-# define shmem_fence pshmem_fence
+#pragma weak shmem_fence = pshmem_fence
+#define shmem_fence pshmem_fence
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -58,6 +58,6 @@
 void
 shmem_fence (void)
 {
-  INIT_CHECK ();
-  shmemi_comms_fence_request ();
+    INIT_CHECK ();
+    shmemi_comms_fence_request ();
 }

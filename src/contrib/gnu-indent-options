@@ -36,38 +36,14 @@
  */
 
 
+These are the GNU indent options used for the code layout in this project:
 
-#include "comms.h"
-#include "trace.h"
-#include "atomic.h"
+https://www.gnu.org/software/indent/manual/indent.html
 
-#include "shmem.h"
-
-void
-shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size, long *pSync)
-{
-    const int me = shmem_my_pe ();
-    const int step = 1 << logPE_stride;
-    const long nreplies = _SHMEM_SYNC_VALUE + PE_size - 1;
-    int i, round;
-    int thatpe;
-
-    for (round = 0; round < 2; round += 1) {
-
-        for (thatpe = PE_start, i = 0; i < PE_size; thatpe += step, i += 1) {
-
-            if (thatpe != me) {
-                shmem_long_inc (&pSync[round], thatpe);
-
-                shmemi_trace (SHMEM_LOG_BARRIER,
-                              "round = %d, sent increment to PE %d",
-                              round, thatpe);
-            }
-
-        }
-        shmem_long_wait_until (&pSync[round], _SHMEM_CMP_EQ, nreplies);
-
-        pSync[round] = _SHMEM_SYNC_VALUE;
-
-    }
-}
+    --line-length80
+    --indent-level4
+    --tab-size4
+    --no-tabs
+    --format-all-comments
+    --braces-on-if-line
+    --space-after-procedure-calls

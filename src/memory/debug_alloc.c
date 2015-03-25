@@ -38,35 +38,31 @@
 
 #ifdef HAVE_FEATURE_DEBUG
 
-# include "uthash.h"
+#include "uthash.h"
 
-# include "trace.h"
+#include "trace.h"
 
-# include "debug_alloc.h"
+#include "debug_alloc.h"
 
-static alloc_table_t *atp = NULL; /* our allocation hash table */
+static alloc_table_t *atp = NULL;   /* our allocation hash table */
 
 /**
  * create a new hash entry with address A and size S
  */
 
-static
-inline
-alloc_table_t *
+static inline alloc_table_t *
 debug_alloc_new (void *a, size_t s)
 {
-  alloc_table_t *at = (alloc_table_t *) malloc (sizeof (*at));
+    alloc_table_t *at = (alloc_table_t *) malloc (sizeof (*at));
 
-  if (at == (alloc_table_t *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_FATAL,
-                     "internal error: out of memory allocating address/size record"
-                     );
-      /* NOT REACHED */
+    if (at == (alloc_table_t *) NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: out of memory allocating address/size record");
+        /* NOT REACHED */
     }
-  at->addr = a;
-  at->size = s;
-  return at;
+    at->addr = a;
+    at->size = s;
+    return at;
 }
 
 /**
@@ -76,10 +72,10 @@ debug_alloc_new (void *a, size_t s)
 void *
 debug_alloc_find (void *a)
 {
-  alloc_table_t *at = NULL;	/* entry corresponding to "a" */
+    alloc_table_t *at = NULL;   /* entry corresponding to "a" */
 
-  HASH_FIND_PTR (atp, &a, at);
-  return at;
+    HASH_FIND_PTR (atp, &a, at);
+    return at;
 }
 
 /**
@@ -96,26 +92,22 @@ debug_alloc_find (void *a)
 int
 debug_alloc_check (void *a)
 {
-  alloc_table_t *tmp;
-  alloc_table_t *s;
+    alloc_table_t *tmp;
+    alloc_table_t *s;
 
-  HASH_ITER (hh, atp, s, tmp)
-    {
-      const size_t off = a - s->addr;
+    HASH_ITER (hh, atp, s, tmp) {
+        const size_t off = a - s->addr;
 
-      /* if ( (s->size > off) && (off >= 0) ) */
-      if (s->size > off)
-        {
-          return 1;
-          /* NOT REACHED */
+        /* if ( (s->size > off) && (off >= 0) ) */
+        if (s->size > off) {
+            return 1;
+            /* NOT REACHED */
         }
     }
 
-  shmemi_trace (SHMEM_LOG_MEMORY,
-                 "address %p is not in a known symmetric allocation",
-                 a
-                 );
-  return 0;
+    shmemi_trace (SHMEM_LOG_MEMORY,
+                  "address %p is not in a known symmetric allocation", a);
+    return 0;
 }
 
 /**
@@ -126,9 +118,9 @@ debug_alloc_check (void *a)
 void
 debug_alloc_add (void *a, size_t s)
 {
-  alloc_table_t *at = debug_alloc_new (a, s);
+    alloc_table_t *at = debug_alloc_new (a, s);
 
-  HASH_ADD_PTR (atp, addr, at);
+    HASH_ADD_PTR (atp, addr, at);
 }
 
 /**
@@ -138,19 +130,16 @@ debug_alloc_add (void *a, size_t s)
 void
 debug_alloc_del (void *a)
 {
-  alloc_table_t *at = debug_alloc_find (a);
+    alloc_table_t *at = debug_alloc_find (a);
 
-  if (at == (alloc_table_t *) NULL)
-    {
-      shmemi_trace (SHMEM_LOG_FATAL,
-                     "internal error: no hash table entry for address %p",
-                     a
-                     );
-      /* NOT REACHED */
+    if (at == (alloc_table_t *) NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: no hash table entry for address %p", a);
+        /* NOT REACHED */
     }
-  HASH_DEL (atp, at);
+    HASH_DEL (atp, at);
 
-  free (at);
+    free (at);
 }
 
 /**
@@ -161,16 +150,16 @@ void
 debug_alloc_replace (void *a, size_t s)
 {
 #if 1
-  /*
-   * TODO: could be a typo in HASH_REPLACE_PTR
-   * DONE: now fixed in uthash >= 1.9.9 (TC contributed fix)
-   */
-  alloc_table_t *at = debug_alloc_new (a, s);
-  alloc_table_t *replaced_stub;
-  HASH_REPLACE_PTR (atp, addr, at, replaced_stub);
+    /* 
+     * TODO: could be a typo in HASH_REPLACE_PTR
+     * DONE: now fixed in uthash >= 1.9.9 (TC contributed fix)
+     */
+    alloc_table_t *at = debug_alloc_new (a, s);
+    alloc_table_t *replaced_stub;
+    HASH_REPLACE_PTR (atp, addr, at, replaced_stub);
 #else
-  debug_alloc_del (a);
-  debug_alloc_add (a, s);
+    debug_alloc_del (a);
+    debug_alloc_add (a, s);
 #endif
 }
 
@@ -181,14 +170,12 @@ debug_alloc_replace (void *a, size_t s)
 void
 debug_alloc_dump (void)
 {
-  alloc_table_t *tmp;
-  alloc_table_t *s;
+    alloc_table_t *tmp;
+    alloc_table_t *s;
 
-  HASH_ITER (hh, atp, s, tmp)
-    {
-      shmemi_trace (SHMEM_LOG_MEMORY,
-                     "addr = %p, size = %ld", s->addr, s->size
-                     );
+    HASH_ITER (hh, atp, s, tmp) {
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "addr = %p, size = %ld", s->addr, s->size);
     }
 }
 

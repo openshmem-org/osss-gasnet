@@ -38,35 +38,9 @@
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmemx_wtime = pshmemx_wtime
-# define shmemx_wtime pshmemx_wtime
+#pragma weak shmemx_wtime = pshmemx_wtime
+#define shmemx_wtime pshmemx_wtime
 #endif /* HAVE_FEATURE_PSHMEM */
-
-
-/**
- * \brief shmemx_wtime returns the number of seconds since the program
- * started running
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   double shmemx_wtime (void);
- * \endcode
- *
- * - Fortran:
- * \code
- *   double precision shmemx_wtime()
- * \endcode
- *
- * \return Returns the number of seconds since the program started (epoch).
- *
- * \b Note: shmemx_wtime does not indicate any error code; if it is
- * unable to detect the elapsed time, the return value is undefined.
- * The time may be different on each PE, but the epoch from which the
- * time is measured will not change while OpenSHMEM is active.
- *
- */
 
 #include <stdio.h>
 #include <sys/time.h>
@@ -74,14 +48,13 @@
 double
 shmemx_wtime (void)
 {
-  struct timeval t;
+    struct timeval t;
 
-  if (gettimeofday (&t, NULL) != 0)
-    {
-      return 0.0;
+    if (gettimeofday (&t, NULL) != 0) {
+        return 0.0;
     }
 
-  return ((t.tv_sec * 1e6) + t.tv_usec) / 1e6;
+    return ((t.tv_sec * 1e6) + t.tv_usec) / 1e6;
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

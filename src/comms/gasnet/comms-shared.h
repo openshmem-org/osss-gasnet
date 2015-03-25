@@ -41,13 +41,13 @@
 #include <gasnet.h>
 
 #if defined(GASNET_SEGMENT_FAST)
-# define HAVE_MANAGED_SEGMENTS 1
+#define HAVE_MANAGED_SEGMENTS 1
 #elif defined(GASNET_SEGMENT_LARGE)
-# define HAVE_MANAGED_SEGMENTS 1
+#define HAVE_MANAGED_SEGMENTS 1
 #elif defined(GASNET_SEGMENT_EVERYTHING)
-# undef HAVE_MANAGED_SEGMENTS
+#undef HAVE_MANAGED_SEGMENTS
 #else
-# error "I don't know what kind of GASNet segment model you're trying to use"
+#error "I don't know what kind of GASNet segment model you're trying to use"
 #endif
 
 
@@ -66,7 +66,7 @@ extern gasnet_seginfo_t *seginfo_table;
  * variable
  */
 
-#define DEFAULT_HEAP_SIZE 33554432L	/* 32M */
+#define DEFAULT_HEAP_SIZE 33554432L /* 32M */
 
 extern void *great_big_heap;
 
@@ -74,11 +74,11 @@ extern void *great_big_heap;
 
 typedef struct
 {
-  size_t nbytes;		/* size of write */
-  void *target;			/* where to write */
-  void *source;			/* data we want to get */
-  volatile int completed;	/* transaction end marker */
-  volatile int *completed_addr;	/* addr of marker */
+    size_t nbytes;              /* size of write */
+    void *target;               /* where to write */
+    void *source;               /* data we want to get */
+    volatile int completed;     /* transaction end marker */
+    volatile int *completed_addr;   /* addr of marker */
 } globalvar_payload_t;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
@@ -119,13 +119,13 @@ extern gasnet_hsl_t amo_xor_lock;
 
 typedef struct
 {
-  void *local_store;            /* sender saves here */
-  void *r_symm_addr;            /* recipient symmetric var */
-  volatile int completed;       /* transaction end marker */
-  volatile int *completed_addr; /* addr of marker */
-  size_t nbytes;                /* how big the value is */
-  long long value;              /* value to be swapped */
-  long long cond;               /* conditional value */
+    void *local_store;          /* sender saves here */
+    void *r_symm_addr;          /* recipient symmetric var */
+    volatile int completed;     /* transaction end marker */
+    volatile int *completed_addr;   /* addr of marker */
+    size_t nbytes;              /* how big the value is */
+    long long value;            /* value to be swapped */
+    long long cond;             /* conditional value */
 } atomic_payload_t;
 
 
