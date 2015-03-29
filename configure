@@ -762,7 +762,7 @@ bail_gasnet()
     tell ""
     tell "  Specify GASNet location with"
     tell ""
-    tell "    --gasnet-root=DIR"
+    tell "    --with-gasnet-root=DIR"
     tell ""
     tell "  or indicate where separate GASNet components are installed with"
     tell ""
