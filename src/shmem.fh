@@ -142,7 +142,6 @@
 !     integer my_pe
 !     integer num_pes
 !     integer shmem_my_pe
-!     integer shmem_num_pes
 !     integer shmem_n_pes
 
       logical shmem_pe_accessible
