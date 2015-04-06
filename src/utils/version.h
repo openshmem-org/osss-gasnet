@@ -40,6 +40,6 @@
 #ifndef _VERSION_H
 #define _VERSION_H 1
 
-extern int __shmem_version (int *major, int *minor);
+extern int shmemi_version (int *major, int *minor);
 
 #endif /* _VERSION_H */

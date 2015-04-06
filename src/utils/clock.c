@@ -55,56 +55,53 @@ static double epoch;
  * return number of (fractional) seconds
  * since program started
  */
-static
-inline
-double
+static inline double
 read_clock (void)
 {
-  struct timeval tv;
-  double t;
-  int s;
+    struct timeval tv;
+    double t;
+    int s;
 
-  s = gettimeofday (&tv, (struct timezone *) NULL);
-  if (EXPR_UNLIKELY (s != 0))
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "internal error: can't read system clock (%s)",
-		     strerror (errno)
-		     );
-      /* NOT REACHED */
+    s = gettimeofday (&tv, (struct timezone *) NULL);
+    if (EXPR_UNLIKELY (s != 0)) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: can't read system clock (%s)",
+                      strerror (errno)
+            );
+        /* NOT REACHED */
     }
 
-  t = (double) tv.tv_sec;
-  t += (double) tv.tv_usec / 1000000.0;
+    t = (double) tv.tv_sec;
+    t += (double) tv.tv_usec / 1000000.0;
 
-  return t;
+    return t;
 }
 
 /**
  * start the clock running
  */
 void
-__shmem_elapsed_clock_init (void)
+shmemi_elapsed_clock_init (void)
 {
-  epoch = read_clock ();
+    epoch = read_clock ();
 }
 
 /**
  * stop the clock
  */
 void
-__shmem_elapsed_clock_finalize (void)
+shmemi_elapsed_clock_finalize (void)
 {
-  return;
+    return;
 }
 
 /**
  * read the current run time
  */
 double
-__shmem_elapsed_clock_get (void)
+shmemi_elapsed_clock_get (void)
 {
-  double now = read_clock ();
+    double now = read_clock ();
 
-  return now - epoch;
+    return now - epoch;
 }

@@ -47,7 +47,7 @@
 #include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /*
@@ -60,12 +60,12 @@ extern char *sherror (void);
  */
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shpalloc_ = pshpalloc_
-# define shpalloc_ pshpalloc_
-# pragma weak shpdeallc_ = pshpdeallc_
-# define shpdeallc_ pshpdeallc_
-# pragma weak shpclmove_ = pshpclmove_
-# define shpclmove_ pshpclmove_
+#pragma weak shpalloc_ = pshpalloc_
+#define shpalloc_ pshpalloc_
+#pragma weak shpdeallc_ = pshpdeallc_
+#define shpdeallc_ pshpdeallc_
+#pragma weak shpclmove_ = pshpclmove_
+#define shpclmove_ pshpclmove_
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -91,38 +91,36 @@ extern char *sherror (void);
  */
 extern long malloc_error;
 
-void
-FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
+void FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
 {
-  void *symm_addr;
+    void *symm_addr;
 
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  /* symm_addr = (long *) shmalloc(*length * sizeof(long)); */
-  symm_addr = shmalloc (*length);
+    /* symm_addr = (long *) shmalloc(*length * sizeof(long)); */
+    symm_addr = shmem_malloc (*length);
 
-  /* pass back status code */
-  *errcode = malloc_error;
+    /* pass back status code */
+    *errcode = malloc_error;
 
-  /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
-    {
-      *addr = symm_addr;
+    /* if malloc succeeded, nothing else to do */
+    if (malloc_error == _SHMEM_MALLOC_OK) {
+        *addr = symm_addr;
 
-      __shmem_trace (SHMEM_LOG_MEMORY,
-		     "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
-		     addr, *length, *errcode, *abort);
+        shmemi_trace (SHMEM_LOG_MEMORY,
+                      "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
+                      addr, *length, *errcode, *abort);
 
-      return;
-      /* NOT REACHED */
+        return;
+        /* NOT REACHED */
     }
 
-  /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		 "shpalloc() was given non-symmetric memory sizes");
-  /* MAYBE NOT REACHED */
+    /* failed somehow, we might have to abort */
+    shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+                  "shpalloc() was given non-symmetric memory sizes");
+    /* MAYBE NOT REACHED */
 
-  addr = (void *) NULL;
+    addr = (void *) NULL;
 }
 
 /**
@@ -141,31 +139,29 @@ FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
  *   program hangs.
  */
 
-void
-FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
+void FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
 {
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  __shmem_trace (SHMEM_LOG_MEMORY,
-		 "shpdeallc(addr = %p, errcode = %d, abort = %d)",
-		 addr, *errcode, *abort);
+    shmemi_trace (SHMEM_LOG_MEMORY,
+                  "shpdeallc(addr = %p, errcode = %d, abort = %d)",
+                  addr, *errcode, *abort);
 
-  shfree (*addr);
+    shmem_free (*addr);
 
-  /* pass back status code */
-  *errcode = malloc_error;
+    /* pass back status code */
+    *errcode = malloc_error;
 
-  /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
-    {
-      return;
-      /* NOT REACHED */
+    /* if malloc succeeded, nothing else to do */
+    if (malloc_error == _SHMEM_MALLOC_OK) {
+        return;
+        /* NOT REACHED */
     }
 
-  /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		 "shpdeallc() failed: %s", sherror ());
-  /* MAYBE NOT REACHED */
+    /* failed somehow, we might have to abort */
+    shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+                  "shpdeallc() failed: %s", sherror ());
+    /* MAYBE NOT REACHED */
 }
 
 /**
@@ -187,25 +183,23 @@ FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
  *   are missing, the program hangs.
  */
 
-void
-FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
+void FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
 {
-  INIT_CHECK ();
+    INIT_CHECK ();
 
-  addr = shrealloc (addr, *length);
+    addr = shmem_realloc (addr, *length);
 
-  /* pass back status code */
-  *errcode = malloc_error;
+    /* pass back status code */
+    *errcode = malloc_error;
 
-  /* if malloc succeeded, nothing else to do */
-  if (malloc_error == SHMEM_MALLOC_OK)
-    {
-      return;
-      /* NOT REACHED */
+    /* if malloc succeeded, nothing else to do */
+    if (malloc_error == _SHMEM_MALLOC_OK) {
+        return;
+        /* NOT REACHED */
     }
 
-  /* failed somehow, we might have to abort */
-  __shmem_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
-		 "shpdeallc() failed: %s", sherror ());
-  /* MAYBE NOT REACHED */
+    /* failed somehow, we might have to abort */
+    shmemi_trace (*abort ? SHMEM_LOG_FATAL : SHMEM_LOG_MEMORY,
+                  "shpdeallc() failed: %s", sherror ());
+    /* MAYBE NOT REACHED */
 }

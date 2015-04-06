@@ -46,24 +46,24 @@
 
 #include "shmem.h"
 
-#define SHMEM_BROADCAST_TYPE(Name, Size)                              \
-  void                                                                \
-  __shmem_broadcast##Name##_linear (void *target, const void *source,	\
-                                    size_t nelems,                    \
-                                    int PE_root, int PE_start,        \
-                                    int logPE_stride, int PE_size,    \
-                                    long *pSync)                      \
-  {                                                                   \
-    const int typed_nelems = nelems * Size;                           \
-    const int step = 1 << logPE_stride;                               \
-    const int root = (PE_root * step) + PE_start;                     \
-    const int me = GET_STATE (mype);                                  \
-    shmem_barrier (PE_start, logPE_stride, PE_size, pSync);           \
-    if (EXPR_LIKELY (me != root))                                     \
-      {                                                               \
-        shmem_getmem (target, source, typed_nelems, root);            \
-      }                                                               \
-  }                                                                   \
+#define SHMEM_BROADCAST_TYPE(Name, Size)                                \
+    void                                                                \
+    shmemi_broadcast##Name##_linear (void *target, const void *source,	\
+                                     size_t nelems,                     \
+                                     int PE_root, int PE_start,         \
+                                     int logPE_stride, int PE_size,     \
+                                     long *pSync)                       \
+    {                                                                   \
+        const int typed_nelems = nelems * Size;                         \
+        const int step = 1 << logPE_stride;                             \
+        const int root = (PE_root * step) + PE_start;                   \
+        const int me = GET_STATE (mype);                                \
+        shmem_barrier (PE_start, logPE_stride, PE_size, pSync);         \
+        if (EXPR_LIKELY (me != root))                                   \
+            {                                                           \
+                shmem_getmem (target, source, typed_nelems, root);      \
+            }                                                           \
+    }                                                                   \
 
 SHMEM_BROADCAST_TYPE (32, 4);
 SHMEM_BROADCAST_TYPE (64, 8);

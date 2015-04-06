@@ -75,18 +75,25 @@ gasnet_hsl_t setup_bak_lock = GASNET_HSL_INITIALIZER;
 
 #endif /* ! HAVE_MANAGED_SEGMENTS */
 
+/**
+ * remotely modified, stop it being put in a register
+ */
+volatile int globalexit_replies_received = 0;
+
+gasnet_hsl_t globalexit_out_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t globalexit_bak_lock = GASNET_HSL_INITIALIZER;
 
 /**
  * Initialize handler locks
  */
 
-gasnet_hsl_t amo_swap_lock    = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_cswap_lock   = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_fadd_lock    = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_add_lock     = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_finc_lock    = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_inc_lock     = GASNET_HSL_INITIALIZER;
-gasnet_hsl_t amo_xor_lock     = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_swap_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_cswap_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_fadd_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_add_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_finc_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_inc_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_xor_lock = GASNET_HSL_INITIALIZER;
 
 /**
  * global barrier counters

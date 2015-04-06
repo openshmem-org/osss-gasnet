@@ -61,45 +61,42 @@ static const char *self_fmt = "/proc/%ld/exe";
  * file descriptor
  */
 void
-__shmem_executable_init (void)
+shmemi_executable_init (void)
 {
-  ssize_t s;
-  int fd;
+    ssize_t s;
+    int fd;
 
-  /* see if the shortcut works */
-  s = readlink (self, GET_STATE (exe_name), MAXPATHLEN);
+    /* see if the shortcut works */
+    s = readlink (self, GET_STATE (exe_name), MAXPATHLEN);
 
-  /* if not, try finding our PID */
-  if (EXPR_UNLIKELY (s < 0))
-    {
-      char buf[MAXPATHLEN];
-      snprintf (buf, MAXPATHLEN, self_fmt, getpid ());
-      s = readlink (buf, GET_STATE (exe_name), MAXPATHLEN);
+    /* if not, try finding our PID */
+    if (EXPR_UNLIKELY (s < 0)) {
+        char buf[MAXPATHLEN];
+        snprintf (buf, MAXPATHLEN, self_fmt, getpid ());
+        s = readlink (buf, GET_STATE (exe_name), MAXPATHLEN);
     }
 
-  /* dunno who I am, complain */
-  if (EXPR_UNLIKELY (s < 0))
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "can't find my own executable name (%s)",
-		     strerror (errno));
-      /* NOT REACHED */
+    /* dunno who I am, complain */
+    if (EXPR_UNLIKELY (s < 0)) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "can't find my own executable name (%s)",
+                      strerror (errno));
+        /* NOT REACHED */
     }
 
-  /* bleagh, readlink doesn't null-terminate */
-  GET_STATE (exe_name)[s] = '\0';
+    /* bleagh, readlink doesn't null-terminate */
+    GET_STATE (exe_name)[s] = '\0';
 
-  /* get a file descriptor */
-  fd = open (GET_STATE (exe_name), O_RDONLY, 0);
-  if (EXPR_UNLIKELY (fd < 0))
-    {
-      __shmem_trace (SHMEM_LOG_FATAL,
-		     "can't open \"%s\" (%s)",
-		     GET_STATE (exe_name), strerror (errno));
-      /* NOT REACHED */
+    /* get a file descriptor */
+    fd = open (GET_STATE (exe_name), O_RDONLY, 0);
+    if (EXPR_UNLIKELY (fd < 0)) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "can't open \"%s\" (%s)",
+                      GET_STATE (exe_name), strerror (errno));
+        /* NOT REACHED */
     }
 
-  SET_STATE (exe_fd, fd);
+    SET_STATE (exe_fd, fd);
 }
 
 /**
@@ -107,7 +104,7 @@ __shmem_executable_init (void)
  * descriptor
  */
 void
-__shmem_executable_finalize (void)
+shmemi_executable_finalize (void)
 {
-  close (GET_STATE (exe_fd));
+    close (GET_STATE (exe_fd));
 }

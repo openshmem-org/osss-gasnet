@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2014
  *   University of Houston System and UT-Battelle, LLC.
  *
  * All rights reserved.
@@ -35,24 +35,20 @@
  *
  */
 
+#include <string.h>
 
+#include "version.h"
 
 #include "shmem.h"
 
-/**
- * OpenSHMEM has a major.minor release number.  Return 0 if
- * successful, -1 otherwise
- *
- */
-
-int
-shmemi_version (int *major, int *minor)
+void
+shmem_info_get_version (int *major, int *minor)
 {
-#if defined(_SHMEM_MAJOR_VERSION) && defined(_SHMEM_MINOR_VERSION)
-    *major = _SHMEM_MAJOR_VERSION;
-    *minor = _SHMEM_MINOR_VERSION;
-    return 0;
-#else
-    return -1;
-#endif /* _SHMEM_MAJOR_VERSION && _SHMEM_MINOR_VERSION */
+    (void) shmemi_version (major, minor);
+}
+
+void
+shmem_info_get_name (char *name)
+{
+    strncpy (name, _SHMEM_VENDOR_STRING, _SHMEM_MAX_NAME_LEN);
 }

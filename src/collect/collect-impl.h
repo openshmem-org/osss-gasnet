@@ -37,7 +37,7 @@
 
 #ifndef _COLLECT_IMPL_H
 
-extern void __shmem_collect32_linear ();
-extern void __shmem_collect64_linear ();
+extern void shmemi_collect32_linear ();
+extern void shmemi_collect64_linear ();
 
 #endif

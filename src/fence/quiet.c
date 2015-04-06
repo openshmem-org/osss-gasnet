@@ -42,13 +42,13 @@
 #include "comms/comms.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_quiet = pshmem_quiet
-# define shmem_quiet pshmem_quiet
+#pragma weak shmem_quiet = pshmem_quiet
+#define shmem_quiet pshmem_quiet
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -58,6 +58,6 @@
 void
 shmem_quiet (void)
 {
-  INIT_CHECK ();
-  __shmem_comms_quiet_request ();
+    INIT_CHECK ();
+    shmemi_comms_quiet_request ();
 }

@@ -44,8 +44,8 @@
  * This sub-module's initialization and finalization
  */
 
-extern void __shmem_atomic_init (void);
-extern void __shmem_atomic_finalize (void);
+extern void shmemi_atomic_init (void);
+extern void shmemi_atomic_finalize (void);
 
 /*
  * How do various compilers handle memory barriers and intrinsics?

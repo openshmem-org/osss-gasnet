@@ -44,132 +44,59 @@
 #include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-/*
- *
- */
-
-static
-inline
-int
+static inline int
 mype_helper (void)
 {
-  INIT_CHECK ();
-  return GET_STATE (mype);
+    INIT_CHECK ();
+    return GET_STATE (mype);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak _my_pe = p_my_pe
-# define _my_pe p_my_pe
-# pragma weak shmem_my_pe = pshmem_my_pe
-# define shmem_my_pe pshmem_my_pe
+#pragma weak _my_pe = p_my_pe
+#define _my_pe p_my_pe
+#pragma weak shmem_my_pe = pshmem_my_pe
+#define shmem_my_pe pshmem_my_pe
 #endif /* HAVE_FEATURE_PSHMEM */
-
-/**
- * \brief These routines return the "rank" or identity of the calling PE
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   int _my_pe (void);
- *   int shmem_my_pe (void);
- * \endcode
- *
- * - Fortran:
- * \code
- *   INTEGER I
- *
- *   I = MY_PE ()
- * \endcode
- *
- * \b Effect:
- *
- * None.
- *
- * \return Rank of calling PE
- *
- * \b Deprecation:
- *
- * _my_pes() and MY_PES() are deprecated as of OpenSHMEM 1.1.
- *
- */
 
 int
 _my_pe (void)
 {
-  return mype_helper ();
+    return mype_helper ();
 }
 
 int
 shmem_my_pe (void)
 {
-  return mype_helper ();
+    return mype_helper ();
 }
 
-/*
- *
- */
-
-static
-inline
-int
+static inline int
 numpes_helper (void)
 {
-  INIT_CHECK ();
-  return GET_STATE (numpes);
+    INIT_CHECK ();
+    return GET_STATE (numpes);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak _num_pes = p_num_pes
-# define _num_pes p_num_pes
-# pragma weak shmem_n_pes = pshmem_n_pes
-# define shmem_n_pes pshmem_n_pes
+#pragma weak _num_pes = p_num_pes
+#define _num_pes p_num_pes
+#pragma weak shmem_n_pes = pshmem_n_pes
+#define shmem_n_pes pshmem_n_pes
 #endif /* HAVE_FEATURE_PSHMEM */
-
-/**
- * \brief These routines return the number of PEs in the program
- *
- * \b Synopsis:
- *
- * - C/C++:
- * \code
- *   int _num_pes (void);
- *   int shmem_n_pes (void);
- * \endcode
- *
- * - Fortran:
- * \code
- *   INTEGER I
- *
- *   I = NUM_PES ()
- *   I = SHMEM_N_PES ()
- * \endcode
- *
- * \b Effect:
- *
- * None.
- *
- * \return Number of PEs in program
- *
- * \b Deprecation:
- *
- * _num_pes() and NUM_PES() are deprecated as of OpenSHMEM 1.1.
- *
- */
 
 int
 _num_pes (void)
 {
-  return numpes_helper ();
+    return numpes_helper ();
 }
 
 int
 shmem_n_pes (void)
 {
-  return numpes_helper ();
+    return numpes_helper ();
 }
 
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
@@ -180,15 +107,15 @@ shmem_n_pes (void)
 
 #ifdef HAVE_FEATURE_PSHMEM
 extern char *shmem_nodename (void); /* ! API */
-# pragma weak shmem_nodename = pshmem_nodename
-# define shmem_nodename pshmem_nodename
+#pragma weak shmem_nodename = pshmem_nodename
+#define shmem_nodename pshmem_nodename
 #endif /* HAVE_FEATURE_PSHMEM */
 
 char *
 shmem_nodename (void)
 {
-  INIT_CHECK ();
-  return GET_STATE (loc.nodename);
+    INIT_CHECK ();
+    return GET_STATE (loc.nodename);
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

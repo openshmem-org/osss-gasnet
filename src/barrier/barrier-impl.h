@@ -37,7 +37,7 @@
 
 #ifndef _BARRIER_IMPL_H
 
-extern void __shmem_barrier_linear ();
-extern void __shmem_barrier_tree ();
+extern void shmemi_barrier_linear ();
+extern void shmemi_barrier_tree ();
 
 #endif

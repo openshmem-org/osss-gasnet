@@ -58,39 +58,43 @@
 #include "shmem.h"
 
 #ifdef HAVE_FEATURE_PSHMEM
-# include "pshmem.h"
+#include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-# pragma weak shmem_set_lock = pshmem_set_lock
-# define shmem_set_lock pshmem_set_lock
-# pragma weak shmem_test_lock = pshmem_test_lock
-# define shmem_test_lock pshmem_test_lock
-# pragma weak shmem_clear_lock = pshmem_clear_lock
-# define shmem_clear_lock pshmem_clear_lock
+#pragma weak shmem_set_lock = pshmem_set_lock
+#define shmem_set_lock pshmem_set_lock
+#pragma weak shmem_test_lock = pshmem_test_lock
+#define shmem_test_lock pshmem_test_lock
+#pragma weak shmem_clear_lock = pshmem_clear_lock
+#define shmem_clear_lock pshmem_clear_lock
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
 shmem_set_lock (long *lock)
 {
-  __shmem_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
-                              &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+    shmemi_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
+                               &((SHMEM_LOCK *) lock)[0],
+                               GET_STATE (mype));
 }
 
 void
 shmem_clear_lock (long *lock)
 {
-  /* The Cray man pages suggest we also need to do this (addy 12.10.05) */
-  shmem_quiet ();
+    /* The Cray man pages suggest we also need to do this (addy
+       12.10.05) */
+    shmem_quiet ();
 
-  __shmem_comms_lock_release (&((SHMEM_LOCK *) lock)[1],
-                              &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+    shmemi_comms_lock_release (&((SHMEM_LOCK *) lock)[1],
+                               &((SHMEM_LOCK *) lock)[0],
+                               GET_STATE (mype));
 }
 
 int
 shmem_test_lock (long *lock)
 {
-  return __shmem_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
-                                  &((SHMEM_LOCK *) lock)[0], GET_STATE (mype));
+    return shmemi_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
+                                   &((SHMEM_LOCK *) lock)[0],
+                                   GET_STATE (mype));
 }

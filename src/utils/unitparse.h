@@ -40,6 +40,6 @@
 
 #include <sys/types.h>
 
-extern void __shmem_parse_size (char *size_str, size_t *bytes_p, int *ok_p);
+extern void shmemi_parse_size (char *size_str, size_t *bytes_p, int *ok_p);
 
 #endif /* _UNITPARSE_H */
