@@ -2519,9 +2519,9 @@ typedef struct
 
 enum
 {
-    _SHMEM_LOCK_FREE = -1,
-    _SHMEM_LOCK_RESET,
-    _SHMEM_LOCK_SET
+    SHMEM_LOCK_FREE = -1,
+    SHMEM_LOCK_RESET,
+    SHMEM_LOCK_SET
 };
 
 /* Macro to map lock virtual address to owning process vp */
@@ -2534,7 +2534,7 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
     long locked;
     int prev_pe;
 
-    node->l_next = _SHMEM_LOCK_FREE;
+    node->l_next = SHMEM_LOCK_FREE;
 
     /* Form our lock request (integer) */
     tmp.l_locked = 1;
@@ -2547,11 +2547,11 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
      * value, atomically
      */
     tmp.l_word =
-        shmem_int_swap ((long *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
+        shmem_int_swap ((int *) &lock->l_word, tmp.l_word, LOCK_OWNER (lock));
 
     /* Translate old (broken) default lock state */
-    if (tmp.l_word == _SHMEM_LOCK_FREE) {
-        tmp.l_word = _SHMEM_LOCK_RESET;
+    if (tmp.l_word == SHMEM_LOCK_FREE) {
+        tmp.l_word = SHMEM_LOCK_RESET;
     }
 
     /* Extract the global lock (tail) state */
@@ -2571,7 +2571,7 @@ shmemi_comms_lock_acquire (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
          * I'm now next in global linked list, update l_next in the
          * prev_pe process with our vp
          */
-        shmem_short_p ((int *) &node->l_next, this_pe, prev_pe);
+        shmem_short_p ((short *) &node->l_next, this_pe, prev_pe);
 
         /* Wait for flag to be released */
         GASNET_BLOCKUNTIL (!(node->l_locked));
@@ -2582,7 +2582,7 @@ static inline void
 shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 {
     /* Is there someone on the linked list ? */
-    if (node->l_next == _SHMEM_LOCK_FREE) {
+    if (node->l_next == SHMEM_LOCK_FREE) {
         SHMEM_LOCK tmp;
 
         /* Form the remote atomic compare value (int) */
@@ -2593,9 +2593,9 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
          * If global lock owner value still equals this_pe, load RESET
          * into it & return prev value
          */
-        tmp.l_word = shmem_int_cswap ((long *) &lock->l_word,
+        tmp.l_word = shmem_int_cswap ((int *) &lock->l_word,
                                       tmp.l_word,
-                                      _SHMEM_LOCK_RESET, LOCK_OWNER (lock));
+                                      SHMEM_LOCK_RESET, LOCK_OWNER (lock));
 
         if (tmp.l_next == this_pe) {
             /* We were still the only requestor, all done */
@@ -2612,7 +2612,7 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
          *
          */
         GASNET_BLOCKUNTIL (!
-                           ((node->l_next == _SHMEM_LOCK_FREE) ||
+                           ((node->l_next == SHMEM_LOCK_FREE) ||
                             (node->l_next < 0))
             );
 
@@ -2626,7 +2626,7 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
      * Release any waiters on the linked list
      */
 
-    shmem_short_p ((int *) &node->l_locked, 0, node->l_next);
+    shmem_short_p ((short *) &node->l_locked, 0, node->l_next);
 }
 
 
@@ -2645,14 +2645,14 @@ shmemi_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
     int retval;
 
     /* Read the remote global lock value */
-    tmp.l_word = shmem_int_g ((long *) &lock->l_word, LOCK_OWNER (lock));
+    tmp.l_word = shmem_int_g ((int *) &lock->l_word, LOCK_OWNER (lock));
 
     /* Translate old (broken) default lock state */
-    if (tmp.l_word == _SHMEM_LOCK_FREE)
-        tmp.l_word = _SHMEM_LOCK_RESET;
+    if (tmp.l_word == SHMEM_LOCK_FREE)
+        tmp.l_word = SHMEM_LOCK_RESET;
 
     /* If lock already set then return 1, otherwise grab the lock & return 0 */
-    if (tmp.l_word == _SHMEM_LOCK_RESET) {
+    if (tmp.l_word == SHMEM_LOCK_RESET) {
         shmemi_comms_lock_acquire (node, lock, this_pe);
         retval = 0;
     }
