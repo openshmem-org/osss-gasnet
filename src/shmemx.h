@@ -49,67 +49,67 @@
 
 typedef void *shmemx_request_handle_t;
 
-extern void shmemx_short_put_nb (short *dest, const short *src, size_t nelems,
+void shmemx_short_put_nb (short *dest, const short *src, size_t nelems,
                                  int pe, shmemx_request_handle_t *desc);
-extern void shmemx_int_put_nb (int *dest, const int *src, size_t nelems,
+void shmemx_int_put_nb (int *dest, const int *src, size_t nelems,
                                int pe, shmemx_request_handle_t *desc);
-extern void shmemx_long_put_nb (long *dest, const long *src, size_t nelems,
+void shmemx_long_put_nb (long *dest, const long *src, size_t nelems,
                                 int pe, shmemx_request_handle_t *desc);
-extern void shmemx_longlong_put_nb (long long *dest, const long long *src,
+void shmemx_longlong_put_nb (long long *dest, const long long *src,
                                     size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_longdouble_put_nb (long double *dest, const long double *src,
+void shmemx_longdouble_put_nb (long double *dest, const long double *src,
                                       size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_double_put_nb (double *dest, const double *src,
+void shmemx_double_put_nb (double *dest, const double *src,
                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_complexd_put_nb (COMPLEXIFY (double) * dest,
+void shmemx_complexd_put_nb (COMPLEXIFY (double) * dest,
                                     const COMPLEXIFY (double) * src,
                                     size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_float_put_nb (float *dest, const float *src, size_t nelems,
+void shmemx_float_put_nb (float *dest, const float *src, size_t nelems,
                                  int pe, shmemx_request_handle_t *desc);
-extern void shmemx_putmem_nb (void *dest, const void *src, size_t nelems,
+void shmemx_putmem_nb (void *dest, const void *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
-extern void shmemx_put32_nb (void *dest, const void *src, size_t nelems,
+void shmemx_put32_nb (void *dest, const void *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-extern void shmemx_put64_nb (void *dest, const void *src, size_t nelems,
+void shmemx_put64_nb (void *dest, const void *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-extern void shmemx_put128_nb (void *dest, const void *src, size_t nelems,
+void shmemx_put128_nb (void *dest, const void *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
 
-extern void shmemx_short_get_nb (short *dest, const short *src, size_t nelems,
+void shmemx_short_get_nb (short *dest, const short *src, size_t nelems,
                                  int pe, shmemx_request_handle_t *desc);
-extern void shmemx_int_get_nb (int *dest, const int *src, size_t nelems,
+void shmemx_int_get_nb (int *dest, const int *src, size_t nelems,
                                int pe, shmemx_request_handle_t *desc);
-extern void shmemx_long_get_nb (long *dest, const long *src, size_t nelems,
+void shmemx_long_get_nb (long *dest, const long *src, size_t nelems,
                                 int pe, shmemx_request_handle_t *desc);
-extern void shmemx_longlong_get_nb (long long *dest, const long long *src,
+void shmemx_longlong_get_nb (long long *dest, const long long *src,
                                     size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_longdouble_get_nb (long double *dest, const long double *src,
+void shmemx_longdouble_get_nb (long double *dest, const long double *src,
                                       size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_double_get_nb (double *dest, const double *src,
+void shmemx_double_get_nb (double *dest, const double *src,
                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_complexd_get_nb (COMPLEXIFY (double) * dest,
+void shmemx_complexd_get_nb (COMPLEXIFY (double) * dest,
                                     const COMPLEXIFY (double) * src,
                                     size_t nelems, int pe, shmemx_request_handle_t *desc);
-extern void shmemx_float_get_nb (float *dest, const float *src, size_t nelems,
+void shmemx_float_get_nb (float *dest, const float *src, size_t nelems,
                                  int pe, shmemx_request_handle_t *desc);
-extern void shmemx_getmem_nb (void *dest, const void *src, size_t nelems,
+void shmemx_getmem_nb (void *dest, const void *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
-extern void shmemx_get32_nb (void *dest, const void *src, size_t nelems,
+void shmemx_get32_nb (void *dest, const void *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-extern void shmemx_get64_nb (void *dest, const void *src, size_t nelems,
+void shmemx_get64_nb (void *dest, const void *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-extern void shmemx_get128_nb (void *dest, const void *src, size_t nelems,
+void shmemx_get128_nb (void *dest, const void *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
 
-extern void shmemx_wait_req (shmemx_request_handle_t desc);
-extern void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
+void shmemx_wait_req (shmemx_request_handle_t desc);
+void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
 
 /*
  * renamed & non-blocking memory management
  *
  */
-extern void *shmalloc_nb (size_t size) _WUR;
-extern void  shfree_nb (void *addr);
+void *shmalloc_nb (size_t size) _WUR;
+void  shfree_nb (void *addr);
 
 #define shmemx_malloc_nb(s)   shmalloc_nb(s)
 #define shmemx_free_nb(a)     shfree_nb(a)
@@ -168,9 +168,9 @@ extern void  shfree_nb (void *addr);
  * @return None.
  *
  */
-extern void shmemx_int_xor (int *target, int value, int pe);
-extern void shmemx_long_xor (long *target, long value, int pe);
-extern void shmemx_longlong_xor (long long *target, long long value, int pe);
+void shmemx_int_xor (int *target, int value, int pe);
+void shmemx_long_xor (long *target, long value, int pe);
+void shmemx_longlong_xor (long long *target, long long value, int pe);
 
 /*
  * wallclock time
@@ -203,6 +203,6 @@ extern void shmemx_longlong_xor (long long *target, long long value, int pe);
  *
  */
 
-extern double shmemx_wtime (void);
+double shmemx_wtime (void);
 
 #endif /* _SHMEMX_H */
