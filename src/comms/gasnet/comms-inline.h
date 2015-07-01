@@ -299,9 +299,14 @@ start_service (void *unused)
 }
 
 /**
- * assume initially we need to manage progress ourselves
+ * If the progress thread feature is enabled, disable the GASNet conduit's
+ * progress thread.  Otherwise, allow GASNet to use its own progress thread.
  */
+#ifdef HAVE_FEATURE_PROGTHREAD
 static bool use_conduit_thread = false;
+#else
+static bool use_conduit_thread = true;
+#endif
 
 /**
  * tell a PE how to contend for updates
