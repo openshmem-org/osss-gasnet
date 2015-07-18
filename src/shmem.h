@@ -112,7 +112,7 @@ extern "C"
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
 #else
 # define _DEPRECATED_BY(...) \
-  DEPRECATED
+  _DEPRECATED
 #endif
 
 #else
