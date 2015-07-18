@@ -102,18 +102,18 @@ extern "C"
 
 #elif defined(__GNUC__)
 
+#define _DEPRECATED \
+  __attribute__((deprecated))
+
   /* GCC has extended attribute syntax from 4.5 onward */
 
-# if __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
+# if (__GNUC__ >= 5) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
 #  define _DEPRECATED_BY(...) \
   __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
 #else
 # define _DEPRECATED_BY(...) \
-  __attribute__((deprecated))
+  DEPRECATED
 #endif
-
-#define _DEPRECATED \
-  __attribute__((deprecated))
 
 #else
 

@@ -10,7 +10,8 @@ Configure
 
       The library is now compiled as a statically linked archive,
       rather than as a shared object.  Strongly recommend completely
-      uninstalling previous release(s) if installing over the top.
+      uninstalling previous release(s) instead of installing over
+      the top.
 
   * Run configure with "--help" to see all options/flags.
 
