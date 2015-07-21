@@ -426,8 +426,8 @@ shmemi_comms_barrier_all (void)
 /**
  * where the symmetric memory lives on the given PE
  */
-#define SHMEM_SYMMETRIC_VAR_BASE(p) (seginfo_table[(p)].addr)
-#define SHMEM_SYMMETRIC_VAR_SIZE(p) (seginfo_table[(p)].size)
+#define SHMEM_SYMMETRIC_HEAP_BASE(p) (seginfo_table[(p)].addr)
+#define SHMEM_SYMMETRIC_HEAP_SIZE(p) (seginfo_table[(p)].size)
 
 /**
  * translate my "dest" to corresponding address on PE "pe"
@@ -443,21 +443,21 @@ shmemi_symmetric_addr_lookup (void *dest, int pe)
     /* symmetric if inside of heap */
     {
         int me = GET_STATE (mype);
-        size_t al = (size_t) SHMEM_SYMMETRIC_VAR_BASE (me); /* lower bound */
-        size_t au = al + SHMEM_SYMMETRIC_VAR_SIZE (pe); /* upper bound */
+        size_t al = (size_t) SHMEM_SYMMETRIC_HEAP_BASE (me); /* lower bound */
         size_t aao = (size_t) dest; /* my addr as offset */
-        size_t offset = aao - al;
+        long offset = aao - al;
 
-        if (EXPR_LIKELY (offset < au)) {
-            /* and where it is in the remote heap */
-            char *rdest = SHMEM_SYMMETRIC_VAR_BASE (pe) + offset;
-
-            /* assume this is good */
-            return rdest;
+        /* trap addresses outside the heap */
+        if (offset < 0) {
+            return NULL;
         }
-    }
+        if (offset > SHMEM_SYMMETRIC_HEAP_SIZE (me)) {
+            return NULL;
+        }
 
-    return NULL;
+        /* and where it is in the remote heap */
+        return SHMEM_SYMMETRIC_HEAP_BASE (pe) + offset;
+    }
 }
 
 /*
@@ -1442,13 +1442,17 @@ shmemi_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
 /**
  * perform the ping
  *
- * TODO: JUST RETURN TRUE FOR NOW, NEED TO WORK ON PROGRESS LOGIC
+ * TODO: JUST RETURN TRUE FOR NOW IF GOOD PE, NEED TO WORK ON PROGRESS LOGIC
  *
  */
 static inline int
 shmemi_comms_ping_request (int pe)
 {
-    return 1;
+    if ( (pe >= 0) && (pe < GET_STATE(numpes)) ) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /**

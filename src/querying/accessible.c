@@ -62,7 +62,10 @@ int
 shmem_pe_accessible (int pe)
 {
     INIT_CHECK ();
-    PE_RANGE_CHECK (pe, 1);
+    /*
+     * don't trap this here, need to just test in program flow
+     * PE_RANGE_CHECK (pe, 1);
+     */
     return shmemi_comms_ping_request (pe);
 }
 
