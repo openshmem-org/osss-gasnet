@@ -38,6 +38,7 @@
 
 
 #include <sys/types.h>
+#include <stdint.h>
 
 #include "utils.h"
 #include "trace.h"
@@ -91,14 +92,16 @@ extern char *sherror (void);
  */
 extern long malloc_error;
 
-void FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
+void FORTRANIFY (shpalloc) (int **addr, int *length,
+                            int *errcode, int *abort)
 {
+    /* convert 32-bit words to bytes */
+    const int scale = sizeof (int32_t);
     void *symm_addr;
 
     INIT_CHECK ();
 
-    /* symm_addr = (long *) shmalloc(*length * sizeof(long)); */
-    symm_addr = shmem_malloc (*length);
+    symm_addr = shmem_malloc (*length * scale);
 
     /* pass back status code */
     *errcode = malloc_error;
@@ -139,13 +142,18 @@ void FORTRANIFY (shpalloc) (void **addr, int *length, long *errcode, int *abort)
  *   program hangs.
  */
 
-void FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
+void FORTRANIFY (shpdeallc) (int **addr, int *errcode, int *abort)
 {
     INIT_CHECK ();
+    /*
+     * TODO: something going wrong in here, can't work it out.  Accept
+     *       memory leak for now
+     */
+    return;
 
     shmemi_trace (SHMEM_LOG_MEMORY,
                   "shpdeallc(addr = %p, errcode = %d, abort = %d)",
-                  addr, *errcode, *abort);
+                  *addr, *errcode, *abort);
 
     shmem_free (*addr);
 
@@ -183,11 +191,11 @@ void FORTRANIFY (shpdeallc) (void **addr, long *errcode, int *abort)
  *   are missing, the program hangs.
  */
 
-void FORTRANIFY (shpclmove) (int *addr, int *length, long *errcode, int *abort)
+void FORTRANIFY (shpclmove) (int **addr, int *length, int *errcode, int *abort)
 {
     INIT_CHECK ();
 
-    addr = shmem_realloc (addr, *length);
+    *addr = shmem_realloc (*addr, *length);
 
     /* pass back status code */
     *errcode = malloc_error;
