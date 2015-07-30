@@ -92,7 +92,7 @@ extern char *sherror (void);
  */
 extern long malloc_error;
 
-void FORTRANIFY (shpalloc) (int **addr, int *length,
+void FORTRANIFY (shpalloc) (void **addr, int *length,
                             int *errcode, int *abort)
 {
     /* convert 32-bit words to bytes */
@@ -142,7 +142,7 @@ void FORTRANIFY (shpalloc) (int **addr, int *length,
  *   program hangs.
  */
 
-void FORTRANIFY (shpdeallc) (int **addr, int *errcode, int *abort)
+void FORTRANIFY (shpdeallc) (void **addr, int *errcode, int *abort)
 {
     INIT_CHECK ();
     /*
@@ -191,7 +191,7 @@ void FORTRANIFY (shpdeallc) (int **addr, int *errcode, int *abort)
  *   are missing, the program hangs.
  */
 
-void FORTRANIFY (shpclmove) (int **addr, int *length, int *errcode, int *abort)
+void FORTRANIFY (shpclmove) (void **addr, int *length, int *errcode, int *abort)
 {
     INIT_CHECK ();
 
