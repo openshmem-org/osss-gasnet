@@ -92,7 +92,7 @@ extern char *sherror (void);
  */
 extern long malloc_error;
 
-void FORTRANIFY (shpalloc) (int **addr, int *length,
+void FORTRANIFY (shpalloc) (uintptr_t**addr, int *length,
                             int *errcode, int *abort)
 {
     /* convert 32-bit words to bytes */
@@ -123,7 +123,7 @@ void FORTRANIFY (shpalloc) (int **addr, int *length,
                   "shpalloc() was given non-symmetric memory sizes");
     /* MAYBE NOT REACHED */
 
-    addr = (void *) NULL;
+    addr = NULL;
 }
 
 /**
@@ -142,18 +142,15 @@ void FORTRANIFY (shpalloc) (int **addr, int *length,
  *   program hangs.
  */
 
-void FORTRANIFY (shpdeallc) (int **addr, int *errcode, int *abort)
+void FORTRANIFY (shpdeallc) (uintptr_t **addr, int *errcode, int *abort)
 {
     INIT_CHECK ();
-    /*
-     * TODO: something going wrong in here, can't work it out.  Accept
-     *       memory leak for now
-     */
-    return;
 
+    /*
     shmemi_trace (SHMEM_LOG_MEMORY,
                   "shpdeallc(addr = %p, errcode = %d, abort = %d)",
                   *addr, *errcode, *abort);
+                  */
 
     shmem_free (*addr);
 
@@ -191,7 +188,8 @@ void FORTRANIFY (shpdeallc) (int **addr, int *errcode, int *abort)
  *   are missing, the program hangs.
  */
 
-void FORTRANIFY (shpclmove) (int **addr, int *length, int *errcode, int *abort)
+void FORTRANIFY (shpclmove) (uintptr_t **addr, int *length,
+                             int *errcode, int *abort)
 {
     INIT_CHECK ();
 
