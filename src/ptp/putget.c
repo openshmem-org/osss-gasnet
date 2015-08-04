@@ -102,11 +102,11 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
     void                                                                \
     shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
     {                                                                   \
-        const int typed_nelems = sizeof (Type) * nelems;                \
+        const size_t typed_nelems = nelems * sizeof (Type);             \
         INIT_CHECK ();                                                  \
         SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");                \
         PE_RANGE_CHECK (pe, 4);                                         \
-        shmemi_comms_put ((void *) dest, (void *) src, typed_nelems, pe); \
+        shmemi_comms_put (dest, (void *) src, typed_nelems, pe);        \
     }
 
 SHMEM_TYPE_PUT (char, char);
@@ -189,11 +189,11 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
     void                                                                \
     shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
     {                                                                   \
-        const int typed_nelems = sizeof (Type) * nelems;                \
+        const size_t typed_nelems = nelems * sizeof (Type);             \
         INIT_CHECK ();                                                  \
         SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");                 \
         PE_RANGE_CHECK (pe, 4);                                         \
-        shmemi_comms_get(dest, (void *) src, typed_nelems, pe);         \
+        shmemi_comms_get (dest, (void *) src, typed_nelems, pe);        \
     }
 
 SHMEM_TYPE_GET (char, char);
@@ -301,7 +301,7 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
     {                                                   \
         Type retval;                                    \
         shmem_##Name##_get (&retval, addr, 1, pe);      \
-            return retval;                              \
+        return retval;                                  \
     }
 
 SHMEM_TYPE_G_WRAPPER (float, float);
