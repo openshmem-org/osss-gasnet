@@ -67,13 +67,13 @@ shmemi_executable_init (void)
     int fd;
 
     /* see if the shortcut works */
-    s = readlink (self, GET_STATE (exe_name), MAXPATHLEN);
+    s = readlink (self, GET_STATE (exe_name), MAXPATHLEN - 1);
 
     /* if not, try finding our PID */
     if (EXPR_UNLIKELY (s < 0)) {
         char buf[MAXPATHLEN];
         snprintf (buf, MAXPATHLEN, self_fmt, getpid ());
-        s = readlink (buf, GET_STATE (exe_name), MAXPATHLEN);
+        s = readlink (buf, GET_STATE (exe_name), MAXPATHLEN - 1);
     }
 
     /* dunno who I am, complain */
