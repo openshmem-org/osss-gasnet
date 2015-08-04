@@ -106,7 +106,7 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
         INIT_CHECK ();                                                  \
         SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");                \
         PE_RANGE_CHECK (pe, 4);                                         \
-        shmemi_comms_put (dest, (Type *) src, typed_nelems, pe);        \
+        shmemi_comms_put ((void *) dest, (void *) src, typed_nelems, pe); \
     }
 
 SHMEM_TYPE_PUT (char, char);
