@@ -241,6 +241,7 @@ table_init_helper (void)
                         }
                         gv->name = strdup (name);
                         if (gv->name == NULL) {
+                            free (gv);
                             goto bail;
                         }
                         gv->addr = (void *) es->st_value;
