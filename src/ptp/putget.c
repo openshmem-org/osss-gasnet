@@ -261,7 +261,7 @@ shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
     void                                                    \
     shmem_##Name##_p (Type *dest, Type value, int pe)       \
     {                                                       \
-        shmem_##Name##_put (dest, &value, 1, pe);           \
+        shmem_##Name##_put (dest, (const Type *) &value, 1, pe);    \
     }
 
 SHMEM_TYPE_P_WRAPPER (float, float);
@@ -300,7 +300,7 @@ SHMEM_TYPE_P_WRAPPER (complexf, COMPLEXIFY (float));
     shmem_##Name##_g (Type *addr, int pe)               \
     {                                                   \
         Type retval;                                    \
-        shmem_##Name##_get (&retval, addr, 1, pe);      \
+        shmem_##Name##_get (&retval, (const Type *) addr, 1, pe);   \
         return retval;                                  \
     }
 
