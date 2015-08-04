@@ -81,6 +81,7 @@ shmemi_executable_init (void)
         shmemi_trace (SHMEM_LOG_FATAL,
                       "can't find my own executable name (%s)",
                       strerror (errno));
+        goto bail;
         /* NOT REACHED */
     }
 
@@ -97,6 +98,9 @@ shmemi_executable_init (void)
     }
 
     SET_STATE (exe_fd, fd);
+
+ bail:
+    return;
 }
 
 /**
