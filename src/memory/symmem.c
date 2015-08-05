@@ -88,6 +88,7 @@ __shmalloc_symmetry_check (size_t size)
     if (shmalloc_remote_size == (long *) NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: couldn't allocate memory for symmetry check");
+        return 0;               /* arbitrary PE number */
         /* NOT REACHED */
     }
     *shmalloc_remote_size = size;

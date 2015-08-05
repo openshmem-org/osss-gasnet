@@ -60,9 +60,10 @@ debug_alloc_new (void *a, size_t s)
 {
     alloc_table_t *at = (alloc_table_t *) malloc (sizeof (*at));
 
-    if (at == (alloc_table_t *) NULL) {
+    if (at == NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: out of memory allocating address/size record");
+        return NULL;
         /* NOT REACHED */
     }
     at->addr = a;
@@ -137,9 +138,10 @@ debug_alloc_del (void *a)
 {
     alloc_table_t *at = debug_alloc_find (a);
 
-    if (at == (alloc_table_t *) NULL) {
+    if (at == NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: no hash table entry for address %p", a);
+        return;
         /* NOT REACHED */
     }
     HASH_DEL (atp, at);
@@ -155,7 +157,7 @@ void
 debug_alloc_replace (void *a, size_t s)
 {
 #if 1
-    /* 
+    /*
      * TODO: could be a typo in HASH_REPLACE_PTR
      * DONE: now fixed in uthash >= 1.9.9 (TC contributed fix)
      */

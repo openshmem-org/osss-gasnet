@@ -375,8 +375,10 @@ shmemi_tracers_show (void)
         char *p = buf;
         int i;
         trace_table_t *t = tracers;
+        const char *enamsg = "Enabled Messages: ";
+        unsigned int copied = 0;
 
-        strcpy (p, "Enabled Messages: ");
+        strncpy (p, enamsg, strlen (enamsg));
 
         for (i = 0; i < n_tracers; i += 1) {
             if (t->state == ON) {
