@@ -179,7 +179,8 @@ shmemi_broadcast32_tree (void *target, const void *source,
             pSync[0] = _SHMEM_SYNC_VALUE;
 
             if (child_l != -1) {
-                shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+                shmem_long_get (&lchild_ready, (const long *) &pSync[0],
+                                1, child_l);
                 while (lchild_ready != 0)
                     shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
 

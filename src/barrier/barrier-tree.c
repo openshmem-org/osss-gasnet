@@ -118,7 +118,8 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
             pSync[0] = _SHMEM_SYNC_VALUE;
 
             if (child_l != -1) {
-                shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
+                shmem_long_get (&lchild_ready, (const long *) &pSync[0],
+                                1, child_l);
                 while (lchild_ready != 0)
                     shmem_long_get (&lchild_ready, &pSync[0], 1, child_l);
                 shmem_long_put (&pSync[0], &is_ready, 1, child_l);
