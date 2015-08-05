@@ -373,17 +373,19 @@ shmemi_tracers_show (void)
     if (shmemi_trace_is_enabled (SHMEM_LOG_INIT)) {
         char buf[TRACE_MSG_BUF_SIZE];
         char *p = buf;
-        int i;
+        unsigned int i;
         trace_table_t *t = tracers;
         const char *enamsg = "Enabled Messages: ";
-        unsigned int copied = 0;
+        /* how many chars are free in the bufer? */
+        unsigned int left = TRACE_MSG_BUF_SIZE - 1 - strlen (enamsg);
 
-        strncpy (p, enamsg, strlen (enamsg));
+        strncpy (p, enamsg, left);
 
         for (i = 0; i < n_tracers; i += 1) {
             if (t->state == ON) {
-                strncat (p, t->text, strlen (t->text));
+                strncat (p, t->text, left);
                 strncat (p, " ", 1);
+                left -= strlen (t->text) + 1;
             }
             t += 1;
         }
@@ -416,7 +418,8 @@ shmemi_trace (shmem_trace_t msg_type, char *fmt, ...)
         strncat (tmp1, "\n", 1);
 
         fputs (tmp1, trace_log_stream);
-        fflush (trace_log_stream);  /* make sure this all goes out in 1 burst */
+        /* make sure this all goes out in 1 burst */
+        fflush (trace_log_stream);
 
         if (msg_type == SHMEM_LOG_FATAL) {
             exit (1);
