@@ -87,7 +87,7 @@ ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
 endif
 
- include $(COMMS_DIR)/comms.mak
+-include $(COMMS_DIR)/comms.mak
 
 CPPFLAGS        += -I. -I..
 CPPFLAGS        += $(COMMS_CPPFLAGS)
