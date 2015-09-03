@@ -21,7 +21,7 @@
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
  *
- * o Neither the name of the University of Houston System, 
+ * o Neither the name of the University of Houston System,
  *   UT-Battelle, LLC. nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -96,7 +96,7 @@ __shmalloc_symmetry_check (size_t size)
 
     malloc_error = _SHMEM_MALLOC_OK;
 
-    /* 
+    /*
      * everyone checks everyone else's sizes, barf if mis-match
      *
      * TODO: probably some kind of Eureka! optimization opportunity here

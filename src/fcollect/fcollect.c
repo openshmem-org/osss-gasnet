@@ -26,7 +26,7 @@
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
  *
- * o Neither the name of the University of Houston System, 
+ * o Neither the name of the University of Houston System,
  *   UT-Battelle, LLC. nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -84,7 +84,7 @@ shmemi_fcollect_dispatch_init (void)
         ;                       /* error */
     }
 
-    /* 
+    /*
      * report which implementation we set up
      */
     shmemi_trace (SHMEM_LOG_BROADCAST, "using collect \"%s\"", name);

@@ -40,8 +40,21 @@
  *
  */
 
-#ifndef _BARRIER_ALL_IMPL_H
+#ifdef HAVE_FEATURE_EXPERIMENTAL
 
-extern void shmemi_barrier_all_linear ();
+#include "symmtest.h"
 
-#endif
+#include "comms.h"
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_lookup_remote_addr = pshmemx_lookup_remote_addr
+#define shmemx_lookup_remote_addr pshmemx_lookup_remote_addr
+#endif /* HAVE_FEATURE_PSHMEM */
+
+void *
+shmemx_lookup_remote_addr (void *addr, int pe)
+{
+    return shmemi_symmetric_addr_lookup (addr, pe);
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
