@@ -50,6 +50,8 @@
  *
  */
 
+#include <stdint.h>
+
 #include "fortran-common.h"
 
 #include "shmem.h"
@@ -1239,10 +1241,36 @@ double FORTRANIFY (shmemx_wtime) (void)
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_lookup_remote_addr_ = pshmemx_lookup_remote_addr_
+#define shmemx_lookup_remote_addr_ pshmemx_lookup_remote_addr_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+uintptr_t * FORTRANIFY (shmemx_lookup_remote_addr) (uintptr_t *addr, int *pe)
+{
+    return shmemx_lookup_remote_addr (addr, *pe);
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
+
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_info_get_version_ = pshmem_info_get_version_
+#define shmem_info_get_version_ pshmem_info_get_version_
+#endif /* HAVE_FEATURE_PSHMEM */
+
 void FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
 {
     shmem_info_get_version (major, minor);
 }
+
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_info_get_name_ = pshmem_info_get_name_
+#define shmem_info_get_name_ pshmem_info_get_name_
+#endif /* HAVE_FEATURE_PSHMEM */
 
 void FORTRANIFY (shmem_info_get_name) (char *name)
 {

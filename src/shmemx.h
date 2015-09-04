@@ -228,7 +228,8 @@ double shmemx_wtime (void);
  *
  * @subsection f Fortran
  * @code
-   NONE AT PRESENT
+   integer pe
+   integer shmemx_lookup_remote_addr (addr, pe)
  * @endcode
  *
  * @return Returns the address corresponding to "addr" on PE "pe"
