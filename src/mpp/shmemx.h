@@ -49,4 +49,4 @@
 
 #include <shmemx.h>
 
-#endif	/* _MPP_SHMEMX_H */
+#endif  /* _MPP_SHMEMX_H */

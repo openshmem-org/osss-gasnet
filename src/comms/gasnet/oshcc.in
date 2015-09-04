@@ -52,17 +52,17 @@ driver="@DRIVER@"
 #
 case "$progname" in
     oshcc)
-	driver="${OSH_CC-$driver}"
-	;;
+        driver="${OSH_CC-$driver}"
+        ;;
     oshcxx | oshCC)
-	driver="${OSH_CXX-$driver}"
-	;;
+        driver="${OSH_CXX-$driver}"
+        ;;
     oshfort)
-	driver="${OSH_FC-$driver}"
-	;;
+        driver="${OSH_FC-$driver}"
+        ;;
     *)
-	# unknown driver program name
-	;;
+        # unknown driver program name
+        ;;
 esac
 
 $driver -I$SHMEM_INC_DIR $@ $SHMEM_LDFLAGS $GASNET_LDFLAGS $SHMEM_LIBS $GASNET_LIBS

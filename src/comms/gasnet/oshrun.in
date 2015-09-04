@@ -42,23 +42,23 @@ gotmm=0
 while [ $# -gt 0 ]
 do
     case $gotmm in
-	0)
-	    case "$1" in
-		--)
-		    gotmm=1
-		    ;;
-		-n | -np)
-		    shift
-		    npes=$1
-		    ;;
-		*)
-		    launcher_args="$launcher_args $1"
-		    ;;
-	    esac
-	    ;;
-	1)
-	    app_args="$app_args $1"
-	    ;;
+        0)
+            case "$1" in
+                --)
+                    gotmm=1
+                    ;;
+                -n | -np)
+                    shift
+                    npes=$1
+                    ;;
+                *)
+                    launcher_args="$launcher_args $1"
+                    ;;
+            esac
+            ;;
+        1)
+            app_args="$app_args $1"
+            ;;
     esac
     shift
 done
@@ -75,7 +75,7 @@ case "$npes" in
         show_usage_and_exit "NPEs ($npes) is not an integer"
         ;;
     *)
-	    # otherwise good
+        # otherwise good
         ;;
 esac
 
@@ -95,22 +95,22 @@ export OPENSHMEM_GASNET_CONDUIT
 
 case "$OPENSHMEM_GASNET_CONDUIT" in
     smp)
-	RUN_IT="env GASNET_PSHM_NODES=$npes $launcher_args $app_args"
+        RUN_IT="env GASNET_PSHM_NODES=$npes $launcher_args $app_args"
         ;;
     udp)
-	RUN_IT="$launcher_args $npes $app_args"
-	;;
+        RUN_IT="$launcher_args $npes $app_args"
+        ;;
     # delegate to a GASNet launcher, if found
     *)
-	# conduit-specific launcher
-	launcher="@GASNET_BINDIR@/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
+        # conduit-specific launcher
+        launcher="@GASNET_BINDIR@/gasnetrun_$OPENSHMEM_GASNET_CONDUIT"
         if [ ! -x "$launcher" ]
         then
             show_usage_and_exit "GASNet launcher for \"$OPENSHMEM_GASNET_CONDUIT\" not found"
         fi
-	# pass number of PEs & other args
-	RUN_IT="$launcher -n $npes $launcher_args $app_args"
-	;;
+        # pass number of PEs & other args
+        RUN_IT="$launcher -n $npes $launcher_args $app_args"
+        ;;
 esac
 
 $RUN_IT

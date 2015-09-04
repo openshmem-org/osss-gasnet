@@ -776,7 +776,7 @@ get_lock_for (void *addr)
 
 #define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                     \
     static inline void                                              \
-    shmemi_comms_wait_##Name##_##OpName (Type *var, Type cmp_value)	\
+    shmemi_comms_wait_##Name##_##OpName (Type *var, Type cmp_value) \
     {                                                               \
         GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );  \
     }

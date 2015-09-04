@@ -52,9 +52,9 @@
 
 typedef struct
 {
-  void *addr;		 /* key: shmalloc'ed address to be recorded */
-  size_t size;		 /* how many bytes */
-  UT_hash_handle hh;	 /* structure is hashable */
+  void *addr;            /* key: shmalloc'ed address to be recorded */
+  size_t size;           /* how many bytes */
+  UT_hash_handle hh;     /* structure is hashable */
 } alloc_table_t;
 
 

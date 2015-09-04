@@ -56,11 +56,11 @@
 
 typedef enum
 {
-  PE_UNINITIALIZED = 0,		/* start like this */
-  PE_UNKNOWN,			/* for when we have no information yet */
-  PE_RUNNING,			/* after start_pes() */
-  PE_SHUTDOWN,			/* clean exit */
-  PE_FAILED,			/* something went wrong */
+    PE_UNINITIALIZED = 0,    /* start like this */
+    PE_UNKNOWN,              /* for when we have no information yet */
+    PE_RUNNING,              /* after start_pes() */
+    PE_SHUTDOWN,             /* clean exit */
+    PE_FAILED,               /* something went wrong */
 } pe_status_t;
 
 /*
@@ -75,17 +75,17 @@ extern const char *shmemi_state_as_string (pe_status_t s);
 
 typedef struct
 {
-  pe_status_t pe_status;	/* up and running yet? */
+  pe_status_t pe_status;        /* up and running yet? */
 
-  int numpes;			/* # of processing elements */
-  int mype;			/* rank of this processing element */
+  int numpes;                   /* # of processing elements */
+  int mype;                     /* rank of this processing element */
 
-  size_t heapsize;		/* size of symmetric heap (bytes) */
+  size_t heapsize;              /* size of symmetric heap (bytes) */
 
-  struct utsname loc;		/* some initial testing of locality */
+  struct utsname loc;           /* some initial testing of locality */
 
-  char exe_name[MAXPATHLEN];	/* real name of executable */
-  int exe_fd;			/* file descriptor of executable */
+  char exe_name[MAXPATHLEN];    /* real name of executable */
+  int exe_fd;                   /* file descriptor of executable */
 
 } state_t;
 

@@ -49,4 +49,4 @@
 
 #include "pshmemx.h"
 
-#endif	/* _MPP_PSHMEMX_H */
+#endif  /* _MPP_PSHMEMX_H */

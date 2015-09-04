@@ -74,7 +74,7 @@
     const int step = 1 << logPE_stride;                                 \
     const int last_pe = PE_start + step * (PE_size - 1);                \
     const int me = GET_STATE(mype);                                     \
-    /* TODO: temp fix: I know barrier doesn't use this many indices */	\
+    /* TODO: temp fix: I know barrier doesn't use this many indices */  \
     long *acc_off = & (pSync[_SHMEM_COLLECT_SYNC_SIZE - 1]);            \
                                                                         \
     INIT_CHECK();                                                       \

@@ -53,7 +53,7 @@
 
 #define SHMEM_BROADCAST_TYPE(Name, Size)                                \
     void                                                                \
-    shmemi_broadcast##Name##_linear (void *target, const void *source,	\
+    shmemi_broadcast##Name##_linear (void *target, const void *source,  \
                                      size_t nelems,                     \
                                      int PE_root, int PE_start,         \
                                      int logPE_stride, int PE_size,     \

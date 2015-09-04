@@ -46,13 +46,9 @@
 #define _SYMMTEST_H 1
 
 extern void shmemi_symmetric_test_with_abort (void *remote_addr,
-					       void *local_addr,
-					       const char *name,
-					       const char *routine);
-
-#if 0
-extern void *shmemi_symmetric_addr_lookup (void *dest, int pe);
-#endif
+                                              void *local_addr,
+                                              const char *name,
+                                              const char *routine);
 
 extern int shmemi_symmetric_addr_accessible (void *addr, int pe);
 
