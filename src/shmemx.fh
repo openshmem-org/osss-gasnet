@@ -39,7 +39,7 @@
   !   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   !
 
-  integer :: shmemx_fence_test
-  integer :: shmemx_quiet_test
+  logical :: shmemx_fence_test
+  logical :: shmemx_quiet_test
 
   double precision :: shmemx_wtime
