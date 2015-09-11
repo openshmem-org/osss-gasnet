@@ -66,3 +66,20 @@ shmem_fence (void)
     INIT_CHECK ();
     shmemi_comms_fence_request ();
 }
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_fence_test = pshmemx_fence_test
+#define shmemx_fence_test pshmemx_fence_test
+#endif /* HAVE_FEATURE_PSHMEM */
+
+/* TODO: leaved essentially unimplemented for now */
+
+int
+shmemx_fence_test (void)
+{
+    return 0;
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

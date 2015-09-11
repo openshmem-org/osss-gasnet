@@ -66,3 +66,20 @@ shmem_quiet (void)
     INIT_CHECK ();
     shmemi_comms_quiet_request ();
 }
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_quiet_test = pshmemx_quiet_test
+#define shmemx_quiet_test pshmemx_quiet_test
+#endif /* HAVE_FEATURE_PSHMEM */
+
+/* TODO: leaved essentially unimplemented for now */
+
+int
+shmemx_quiet_test (void)
+{
+    return 0;
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */

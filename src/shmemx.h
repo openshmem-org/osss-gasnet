@@ -239,4 +239,55 @@ double shmemx_wtime (void);
 
 void *shmemx_lookup_remote_addr (void *addr, int pe);
 
+/*
+ * non-blocking fence/quiet
+ *
+ */
+
+/**
+ * @brief check whether all communication operations issued prior to
+ * this call have satisfied the fence semantic.
+ *
+ * @section Synopsis:
+ *
+ * @substitute c C/C++
+ * @code
+   int shmemx_fence_test (void);
+ * @endcode
+ *
+ * @subsection f Fortran
+ * @code
+   logical shmemx_fence_test
+ * @endcode
+ *
+ * @return Returns non-zero if all communication operations issued
+ * prior to this call have satisfied the fence semantic, 0 otherwise.
+ *
+ */
+
+int shmemx_fence_test (void);
+
+/**
+ * @brief check whether all communication operations issued prior to
+ * this call have satisfied the quiet semantic.
+ *
+ * @section Synopsis:
+ *
+ * @substitute c C/C++
+ * @code
+   int shmemx_quiet_test (void);
+ * @endcode
+ *
+ * @subsection f Fortran
+ * @code
+   logical shmemx_quiet_test
+ * @endcode
+ *
+ * @return Returns non-zero if all communication operations issued
+ * prior to this call have satisfied the quiet semantic, 0 otherwise.
+ *
+ */
+
+int shmemx_quiet_test (void);
+
 #endif /* _SHMEMX_H */

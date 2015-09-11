@@ -1276,3 +1276,27 @@ void FORTRANIFY (shmem_info_get_name) (char *name)
 {
     shmem_info_get_name (name);
 }
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_fence_test_ = pshmemx_fence_test_
+#define shmemx_fence_test_ pshmemx_fence_test_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+int FORTRANIFY (shmemx_fence_test) (void)
+{
+    return shmemx_fence_test ();
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_quiet_test_ = pshmemx_quiet_test_
+#define shmemx_quiet_test_ pshmemx_quiet_test_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+int FORTRANIFY (shmemx_quiet_test) (void)
+{
+    return shmemx_quiet_test ();
+}
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
