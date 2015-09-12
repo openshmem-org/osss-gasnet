@@ -79,7 +79,7 @@ shmem_quiet (void)
 int
 shmemx_quiet_test (void)
 {
-    return 0;
+    return shmemi_quiet_test ();
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

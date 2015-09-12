@@ -2038,6 +2038,18 @@ shmemi_comms_fence_request (void)
     do_fence ();
 }
 
+static inline int
+shmemi_fence_test (void)
+{
+    return 0;
+}
+
+static inline int
+shmemi_quiet_test (void)
+{
+    return 0;
+}
+
 /**
  * "nb" puts and gets
  *

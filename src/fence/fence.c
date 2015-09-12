@@ -79,7 +79,7 @@ shmem_fence (void)
 int
 shmemx_fence_test (void)
 {
-    return 0;
+    return shmemi_fence_test ();
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
