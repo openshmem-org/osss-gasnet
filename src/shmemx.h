@@ -48,246 +48,255 @@
 
 #include <shmem.h>
 
-/*
- * new ideas (not part of formal 1.0 API)
- */
+#ifdef __cplusplus
+extern "C"
+{
+#endif  /* __cplusplus */
 
-typedef void *shmemx_request_handle_t;
+    /*
+     * new ideas (not part of formal 1.x API)
+     */
 
-void shmemx_short_put_nb (short *dest, const short *src, size_t nelems,
-                                 int pe, shmemx_request_handle_t *desc);
-void shmemx_int_put_nb (int *dest, const int *src, size_t nelems,
-                               int pe, shmemx_request_handle_t *desc);
-void shmemx_long_put_nb (long *dest, const long *src, size_t nelems,
-                                int pe, shmemx_request_handle_t *desc);
-void shmemx_longlong_put_nb (long long *dest, const long long *src,
-                                    size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_longdouble_put_nb (long double *dest, const long double *src,
-                                      size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_double_put_nb (double *dest, const double *src,
-                                  size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_complexd_put_nb (COMPLEXIFY (double) * dest,
-                                    const COMPLEXIFY (double) * src,
-                                    size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_float_put_nb (float *dest, const float *src, size_t nelems,
-                                 int pe, shmemx_request_handle_t *desc);
-void shmemx_putmem_nb (void *dest, const void *src, size_t nelems,
+    typedef void *shmemx_request_handle_t;
+
+    void shmemx_short_put_nb (short *dest, const short *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
-void shmemx_put32_nb (void *dest, const void *src, size_t nelems,
+    void shmemx_int_put_nb (int *dest, const int *src, size_t nelems,
+                            int pe, shmemx_request_handle_t *desc);
+    void shmemx_long_put_nb (long *dest, const long *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-void shmemx_put64_nb (void *dest, const void *src, size_t nelems,
-                             int pe, shmemx_request_handle_t *desc);
-void shmemx_put128_nb (void *dest, const void *src, size_t nelems,
+    void shmemx_longlong_put_nb (long long *dest, const long long *src,
+                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_longdouble_put_nb (long double *dest, const long double *src,
+                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_double_put_nb (double *dest, const double *src,
+                               size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_complexd_put_nb (COMPLEXIFY (double) * dest,
+                                 const COMPLEXIFY (double) * src,
+                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_float_put_nb (float *dest, const float *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
+    void shmemx_putmem_nb (void *dest, const void *src, size_t nelems,
+                           int pe, shmemx_request_handle_t *desc);
+    void shmemx_put32_nb (void *dest, const void *src, size_t nelems,
+                          int pe, shmemx_request_handle_t *desc);
+    void shmemx_put64_nb (void *dest, const void *src, size_t nelems,
+                          int pe, shmemx_request_handle_t *desc);
+    void shmemx_put128_nb (void *dest, const void *src, size_t nelems,
+                           int pe, shmemx_request_handle_t *desc);
 
-void shmemx_short_get_nb (short *dest, const short *src, size_t nelems,
-                                 int pe, shmemx_request_handle_t *desc);
-void shmemx_int_get_nb (int *dest, const int *src, size_t nelems,
-                               int pe, shmemx_request_handle_t *desc);
-void shmemx_long_get_nb (long *dest, const long *src, size_t nelems,
-                                int pe, shmemx_request_handle_t *desc);
-void shmemx_longlong_get_nb (long long *dest, const long long *src,
-                                    size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_longdouble_get_nb (long double *dest, const long double *src,
-                                      size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_double_get_nb (double *dest, const double *src,
-                                  size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_complexd_get_nb (COMPLEXIFY (double) * dest,
-                                    const COMPLEXIFY (double) * src,
-                                    size_t nelems, int pe, shmemx_request_handle_t *desc);
-void shmemx_float_get_nb (float *dest, const float *src, size_t nelems,
-                                 int pe, shmemx_request_handle_t *desc);
-void shmemx_getmem_nb (void *dest, const void *src, size_t nelems,
+    void shmemx_short_get_nb (short *dest, const short *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
-void shmemx_get32_nb (void *dest, const void *src, size_t nelems,
+    void shmemx_int_get_nb (int *dest, const int *src, size_t nelems,
+                            int pe, shmemx_request_handle_t *desc);
+    void shmemx_long_get_nb (long *dest, const long *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
-void shmemx_get64_nb (void *dest, const void *src, size_t nelems,
-                             int pe, shmemx_request_handle_t *desc);
-void shmemx_get128_nb (void *dest, const void *src, size_t nelems,
+    void shmemx_longlong_get_nb (long long *dest, const long long *src,
+                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_longdouble_get_nb (long double *dest, const long double *src,
+                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_double_get_nb (double *dest, const double *src,
+                               size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_complexd_get_nb (COMPLEXIFY (double) * dest,
+                                 const COMPLEXIFY (double) * src,
+                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+    void shmemx_float_get_nb (float *dest, const float *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
+    void shmemx_getmem_nb (void *dest, const void *src, size_t nelems,
+                           int pe, shmemx_request_handle_t *desc);
+    void shmemx_get32_nb (void *dest, const void *src, size_t nelems,
+                          int pe, shmemx_request_handle_t *desc);
+    void shmemx_get64_nb (void *dest, const void *src, size_t nelems,
+                          int pe, shmemx_request_handle_t *desc);
+    void shmemx_get128_nb (void *dest, const void *src, size_t nelems,
+                           int pe, shmemx_request_handle_t *desc);
 
-void shmemx_wait_req (shmemx_request_handle_t desc);
-void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
+    void shmemx_wait_req (shmemx_request_handle_t desc);
+    void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
 
-/*
- * renamed & non-blocking memory management
- *
- */
-void *shmalloc_nb (size_t size) _WUR;
-void  shfree_nb (void *addr);
+    /*
+     * renamed & non-blocking memory management
+     *
+     */
+    void *shmalloc_nb (size_t size) _WUR;
+    void  shfree_nb (void *addr);
 
 #define shmemx_malloc_nb(s)   shmalloc_nb(s)
 #define shmemx_free_nb(a)     shfree_nb(a)
 
-/*
- * Proposed by IBM Zurich
- *
- */
+    /*
+     * Proposed by IBM Zurich
+     *
+     */
 
-/**
- * @brief These routines perform an atomic exclusive-or (xor) operation
- * between a data value and the target data object.
- *
- * @b Synopsis:
- *
- * - C/C++:
- * @code
-   void shmemx_int_xor (int *target, int value, int pe);
-   void shmemx_long_xor (long *target, long value, int pe);
-   void shmemx_longlong_xor (long long *target, long long value, int pe);
- * @endcode
- *
- * - Fortran:
- * @code
-   INTEGER pe
+    /**
+     * @brief These routines perform an atomic exclusive-or (xor) operation
+     * between a data value and the target data object.
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     void shmemx_int_xor (int *target, int value, int pe);
+     void shmemx_long_xor (long *target, long value, int pe);
+     void shmemx_longlong_xor (long long *target, long long value, int pe);
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     INTEGER pe
 
-   SHMEMX_INT4_XOR (target, value, pe)
-   SHMEMX_INT8_XOR (target, value, pe)
- * @endcode
- *
- * @param target    Address of the symmetric data object where to save the data on the target pe.
- * @param value     The value with which the exclusive-or operation is atomically
- *                performed with the data at address target.
- * @param pe        An integer that indicates the PE number upon
- *                which target is to be updated. If you are using Fortran, it must
- *                be a default integer value.
- *
- * @b Constraints:
- *      - target must be the address of a symmetric data object.
- *      - If using C/C++, the type of value must match that implied in the Synopsis
- *      section. When calling from Fortran, the data type of value must be as follows:
- *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
- *            with element size of 4 bytes
- *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
- *            with element size of 8 bytes.
- *      - value must be the same type as the target data object.
- *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
- *
- * @b Effect:
- *
- * The atomic exclusive-or routines perform an xor-operation between
- * value and the data at address target on PE pe. The operation must
- * be completed without the possibility of another process updating
- * target between the time of the fetch and the update.
- *
- * @return None.
- *
- */
-void shmemx_int_xor (int *target, int value, int pe);
-void shmemx_long_xor (long *target, long value, int pe);
-void shmemx_longlong_xor (long long *target, long long value, int pe);
+     SHMEMX_INT4_XOR (target, value, pe)
+     SHMEMX_INT8_XOR (target, value, pe)
+     * @endcode
+     *
+     * @param target    Address of the symmetric data object where to save the data on the target pe.
+     * @param value     The value with which the exclusive-or operation is atomically
+     *                performed with the data at address target.
+     * @param pe        An integer that indicates the PE number upon
+     *                which target is to be updated. If you are using Fortran, it must
+     *                be a default integer value.
+     *
+     * @b Constraints:
+     *      - target must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the Synopsis
+     *      section. When calling from Fortran, the data type of value must be as follows:
+     *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the target data object.
+     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *
+     * @b Effect:
+     *
+     * The atomic exclusive-or routines perform an xor-operation between
+     * value and the data at address target on PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * target between the time of the fetch and the update.
+     *
+     * @return None.
+     *
+     */
+    void shmemx_int_xor (int *target, int value, int pe);
+    void shmemx_long_xor (long *target, long value, int pe);
+    void shmemx_longlong_xor (long long *target, long long value, int pe);
 
-/*
- * wallclock time
- *
- */
+    /*
+     * wallclock time
+     *
+     */
 
-/**
- * @brief returns the number of seconds since the program
- * started running
- *
- * @section Synopsis:
- *
- * @substitute c C/C++
- * @code
-   double shmemx_wtime (void);
- * @endcode
- *
- * @subsection f Fortran
- * @code
-   double precision shmemx_wtime()
- * @endcode
- *
- * @return Returns the number of seconds since the program started (epoch).
- *
- * @section Note: shmemx_wtime does not indicate any error code; if it
- * is unable to detect the elapsed time, the return value is
- * undefined.  The time may be different on each PE, but the epoch
- * from which the time is measured will not change while OpenSHMEM is
- * active.
- *
- */
+    /**
+     * @brief returns the number of seconds since the program
+     * started running
+     *
+     * @section Synopsis:
+     *
+     * @substitute c C/C++
+     * @code
+     double shmemx_wtime (void);
+     * @endcode
+     *
+     * @subsection f Fortran
+     * @code
+     double precision shmemx_wtime()
+     * @endcode
+     *
+     * @return Returns the number of seconds since the program started (epoch).
+     *
+     * @section Note: shmemx_wtime does not indicate any error code; if it
+     * is unable to detect the elapsed time, the return value is
+     * undefined.  The time may be different on each PE, but the epoch
+     * from which the time is measured will not change while OpenSHMEM is
+     * active.
+     *
+     */
 
-double shmemx_wtime (void);
+    double shmemx_wtime (void);
 
-/*
- * address translation
- *
- */
+    /*
+     * address translation
+     *
+     */
 
-/**
- * @brief returns the symmetric address on another PE corresponding to
- * the symmetric address on this PE
- *
- * @section Synopsis:
- *
- * @substitute c C/C++
- * @code
-   void *shmemx_lookup_remote_addr (void *addr, int pe);
- * @endcode
- *
- * @subsection f Fortran
- * @code
-   integer pe
-   integer shmemx_lookup_remote_addr (addr, pe)
- * @endcode
- *
- * @return Returns the address corresponding to "addr" on PE "pe"
- *
- *
- */
+    /**
+     * @brief returns the symmetric address on another PE corresponding to
+     * the symmetric address on this PE
+     *
+     * @section Synopsis:
+     *
+     * @substitute c C/C++
+     * @code
+     void *shmemx_lookup_remote_addr (void *addr, int pe);
+     * @endcode
+     *
+     * @subsection f Fortran
+     * @code
+     integer pe
+     integer shmemx_lookup_remote_addr (addr, pe)
+     * @endcode
+     *
+     * @return Returns the address corresponding to "addr" on PE "pe"
+     *
+     *
+     */
 
-void *shmemx_lookup_remote_addr (void *addr, int pe);
+    void *shmemx_lookup_remote_addr (void *addr, int pe);
 
-/*
- * non-blocking fence/quiet
- *
- */
+    /*
+     * non-blocking fence/quiet
+     *
+     */
 
-/**
- * @brief check whether all communication operations issued prior to
- * this call have satisfied the fence semantic.
- *
- * @section Synopsis:
- *
- * @substitute c C/C++
- * @code
-   int shmemx_fence_test (void);
- * @endcode
- *
- * @subsection f Fortran
- * @code
-   logical shmemx_fence_test
- * @endcode
- *
- * @return Returns non-zero if all communication operations issued
- * prior to this call have satisfied the fence semantic, 0 otherwise.
- *
- */
+    /**
+     * @brief check whether all communication operations issued prior to
+     * this call have satisfied the fence semantic.
+     *
+     * @section Synopsis:
+     *
+     * @substitute c C/C++
+     * @code
+     int shmemx_fence_test (void);
+     * @endcode
+     *
+     * @subsection f Fortran
+     * @code
+     logical shmemx_fence_test
+     * @endcode
+     *
+     * @return Returns non-zero if all communication operations issued
+     * prior to this call have satisfied the fence semantic, 0 otherwise.
+     *
+     */
 
-int shmemx_fence_test (void);
+    int shmemx_fence_test (void);
 
-/**
- * @brief check whether all communication operations issued prior to
- * this call have satisfied the quiet semantic.
- *
- * @section Synopsis:
- *
- * @substitute c C/C++
- * @code
-   int shmemx_quiet_test (void);
- * @endcode
- *
- * @subsection f Fortran
- * @code
-   logical shmemx_quiet_test
- * @endcode
- *
- * @return Returns non-zero if all communication operations issued
- * prior to this call have satisfied the quiet semantic, 0 otherwise.
- *
- */
+    /**
+     * @brief check whether all communication operations issued prior to
+     * this call have satisfied the quiet semantic.
+     *
+     * @section Synopsis:
+     *
+     * @substitute c C/C++
+     * @code
+     int shmemx_quiet_test (void);
+     * @endcode
+     *
+     * @subsection f Fortran
+     * @code
+     logical shmemx_quiet_test
+     * @endcode
+     *
+     * @return Returns non-zero if all communication operations issued
+     * prior to this call have satisfied the quiet semantic, 0 otherwise.
+     *
+     */
 
-int shmemx_quiet_test (void);
+    int shmemx_quiet_test (void);
+
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
 
 #endif /* _SHMEMX_H */
