@@ -2016,7 +2016,7 @@ put_nb_helper (void *dst, void *src, size_t len, int pe)
  */
 
 static inline void
-do_fence (void)
+do_fencequiet (void)
 {
     atomic_wait_put_zero ();
     GASNET_WAIT_PUTS ();
@@ -2029,25 +2029,32 @@ do_fence (void)
 static inline void
 shmemi_comms_quiet_request (void)
 {
-    do_fence ();
+    do_fencequiet ();
 }
 
 static inline void
 shmemi_comms_fence_request (void)
 {
-    do_fence ();
+    do_fencequiet ();
 }
+
+/**
+ * fence and quiet tests just call fence/quiet and then report success
+ *
+ */
 
 static inline int
 shmemi_fence_test (void)
 {
-    return 0;
+    shmemi_comms_fence_request ();
+    return 1;
 }
 
 static inline int
 shmemi_quiet_test (void)
 {
-    return 0;
+    shmemi_comms_quiet_request ();
+    return 1;
 }
 
 /**
