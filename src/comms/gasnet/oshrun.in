@@ -13,7 +13,7 @@ show_usage_and_exit()
         echo ""
     fi
     cat <<EOF
-Usage: $progname [launcher passs-through options]
+Usage: $progname [launcher pass-through options]
                  -n|-np PEs
                  program
                  [program args]
