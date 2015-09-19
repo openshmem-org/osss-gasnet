@@ -59,6 +59,7 @@ Common
     * m4
     * autoconf, automake
     * libtool, libtool-ltdl
+    * environment-modules [optional]
 
 Ubuntu
 ======
@@ -66,7 +67,6 @@ Ubuntu
 Software can be installed on the command-line with apt-get, or via
 package managers like synaptic and aptitude.
 
-    * environment-modules [optional]
     * libelf-dev
 
 and you will need to tell configure
@@ -76,7 +76,6 @@ and you will need to tell configure
 Fedora
 ======
 
-    * environment-modules [optional]
     * group install 'Development Tools'
     * elfutils-libelf-devel
 
@@ -94,7 +93,7 @@ SUSE/OpenSUSE
 GASNet Versions
 ===============
 
-Release versions 1.14.x up to the latest, currently 1.22.0, have all
+Release versions 1.14.x up to the latest, currently 1.24.2, have all
 been used successfully.
 
 GASNet is now available from its source repository, which has also
