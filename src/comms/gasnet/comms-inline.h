@@ -703,67 +703,6 @@ shmemi_symmetric_memory_finalize (void)
 #endif /* HAVE_MANAGED_SEGMENTS */
 }
 
-/*
- * Following lock management code ifdef'd out as it isn't used any
- * longer.  But leaving in place for future reference.
- */
-
-#if 0
-/**
- * -- lock finding/creating utility --
- */
-
-typedef struct
-{
-    void *addr;
-    gasnet_hsl_t *lock;
-    UT_hash_handle hh;          /* makes this structure hashable */
-} lock_table_t;
-
-static lock_table_t *lock_table = NULL;
-
-/**
- * Look up the lock for a given address ADDR.  If ADDR has never been
- * seen before, create the lock for it.
- *
- */
-static gasnet_hsl_t *
-get_lock_for (void *addr)
-{
-    lock_table_t *try;
-
-    HASH_FIND_PTR (lock_table, &addr, try);
-
-    if (EXPR_UNLIKELY (try == (lock_table_t *) NULL)) {
-        gasnet_hsl_t *L = (gasnet_hsl_t *) malloc (sizeof (*L));
-
-        if (EXPR_UNLIKELY (L == (gasnet_hsl_t *) NULL)) {
-            comms_bailout
-                ("internal error: unable to allocate lock for address %p",
-                 addr);
-            /* NOT REACHED */
-        }
-
-        try = (lock_table_t *) malloc (sizeof (*try));
-        if (EXPR_UNLIKELY (try == (lock_table_t *) NULL)) {
-            comms_bailout
-                ("internal error: unable to allocate lock table entry for address %p",
-                 addr);
-            /* NOT REACHED */
-        }
-
-        gasnet_hsl_init (L);
-
-        try->addr = addr;
-        try->lock = L;
-
-        HASH_ADD_PTR (lock_table, addr, try);
-    }
-
-    return try->lock;
-}
-#endif /* ifdef'd out lock code */
-
 /**
  * -- atomics handlers ---------------------------------------------------------
  */
@@ -813,6 +752,9 @@ COMMS_WAIT_TYPE (longlong, long long, ge, >=);
 
 #define WAIT_ON_COMPLETION(Cond)   GASNET_BLOCKUNTIL (Cond)
 
+/* TODO: need a handler per-datatype to get the correct hander lock.
+   We can do this easily with a template for the out/bak RPCs and the
+   request generator itself. */
 
 /**
  * called by remote PE to do the swap.  Store new value, send back old value

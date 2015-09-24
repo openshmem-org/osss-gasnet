@@ -89,7 +89,8 @@ gasnet_hsl_t globalexit_out_lock = GASNET_HSL_INITIALIZER;
 gasnet_hsl_t globalexit_bak_lock = GASNET_HSL_INITIALIZER;
 
 /**
- * Initialize handler locks
+ * Initialize handler locks.  OpenSHMEM 1.3++ guarantees per-datatype
+ * exclusivity, so prep for that below.
  */
 
 gasnet_hsl_t amo_swap_lock = GASNET_HSL_INITIALIZER;
@@ -99,6 +100,13 @@ gasnet_hsl_t amo_add_lock = GASNET_HSL_INITIALIZER;
 gasnet_hsl_t amo_finc_lock = GASNET_HSL_INITIALIZER;
 gasnet_hsl_t amo_inc_lock = GASNET_HSL_INITIALIZER;
 gasnet_hsl_t amo_xor_lock = GASNET_HSL_INITIALIZER;
+
+#if 0
+gasnet_hsl_t amo_int_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_long_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_longlong_lock = GASNET_HSL_INITIALIZER;
+gasnet_hsl_t amo_double_lock = GASNET_HSL_INITIALIZER;
+#endif
 
 /**
  * global barrier counters
