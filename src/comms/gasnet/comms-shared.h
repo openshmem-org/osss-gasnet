@@ -109,30 +109,31 @@ extern gasnet_hsl_t globalexit_bak_lock;
  * handler locks
  */
 
-extern gasnet_hsl_t amo_swap_lock;
-extern gasnet_hsl_t amo_cswap_lock;
-extern gasnet_hsl_t amo_fadd_lock;
-extern gasnet_hsl_t amo_add_lock;
-extern gasnet_hsl_t amo_finc_lock;
-extern gasnet_hsl_t amo_inc_lock;
-extern gasnet_hsl_t amo_xor_lock;
+#define AMO_LOCK_REF_EMIT(Name, Type) extern gasnet_hsl_t amo_lock_##Name
 
-/**
- * NB we make the cond/value "long long" throughout
- * to be used by smaller types as self-contained payload
- */
+AMO_LOCK_REF_EMIT (int, int);
+AMO_LOCK_REF_EMIT (long, long);
+AMO_LOCK_REF_EMIT (longlong, long long);
+AMO_LOCK_REF_EMIT (float, float);
+AMO_LOCK_REF_EMIT (double, double);
 
-typedef struct
-{
-    void *local_store;          /* sender saves here */
-    void *r_symm_addr;          /* recipient symmetric var */
-    volatile int completed;     /* transaction end marker */
-    volatile int *completed_addr;   /* addr of marker */
-    size_t nbytes;              /* how big the value is */
-    long long value;            /* value to be swapped */
-    long long cond;             /* conditional value */
-} atomic_payload_t;
+#define AMO_PAYLOAD_EMIT(Name, Type)                                \
+    typedef struct                                                  \
+    {                                                               \
+        Type *r_symm_addr;            /* recipient symmetric var */ \
+        Type value;                   /* value to be swapped */     \
+        Type *value_addr;             /* where value lives */       \
+        Type cond;                    /* conditional value */       \
+                                                                    \
+        volatile int completed;       /* transaction end marker */  \
+        volatile int *completed_addr; /* addr of marker */          \
+    } amo_payload_##Name##_t;
 
+AMO_PAYLOAD_EMIT (int, int);
+AMO_PAYLOAD_EMIT (long, long);
+AMO_PAYLOAD_EMIT (longlong, long long);
+AMO_PAYLOAD_EMIT (float, float);
+AMO_PAYLOAD_EMIT (double, double);
 
 /**
  * global barrier

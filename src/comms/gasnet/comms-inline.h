@@ -474,30 +474,52 @@ shmemi_symmetric_addr_lookup (void *dest, int pe)
  * description of gasnet_attach ()
  */
 
+#define AMO_HANDLER_DEF(Op, Name)               \
+    GASNET_HANDLER_##Op##_out_##Name,           \
+    GASNET_HANDLER_##Op##_bak_##Name
+
 enum
 {
-    GASNET_HANDLER_SETUP_OUT = 128,
-    GASNET_HANDLER_SETUP_BAK,
-    GASNET_HANDLER_SWAP_OUT,
-    GASNET_HANDLER_SWAP_BAK,
-    GASNET_HANDLER_CSWAP_OUT,
-    GASNET_HANDLER_CSWAP_BAK,
-    GASNET_HANDLER_FADD_OUT,
-    GASNET_HANDLER_FADD_BAK,
-    GASNET_HANDLER_FINC_OUT,
-    GASNET_HANDLER_FINC_BAK,
-    GASNET_HANDLER_ADD_OUT,
-    GASNET_HANDLER_ADD_BAK,
-    GASNET_HANDLER_INC_OUT,
-    GASNET_HANDLER_INC_BAK,
-    GASNET_HANDLER_XOR_OUT,
-    GASNET_HANDLER_XOR_BAK,
-    GASNET_HANDLER_GLOBALVAR_PUT_OUT,
-    GASNET_HANDLER_GLOBALVAR_PUT_BAK,
-    GASNET_HANDLER_GLOBALVAR_GET_OUT,
-    GASNET_HANDLER_GLOBALVAR_GET_BAK,
-    GASNET_HANDLER_GLOBALEXIT_OUT
-        /* no reply partner for global_exit */
+    GASNET_HANDLER_setup_out = 128,
+    GASNET_HANDLER_setup_bak,
+
+    AMO_HANDLER_DEF (swap, int),
+    AMO_HANDLER_DEF (swap, long),
+    AMO_HANDLER_DEF (swap, longlong),
+    AMO_HANDLER_DEF (swap, float),
+    AMO_HANDLER_DEF (swap, double),
+
+    AMO_HANDLER_DEF (cswap, int),
+    AMO_HANDLER_DEF (cswap, long),
+    AMO_HANDLER_DEF (cswap, longlong),
+
+    AMO_HANDLER_DEF (fadd, int),
+    AMO_HANDLER_DEF (fadd, long),
+    AMO_HANDLER_DEF (fadd, longlong),
+
+    AMO_HANDLER_DEF (finc, int),
+    AMO_HANDLER_DEF (finc, long),
+    AMO_HANDLER_DEF (finc, longlong),
+
+    AMO_HANDLER_DEF (add, int),
+    AMO_HANDLER_DEF (add, long),
+    AMO_HANDLER_DEF (add, longlong),
+
+    AMO_HANDLER_DEF (inc, int),
+    AMO_HANDLER_DEF (inc, long),
+    AMO_HANDLER_DEF (inc, longlong),
+
+    AMO_HANDLER_DEF (xor, int),
+    AMO_HANDLER_DEF (xor, long),
+    AMO_HANDLER_DEF (xor, longlong),
+
+    GASNET_HANDLER_globalvar_put_out,
+    GASNET_HANDLER_globalvar_put_bak,
+    GASNET_HANDLER_globalvar_get_out,
+    GASNET_HANDLER_globalvar_get_bak,
+
+    GASNET_HANDLER_globalexit_out
+    /* no reply partner for global_exit */
 };
 
 /**
@@ -587,7 +609,7 @@ handler_segsetup_out (gasnet_token_t token, void *buf, size_t bufsiz)
 
     /* gasnet_hsl_unlock(& setup_out_lock); */
 
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SETUP_BAK, (void *) NULL, 0);
+    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_setup_bak, (void *) NULL, 0);
 }
 
 /**
@@ -670,7 +692,7 @@ shmemi_symmetric_memory_init (void)
             for (pe = 0; pe < npes; pe += 1) {
                 /* send to everyone else */
                 if (EXPR_LIKELY (me != pe)) {
-                    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SETUP_OUT,
+                    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_setup_out,
                                              &gs, sizeof (gs)
                         );
                 }
@@ -759,197 +781,216 @@ COMMS_WAIT_TYPE (longlong, long long, ge, >=);
 /**
  * called by remote PE to do the swap.  Store new value, send back old value
  */
-static void
-handler_swap_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    long long old;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_SWAP_BAK_EMIT(Name, Type)                                       \
+    static void                                                         \
+    handler_swap_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        Type old;                                                       \
+        amo_payload_##Name##_t *pp = (amo_payload_##Name##_t *) buf;    \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        old = *(pp->r_symm_addr);                                       \
+        *(pp->r_symm_addr) = pp->value;                                 \
+        pp->value = old;                                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_swap_bak_##Name,   \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_swap_lock);
-
-    /* save and update */
-    (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-    (void) memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
-    pp->value = old;
-
-    LOAD_STORE_FENCE ();
-
-    gasnet_hsl_unlock (&amo_swap_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_SWAP_BAK, buf, bufsiz);
-}
+AMO_SWAP_BAK_EMIT (int, int);
+AMO_SWAP_BAK_EMIT (long, long);
+AMO_SWAP_BAK_EMIT (longlong, long long);
+AMO_SWAP_BAK_EMIT (float, float);
+AMO_SWAP_BAK_EMIT (double, double);
 
 /**
  * called by swap invoker when old value returned by remote PE
  */
-static void
-handler_swap_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_SWAP_OUT_EMIT(Name, Type)                                   \
+    static void                                                         \
+    handler_swap_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz)   \
+    {                                                                   \
+        amo_payload_##Name##_t *pp = (amo_payload_##Name##_t *) buf;    \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        *(pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_swap_lock);
+AMO_SWAP_OUT_EMIT (int, int);
+AMO_SWAP_OUT_EMIT (long, long);
+AMO_SWAP_OUT_EMIT (longlong, long long);
+AMO_SWAP_OUT_EMIT (float, float);
+AMO_SWAP_OUT_EMIT (double, double);
 
-    /* save returned value */
-    (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_swap_lock);
-}
+/*
+ * TODO:
+ *
+ * This, as in all the atomic handlers, is where the opportunity gap
+ * is.  We could do useful things between firing off the request and
+ * waiting for the completion notification.  So split this out into
+ * a post and wait/poll pair, post returning a handle for the atomic
+ * op. in progress.
+ */
 
 /**
  * perform the swap
  */
-static inline void
-make_swap_request (void *target, void *value, size_t nbytes,
-                   int pe, void *retval)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate swap payload memory");
+#define AMO_SWAP_REQ_EMIT(Name, Type)                                   \
+    static inline Type                                                  \
+    shmemi_comms_swap_request_##Name (Type *target, Type value, int pe) \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate swap payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_swap_out_##Name,    \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+        free (p);                                                       \
+        return p->value;                                                \
     }
-    /* build payload to send */
-    p->local_store = retval;
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->value = *(long long *) value;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_SWAP_OUT, p, sizeof (*p));
 
-    /*
-     * TODO:
-     *
-     * This, as in all the atomic handlers, is where the opportunity gap
-     * is.  We could do useful things between firing off the request and
-     * waiting for the completion notification.  So split this out into
-     * a post and wait/poll pair, post returning a handle for the atomic
-     * op. in progress.
-     */
-    WAIT_ON_COMPLETION (p->completed);
-    free (p);
-}
-
-static inline void
-shmemi_comms_swap_request32 (void *target, void *value,
-                             size_t nbytes, int pe, void *retval)
-{
-    make_swap_request (target, value, nbytes, pe, retval);
-}
-
-static inline void
-shmemi_comms_swap_request64 (void *target, void *value,
-                             size_t nbytes, int pe, void *retval)
-{
-    make_swap_request (target, value, nbytes, pe, retval);
-}
+AMO_SWAP_REQ_EMIT (int, int);
+AMO_SWAP_REQ_EMIT (long, long);
+AMO_SWAP_REQ_EMIT (longlong, long long);
+AMO_SWAP_REQ_EMIT (float, float);
+AMO_SWAP_REQ_EMIT (double, double);
 
 /**
  * called by remote PE to do the swap.  Store new value if cond
  * matches, send back old value in either case
  */
-static void
-handler_cswap_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    void *old;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
-
-    gasnet_hsl_lock (&amo_cswap_lock);
-
-    old = malloc (pp->nbytes);
-    if (EXPR_UNLIKELY (old == NULL)) {
-        comms_bailout ("internal error: unable to allocate cswap save space");
+#define AMO_CSWAP_OUT_EMIT(Name, Type)                                  \
+    static void                                                         \
+    handler_cswap_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        Type old;                                                       \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save current target */                                       \
+        old = *(pp->r_symm_addr);                                       \
+                                                                        \
+        /* update value if cond matches */                              \
+        if (pp->cond == old) {                                          \
+            *(pp->r_symm_addr) = pp->value;                             \
+        }                                                               \
+                                                                        \
+        /* return value */                                              \
+        pp->value = old;                                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_cswap_bak_##Name,  \
+                               buf, bufsiz);                            \
     }
 
-    /* save current target */
-    memmove (old, pp->r_symm_addr, pp->nbytes);
-
-    /* update value if cond matches */
-    if (memcmp (&(pp->cond), pp->r_symm_addr, pp->nbytes) == 0) {
-        memmove (pp->r_symm_addr, &(pp->value), pp->nbytes);
-    }
-    /* return value */
-    memmove (&(pp->value), old, pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    free (old);
-
-    gasnet_hsl_unlock (&amo_cswap_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_CSWAP_BAK, buf, bufsiz);
-}
+AMO_CSWAP_OUT_EMIT (int, int);
+AMO_CSWAP_OUT_EMIT (long, long);
+AMO_CSWAP_OUT_EMIT (longlong, long long);
 
 /**
  * called by swap invoker when old value returned by remote PE
  * (same as swap_bak for now)
  */
-static void
-handler_cswap_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_CSWAP_BAK_EMIT(Name, Type)                                  \
+    static void                                                         \
+    handler_cswap_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        (*pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_cswap_lock);
-
-    /* save returned value */
-    (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_cswap_lock);
-}
+AMO_CSWAP_BAK_EMIT (int, int);
+AMO_CSWAP_BAK_EMIT (long, long);
+AMO_CSWAP_BAK_EMIT (longlong, long long);
 
 /**
  * perform the conditional swap
  */
-static inline void
-make_cswap_request (void *target, void *cond, void *value,
-                    size_t nbytes, int pe, void *retval)
-{
-    atomic_payload_t *cp = (atomic_payload_t *) malloc (sizeof (*cp));
-    if (EXPR_UNLIKELY (cp == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate conditional swap payload memory");
+#define AMO_CSWAP_REQ_EMIT(Name, Type)                                  \
+    static inline Type                                                  \
+    shmemi_comms_cswap_request_##Name (Type *target, Type cond,         \
+                                       Type value,                      \
+                                       int pe)                          \
+    {                                                                   \
+        amo_payload_##Name##_t *cp =                                    \
+            (amo_payload_##Name##_t *) malloc (sizeof (*cp));           \
+        if (EXPR_UNLIKELY (cp == NULL)) {                               \
+            comms_bailout                                               \
+                ("internal error: unable to allocate conditional swap payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        cp->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);    \
+                                                                        \
+        cp->value = value;                                              \
+        cp->value_addr = &(cp->value);                                  \
+        cp->cond = cond;                                                \
+                                                                        \
+        cp->completed = 0;                                              \
+        cp->completed_addr = &(cp->completed);                          \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_cswap_out_##Name,   \
+                                 cp, sizeof (*cp));                     \
+                                                                        \
+        WAIT_ON_COMPLETION (cp->completed);                             \
+                                                                        \
+        free (cp);                                                      \
+                                                                        \
+        return cp->value;                                               \
     }
-    /* build payload to send */
-    cp->local_store = retval;
-    cp->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    cp->nbytes = nbytes;
-    cp->value = cp->cond = 0LL;
-    memmove (&(cp->value), value, nbytes);
-    memmove (&(cp->cond), cond, nbytes);
-    cp->completed = 0;
-    cp->completed_addr = &(cp->completed);
-    LOAD_STORE_FENCE ();
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_CSWAP_OUT, cp, sizeof (*cp));
-    WAIT_ON_COMPLETION (cp->completed);
-    free (cp);
-}
 
-static inline void
-shmemi_comms_cswap_request32 (void *target, void *cond, void *value,
-                              size_t nbytes, int pe, void *retval)
-{
-    make_cswap_request (target, cond, value, nbytes, pe, retval);
-}
-
-static inline void
-shmemi_comms_cswap_request64 (void *target, void *cond, void *value,
-                              size_t nbytes, int pe, void *retval)
-{
-    make_cswap_request (target, cond, value, nbytes, pe, retval);
-}
+AMO_CSWAP_REQ_EMIT (int, int);
+AMO_CSWAP_REQ_EMIT (long, long);
+AMO_CSWAP_REQ_EMIT (longlong, long long);
 
 /**
  * fetch/add
@@ -959,88 +1000,97 @@ shmemi_comms_cswap_request64 (void *target, void *cond, void *value,
  * called by remote PE to do the fetch and add.  Store new value, send
  * back old value
  */
-static void
-handler_fadd_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    long long old = 0;
-    long long plus;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_FADD_OUT_EMIT(Name, Type)           \
+    static void                                                         \
+    handler_fadd_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        Type old;                                                       \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        old = *(pp->r_symm_addr);                                       \
+        *(pp->r_symm_addr) += pp->value;                                \
+        pp->value = old;                                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_fadd_bak_##Name,   \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_fadd_lock);
-
-    /* save and update */
-    (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-    plus = old + pp->value;
-    (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-    pp->value = old;
-
-    LOAD_STORE_FENCE ();
-
-    gasnet_hsl_unlock (&amo_fadd_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FADD_BAK, buf, bufsiz);
-}
+AMO_FADD_OUT_EMIT (int, int);
+AMO_FADD_OUT_EMIT (long, long);
+AMO_FADD_OUT_EMIT (longlong, long long);
 
 /**
  * called by fadd invoker when old value returned by remote PE
  */
-static void
-handler_fadd_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_FADD_BAK_EMIT(Name, Type)                                   \
+    static void                                                         \
+    handler_fadd_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        *(pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_fadd_lock);
-
-    /* save returned value */
-    (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_fadd_lock);
-}
+AMO_FADD_BAK_EMIT (int, int);
+AMO_FADD_BAK_EMIT (long, long);
+AMO_FADD_BAK_EMIT (longlong, long long);
 
 /**
  * perform the fetch-and-add
  */
-static inline void
-make_fadd_request (void *target, void *value, size_t nbytes, int pe,
-                   void *retval)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate fetch-and-add payload memory");
+#define AMO_FADD_REQ_EMIT(Name, Type)                                   \
+    static inline Type                                                  \
+    shmemi_comms_fadd_request_##Name (Type *target, Type value, int pe) \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate fetch-and-add payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_fadd_out_##Name,    \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
+                                                                        \
+        return p->value;                                                \
     }
-    /* build payload to send */
-    p->local_store = retval;
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->value = *(long long *) value;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FADD_OUT, p, sizeof (*p));
-    WAIT_ON_COMPLETION (p->completed);
-    free (p);
-}
 
-static inline void
-shmemi_comms_fadd_request32 (void *target, void *value, size_t nbytes, int pe,
-                             void *retval)
-{
-    make_fadd_request (target, value, nbytes, pe, retval);
-}
-
-static inline void
-shmemi_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
-                             void *retval)
-{
-    make_fadd_request (target, value, nbytes, pe, retval);
-}
+AMO_FADD_REQ_EMIT (int, int);
+AMO_FADD_REQ_EMIT (long, long);
+AMO_FADD_REQ_EMIT (longlong, long long);
 
 /**
  * fetch/increment
@@ -1050,85 +1100,94 @@ shmemi_comms_fadd_request64 (void *target, void *value, size_t nbytes, int pe,
  * called by remote PE to do the fetch and increment.  Store new
  * value, send back old value
  */
-static void
-handler_finc_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    long long old = 0;
-    long long plus;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_FINC_OUT_EMIT(Name, Type)                                   \
+    static void                                                         \
+    handler_finc_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        Type old;                                                       \
+        amo_payload_##Name##_t *pp = (amo_payload_##Name##_t *) buf;    \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        old = *(pp->r_symm_addr);                                       \
+        *(pp->r_symm_addr) += 1;                                        \
+        pp->value = old;                                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_finc_bak_##Name,   \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_finc_lock);
-
-    /* save and update */
-    (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-    plus = old + 1;
-    (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-    pp->value = old;
-
-    LOAD_STORE_FENCE ();
-
-    gasnet_hsl_unlock (&amo_finc_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_FINC_BAK, buf, bufsiz);
-}
+AMO_FINC_OUT_EMIT (int, int);
+AMO_FINC_OUT_EMIT (long, long);
+AMO_FINC_OUT_EMIT (longlong, long long);
 
 /**
  * called by finc invoker when old value returned by remote PE
  */
-static void
-handler_finc_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_FINC_BAK_EMIT(Name, Type)                                       \
+    static void                                                         \
+    handler_finc_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp = (amo_payload_##Name##_t *) buf;    \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        *(pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_finc_lock);
-
-    /* save returned value */
-    (void) memmove (pp->local_store, &(pp->value), pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_finc_lock);
-}
+AMO_FINC_BAK_EMIT (int, int);
+AMO_FINC_BAK_EMIT (long, long);
+AMO_FINC_BAK_EMIT (longlong, long long);
 
 /**
  * perform the fetch-and-increment
  */
-static inline void
-make_finc_request (void *target, size_t nbytes, int pe, void *retval)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate fetch-and-increment payload memory");
+#define AMO_FINC_REQ_EMIT(Name, Type)                                       \
+    static inline Type                                                  \
+    shmemi_comms_finc_request_##Name (Type *target, int pe)                     \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate fetch-and-increment payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_finc_out_##Name,    \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
+                                                                        \
+        return p->value;                                                \
     }
-    /* build payload to send */
-    p->local_store = retval;
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_FINC_OUT, p, sizeof (*p));
-    WAIT_ON_COMPLETION (p->completed);
-    free (p);
-}
 
-static inline void
-shmemi_comms_finc_request32 (void *target, size_t nbytes, int pe, void *retval)
-{
-    make_finc_request (target, nbytes, pe, retval);
-}
-
-static inline void
-shmemi_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
-{
-    make_finc_request (target, nbytes, pe, retval);
-}
-
+AMO_FINC_REQ_EMIT (int, int);
+AMO_FINC_REQ_EMIT (long, long);
+AMO_FINC_REQ_EMIT (longlong, long long);
 
 /**
  * remote add
@@ -1137,80 +1196,87 @@ shmemi_comms_finc_request64 (void *target, size_t nbytes, int pe, void *retval)
 /**
  * called by remote PE to do the remote add.
  */
-static void
-handler_add_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    long long old = 0;
-    long long plus;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_ADD_OUT_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_add_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        *(pp->r_symm_addr) += pp->value;                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_add_bak_##Name,    \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_add_lock);
-
-    /* save and update */
-    (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-    plus = old + pp->value;
-    (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-
-    LOAD_STORE_FENCE ();
-
-    gasnet_hsl_unlock (&amo_add_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_ADD_BAK, buf, bufsiz);
-}
+AMO_ADD_OUT_EMIT (int, int);
+AMO_ADD_OUT_EMIT (long, long);
+AMO_ADD_OUT_EMIT (longlong, long long);
 
 /**
  * called by remote add invoker when store done
  */
-static void
-handler_add_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_ADD_BAK_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_add_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_add_lock);
-
-    LOAD_STORE_FENCE ();
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_add_lock);
-}
+AMO_ADD_BAK_EMIT (int, int);
+AMO_ADD_BAK_EMIT (long, long);
+AMO_ADD_BAK_EMIT (longlong, long long);
 
 /**
  * perform the add
  */
-static inline void
-make_add_request (void *target, void *value, size_t nbytes, int pe)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate remote add payload memory");
+#define AMO_ADD_REQ_EMIT(Name, Type)                                    \
+    static inline void                                                  \
+    shmemi_comms_add_request_##Name (Type *target, Type value, int pe)  \
+    {                                                                   \
+     amo_payload_##Name##_t *p =                                        \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate remote add payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_add_out_##Name,     \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
     }
-    /* build payload to send */
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->value = *(long long *) value;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_ADD_OUT, p, sizeof (*p));
-    WAIT_ON_COMPLETION (p->completed);
-    free (p);
-}
 
-static inline void
-shmemi_comms_add_request32 (void *target, void *value, size_t nbytes, int pe)
-{
-    make_add_request (target, value, nbytes, pe);
-}
-
-static inline void
-shmemi_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
-{
-    make_add_request (target, value, nbytes, pe);
-}
+AMO_ADD_REQ_EMIT (int, int);
+AMO_ADD_REQ_EMIT (long, long);
+AMO_ADD_REQ_EMIT (longlong, long long);
 
 /**
  * remote increment
@@ -1219,92 +1285,85 @@ shmemi_comms_add_request64 (void *target, void *value, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote increment
  */
-static void
-handler_inc_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    long long old = 0;
-    long long plus;
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_INC_OUT_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_inc_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        *(pp->r_symm_addr) += 1;                                        \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_inc_bak_##Name,    \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_inc_lock);
-
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc out: got lock");
-
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc out: nbytes in payload = %d\n",
-    // pp->nbytes);
-
-    /* save and update */
-    (void) memmove (&old, pp->r_symm_addr, pp->nbytes);
-    plus = old + 1;
-    (void) memmove (pp->r_symm_addr, &plus, pp->nbytes);
-    LOAD_STORE_FENCE ();
-
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc: %lld -> %lld", old, plus);
-
-    gasnet_hsl_unlock (&amo_inc_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_INC_BAK, buf, bufsiz);
-}
+AMO_INC_OUT_EMIT (int, int);
+AMO_INC_OUT_EMIT (long, long);
+AMO_INC_OUT_EMIT (longlong, long long);
 
 /**
  * called by remote increment invoker when store done
  */
-static void
-handler_inc_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_INC_BAK_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_inc_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_inc_lock);
-
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc bak: got lock");
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_inc_lock);
-}
+AMO_INC_BAK_EMIT (int, int);
+AMO_INC_BAK_EMIT (long, long);
+AMO_INC_BAK_EMIT (longlong, long long);
 
 /**
  * perform the increment
  */
-static inline void
-make_inc_request (void *target, size_t nbytes, int pe)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate remote increment payload memory");
+#define AMO_INC_REQ_EMIT(Name, Type)                                    \
+    static inline void                                                  \
+    shmemi_comms_inc_request_##Name (Type *target, int pe)                      \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate remote increment payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+                                                                        \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_inc_out_##Name,     \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
     }
-    /* build payload to send */
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_INC_OUT, p, sizeof (*p));
 
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc request: waiting for completion");
-
-    WAIT_ON_COMPLETION (p->completed);
-
-    // shmemi_trace (SHMEM_LOG_ATOMIC, "inc request: got completion");
-
-    free (p);
-}
-
-static inline void
-shmemi_comms_inc_request32 (void *target, size_t nbytes, int pe)
-{
-    make_inc_request (target, nbytes, pe);
-}
-
-static inline void
-shmemi_comms_inc_request64 (void *target, size_t nbytes, int pe)
-{
-    make_inc_request (target, nbytes, pe);
-}
-
+AMO_INC_REQ_EMIT (int, int);
+AMO_INC_REQ_EMIT (long, long);
+AMO_INC_REQ_EMIT (longlong, long long);
 
 /**
  * Proposed by IBM Zurich
@@ -1315,76 +1374,87 @@ shmemi_comms_inc_request64 (void *target, size_t nbytes, int pe)
 /**
  * called by remote PE to do the remote xor
  */
-static void
-handler_xor_out (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
-    long long v;
+#define AMO_XOR_OUT_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_xor_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        *(pp->r_symm_addr) ^= pp->value;                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_xor_bak_##Name,    \
+                               buf, bufsiz);                            \
+    }
 
-    gasnet_hsl_lock (&amo_xor_lock);
-
-    /* save and update */
-    v = *((long long *) pp->r_symm_addr);
-    v ^= pp->value;
-    *((long long *) pp->r_symm_addr) = v;
-    LOAD_STORE_FENCE ();
-
-    gasnet_hsl_unlock (&amo_xor_lock);
-
-    /* return updated payload */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_XOR_BAK, buf, bufsiz);
-}
+AMO_XOR_OUT_EMIT (int, int);
+AMO_XOR_OUT_EMIT (long, long);
+AMO_XOR_OUT_EMIT (longlong, long long);
 
 /**
  * called by remote xor invoker when store done
  */
-static void
-handler_xor_bak (gasnet_token_t token, void *buf, size_t bufsiz)
-{
-    atomic_payload_t *pp = (atomic_payload_t *) buf;
+#define AMO_XOR_BAK_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_xor_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
 
-    gasnet_hsl_lock (&amo_xor_lock);
-
-    /* done it */
-    *(pp->completed_addr) = 1;
-
-    gasnet_hsl_unlock (&amo_xor_lock);
-}
+AMO_XOR_BAK_EMIT (int, int);
+AMO_XOR_BAK_EMIT (long, long);
+AMO_XOR_BAK_EMIT (longlong, long long);
 
 /**
  * perform the xor
  */
-static inline void
-make_xor_request (void *target, void *value, size_t nbytes, int pe)
-{
-    atomic_payload_t *p = (atomic_payload_t *) malloc (sizeof (*p));
-    if (EXPR_UNLIKELY (p == (atomic_payload_t *) NULL)) {
-        comms_bailout
-            ("internal error: unable to allocate remote exclusive-or payload memory");
+#define AMO_XOR_REQ_EMIT(Name, Type)                                    \
+    static inline void                                                  \
+    shmemi_comms_xor_request_##Name (Type *target, Type value, int pe)          \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate remote exclusive-or payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_xor_out_##Name,     \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
     }
-    /* build payload to send */
-    p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);
-    p->nbytes = nbytes;
-    p->value = *(long long *) value;
-    p->completed = 0;
-    p->completed_addr = &(p->completed);
-    /* fire off request */
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_XOR_OUT, p, sizeof (*p));
-    WAIT_ON_COMPLETION (p->completed);
-    free (p);
-}
 
-static inline void
-shmemi_comms_xor_request32 (void *target, void *value, size_t nbytes, int pe)
-{
-    make_xor_request (target, value, nbytes, pe);
-}
-
-static inline void
-shmemi_comms_xor_request64 (void *target, void *value, size_t nbytes, int pe)
-{
-    make_xor_request (target, value, nbytes, pe);
-}
+AMO_XOR_REQ_EMIT (int, int);
+AMO_XOR_REQ_EMIT (long, long);
+AMO_XOR_REQ_EMIT (longlong, long long);
 
 /**
  * perform the ping
@@ -1538,7 +1608,7 @@ handler_globalvar_put_out (gasnet_token_t token, void *buf, size_t bufsiz)
     LOAD_STORE_FENCE ();
 
     /* return ack, just need the control structure */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_PUT_BAK,
+    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_globalvar_put_bak,
                            buf, sizeof (*pp)
         );
 }
@@ -1585,7 +1655,7 @@ put_a_chunk (void *buf, size_t bufsize,
     memmove (data, source + offset, bytes_to_send);
     LOAD_STORE_FENCE ();
 
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_PUT_OUT, p, bufsize);
+    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_globalvar_put_out, p, bufsize);
 
     WAIT_ON_COMPLETION (p->completed);
 
@@ -1655,7 +1725,7 @@ handler_globalvar_get_out (gasnet_token_t token, void *buf, size_t bufsiz)
     LOAD_STORE_FENCE ();
 
     /* return ack, copied data is returned */
-    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_GLOBALVAR_GET_BAK,
+    gasnet_AMReplyMedium0 (token, GASNET_HANDLER_globalvar_get_bak,
                            buf, bufsiz);
 }
 
@@ -1695,7 +1765,7 @@ get_a_chunk (globalvar_payload_t * p, size_t bufsize,
 
     atomic_inc_get_counter ();
 
-    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALVAR_GET_OUT, p, bufsize);
+    gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_globalvar_get_out, p, bufsize);
 
     WAIT_ON_COMPLETION (p->completed);
 
@@ -2133,7 +2203,7 @@ shmemi_comms_globalexit_request (int status)
     for (pe = 0; pe < npes; pe += 1) {
         /* send to everyone else */
         if (EXPR_LIKELY (me != pe)) {
-            gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_GLOBALEXIT_OUT,
+            gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_globalexit_out,
                                      &status, sizeof (status)
                 );
         }
@@ -2153,32 +2223,53 @@ shmemi_comms_globalexit_request (int status)
  * start of handlers
  */
 
+#define AMO_HANDLER_LOOKUP(Op, Name) \
+    {GASNET_HANDLER_##Op##_out_##Name, handler_##Op##_out_##Name}, \
+    {GASNET_HANDLER_##Op##_bak_##Name, handler_##Op##_bak_##Name}
+
 static gasnet_handlerentry_t handlers[] = {
 #if ! defined(HAVE_MANAGED_SEGMENTS)
-    {GASNET_HANDLER_SETUP_OUT, handler_segsetup_out},
-    {GASNET_HANDLER_SETUP_BAK, handler_segsetup_bak},
+    {GASNET_HANDLER_setup_out, handler_segsetup_out},
+    {GASNET_HANDLER_setup_bak, handler_segsetup_bak},
 #endif /* ! HAVE_MANAGED_SEGMENTS */
-    {GASNET_HANDLER_SWAP_OUT, handler_swap_out},
-    {GASNET_HANDLER_SWAP_BAK, handler_swap_bak},
-    {GASNET_HANDLER_CSWAP_OUT, handler_cswap_out},
-    {GASNET_HANDLER_CSWAP_BAK, handler_cswap_bak},
-    {GASNET_HANDLER_FADD_OUT, handler_fadd_out},
-    {GASNET_HANDLER_FADD_BAK, handler_fadd_bak},
-    {GASNET_HANDLER_FINC_OUT, handler_finc_out},
-    {GASNET_HANDLER_FINC_BAK, handler_finc_bak},
-    {GASNET_HANDLER_ADD_OUT, handler_add_out},
-    {GASNET_HANDLER_ADD_BAK, handler_add_bak},
-    {GASNET_HANDLER_INC_OUT, handler_inc_out},
-    {GASNET_HANDLER_INC_BAK, handler_inc_bak},
-    {GASNET_HANDLER_XOR_OUT, handler_xor_out},
-    {GASNET_HANDLER_XOR_BAK, handler_xor_bak},
+
+    AMO_HANDLER_LOOKUP (swap, int),
+    AMO_HANDLER_LOOKUP (swap, long),
+    AMO_HANDLER_LOOKUP (swap, longlong),
+    AMO_HANDLER_LOOKUP (swap, float),
+    AMO_HANDLER_LOOKUP (swap, double),
+
+    AMO_HANDLER_LOOKUP (cswap, int),
+    AMO_HANDLER_LOOKUP (cswap, long),
+    AMO_HANDLER_LOOKUP (cswap, longlong),
+
+    AMO_HANDLER_LOOKUP (fadd, int),
+    AMO_HANDLER_LOOKUP (fadd, long),
+    AMO_HANDLER_LOOKUP (fadd, longlong),
+
+    AMO_HANDLER_LOOKUP (finc, int),
+    AMO_HANDLER_LOOKUP (finc, long),
+    AMO_HANDLER_LOOKUP (finc, longlong),
+
+    AMO_HANDLER_LOOKUP (add, int),
+    AMO_HANDLER_LOOKUP (add, long),
+    AMO_HANDLER_LOOKUP (add, longlong),
+
+    AMO_HANDLER_LOOKUP (inc, int),
+    AMO_HANDLER_LOOKUP (inc, long),
+    AMO_HANDLER_LOOKUP (inc, longlong),
+
+    AMO_HANDLER_LOOKUP (xor, int),
+    AMO_HANDLER_LOOKUP (xor, long),
+    AMO_HANDLER_LOOKUP (xor, longlong),
+
 #if defined(HAVE_MANAGED_SEGMENTS)
-    {GASNET_HANDLER_GLOBALVAR_PUT_OUT, handler_globalvar_put_out},
-    {GASNET_HANDLER_GLOBALVAR_PUT_BAK, handler_globalvar_put_bak},
-    {GASNET_HANDLER_GLOBALVAR_GET_OUT, handler_globalvar_get_out},
-    {GASNET_HANDLER_GLOBALVAR_GET_BAK, handler_globalvar_get_bak},
+    {GASNET_HANDLER_globalvar_put_out, handler_globalvar_put_out},
+    {GASNET_HANDLER_globalvar_put_bak, handler_globalvar_put_bak},
+    {GASNET_HANDLER_globalvar_get_out, handler_globalvar_get_out},
+    {GASNET_HANDLER_globalvar_get_bak, handler_globalvar_get_bak},
 #endif /* HAVE_MANAGED_SEGMENTS */
-    {GASNET_HANDLER_GLOBALEXIT_OUT, handler_globalexit_out}
+    {GASNET_HANDLER_globalexit_out, handler_globalexit_out}
     /* no reply partner for global_exit */
 };
 
