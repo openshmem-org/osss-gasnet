@@ -47,7 +47,7 @@
 #include "shmem.h"
 
 void
-shmem_info_get_version (int *major, int *minor)
+shmem_info_get_version (restrict int *major, restrict int *minor)
 {
     (void) shmemi_version (major, minor);
 }

@@ -66,7 +66,7 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void *
-shmem_ptr (void *target, int pe)
+shmem_ptr (const void *target, int pe)
 {
     INIT_CHECK ();
     PE_RANGE_CHECK (pe, 2);

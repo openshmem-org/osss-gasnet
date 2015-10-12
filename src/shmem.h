@@ -331,7 +331,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_info_get_version (int *major, int *minor);
+     void shmem_info_get_version (restrict int *major, restrict int *minor);
      @endcode
      *
      * @subsection f Fortran
@@ -351,7 +351,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_info_get_version (int *major, int *minor);
+    void shmem_info_get_version (restrict int *major, restrict int *minor);
 
     /**
      * @brief determines a vandor-supplied name for this release.
@@ -724,7 +724,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     int shmem_addr_accessible (void *addr, int pe);
+     int shmem_addr_accessible (const void *addr, int pe);
      @endcode
      *
      * @subsection f Fortran
@@ -746,7 +746,7 @@ extern "C"
      * on PE "pe".  0 if not.
      *
      */
-    int shmem_addr_accessible (void *addr, int pe) _WUR;
+    int shmem_addr_accessible (const void *addr, int pe) _WUR;
 
     /**
      * @brief checks whether an address on a target PE can be accessed
@@ -756,7 +756,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void *shmem_ptr (void *addr, int pe);
+     void *shmem_ptr (const void *addr, int pe);
      @endcode
      *
      * @subsection f Fortran
@@ -777,7 +777,7 @@ extern "C"
      * load/store operations by the calling PE.  NULL if not.
      *
      */
-    void *shmem_ptr (void *target, int pe) _WUR;
+    void *shmem_ptr (const void *target, int pe) _WUR;
 
     /*
      * symmetric memory management
