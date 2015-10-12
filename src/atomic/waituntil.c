@@ -75,7 +75,7 @@
  */
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)                               \
     void                                                                \
-    shmem_##Name##_wait_until (Type *ivar, int cmp, Type cmp_value)     \
+    shmem_##Name##_wait_until (volatile Type *ivar, int cmp, Type cmp_value) \
     {                                                                   \
         switch (cmp) {                                                  \
         case _SHMEM_CMP_EQ:                                             \
@@ -116,7 +116,7 @@ SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
  */
 
 inline void
-shmem_wait_until (long *ivar, int cmp, long cmp_value)
+shmem_wait_until (volatile long *ivar, int cmp, long cmp_value)
 {
     shmem_long_wait_until (ivar, cmp, cmp_value);
 }
@@ -140,7 +140,7 @@ shmem_wait_until (long *ivar, int cmp, long cmp_value)
 
 #define SHMEM_TYPE_WAIT(Name, Type)                                 \
     void                                                            \
-    shmem_##Name##_wait(Type *ivar, Type cmp_value)                 \
+    shmem_##Name##_wait(volatile Type *ivar, Type cmp_value)        \
     {                                                               \
         shmem_##Name##_wait_until (ivar, _SHMEM_CMP_NE, cmp_value); \
     }
@@ -155,7 +155,7 @@ SHMEM_TYPE_WAIT (longlong, long long);
  */
 
 void
-shmem_wait (long *ivar, long cmp_value)
+shmem_wait (volatile long *ivar, long cmp_value)
 {
     shmem_long_wait (ivar, cmp_value);
 }
