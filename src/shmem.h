@@ -72,6 +72,19 @@
 # define COMPLEXIFY(T) T complex
 #endif  /* __cplusplus */
 
+/*
+ * C knows about restricted pointers, but C++ doesn't
+ */
+
+#ifdef __cplusplus
+# define SHMEM_RESTRICT
+#else
+# define SHMEM_RESTRICT restrict
+#endif  /* __cplusplus */
+
+/*
+ * no symbol-mangling (closing brace near EOF)
+ */
 #ifdef __cplusplus
 extern "C"
 {
@@ -318,7 +331,7 @@ extern "C"
      * OpenSHMEM release
      */
 #define SHMEM_MAJOR_VERSION 1
-#define SHMEM_MINOR_VERSION 2
+#define SHMEM_MINOR_VERSION 3
 
 #define SHMEM_MAX_NAME_LEN 64
 
@@ -329,9 +342,15 @@ extern "C"
      *
      * @section Synopsis
      *
-     * @subsection c C/C++
+     * @subsection c C
      @code
-     void shmem_info_get_version (int * restrict major, int * restrict minor);
+     void shmem_info_get_version (int * restrict major,
+                                  int * restrict minor);
+     @endcode
+     * @subsection c C++
+     @code
+     void shmem_info_get_version (int * major,
+                                  int * minor);
      @endcode
      *
      * @subsection f Fortran
@@ -351,7 +370,8 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_info_get_version (int * restrict major, int * restrict minor);
+    void shmem_info_get_version (int * SHMEM_RESTRICT major,
+                                 int * SHMEM_RESTRICT minor);
 
     /**
      * @brief determines a vandor-supplied name for this release.

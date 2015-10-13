@@ -237,7 +237,7 @@ extern "C"
      */
 
     int pshmem_pe_accessible (int pe) _WUR;
-    int pshmem_addr_accessible (void *addr, int pe) _WUR;
+    int pshmem_addr_accessible (const void *addr, int pe) _WUR;
 
     /*
      * symmetric memory management
