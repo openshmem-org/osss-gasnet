@@ -1711,7 +1711,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_set_lock (long *lock);
+     void shmem_set_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1731,7 +1731,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_set_lock (long *lock);
+    void shmem_set_lock (volatile long *lock);
 
     /**
      * @brief releases a distributed lock
@@ -1740,7 +1740,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_clear_lock (long *lock);
+     void shmem_clear_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1759,7 +1759,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_clear_lock (long *lock);
+    void shmem_clear_lock (volatile long *lock);
 
     /**
      * @brief tests a distributed lock
@@ -1768,7 +1768,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_test_lock (long *lock);
+     void shmem_test_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1789,7 +1789,7 @@ extern "C"
      * @return non-zero if lock acquired, 0 if not.
      *
      */
-    int shmem_test_lock (long *lock) _WUR;
+    int shmem_test_lock (volatile long *lock) _WUR;
 
     /*
      * --end--
