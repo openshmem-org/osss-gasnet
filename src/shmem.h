@@ -77,9 +77,19 @@
  */
 
 #ifdef __cplusplus
+
 # define SHMEM_RESTRICT
+
 #else
-# define SHMEM_RESTRICT restrict
+
+/* test for C99 */
+
+# if __STDC_VERSION__ >= 199901L
+#  define SHMEM_RESTRICT restrict
+# else
+#  define SHMEM_RESTRICT
+# endif
+
 #endif  /* __cplusplus */
 
 /*
