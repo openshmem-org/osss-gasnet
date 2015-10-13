@@ -49,12 +49,6 @@
 #include <shmem.h>
 
 #ifdef __cplusplus
-# define SHMEM_RESTRICT
-#else
-# define SHMEM_RESTRICT restrict
-#endif  /* __cplusplus */
-
-#ifdef __cplusplus
 extern "C"
 {
 #endif  /* __cplusplus */
