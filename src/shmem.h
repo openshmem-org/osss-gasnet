@@ -317,12 +317,12 @@ extern "C"
     /*
      * OpenSHMEM release
      */
-#define _SHMEM_MAJOR_VERSION 1
-#define _SHMEM_MINOR_VERSION 2
+#define SHMEM_MAJOR_VERSION 1
+#define SHMEM_MINOR_VERSION 2
 
-#define _SHMEM_MAX_NAME_LEN 64
+#define SHMEM_MAX_NAME_LEN 64
 
-#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
+#define SHMEM_VENDOR_STRING "UH Reference Implementation"
 
     /**
      * @brief determines the major.minor version numbers of this release.
@@ -331,7 +331,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_info_get_version (restrict int *major, restrict int *minor);
+     void shmem_info_get_version (int * restrict major, int * restrict minor);
      @endcode
      *
      * @subsection f Fortran
@@ -351,7 +351,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_info_get_version (restrict int *major, restrict int *minor);
+    void shmem_info_get_version (int * restrict major, int * restrict minor);
 
     /**
      * @brief determines a vandor-supplied name for this release.
@@ -785,34 +785,16 @@ extern "C"
 
     /* lower numbers match Fortran return values */
 
-#define _SHMEM_MALLOC_OK                   (0L)
-#define _SHMEM_MALLOC_BAD_SIZE             (-1L)
-#define _SHMEM_MALLOC_FAIL                 (-2L)
-#define _SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
-#define _SHMEM_MALLOC_ALREADY_FREE         (-4L)
-#define _SHMEM_MALLOC_NOT_ALIGNED          (-5L)
+#define SHMEM_MALLOC_OK                   (0L)
+#define SHMEM_MALLOC_BAD_SIZE             (-1L)
+#define SHMEM_MALLOC_FAIL                 (-2L)
+#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
+#define SHMEM_MALLOC_ALREADY_FREE         (-4L)
+#define SHMEM_MALLOC_NOT_ALIGNED          (-5L)
 
-#define _SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
-#define _SHMEM_MALLOC_REALLOC_FAILED       (-12L)
-#define _SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
-
-#if 0
-
-    /**
-     * old names not used any more in 1.2
-     */
-
-#define SHMEM_MALLOC_OK                   _SHMEM_MALLOC_OK
-#define SHMEM_MALLOC_BAD_SIZE             _SHMEM_MALLOC_BAD_SIZE
-#define SHMEM_MALLOC_FAIL                 _SHMEM_MALLOC_FAIL
-#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     _SHMEM_MALLOC_NOT_IN_SYMM_HEAP
-#define SHMEM_MALLOC_ALREADY_FREE         _SHMEM_MALLOC_ALREADY_FREE
-#define SHMEM_MALLOC_NOT_ALIGNED          _SHMEM_MALLOC_NOT_ALIGNED
-
-#define SHMEM_MALLOC_MEMALIGN_FAILED      _SHMEM_MALLOC_MEMALIGN_FAILED
-#define SHMEM_MALLOC_REALLOC_FAILED       _SHMEM_MALLOC_REALLOC_FAILED
-#define SHMEM_MALLOC_SYMMSIZE_FAILED      _SHMEM_MALLOC_SYMMSIZE_FAILED
-#endif
+#define SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
+#define SHMEM_MALLOC_REALLOC_FAILED       (-12L)
+#define SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
 
 #if 0
     long malloc_error;
@@ -955,20 +937,12 @@ extern "C"
 
     enum shmem_cmp_constants
         {
-            _SHMEM_CMP_EQ = 0,
-            _SHMEM_CMP_NE,
-            _SHMEM_CMP_GT,
-            _SHMEM_CMP_LE,
-            _SHMEM_CMP_LT,
-            _SHMEM_CMP_GE,
-#if 0
             SHMEM_CMP_EQ = 0,
             SHMEM_CMP_NE,
             SHMEM_CMP_GT,
             SHMEM_CMP_LE,
             SHMEM_CMP_LT,
             SHMEM_CMP_GE,
-#endif
         };
 
     /**
@@ -978,7 +952,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+     void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -993,17 +967,17 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /** see \ref shmem_long_wait_until () */
-    void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
+    void shmem_short_wait_until (volatile short *ivar, int cmp, short cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_int_wait_until (int *ivar, int cmp, int cmp_value);
+    void shmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_longlong_wait_until (long long *ivar, int cmp,
+    void shmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                     long long cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /**
      * @brief wait for symmetric variable to change value
@@ -1012,7 +986,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait (long *ivar, long cmp_value);
+     void shmem_long_wait (volatile long *ivar, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -1027,16 +1001,16 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait (long *ivar, long cmp_value);
+    void shmem_long_wait (volatile long *ivar, long cmp_value);
 
     /** see \ref shmem_long_wait () */
-    void shmem_short_wait (short *ivar, short cmp_value);
+    void shmem_short_wait (volatile short *ivar, short cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_int_wait (int *ivar, int cmp_value);
+    void shmem_int_wait (volatile int *ivar, int cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_longlong_wait (long long *ivar, long long cmp_value);
+    void shmem_longlong_wait (volatile long long *ivar, long long cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_wait (long *ivar, long cmp_value);
+    void shmem_wait (volatile long *ivar, long cmp_value);
 
     /*
      * atomic swaps
@@ -1412,26 +1386,15 @@ extern "C"
      */
 #define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-
-#if 0
-#define SHMEM_BCAST_SYNC_SIZE _SHMEM_BCAST_SYNC_SIZE
-#define SHMEM_BARRIER_SYNC_SIZE _SHMEM_BARRIER_SYNC_SIZE
-#define SHMEM_REDUCE_SYNC_SIZE _SHMEM_REDUCE_SYNC_SIZE
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE _SHMEM_REDUCE_MIN_WRKDATA_SIZE
-#endif
+#define SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
      */
-#define _SHMEM_SYNC_VALUE (-1L)
-
-#if 0
-#define SHMEM_SYNC_VALUE _SHMEM_SYNC_VALUE
-#endif
+#define SHMEM_SYNC_VALUE (-1L)
 
     void shmem_long_sum_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
@@ -1688,10 +1651,7 @@ extern "C"
      * collects
      */
 
-#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#if 0
-#define SHMEM_COLLECT_SYNC_SIZE _SHMEM_COLLECT_SYNC_SIZE
-#endif
+#define SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     void shmem_fcollect64 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,

@@ -101,8 +101,8 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
     lchild_ready = -1;
     rchild_ready = -1;
 
-    shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
-    shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+    shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, SHMEM_SYNC_VALUE);
+    shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, SHMEM_SYNC_VALUE);
 
     pSync[0] = 0;
     pSync[1] = 0;
@@ -120,7 +120,7 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
 
     if (PE_size > 1) {
         if (my_pe == PE_start) {
-            pSync[0] = _SHMEM_SYNC_VALUE;
+            pSync[0] = SHMEM_SYNC_VALUE;
 
             if (child_l != -1) {
                 shmem_long_get (&lchild_ready, (const long *) &pSync[0],
@@ -139,13 +139,13 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
                 no_children = 2;
             }
 
-            shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
+            shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
                                    (long) no_children);
-            pSync[1] = _SHMEM_SYNC_VALUE;
+            pSync[1] = SHMEM_SYNC_VALUE;
 
         }
         else {
-            shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
+            shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
 
             shmemi_trace (SHMEM_LOG_BARRIER, "inside else");
 
@@ -164,16 +164,16 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
                 shmem_long_put (&pSync[0], &is_ready, 1, child_r);
                 no_children = 2;
             }
-            pSync[0] = _SHMEM_SYNC_VALUE;
+            pSync[0] = SHMEM_SYNC_VALUE;
 
             if (no_children == 0) {
-                pSync[1] = _SHMEM_SYNC_VALUE;
+                pSync[1] = SHMEM_SYNC_VALUE;
                 shmem_long_inc (&pSync[1], parent);
             }
             else {
-                shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
+                shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
                                        (long) no_children);
-                pSync[1] = _SHMEM_SYNC_VALUE;
+                pSync[1] = SHMEM_SYNC_VALUE;
                 shmem_long_inc (&pSync[1], parent);
             }
 

@@ -71,29 +71,29 @@
 
 /**
  * wait_until with operator dispatchers, type-parameterized.
- * NB the _SHMEM_CMP values are identical to the SHMEM_CMP ones.
+ * NB the SHMEM_CMP values are identical to the SHMEM_CMP ones.
  */
 #define SHMEM_TYPE_WAIT_UNTIL(Name, Type)                               \
     void                                                                \
     shmem_##Name##_wait_until (volatile Type *ivar, int cmp, Type cmp_value) \
     {                                                                   \
         switch (cmp) {                                                  \
-        case _SHMEM_CMP_EQ:                                             \
+        case SHMEM_CMP_EQ:                                              \
             shmemi_comms_wait_##Name##_eq (ivar, cmp_value);            \
             break;                                                      \
-        case _SHMEM_CMP_NE:                                             \
+        case SHMEM_CMP_NE:                                              \
             shmemi_comms_wait_##Name##_ne (ivar, cmp_value);            \
             break;                                                      \
-        case _SHMEM_CMP_GT:                                             \
+        case SHMEM_CMP_GT:                                              \
             shmemi_comms_wait_##Name##_gt (ivar, cmp_value);            \
             break;                                                      \
-        case _SHMEM_CMP_LE:                                             \
+        case SHMEM_CMP_LE:                                              \
             shmemi_comms_wait_##Name##_le (ivar, cmp_value);            \
             break;                                                      \
-        case _SHMEM_CMP_LT:                                             \
+        case SHMEM_CMP_LT:                                              \
             shmemi_comms_wait_##Name##_lt (ivar, cmp_value);            \
             break;                                                      \
-        case _SHMEM_CMP_GE:                                             \
+        case SHMEM_CMP_GE:                                              \
             shmemi_comms_wait_##Name##_ge (ivar, cmp_value);            \
             break;                                                      \
         default:                                                        \
@@ -142,7 +142,7 @@ shmem_wait_until (volatile long *ivar, int cmp, long cmp_value)
     void                                                            \
     shmem_##Name##_wait(volatile Type *ivar, Type cmp_value)        \
     {                                                               \
-        shmem_##Name##_wait_until (ivar, _SHMEM_CMP_NE, cmp_value); \
+        shmem_##Name##_wait_until (ivar, SHMEM_CMP_NE, cmp_value);  \
     }
 
 SHMEM_TYPE_WAIT (short, short);

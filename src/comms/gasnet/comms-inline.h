@@ -733,13 +733,15 @@ shmemi_symmetric_memory_finalize (void)
  * to wait on remote updates
  */
 
+#if 0
 #define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
+#endif
 
-#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                     \
-    static inline void                                              \
-    shmemi_comms_wait_##Name##_##OpName (Type *var, Type cmp_value) \
-    {                                                               \
-        GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );  \
+#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                         \
+    static inline void                                                  \
+    shmemi_comms_wait_##Name##_##OpName (volatile Type *var, Type cmp_value) \
+    {                                                                   \
+        GASNET_BLOCKUNTIL ( (*(var)) Op cmp_value );                    \
     }
 
 COMMS_WAIT_TYPE (short, short, eq, ==);
@@ -1337,7 +1339,7 @@ AMO_INC_BAK_EMIT (longlong, long long);
  */
 #define AMO_INC_REQ_EMIT(Name, Type)                                    \
     static inline void                                                  \
-    shmemi_comms_inc_request_##Name (Type *target, int pe)                      \
+    shmemi_comms_inc_request_##Name (Type *target, int pe)              \
     {                                                                   \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
@@ -1463,7 +1465,7 @@ AMO_XOR_REQ_EMIT (longlong, long long);
  *
  */
 static inline int
-shmemi_comms_ping_request (int pe)
+shmemi_comms_ping_request (const int pe)
 {
     if ( (pe >= 0) && (pe < GET_STATE(numpes)) ) {
         return 1;
@@ -2181,7 +2183,7 @@ shmemi_comms_test_req (shmemx_request_handle_t desc, int *flag)
 static void
 handler_globalexit_out (gasnet_token_t token, void *buf, size_t bufsiz)
 {
-    int status = *(int *) buf;
+    const int status = *(int *) buf;
 
     shmemi_comms_fence_request ();
 

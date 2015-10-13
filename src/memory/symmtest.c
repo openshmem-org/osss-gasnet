@@ -61,7 +61,8 @@
 void
 shmemi_symmetric_test_with_abort (void *remote_addr,
                                   void *local_addr,
-                                  const char *name, const char *routine)
+                                  const char *name,
+                                  const char *routine)
 {
     if (EXPR_UNLIKELY (remote_addr == NULL)) {
         shmemi_trace (SHMEM_LOG_FATAL,

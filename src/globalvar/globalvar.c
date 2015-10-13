@@ -355,7 +355,7 @@ shmemi_symmetric_globalvar_table_finalize (void)
  * check to see if address is global
  */
 int
-shmemi_symmetric_is_globalvar (void *addr)
+shmemi_symmetric_is_globalvar (const void *addr)
 {
     const size_t a = (size_t) addr;
 
