@@ -618,7 +618,7 @@ case "$cc_type" in
 	fi
 	cc_cmd="clang"
 	fc_cmd="false"
-	cxx_cmd="false"
+	cxx_cmd="clang++"
 	ld_cmd="$cc_cmd"
 	;;
     "ibmxl")
