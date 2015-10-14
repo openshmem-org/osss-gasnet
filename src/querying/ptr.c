@@ -55,6 +55,8 @@
 #include "trace.h"
 #include "utils.h"
 
+#include "comms.h"
+
 #ifdef HAVE_FEATURE_PSHMEM
 #include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
@@ -71,14 +73,9 @@ shmem_ptr (const void *target, int pe)
     INIT_CHECK ();
     PE_RANGE_CHECK (pe, 2);
 
-#ifdef SHMEM_PUTGET_SHARED_MEMORY
-
-    shmemi_trace (SHMEM_LOG_NOTICE, "shmem_ptr() not implemented yet");
-    return (void *) NULL;
-
-#else /* ! SHMEM_PUTGET_SHARED_MEMORY */
-
-    return (void *) NULL;
-
-#endif /* SHMEM_PUTGET_SHARED_MEMORY */
+    if (shmemi_is_same_place (pe)) {
+        return shmemi_symmetric_addr_lookup (target, pe);
+    } else {
+        return NULL;
+    }
 }

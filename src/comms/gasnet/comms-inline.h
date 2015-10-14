@@ -2218,7 +2218,6 @@ shmemi_comms_globalexit_request (int status)
 
 /* end: global exit */
 
-
 /**
  * ---------------------------------------------------------------------------
  *
@@ -2403,11 +2402,49 @@ shmemi_comms_finalize (void)
 static inline void
 place_init (void)
 {
-    const int s = uname (&GET_STATE (loc));
-    if (EXPR_UNLIKELY (s != 0)) {
-        shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: can't find any node information");
+    const int n = GET_STATE (numpes);
+    gasnet_nodeinfo_t *gnip =
+        (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
+    int i;
+
+    if (gnip == NULL) {
+        ; /* urgh! */
     }
+
+    gasnet_getNodeInfo (gnip, n);
+
+    SET_STATE (locp, (int *) malloc (n * sizeof(int)));
+
+    for (i = 0; i < n; i += 1) {
+        SET_STATE (locp[i], gnip[i].host);
+    }
+#if 0
+    if (GET_STATE (mype) == 0) {
+        int i;
+
+        printf ("%12s", "PE");
+        for (i = 0; i < n; i += 1) {
+            printf ("%12d", i);
+        }
+        printf ("\n");
+        for (i = 0; i < 12 + n * 12; i += 1) {
+            printf ("=");
+        }
+        printf ("\n");
+
+        printf ("%12s", "Host");
+        for (i = 0; i < n; i += 1) {
+            printf ("%12u", gnip[i].host);
+        }
+        printf ("\n");
+
+        printf ("%12s", "Supernode");
+        for (i = 0; i < n; i += 1) {
+            printf ("%12u", gnip[i].supernode);
+        }
+        printf ("\n");
+    }
+#endif
 }
 
 /**
@@ -2727,3 +2764,16 @@ shmemi_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 }
 
 /* end: mcs-lock.c */
+
+/* locality query */
+
+static inline int
+shmemi_is_same_place (int pe)
+{
+    const int me = GET_STATE (mype);
+    const int *where = GET_STATE (locp);
+
+    return (where[me] == where[pe]);
+}
+
+/* end: locality query */

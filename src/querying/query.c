@@ -103,24 +103,3 @@ shmem_n_pes (void)
 {
     return numpes_helper ();
 }
-
-#if defined(HAVE_FEATURE_EXPERIMENTAL)
-
-/*
- *
- */
-
-#ifdef HAVE_FEATURE_PSHMEM
-extern char *shmem_nodename (void); /* ! API */
-#pragma weak shmem_nodename = pshmem_nodename
-#define shmem_nodename pshmem_nodename
-#endif /* HAVE_FEATURE_PSHMEM */
-
-char *
-shmem_nodename (void)
-{
-    INIT_CHECK ();
-    return GET_STATE (loc.nodename);
-}
-
-#endif /* HAVE_FEATURE_EXPERIMENTAL */
