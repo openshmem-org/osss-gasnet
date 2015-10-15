@@ -82,7 +82,9 @@
 
 #else
 
-/* test for C99 */
+/*
+ * test for C99
+ */
 
 # if __STDC_VERSION__ >= 199901L
 #  define SHMEM_RESTRICT restrict
@@ -104,8 +106,11 @@ extern "C"
      * not all compilers support this annotation
      *
      */
-#if defined(__GNUC__) || defined(__PGIC__)                              \
-    || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
+#if defined(__GNUC__)                                                   \
+    || defined(__PGIC__)                                                \
+    || defined(__INTEL_COMPILER)                                        \
+    || defined(__OPEN64__)                                              \
+    || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR
@@ -117,7 +122,7 @@ extern "C"
 #if defined(__INTEL_COMPILER) || defined(__clang__)
 
 # define _DEPRECATED_BY(...)                                    \
-    __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+    __attribute__((deprecated("use '" #__VA_ARGS__ "' instead")))
 # define _DEPRECATED                            \
     __attribute__((deprecated))
 
@@ -137,7 +142,7 @@ extern "C"
 
 # if (__GNUC__ >= 5) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
 #  define _DEPRECATED_BY(...)                                   \
-    __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+    __attribute__((deprecated("use '" #__VA_ARGS__ "' instead")))
 #else
 # define _DEPRECATED_BY(...)                    \
     _DEPRECATED

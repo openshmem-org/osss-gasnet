@@ -192,6 +192,8 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                     shmemi_trace (SHMEM_LOG_FATAL,                      \
                                   "internal error: out of memory allocating temporary reduction buffer" \
                                   );                                    \
+                    return;                                             \
+                    /* NOT REACHED */                                   \
                 }                                                       \
                 write_to = tmptrg;                                      \
                 shmemi_trace (SHMEM_LOG_REDUCTION,                      \

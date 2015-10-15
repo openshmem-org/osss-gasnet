@@ -68,6 +68,7 @@ shmemi_symmetric_test_with_abort (void *remote_addr,
         shmemi_trace (SHMEM_LOG_FATAL,
                       "shmem_%s_%s: address %p is not symmetric",
                       name, routine, local_addr);
+        return;
         /* NOT REACHED */
     }
 }

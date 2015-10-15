@@ -320,6 +320,7 @@ shmemi_symmetric_globalvar_table_init (void)
     if (table_init_helper () != 0) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: couldn't read global symbols in executable");
+        return;
         /* NOT REACHED */
     }
 

@@ -2396,55 +2396,48 @@ shmemi_comms_finalize (void)
 }
 
 /**
- * find the short & (potentially) long host/node name
+ * get some hopefully-interesting locality information.
  *
  */
 static inline void
 place_init (void)
 {
     const int n = GET_STATE (numpes);
-    gasnet_nodeinfo_t *gnip =
-        (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
+    gasnet_nodeinfo_t *gnip;
     int i;
 
+    gnip = (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
     if (gnip == NULL) {
-        ; /* urgh! */
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: cannot allocate memory for locality queries");
+        return;
+        /* NOT REACHED */
     }
 
-    gasnet_getNodeInfo (gnip, n);
+    GASNET_SAFE (gasnet_getNodeInfo (gnip, n));
 
     SET_STATE (locp, (int *) malloc (n * sizeof(int)));
+    if (GET_STATE (locp) == NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: cannot allocate memory for locality queries");
+        return;
+        /* NOT REACHED */
+    }
 
+    /*
+     * populate the neighborhood table - we just record the GASNet
+     * node to which each PE belongs (if different, we assume they
+     * can't share memory).
+     */
     for (i = 0; i < n; i += 1) {
         SET_STATE (locp[i], gnip[i].host);
     }
-#if 0
-    if (GET_STATE (mype) == 0) {
-        int i;
 
-        printf ("%12s", "PE");
-        for (i = 0; i < n; i += 1) {
-            printf ("%12d", i);
-        }
-        printf ("\n");
-        for (i = 0; i < 12 + n * 12; i += 1) {
-            printf ("=");
-        }
-        printf ("\n");
+    free (gnip);
 
-        printf ("%12s", "Host");
-        for (i = 0; i < n; i += 1) {
-            printf ("%12u", gnip[i].host);
-        }
-        printf ("\n");
-
-        printf ("%12s", "Supernode");
-        for (i = 0; i < n; i += 1) {
-            printf ("%12u", gnip[i].supernode);
-        }
-        printf ("\n");
-    }
-#endif
+    /*
+     * TODO: free up the neighborhood table on finalize
+     */
 }
 
 /**
@@ -2507,6 +2500,7 @@ shmemi_comms_init (void)
     if (EXPR_UNLIKELY (atexit (shmemi_comms_finalize) != 0)) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: cannot register OpenSHMEM finalize handler");
+        return;
         /* NOT REACHED */
     }
 

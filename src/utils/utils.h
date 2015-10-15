@@ -70,6 +70,7 @@
                                        "Library is not running, reason: %s", \
                                        shmemi_state_as_string (s)       \
                                        );                               \
+                         return;                                        \
                          /* NOT REACHED */                              \
                      }                                                  \
                                                                         )
@@ -90,6 +91,7 @@
                                    "PE %d in argument #%d not within allocated range %d .. %d", \
                                    pe, argpos, bot_pe, top_pe           \
                                    );                                   \
+                     return;                                            \
                      /* NOT REACHED */                                  \
                  }                                                      \
                                                                         )
@@ -111,6 +113,7 @@
                                        argpos,                          \
                                        addr                             \
                                        );                               \
+                         return;                                        \
                          /* NOT REACHED */                              \
                      }                                                  \
                                                                         )

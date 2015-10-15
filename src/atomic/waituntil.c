@@ -102,6 +102,8 @@
                           cmp,                                          \
                           #Name                                         \
                           );                                            \
+            return;                                                     \
+            /* NOT REACHED */                                           \
             break;                                                      \
         }                                                               \
     }
