@@ -147,6 +147,76 @@ comms_bailout (char *fmt, ...)
 
 /* end: bail.c */
 
+/* locality query */
+
+static bool thread_starter = false;
+
+static inline bool
+shmemi_thread_starter (void)
+{
+    const int me = GET_STATE (mype);
+    const int *where = GET_STATE (locp);
+
+    /* PE 0 always starts a thread */
+    if (me == 0) {
+        return true;
+    }
+
+    /* only start thread if I am first PE on a host */
+    if (where[me - 1] < where[me]) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * get some hopefully-interesting locality information.
+ *
+ */
+static inline void
+place_init (void)
+{
+    const int n = GET_STATE (numpes);
+    gasnet_nodeinfo_t *gnip;
+    int i;
+
+    gnip = (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
+    if (gnip == NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: cannot allocate memory for locality queries");
+        return;
+        /* NOT REACHED */
+    }
+
+    GASNET_SAFE (gasnet_getNodeInfo (gnip, n));
+
+    SET_STATE (locp, (int *) malloc (n * sizeof(int)));
+    if (GET_STATE (locp) == NULL) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: cannot allocate memory for locality queries");
+        return;
+        /* NOT REACHED */
+    }
+
+    /*
+     * populate the neighborhood table - we just record the GASNet
+     * node to which each PE belongs (if different, we assume they
+     * can't share memory).
+     */
+    for (i = 0; i < n; i += 1) {
+        SET_STATE (locp[i], gnip[i].host);
+    }
+
+    free (gnip);
+
+    /*
+     * TODO: free up the neighborhood table on finalize
+     */
+}
+
+/* end: locality query */
+
 /* service.c */
 
 /**
@@ -306,24 +376,27 @@ shmemi_service_init (void)
         delayspec.tv_sec = (time_t) 0;
         delayspec.tv_nsec = delay;
 
-#if defined(SHMEM_USE_PTHREADS)
-        const int s = pthread_create (&thr, NULL, start_service, (void *) 0);
-#elif defined(SHMEM_USE_QTHREADS)
-        qthread_initialize ();
+        thread_starter = shmemi_thread_starter ();
 
-        const int s = qthread_fork (start_service, (void *) 0, &thr_ret);
+        if (thread_starter) {
+#if defined(SHMEM_USE_PTHREADS)
+            const int s = pthread_create (&thr, NULL, start_service, (void *) 0);
+#elif defined(SHMEM_USE_QTHREADS)
+            qthread_initialize ();
+
+            const int s = qthread_fork (start_service, (void *) 0, &thr_ret);
 #endif
 
-        if (EXPR_UNLIKELY (s != 0)) {
-            comms_bailout
-                ("internal error: progress thread creation failed (%s)",
-                 strerror (s)
-                );
-            /* NOT REACHED */
+            if (EXPR_UNLIKELY (s != 0)) {
+                comms_bailout
+                    ("internal error: progress thread creation failed (%s)",
+                     strerror (s)
+                     );
+                /* NOT REACHED */
+            }
+            waitmode_init ();
         }
     }
-
-    waitmode_init ();
 }
 
 /**
@@ -336,22 +409,24 @@ shmemi_service_finalize (void)
     if (!use_conduit_thread) {
         done = true;
 
+        if (thread_starter) {
 #if defined(SHMEM_USE_PTHREADS)
-        const int s = pthread_join (thr, NULL);
+            const int s = pthread_join (thr, NULL);
 
-        if (EXPR_UNLIKELY (s != 0)) {
-            comms_bailout
-                ("internal error: progress thread termination failed (%s)",
-                 strerror (s)
-                );
-            /* NOT REACHED */
-        }
+            if (EXPR_UNLIKELY (s != 0)) {
+                comms_bailout
+                    ("internal error: progress thread termination failed (%s)",
+                     strerror (s)
+                     );
+                /* NOT REACHED */
+            }
 #elif defined(SHMEM_USE_QTHREADS)
-      /**
-       * not sure if need readFF() here
-       */
-        qthread_finalize ();
+            /**
+             * not sure if need readFF() here
+             */
+            qthread_finalize ();
 #endif
+        }
     }
 }
 
@@ -1339,7 +1414,7 @@ AMO_INC_BAK_EMIT (longlong, long long);
  */
 #define AMO_INC_REQ_EMIT(Name, Type)                                    \
     static inline void                                                  \
-    shmemi_comms_inc_request_##Name (Type *target, int pe)              \
+    shmemi_comms_inc_request_##Name (Type *target, int pe)                      \
     {                                                                   \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
@@ -1465,7 +1540,7 @@ AMO_XOR_REQ_EMIT (longlong, long long);
  *
  */
 static inline int
-shmemi_comms_ping_request (const int pe)
+shmemi_comms_ping_request (int pe)
 {
     if ( (pe >= 0) && (pe < GET_STATE(numpes)) ) {
         return 1;
@@ -2183,7 +2258,7 @@ shmemi_comms_test_req (shmemx_request_handle_t desc, int *flag)
 static void
 handler_globalexit_out (gasnet_token_t token, void *buf, size_t bufsiz)
 {
-    const int status = *(int *) buf;
+    int status = *(int *) buf;
 
     shmemi_comms_fence_request ();
 
@@ -2217,6 +2292,7 @@ shmemi_comms_globalexit_request (int status)
 }
 
 /* end: global exit */
+
 
 /**
  * ---------------------------------------------------------------------------
@@ -2384,132 +2460,6 @@ maximize_gasnet_timeout (void)
  */
 
 /**
- * finalize can now happen in 2 ways: (1) program finishes via
- * atexit(), or (2) user explicitly calls shmem_finalize().  Need to
- * detect explicit call and not terminate program until exit.
- *
- */
-static void
-shmemi_comms_finalize (void)
-{
-    shmemi_comms_exit (EXIT_SUCCESS);
-}
-
-/**
- * get some hopefully-interesting locality information.
- *
- */
-static inline void
-place_init (void)
-{
-    const int n = GET_STATE (numpes);
-    gasnet_nodeinfo_t *gnip;
-    int i;
-
-    gnip = (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
-    if (gnip == NULL) {
-        shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot allocate memory for locality queries");
-        return;
-        /* NOT REACHED */
-    }
-
-    GASNET_SAFE (gasnet_getNodeInfo (gnip, n));
-
-    SET_STATE (locp, (int *) malloc (n * sizeof(int)));
-    if (GET_STATE (locp) == NULL) {
-        shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot allocate memory for locality queries");
-        return;
-        /* NOT REACHED */
-    }
-
-    /*
-     * populate the neighborhood table - we just record the GASNet
-     * node to which each PE belongs (if different, we assume they
-     * can't share memory).
-     */
-    for (i = 0; i < n; i += 1) {
-        SET_STATE (locp[i], gnip[i].host);
-    }
-
-    free (gnip);
-
-    /*
-     * TODO: free up the neighborhood table on finalize
-     */
-}
-
-/**
- * This is where the communications layer gets set up and torn down
- */
-static inline void
-shmemi_comms_init (void)
-{
-    parse_cmdline ();
-
-    maximize_gasnet_timeout ();
-
-    GASNET_SAFE (gasnet_init (&argc, &argv));
-
-    /* now we can ask about the node count & heap */
-    SET_STATE (mype, shmemi_comms_mynode ());
-    SET_STATE (numpes, shmemi_comms_nodes ());
-    SET_STATE (heapsize, shmemi_comms_get_segment_size ());
-
-    /*
-     * not guarding the attach for different gasnet models,
-     * since last 2 params are ignored if not needed
-     */
-    GASNET_SAFE (gasnet_attach (handlers, nhandlers, GET_STATE (heapsize), 0));
-
-    /* fire up any needed progress management */
-    shmemi_service_init ();
-
-    /* enable messages */
-    shmemi_elapsed_clock_init ();
-    shmemi_tracers_init ();
-
-    /* who am I? */
-    shmemi_executable_init ();
-
-    /* find global symbols */
-    shmemi_symmetric_globalvar_table_init ();
-
-    /* handle the heap */
-    shmemi_symmetric_memory_init ();
-
-    /* which message/trace levels are active */
-    shmemi_maybe_tracers_show_info ();
-    shmemi_tracers_show ();
-
-    /* set up the atomic ops handling */
-    shmemi_atomic_init ();
-
-    /* initialize collective algs */
-    shmemi_barrier_dispatch_init ();
-    shmemi_barrier_all_dispatch_init ();
-    shmemi_broadcast_dispatch_init ();
-    shmemi_collect_dispatch_init ();
-    shmemi_fcollect_dispatch_init ();
-
-    /* set up any locality information */
-    place_init ();
-
-    /* register shutdown handler */
-    if (EXPR_UNLIKELY (atexit (shmemi_comms_finalize) != 0)) {
-        shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot register OpenSHMEM finalize handler");
-        return;
-        /* NOT REACHED */
-    }
-
-    SET_STATE (pe_status, PE_RUNNING);
-
-    /* Up and running! */
-}
-
-/**
  * bail out of run-time with STATUS error code
  */
 static inline void
@@ -2556,6 +2506,90 @@ shmemi_comms_exit (int status)
      */
 
     /* shmemi_comms_barrier_all (); */
+}
+
+/**
+ * finalize can now happen in 2 ways: (1) program finishes via
+ * atexit(), or (2) user explicitly calls shmem_finalize().  Need to
+ * detect explicit call and not terminate program until exit.
+ *
+ */
+static void
+shmemi_comms_finalize (void)
+{
+    shmemi_comms_exit (EXIT_SUCCESS);
+}
+
+/**
+ * This is where the communications layer gets set up and torn down
+ */
+static inline void
+shmemi_comms_init (void)
+{
+    /*
+     * prepare environment for GASNet
+     */
+    parse_cmdline ();
+    maximize_gasnet_timeout ();
+
+    GASNET_SAFE (gasnet_init (&argc, &argv));
+
+    /* now we can ask about the node count & heap */
+    SET_STATE (mype, shmemi_comms_mynode ());
+    SET_STATE (numpes, shmemi_comms_nodes ());
+    SET_STATE (heapsize, shmemi_comms_get_segment_size ());
+
+    /*
+     * not guarding the attach for different gasnet models,
+     * since last 2 params are ignored if not needed
+     */
+    GASNET_SAFE (gasnet_attach (handlers, nhandlers,
+                                GET_STATE (heapsize), 0)
+                 );
+
+    /* set up any locality information */
+    place_init ();
+
+    /* fire up any needed progress management */
+    shmemi_service_init ();
+
+    /* enable messages */
+    shmemi_elapsed_clock_init ();
+    shmemi_tracers_init ();
+
+    /* who am I? */
+    shmemi_executable_init ();
+
+    /* find global symbols */
+    shmemi_symmetric_globalvar_table_init ();
+
+    /* handle the heap */
+    shmemi_symmetric_memory_init ();
+
+    /* which message/trace levels are active */
+    shmemi_maybe_tracers_show_info ();
+    shmemi_tracers_show ();
+
+    /* set up the atomic ops handling */
+    shmemi_atomic_init ();
+
+    /* initialize collective algs */
+    shmemi_barrier_dispatch_init ();
+    shmemi_barrier_all_dispatch_init ();
+    shmemi_broadcast_dispatch_init ();
+    shmemi_collect_dispatch_init ();
+    shmemi_fcollect_dispatch_init ();
+
+    /* register shutdown handler */
+    if (EXPR_UNLIKELY (atexit (shmemi_comms_finalize) != 0)) {
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "internal error: cannot register OpenSHMEM finalize handler");
+        /* NOT REACHED */
+    }
+
+    SET_STATE (pe_status, PE_RUNNING);
+
+    /* Up and running! */
 }
 
 /* mcs-lock.c */
@@ -2758,16 +2792,3 @@ shmemi_comms_lock_test (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
 }
 
 /* end: mcs-lock.c */
-
-/* locality query */
-
-static inline int
-shmemi_is_same_place (int pe)
-{
-    const int me = GET_STATE (mype);
-    const int *where = GET_STATE (locp);
-
-    return (where[me] == where[pe]);
-}
-
-/* end: locality query */

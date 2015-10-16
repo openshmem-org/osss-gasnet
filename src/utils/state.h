@@ -85,19 +85,19 @@ typedef struct {
     char exe_name[MAXPATHLEN];  /* real name of executable */
     int exe_fd;                 /* file descriptor of executable */
 
-} state_t;
+} shmem_state_t;
 
 /*
  * the per-PE state
  */
 
-extern state_t __state;
+extern shmem_state_t shmemi_state;
 
 /*
  * set/get state variables
  */
 
-#define SET_STATE(var, val)   ( __state.var = val )
-#define GET_STATE(var)        ( __state.var )
+#define SET_STATE(var, val)   ( shmemi_state.var = val )
+#define GET_STATE(var)        ( shmemi_state.var )
 
 #endif /* _STATE_H */

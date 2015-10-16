@@ -83,5 +83,5 @@ shmem_addr_accessible (const void *addr, int pe)
 {
     INIT_CHECK ();
     PE_RANGE_CHECK (pe, 2);
-    return shmemi_symmetric_addr_accessible (addr, pe);
+    return shmemi_symmetric_addr_accessible ((void *) addr, pe);
 }
