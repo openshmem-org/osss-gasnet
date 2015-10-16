@@ -49,7 +49,7 @@
  * initialize the PE's state (this is all we need to initialize)
  */
 
-state_t __state = {
+shmem_state_t shmemi_state = {
     .pe_status = PE_UNINITIALIZED
 };
 

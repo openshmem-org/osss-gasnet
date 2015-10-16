@@ -128,7 +128,6 @@
                                        subrname,                        \
                                        argpos                           \
                                        );                               \
-                         return;                                        \
                          /* NOT REACHED */                              \
                      }                                                  \
                  if ((len) < 0)                                         \
@@ -138,7 +137,6 @@
                                        subrname,                        \
                                        argpos                           \
                                        );                               \
-                         return;                                        \
                          /* NOT REACHED */                              \
                      }                                                  \
                                                                         \
