@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (c) 2011 - 2015
 #   University of Houston System and UT-Battelle, LLC.
@@ -108,7 +108,7 @@ bail_unknown_compiler()
 
 deprecated()
 {
-    old="$1"
+    local old="$1"
     shift
     tell "Warning: option $old is deprecated, use $@ instead"
 }
@@ -247,9 +247,9 @@ upcase()
 # lower case things to remember them canonically
 setcanonical()
 {
-    var=$1
+    local var=$1
     shift
-    tmp="`downcase $*`"
+    local tmp="`downcase $*`"
     eval "$var=\"$tmp\""
 }
 
@@ -818,13 +818,13 @@ case "$comms_layer" in
     	    basil_gasnet "Can't find header file $gasnet_path_h"
         fi
 
-        # check GASNet version (AFAIK we're good with all of them, at least >= 1.14.2)
+        # check GASNet version
 
         find_ver_macro()
         {
-    	    var=$1
-    	    file=$2
-    	    cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+    	    local var=$1
+    	    local file=$2
+    	    local cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
     	    eval $cmd
         }
 
@@ -846,9 +846,7 @@ case "$comms_layer" in
 	gasnet_version_numeric()
 	{
 	    local v
-
 	    (( v=($1 << 16) | ($2 << 8) | $3 ))
-
 	    echo $v
 	}
 
@@ -1193,7 +1191,7 @@ _EOT_
 
 save_config()
 {
-    cmd="$1"
+    local cmd="$1"
     shift
     echo "$cmd=\"$@\""
     echo "export $cmd"
@@ -1260,12 +1258,12 @@ chmod +x $cs
 
 setfeature()
 {
-    pred="feature_$1"
+    local pred="feature_$1"
     eval 'predval=$'$pred
-    PRED="`upcase $1`"
-    var="HAVE_FEATURE_$PRED"
+    local PRED="`upcase $1`"
+    local var="HAVE_FEATURE_$PRED"
     shift
-    comment="$*"
+    local comment="$*"
 
     echo "/*"
     echo " * $comment"
