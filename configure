@@ -833,6 +833,7 @@ case "$comms_layer" in
         gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
         if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
     	then
+	    tell ""
     	    tell "  Couldn't discover full GASNet version in $gasnet_root"
     	    tell "    (should be major.minor.patch)"
     	    bailout
@@ -842,6 +843,31 @@ case "$comms_layer" in
 
         tell "  Found version $gasnet_ver"
 
+	gasnet_version_numeric()
+	{
+	    local v
+
+	    (( v=($1 << 16) | ($2 << 8) | $3 ))
+
+	    echo $v
+	}
+
+	# make sure gasnet new enough for node locality query
+	gasnet_maj_atleast=1
+	gasnet_min_atleast=18
+	gasnet_pch_atleast=0
+
+	minval=`gasnet_version_numeric $gasnet_maj_atleast $gasnet_min_atleast $gasnet_pch_atleast`
+	thisval=`gasnet_version_numeric $gasnet_ver_maj $gasnet_ver_min $gasnet_ver_pch`
+
+	if [ $thisval -lt $minval ]
+	then
+	    tell ""
+	    tell "  GASNet $gasnet_ver is too old"
+	    tell "    We require version $gasnet_maj_atleast.$gasnet_min_atleast.$gasnet_pch_atleast or newer"
+	    bailout
+	fi
+	
 	case "$gasnet_threnv" in
 	    par | parsync | seq )
 		;;
