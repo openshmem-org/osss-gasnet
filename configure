@@ -88,7 +88,7 @@ tell()
 {
     if [ "$show_progress" = "YES" ]
     then
-	echo "$progname: $*"
+        echo "$progname: $*"
     fi
 }
 
@@ -117,9 +117,9 @@ show_usage()
 {
     if [ $# -gt 0 ]
     then
-	tell ""
-	tell "unknown option \"$@\""
-	tell ""
+        tell ""
+        tell "unknown option \"$@\""
+        tell ""
     fi
     cat <<__EOT__
 Usage: $progname [options]
@@ -260,107 +260,107 @@ setcanonical()
 for o in $@
 do
     case $o in
-	--prefix=*)
-	    prefix="`chompit $o`"
-	    ;;
-	--with-bindir=*)
-	    bindir="`chompit $o`"
-	    ;;
-	--with-libdir=*)
-	    libdir="`chompit $o`"
-	    ;;
-	--with-includedir=*)
-	    incdir="`chompit $o`"
-	    ;;
+        --prefix=*)
+            prefix="`chompit $o`"
+            ;;
+        --with-bindir=*)
+            bindir="`chompit $o`"
+            ;;
+        --with-libdir=*)
+            libdir="`chompit $o`"
+            ;;
+        --with-includedir=*)
+            incdir="`chompit $o`"
+            ;;
         --with-modulefilesdir=*)
             modulefilesdir="`chompit $o`"
             ;;
-	--with-comms-layer=*)
-	    setcanonical comms_layer "`chompit $o`"
-	    ;;
-	--with-gasnet-root=*)
-	    gasnet_root="`chompit $o`"
-	    setcanonical comms_layer GASNet
-	    ;;
-	--with-gasnet-incdir=*)
-	    gasnet_incdir="`chompit $o`"
-	    setcanonical comms_layer GASNet
-	    ;;
-	--with-gasnet-bindir=*)
-	    gasnet_bindir="`chompit $o`"
-	    setcanonical comms_layer GASNet
-	    ;;
-	--with-gasnet-conduit=*)
-	    gasnet_conduit="`chompit $o`"
-	    setcanonical comms_layer GASNet
-	    ;;
-	--with-gasnet-threnv=*)
-	    gasnet_threnv="`chompit $o`"
-	    setcanonical comms_layer GASNet
-	    ;;
-	--with-compiler=*)
-	    ct="`chompit $o`"
-	    [ -z "$ct" ] && bail_unknown_compiler
+        --with-comms-layer=*)
+            setcanonical comms_layer "`chompit $o`"
+            ;;
+        --with-gasnet-root=*)
+            gasnet_root="`chompit $o`"
+            setcanonical comms_layer GASNet
+            ;;
+        --with-gasnet-incdir=*)
+            gasnet_incdir="`chompit $o`"
+            setcanonical comms_layer GASNet
+            ;;
+        --with-gasnet-bindir=*)
+            gasnet_bindir="`chompit $o`"
+            setcanonical comms_layer GASNet
+            ;;
+        --with-gasnet-conduit=*)
+            gasnet_conduit="`chompit $o`"
+            setcanonical comms_layer GASNet
+            ;;
+        --with-gasnet-threnv=*)
+            gasnet_threnv="`chompit $o`"
+            setcanonical comms_layer GASNet
+            ;;
+        --with-compiler=*)
+            ct="`chompit $o`"
+            [ -z "$ct" ] && bail_unknown_compiler
             setcanonical cc_type "$ct"
-	    ;;
-	--with-compiler)
-	    bail_unknown_compiler
-	    ;;
-	--with-libelf=*)
-	    exe_format=ELF
-	    exe_top_dir="`chompit $o`"
+            ;;
+        --with-compiler)
+            bail_unknown_compiler
+            ;;
+        --with-libelf=*)
+            exe_format=ELF
+            exe_top_dir="`chompit $o`"
             exe_incdir="$exe_top_dir/include"
             exe_libdir="$exe_top_dir/lib"
             exe_headers="-I$exe_incdir"
-	    # TODO: try to defer to per-compiler section
+            # TODO: try to defer to per-compiler section
             # exe_libs="-L$exe_libdir -Wl,-rpath,$exe_libdir"
             ;;
-	--with-libelf-headers=* | --with-libelf-incdir=*)
-	    exe_format=ELF
-	    exe_incdir="`chompit $o`"
+        --with-libelf-headers=* | --with-libelf-incdir=*)
+            exe_format=ELF
+            exe_incdir="`chompit $o`"
             exe_headers="-I$exe_incdir"
-	    ;;
-	--with-libelf-libs=* | --with-libelf-libdir=*)
-	    exe_format=ELF
-	    exe_libdir="`chompit $o`"
-	    # TODO: try to defer to per-compiler section
+            ;;
+        --with-libelf-libs=* | --with-libelf-libdir=*)
+            exe_format=ELF
+            exe_libdir="`chompit $o`"
+            # TODO: try to defer to per-compiler section
             # exe_libs="-L$exe_lib_dir -Wl,-rpath,$exe_lib_dir"
-	    ;;
-	--enable-debug)
-	    feature_debug=enabled
-	    ;;
-	--disable-debug)
-	    feature_debug=disabled
-	    ;;
-	--enable-trace)
-	    feature_trace=enabled
-	    ;;
-	--disable-trace)
-	    feature_trace=disabled
-	    ;;
-	--enable-pshmem)
-	    feature_pshmem=enabled
-	    ;;
-	--disable-pshmem)
-	    feature_pshmem=disabled
-	    ;;
-	--enable-experimental)
-	    feature_experimental=enabled
-	    ;;
-	--disable-experimental)
-	    feature_experimental=disabled
-	    ;;
-	--help)
-	    show_usage
-	    bailout
-	    ;;
-	--quiet)
-	    show_progress=NO
-	    ;;
-	*)
-	    show_usage $o
-	    bailout
-	    ;;
+            ;;
+        --enable-debug)
+            feature_debug=enabled
+            ;;
+        --disable-debug)
+            feature_debug=disabled
+            ;;
+        --enable-trace)
+            feature_trace=enabled
+            ;;
+        --disable-trace)
+            feature_trace=disabled
+            ;;
+        --enable-pshmem)
+            feature_pshmem=enabled
+            ;;
+        --disable-pshmem)
+            feature_pshmem=disabled
+            ;;
+        --enable-experimental)
+            feature_experimental=enabled
+            ;;
+        --disable-experimental)
+            feature_experimental=disabled
+            ;;
+        --help)
+            show_usage
+            bailout
+            ;;
+        --quiet)
+            show_progress=NO
+            ;;
+        *)
+            show_usage $o
+            bailout
+            ;;
     esac
 done
 
@@ -371,8 +371,8 @@ if [ "$feature_debug" = "enabled" ]
 then
     if [ "$feature_trace" = "disabled" ]
     then
-	tell "Debug requires tracing, enabling..."
-	feature_trace=enabled
+        tell "Debug requires tracing, enabling..."
+        feature_trace=enabled
     fi
 fi
 
@@ -403,35 +403,35 @@ exe_format=ELF
 
 case "$exe_format" in
     ELF)
-	gelf_h="$exe_incdir/gelf.h"
-	if [ ! -r "$gelf_h" ]
-	then
-	    tell "  Can't find header <gelf.h> for $exe_format executable support"
-	    tell "    in $exe_incdir"
-	    bailout
-	fi
-	elf_lib_so="$exe_libdir/libelf.so"
-	if [ -r "$elf_lib_so" ]
-	then
-	    found_libexe="shared"
-	else
-	    elf_lib_a="$exe_libdir/libelf.a"
-	    if [ -r "$elf_lib_a" ]
-	    then
-		found_libexe="static"
-	    else
-		tell "  Can't find library -lelf for $exe_format executable support"
-		tell "    in $exe_libdir"
-		bailout
-	    fi
-	fi
-	tell "  Found $exe_format support"
-	;;
+        gelf_h="$exe_incdir/gelf.h"
+        if [ ! -r "$gelf_h" ]
+        then
+            tell "  Can't find header <gelf.h> for $exe_format executable support"
+            tell "    in $exe_incdir"
+            bailout
+        fi
+        elf_lib_so="$exe_libdir/libelf.so"
+        if [ -r "$elf_lib_so" ]
+        then
+            found_libexe="shared"
+        else
+            elf_lib_a="$exe_libdir/libelf.a"
+            if [ -r "$elf_lib_a" ]
+            then
+                found_libexe="static"
+            else
+                tell "  Can't find library -lelf for $exe_format executable support"
+                tell "    in $exe_libdir"
+                bailout
+            fi
+        fi
+        tell "  Found $exe_format support"
+        ;;
     *)
-	tell "  I don't know executable format \"$exe_format\""
-	tell "    I should not be here; please report this"
-	bailout
-	;;
+        tell "  I don't know executable format \"$exe_format\""
+        tell "    I should not be here; please report this"
+        bailout
+        ;;
 esac
 
 exe_headers="-I$exe_incdir"
@@ -459,45 +459,45 @@ then
     which $cc_cmd >/dev/null 2>&1
     if [ $? -ne 0 ]
     then
-	tell "  I couldn't find the C compiler \"$cc_cmd\""
-	bailout
+        tell "  I couldn't find the C compiler \"$cc_cmd\""
+        bailout
     fi
 
     # try to work out the compiler family by querying the C command
     cc_ver="`$cc_cmd -V 2>&1`"
     if [ $? -ne 0 ]
     then
-	cc_ver="`$cc_cmd --version 2>&1`"
+        cc_ver="`$cc_cmd --version 2>&1`"
     fi
 
     case "$cc_ver" in
-	*"Free Software Foundation"*)
-	    cc_type="gnu"
-	    ;;
-	*"Intel Corporation"*)
-	    cc_type="intel"
-	    ;;
-	*"The Portland Group"*)
-	    cc_type="pgi"
-	    ;;
-	*"Sun C"*)
-	    cc_type="oracle"
-	    ;;
-	*OpenUH*)
-	    cc_type="openuh"
-	    ;;
-	*Open64*)
-	    cc_type="open64"
-	    ;;
-	*clang*)
-	    cc_type="clang"
-	    ;;
-	*"IBM XL C/C++"*)
-	    cc_type="ibmxl"
-	    ;;
-	*)
-	    cc_type="UNKNOWN"
-	    ;;
+        *"Free Software Foundation"*)
+            cc_type="gnu"
+            ;;
+        *"Intel Corporation"*)
+            cc_type="intel"
+            ;;
+        *"The Portland Group"*)
+            cc_type="pgi"
+            ;;
+        *"Sun C"*)
+            cc_type="oracle"
+            ;;
+        *OpenUH*)
+            cc_type="openuh"
+            ;;
+        *Open64*)
+            cc_type="open64"
+            ;;
+        *clang*)
+            cc_type="clang"
+            ;;
+        *"IBM XL C/C++"*)
+            cc_type="ibmxl"
+            ;;
+        *)
+            cc_type="UNKNOWN"
+            ;;
     esac
 else
     told_compiler=1
@@ -510,151 +510,151 @@ fi
 
 case "$cc_type" in
     "gnu")
-	c99_flags="-std=c99"
-	warn_flags="-Wall"
-	# pic_flags="-fPIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="gcc"
-	fc_cmd="gfortran"
-	cxx_cmd="g++"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-std=c99"
+        warn_flags="-Wall"
+        # pic_flags="-fPIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="gcc"
+        fc_cmd="gfortran"
+        cxx_cmd="g++"
+        ld_cmd="$cc_cmd"
+        ;;
     "intel")
-	c99_flags="-std=c99"
-	warn_flags=""     # enabled by default
-	# pic_flags="-fPIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="icc"
-	fc_cmd="ifort"
-	cxx_cmd="icpc"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-std=c99"
+        warn_flags=""     # enabled by default
+        # pic_flags="-fPIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="icc"
+        fc_cmd="ifort"
+        cxx_cmd="icpc"
+        ld_cmd="$cc_cmd"
+        ;;
     "pgi")
-	c99_flags="-c99"
-	warn_flags=""     # enabled by default
-	# pic_flags="-fPIC"
-	thread_flags=""
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="pgcc"
-	fc_cmd="pgfortran"
-	cxx_cmd="pgCC"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-c99"
+        warn_flags=""     # enabled by default
+        # pic_flags="-fPIC"
+        thread_flags=""
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="pgcc"
+        fc_cmd="pgfortran"
+        cxx_cmd="pgCC"
+        ld_cmd="$cc_cmd"
+        ;;
     "oracle")
-	c99_flags="-xc99"
-	warn_flags=""     # enabled by default
-	# pic_flags="-PIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="suncc"
-	fc_cmd="sunf90"
-	cxx_cmd="sunCC"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-xc99"
+        warn_flags=""     # enabled by default
+        # pic_flags="-PIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="suncc"
+        fc_cmd="sunf90"
+        cxx_cmd="sunCC"
+        ld_cmd="$cc_cmd"
+        ;;
     "openuh")
-	c99_flags="-std=c99"
-	warn_flags="-Wall"
-	# pic_flags="-fPIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="uhcc"
-	fc_cmd="uhf90"
-	cxx_cmd="uhCC"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-std=c99"
+        warn_flags="-Wall"
+        # pic_flags="-fPIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="uhcc"
+        fc_cmd="uhf90"
+        cxx_cmd="uhCC"
+        ld_cmd="$cc_cmd"
+        ;;
     "open64")
-	c99_flags="-std=c99"
-	warn_flags="-Wall"
-	# pic_flags="-fPIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="opencc"
-	fc_cmd="openf90"
-	cxx_cmd="openCC"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-std=c99"
+        warn_flags="-Wall"
+        # pic_flags="-fPIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="opencc"
+        fc_cmd="openf90"
+        cxx_cmd="openCC"
+        ld_cmd="$cc_cmd"
+        ;;
     "clang")
-	c99_flags="-std=c99"
-	warn_flags="-Wall"
-	# pic_flags="-fPIC"
-	thread_flags="-pthread"
-	so_flags="-shared"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	cc_cmd="clang"
-	fc_cmd="false"
-	cxx_cmd="clang++"
-	ld_cmd="$cc_cmd"
-	;;
+        c99_flags="-std=c99"
+        warn_flags="-Wall"
+        # pic_flags="-fPIC"
+        thread_flags="-pthread"
+        so_flags="-shared"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        cc_cmd="clang"
+        fc_cmd="false"
+        cxx_cmd="clang++"
+        ld_cmd="$cc_cmd"
+        ;;
     "ibmxl")
-	c99_flags="-qlanglvl=stdc99"
-	warn_flags=""
-	# pic_flags="-qpic"
-	thread_flags="-qthreaded"
-	exe_libs="-L$exe_libdir"
-	if  [ "$found_libexe" = "shared" ]
-	then
-	    exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-	fi
-	so_flags="-G"
-	cc_cmd="xlc"
-	fc_cmd="xlf"
-	cxx_cmd="xlc++"
+        c99_flags="-qlanglvl=stdc99"
+        warn_flags=""
+        # pic_flags="-qpic"
+        thread_flags="-qthreaded"
+        exe_libs="-L$exe_libdir"
+        if  [ "$found_libexe" = "shared" ]
+        then
+            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
+        fi
+        so_flags="-G"
+        cc_cmd="xlc"
+        fc_cmd="xlf"
+        cxx_cmd="xlc++"
         # TODO: not sure if DCMF works with 64-bit
-	# c_flags="$c_flags -q64"
-	# fc_flags="$fc_flags -q64"
-	# cxx_flags="$cxx_flags -q64"
-	# ld_flags="$ld_flags -q64"
-	;;
+        # c_flags="$c_flags -q64"
+        # fc_flags="$fc_flags -q64"
+        # cxx_flags="$cxx_flags -q64"
+        # ld_flags="$ld_flags -q64"
+        ;;
     *)
-	tell "  Unknown compiler suite \"$cc_type\""
-	bailout
-#	c99_flags=""
-#	warn_flags=""
-#	pic_flags=""
-#	thread_flags=""
-#	so_flags=""
-#	exe_headers=""
-#	exe_libs=""
-#	fc_cmd="false"
-#	cxx_cmd="false"
-#	ld_cmd="false"		# what else to do?
-	;;
+        tell "  Unknown compiler suite \"$cc_type\""
+        bailout
+#        c99_flags=""
+#        warn_flags=""
+#        pic_flags=""
+#        thread_flags=""
+#        so_flags=""
+#        exe_headers=""
+#        exe_libs=""
+#        fc_cmd="false"
+#        cxx_cmd="false"
+#        ld_cmd="false"                # what else to do?
+        ;;
 esac
 
 # -- allow user to override from environment --
@@ -779,102 +779,102 @@ bail_gasnet()
 case "$comms_layer" in
     gasnet)
 
-	if [ -z "$gasnet_bindir" ]
-	then
-	    if [ -z "$gasnet_root" ]
-	    then
-		bail_gasnet "No GASNet installation found"
-	    fi
-	    gasnet_bindir="$gasnet_root/bin"
-	fi
+        if [ -z "$gasnet_bindir" ]
+        then
+            if [ -z "$gasnet_root" ]
+            then
+                bail_gasnet "No GASNet installation found"
+            fi
+            gasnet_bindir="$gasnet_root/bin"
+        fi
 
         if [ ! -d "$gasnet_bindir" ]
-    	then
-    	    bail_gasnet "No directory $gasnet_bindir found"
+            then
+                bail_gasnet "No directory $gasnet_bindir found"
         fi
 
-	if [ -z "$gasnet_incdir" ]
-	then
-	    if [ -z "$gasnet_root" ]
-	    then
-		bail_gasnet "No GASNet installation found"
-	    fi
-	    gasnet_incdir="$gasnet_root/include"
-	fi
+        if [ -z "$gasnet_incdir" ]
+        then
+            if [ -z "$gasnet_root" ]
+            then
+                bail_gasnet "No GASNet installation found"
+            fi
+            gasnet_incdir="$gasnet_root/include"
+        fi
 
         if [ ! -d "$gasnet_incdir" ]
-    	then
-    	    bail_gasnet "No directory $gasnet_incdir found"
+            then
+                bail_gasnet "No directory $gasnet_incdir found"
         fi
 
-	tell "  Checking for GASNet configuration under"
-	tell "    $gasnet_incdir"
+        tell "  Checking for GASNet configuration under"
+        tell "    $gasnet_incdir"
 
         gasnet_h="gasnet_config.h"
         gasnet_path_h="$gasnet_incdir/$gasnet_h"
 
         if [ ! -r "$gasnet_path_h" ]
-    	then
-    	    basil_gasnet "Can't find header file $gasnet_path_h"
+            then
+                basil_gasnet "Can't find header file $gasnet_path_h"
         fi
 
         # check GASNet version
 
         find_ver_macro()
         {
-    	    local var=$1
-    	    local file=$2
-    	    local cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
-    	    eval $cmd
+                local var=$1
+                local file=$2
+                local cmd="awk '/GASNET_RELEASE_VERSION_$var/ {print \$3}' $file"
+                eval $cmd
         }
 
         gasnet_ver_maj="`find_ver_macro MAJOR $gasnet_path_h`"
         gasnet_ver_min="`find_ver_macro MINOR $gasnet_path_h`"
         gasnet_ver_pch="`find_ver_macro PATCH $gasnet_path_h`"
         if [ -z "$gasnet_ver_maj" -o -z $"gasnet_ver_min" -o -z "$gasnet_ver_pch" ]
-    	then
-	    tell ""
-    	    tell "  Couldn't discover full GASNet version in $gasnet_root"
-    	    tell "    (should be major.minor.patch)"
-    	    bailout
+            then
+            tell ""
+                tell "  Couldn't discover full GASNet version in $gasnet_root"
+                tell "    (should be major.minor.patch)"
+                bailout
         fi
 
         gasnet_ver="$gasnet_ver_maj.$gasnet_ver_min.$gasnet_ver_pch"
 
         tell "  Found version $gasnet_ver"
 
-	gasnet_version_numeric()
-	{
-	    local v
-	    (( v=($1 << 16) | ($2 << 8) | $3 ))
-	    echo $v
-	}
+        gasnet_version_numeric()
+        {
+            local v
+            (( v=($1 << 16) | ($2 << 8) | $3 ))
+            echo $v
+        }
 
-	# make sure gasnet new enough for node locality query
-	gasnet_maj_atleast=1
-	gasnet_min_atleast=18
-	gasnet_pch_atleast=0
+        # make sure gasnet new enough for node locality query
+        gasnet_maj_atleast=1
+        gasnet_min_atleast=18
+        gasnet_pch_atleast=0
 
-	minval=`gasnet_version_numeric $gasnet_maj_atleast $gasnet_min_atleast $gasnet_pch_atleast`
-	thisval=`gasnet_version_numeric $gasnet_ver_maj $gasnet_ver_min $gasnet_ver_pch`
+        minval=`gasnet_version_numeric $gasnet_maj_atleast $gasnet_min_atleast $gasnet_pch_atleast`
+        thisval=`gasnet_version_numeric $gasnet_ver_maj $gasnet_ver_min $gasnet_ver_pch`
 
-	if [ $thisval -lt $minval ]
-	then
-	    tell ""
-	    tell "  GASNet $gasnet_ver is too old"
-	    tell "    We require version $gasnet_maj_atleast.$gasnet_min_atleast.$gasnet_pch_atleast or newer"
-	    bailout
-	fi
-	
-	case "$gasnet_threnv" in
-	    par | parsync | seq )
-		;;
-	    *)
-		tell "  Unknown GASNet threading environment \"$gasnet_threnv\""
-		tell "    Must be one of par (default), parsync, seq"
-		bailout
-		;;
-	esac
+        if [ $thisval -lt $minval ]
+        then
+            tell ""
+            tell "  GASNet $gasnet_ver is too old"
+            tell "    We require version $gasnet_maj_atleast.$gasnet_min_atleast.$gasnet_pch_atleast or newer"
+            bailout
+        fi
+        
+        case "$gasnet_threnv" in
+            par | parsync | seq )
+                ;;
+            *)
+                tell "  Unknown GASNet threading environment \"$gasnet_threnv\""
+                tell "    Must be one of par (default), parsync, seq"
+                bailout
+                ;;
+        esac
 
         tell "  Use threading environment \"$gasnet_threnv\""
 
@@ -891,7 +891,7 @@ case "$comms_layer" in
             bail_gasnet "no conduits found"
         fi
 
-	tell "  Found conduits: $KNOWN_CONDUITS"
+        tell "  Found conduits: $KNOWN_CONDUITS"
 
         cdt_auto=""
 
@@ -910,11 +910,11 @@ case "$comms_layer" in
                 bailout
             fi
 
-	    if [ $kc -eq 1 ]
+            if [ $kc -eq 1 ]
             then
                 # only one there, just use it
                 gasnet_conduit="$KNOWN_CONDUITS"
-        	cdt_auto="(auto-detected)"
+                cdt_auto="(auto-detected)"
                 tell ""
                 tell "  Only conduit \"$gasnet_conduit\" is configured, selecting it."
                 tell ""
@@ -939,11 +939,11 @@ case "$comms_layer" in
         fi
 
         tell "  Chosen conduit \"$gasnet_conduit\" looks OK"
-	;;  #  end of gasnet section
+        ;;  #  end of gasnet section
     *)
-	tell "  I don't know what to do with communications layer \"$comms_layer\""
-	bailout
-	;;
+        tell "  I don't know what to do with communications layer \"$comms_layer\""
+        bailout
+        ;;
 esac
 
 tell "Looking for communication layer ... done"
@@ -977,21 +977,21 @@ then
 
     for d in $build_me_dirs $top_levels
     do
-	find $srctreedir/$d \! -type d -print |
-	while read f
-	do
+        find $srctreedir/$d \! -type d -print |
+        while read f
+        do
             # tell "Found source file $f"
-	    treepart="`dirname -- $f`"
-	    treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
-	    [ -z "$treepart" ] && treepart="."
-	    mkdir -p $treepart
-	    (
-		cd $treepart
-		thispart="`basename -- $f`"
-		rm -f $thispart
-		ln -s $f
-	    )
-	done
+            treepart="`dirname -- $f`"
+            treepart="`echo $treepart | sed -e "s%^$srctreedir/%%"`"
+            [ -z "$treepart" ] && treepart="."
+            mkdir -p $treepart
+            (
+                cd $treepart
+                thispart="`basename -- $f`"
+                rm -f $thispart
+                ln -s $f
+            )
+        done
     done
 
     tell "Populating build directory tree ... done"
@@ -1007,7 +1007,7 @@ tell "Making build files from templates ... "
 
 (
     find $build_me_dirs \( -name 'Makefile.in' -o \
-	-name 'openshmem-template.pc.in' \) -print
+        -name 'openshmem-template.pc.in' \) -print
     echo $top_levels | tr '[:space:]' '\n'
 ) |
 while read mfin
@@ -1085,18 +1085,18 @@ tell ""
 tell "Communications Layer:"
 case "$comms_layer" in
     gasnet)
-	tell "  GASNet:"
-	tell "    Version                     $gasnet_ver"
-	tell "    Includes in                 $gasnet_incdir"
-	tell "    Launchers in                $gasnet_bindir"
-	tell "    Using conduit               $gasnet_conduit $cdt_auto"
-	tell "    Threading environment       $gasnet_threnv"
-	;;
+        tell "  GASNet:"
+        tell "    Version                     $gasnet_ver"
+        tell "    Includes in                 $gasnet_incdir"
+        tell "    Launchers in                $gasnet_bindir"
+        tell "    Using conduit               $gasnet_conduit $cdt_auto"
+        tell "    Threading environment       $gasnet_threnv"
+        ;;
     *)
-	tell "I do not recognize communications layer \"$comms_layer\"."
-	tell "  I should not be here; please report this error"
-	bailout
-	;;
+        tell "I do not recognize communications layer \"$comms_layer\"."
+        tell "  I should not be here; please report this error"
+        bailout
+        ;;
 esac
 
 tell ""
@@ -1270,9 +1270,9 @@ setfeature()
     echo " */"
     if [ "$predval" = "enabled" ]
     then
-	echo "#define $var 1"
+        echo "#define $var 1"
     else
-	echo "#undef $var"
+        echo "#undef $var"
     fi
     echo ""
 }
@@ -1325,23 +1325,23 @@ setfeature()
     echo " */"
     echo         "#define OPENSHMEM_COMMS_LAYER      \"$comms_layer\""
     case "$comms_layer" in
-	gasnet)
-	    echo "#define OPENSHMEM_HAVE_GASNET      1"
-	    if [ "$gasnet_root" ]
-	    then
-		echo "#define OPENSHMEM_GASNET_ROOT      \"$gasnet_root\""
-	    fi
-	    echo "#define OPENSHMEM_GASNET_INCDIR    \"$gasnet_incdir\""
-	    echo "#define OPENSHMEM_GASNET_BINDIR    \"$gasnet_bindir\""
-	    echo "#define OPENSHMEM_GASNET_VERSION   \"$gasnet_ver\""
-	    echo "#define OPENSHMEM_GASNET_CONDUIT   \"$gasnet_conduit\""
-	    echo "#define OPENSHMEM_GASNET_THRENV    \"$gasnet_threnv\""
-	    ;;
-	*)
-	    tell "I do not recognize communications layer \"$comms_layer\"."
-	    tell "  I should not be here; please report this error"
-	    bailout
-	    ;;
+        gasnet)
+            echo "#define OPENSHMEM_HAVE_GASNET      1"
+            if [ "$gasnet_root" ]
+            then
+                echo "#define OPENSHMEM_GASNET_ROOT      \"$gasnet_root\""
+            fi
+            echo "#define OPENSHMEM_GASNET_INCDIR    \"$gasnet_incdir\""
+            echo "#define OPENSHMEM_GASNET_BINDIR    \"$gasnet_bindir\""
+            echo "#define OPENSHMEM_GASNET_VERSION   \"$gasnet_ver\""
+            echo "#define OPENSHMEM_GASNET_CONDUIT   \"$gasnet_conduit\""
+            echo "#define OPENSHMEM_GASNET_THRENV    \"$gasnet_threnv\""
+            ;;
+        *)
+            tell "I do not recognize communications layer \"$comms_layer\"."
+            tell "  I should not be here; please report this error"
+            bailout
+            ;;
     esac
     echo
 
