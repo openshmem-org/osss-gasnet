@@ -93,7 +93,7 @@
 #   define SHMEM_RESTRICT
 #  endif
 # else
-#  error "This code requires C99 support"
+#  define SHMEM_RESTRICT
 # endif /* c99 check */
 
 #endif  /* __cplusplus */
