@@ -376,7 +376,16 @@ shmemi_service_init (void)
         delayspec.tv_sec = (time_t) 0;
         delayspec.tv_nsec = delay;
 
-        thread_starter = shmemi_thread_starter ();
+        /*
+         * TODO: this choose-representative-PE logic doesn't seem to
+         * function correctly: some known-to-work programs hang, so
+         * just blast this to true for now to make all PEs run the
+         * progress thread
+         *
+         * thread_starter = shmemi_thread_starter ();
+         *
+         */
+        thread_starter = true;
 
         if (thread_starter) {
 #if defined(SHMEM_USE_PTHREADS)
@@ -808,13 +817,15 @@ shmemi_symmetric_memory_finalize (void)
  * to wait on remote updates
  */
 
+#if 0
 #define VOLATILIZE(Type, Var) (* ( volatile Type *) (Var))
+#endif
 
-#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                     \
-    static inline void                                              \
-    shmemi_comms_wait_##Name##_##OpName (Type *var, Type cmp_value) \
-    {                                                               \
-        GASNET_BLOCKUNTIL ( VOLATILIZE (Type, var) Op cmp_value );  \
+#define COMMS_WAIT_TYPE(Name, Type, OpName, Op)                         \
+    static inline void                                                  \
+    shmemi_comms_wait_##Name##_##OpName (volatile Type *var, Type cmp_value) \
+    {                                                                   \
+        GASNET_BLOCKUNTIL ( (*(var)) Op cmp_value );                    \
     }
 
 COMMS_WAIT_TYPE (short, short, eq, ==);

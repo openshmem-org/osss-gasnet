@@ -525,14 +525,14 @@ FORTRANIFY_WAIT_UNTIL (int8, long);
 FORTRANIFY_WAIT (int4, int);
 FORTRANIFY_WAIT (int8, long);
 
-void FORTRANIFY (shmem_wait_until) (long *ivar, int *cmp, long *cmp_value)
+void FORTRANIFY (shmem_wait_until) (int *ivar, int *cmp, int *cmp_value)
 {
-    shmem_long_wait_until (ivar, *cmp, *cmp_value);
+    shmem_int4_wait_until (ivar, *cmp, *cmp_value);
 }
 
-void FORTRANIFY (shmem_wait) (long *ivar, long *cmp_value)
+void FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
 {
-    shmem_long_wait (ivar, *cmp_value);
+    shmem_int4_wait (ivar, *cmp_value);
 }
 
 /*

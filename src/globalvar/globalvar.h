@@ -49,7 +49,7 @@
  * memory classification and accessibility
  */
 
-extern int shmemi_symmetric_is_globalvar (void *addr);
+extern int shmemi_symmetric_is_globalvar (const void *addr);
 
 extern void shmemi_symmetric_globalvar_table_init (void);
 extern void shmemi_symmetric_globalvar_table_finalize (void);

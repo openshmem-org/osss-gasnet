@@ -1,0 +1,27 @@
+# Emacs: -*- mode: text; mode: auto-fill; -*-
+
+Updates in Release 1.3:
+========================
+
+Configure
+---------
+
+    * Run configure with "--help" to see all options/flags.
+
+Code
+----
+
+    * Improved atomics
+
+    * Reworked progress thread setup
+        * Requires GASNet 1.18.0 upward for locality routine
+
+Specification
+-------------
+
+    * Specification 1.3 adds the "restrict" keyword to the C API, so C
+      compilers need to understand C99 to handle OpenSHMEM 1.3 source
+      code
+
+    * Constants in the C/C++ API now have *no* leading underscore,
+      must be macros, and they match the Fortran names.

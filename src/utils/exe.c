@@ -99,6 +99,7 @@ shmemi_executable_init (void)
         shmemi_trace (SHMEM_LOG_FATAL,
                       "can't open \"%s\" (%s)",
                       GET_STATE (exe_name), strerror (errno));
+        return;
         /* NOT REACHED */
     }
 

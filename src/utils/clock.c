@@ -73,6 +73,7 @@ read_clock (void)
                       "internal error: can't read system clock (%s)",
                       strerror (errno)
             );
+        return 0.0;
         /* NOT REACHED */
     }
 

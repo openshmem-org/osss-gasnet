@@ -72,6 +72,35 @@
 # define COMPLEXIFY(T) T complex
 #endif  /* __cplusplus */
 
+/*
+ * C knows about restricted pointers, but C++ doesn't
+ */
+
+#ifdef __cplusplus
+
+# define SHMEM_RESTRICT
+
+#else
+
+/*
+ * test for C99
+ */
+
+# ifdef __STDC_VERSION__
+#  if __STDC_VERSION__ >= 199901L
+#   define SHMEM_RESTRICT restrict
+#  else
+#   define SHMEM_RESTRICT
+#  endif
+# else
+#  define SHMEM_RESTRICT
+# endif /* c99 check */
+
+#endif  /* __cplusplus */
+
+/*
+ * no symbol-mangling (closing brace near EOF)
+ */
 #ifdef __cplusplus
 extern "C"
 {
@@ -81,8 +110,11 @@ extern "C"
      * not all compilers support this annotation
      *
      */
-#if defined(__GNUC__) || defined(__PGIC__)                              \
-    || defined(__INTEL_COMPILER) || defined(__OPEN64__) || defined(__OPENUH__)
+#if defined(__GNUC__)                                                   \
+    || defined(__PGIC__)                                                \
+    || defined(__INTEL_COMPILER)                                        \
+    || defined(__OPEN64__)                                              \
+    || defined(__OPENUH__)
 # define _WUR __attribute__((__warn_unused_result__))
 #else
 # define _WUR
@@ -94,7 +126,7 @@ extern "C"
 #if defined(__INTEL_COMPILER) || defined(__clang__)
 
 # define _DEPRECATED_BY(...)                                    \
-    __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+    __attribute__((deprecated("use '" #__VA_ARGS__ "' instead")))
 # define _DEPRECATED                            \
     __attribute__((deprecated))
 
@@ -114,7 +146,7 @@ extern "C"
 
 # if (__GNUC__ >= 5) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
 #  define _DEPRECATED_BY(...)                                   \
-    __attribute__((deprecated("use " #__VA_ARGS__ " instead")))
+    __attribute__((deprecated("use '" #__VA_ARGS__ "' instead")))
 #else
 # define _DEPRECATED_BY(...)                    \
     _DEPRECATED
@@ -317,21 +349,27 @@ extern "C"
     /*
      * OpenSHMEM release
      */
-#define _SHMEM_MAJOR_VERSION 1
-#define _SHMEM_MINOR_VERSION 2
+#define SHMEM_MAJOR_VERSION 1
+#define SHMEM_MINOR_VERSION 3
 
-#define _SHMEM_MAX_NAME_LEN 64
+#define SHMEM_MAX_NAME_LEN 64
 
-#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
+#define SHMEM_VENDOR_STRING "UH Reference Implementation"
 
     /**
      * @brief determines the major.minor version numbers of this release.
      *
      * @section Synopsis
      *
-     * @subsection c C/C++
+     * @subsection c C
      @code
-     void shmem_info_get_version (int *major, int *minor);
+     void shmem_info_get_version (int * restrict major,
+                                  int * restrict minor);
+     @endcode
+     * @subsection c C++
+     @code
+     void shmem_info_get_version (int * major,
+                                  int * minor);
      @endcode
      *
      * @subsection f Fortran
@@ -351,7 +389,8 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_info_get_version (int *major, int *minor);
+    void shmem_info_get_version (int * SHMEM_RESTRICT major,
+                                 int * SHMEM_RESTRICT minor);
 
     /**
      * @brief determines a vandor-supplied name for this release.
@@ -724,7 +763,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     int shmem_addr_accessible (void *addr, int pe);
+     int shmem_addr_accessible (const void *addr, int pe);
      @endcode
      *
      * @subsection f Fortran
@@ -746,7 +785,7 @@ extern "C"
      * on PE "pe".  0 if not.
      *
      */
-    int shmem_addr_accessible (void *addr, int pe) _WUR;
+    int shmem_addr_accessible (const void *addr, int pe) _WUR;
 
     /**
      * @brief checks whether an address on a target PE can be accessed
@@ -756,7 +795,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void *shmem_ptr (void *addr, int pe);
+     void *shmem_ptr (const void *addr, int pe);
      @endcode
      *
      * @subsection f Fortran
@@ -777,7 +816,7 @@ extern "C"
      * load/store operations by the calling PE.  NULL if not.
      *
      */
-    void *shmem_ptr (void *target, int pe) _WUR;
+    void *shmem_ptr (const void *target, int pe) _WUR;
 
     /*
      * symmetric memory management
@@ -785,34 +824,16 @@ extern "C"
 
     /* lower numbers match Fortran return values */
 
-#define _SHMEM_MALLOC_OK                   (0L)
-#define _SHMEM_MALLOC_BAD_SIZE             (-1L)
-#define _SHMEM_MALLOC_FAIL                 (-2L)
-#define _SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
-#define _SHMEM_MALLOC_ALREADY_FREE         (-4L)
-#define _SHMEM_MALLOC_NOT_ALIGNED          (-5L)
+#define SHMEM_MALLOC_OK                   (0L)
+#define SHMEM_MALLOC_BAD_SIZE             (-1L)
+#define SHMEM_MALLOC_FAIL                 (-2L)
+#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     (-3L)
+#define SHMEM_MALLOC_ALREADY_FREE         (-4L)
+#define SHMEM_MALLOC_NOT_ALIGNED          (-5L)
 
-#define _SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
-#define _SHMEM_MALLOC_REALLOC_FAILED       (-12L)
-#define _SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
-
-#if 0
-
-    /**
-     * old names not used any more in 1.2
-     */
-
-#define SHMEM_MALLOC_OK                   _SHMEM_MALLOC_OK
-#define SHMEM_MALLOC_BAD_SIZE             _SHMEM_MALLOC_BAD_SIZE
-#define SHMEM_MALLOC_FAIL                 _SHMEM_MALLOC_FAIL
-#define SHMEM_MALLOC_NOT_IN_SYMM_HEAP     _SHMEM_MALLOC_NOT_IN_SYMM_HEAP
-#define SHMEM_MALLOC_ALREADY_FREE         _SHMEM_MALLOC_ALREADY_FREE
-#define SHMEM_MALLOC_NOT_ALIGNED          _SHMEM_MALLOC_NOT_ALIGNED
-
-#define SHMEM_MALLOC_MEMALIGN_FAILED      _SHMEM_MALLOC_MEMALIGN_FAILED
-#define SHMEM_MALLOC_REALLOC_FAILED       _SHMEM_MALLOC_REALLOC_FAILED
-#define SHMEM_MALLOC_SYMMSIZE_FAILED      _SHMEM_MALLOC_SYMMSIZE_FAILED
-#endif
+#define SHMEM_MALLOC_MEMALIGN_FAILED      (-11L)
+#define SHMEM_MALLOC_REALLOC_FAILED       (-12L)
+#define SHMEM_MALLOC_SYMMSIZE_FAILED      (-10L)
 
 #if 0
     long malloc_error;
@@ -955,20 +976,12 @@ extern "C"
 
     enum shmem_cmp_constants
         {
-            _SHMEM_CMP_EQ = 0,
-            _SHMEM_CMP_NE,
-            _SHMEM_CMP_GT,
-            _SHMEM_CMP_LE,
-            _SHMEM_CMP_LT,
-            _SHMEM_CMP_GE,
-#if 0
             SHMEM_CMP_EQ = 0,
             SHMEM_CMP_NE,
             SHMEM_CMP_GT,
             SHMEM_CMP_LE,
             SHMEM_CMP_LT,
             SHMEM_CMP_GE,
-#endif
         };
 
     /**
@@ -978,7 +991,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+     void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -993,17 +1006,17 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /** see \ref shmem_long_wait_until () */
-    void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
+    void shmem_short_wait_until (volatile short *ivar, int cmp, short cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_int_wait_until (int *ivar, int cmp, int cmp_value);
+    void shmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_longlong_wait_until (long long *ivar, int cmp,
+    void shmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                     long long cmp_value);
     /** see \ref shmem_long_wait_until () */
-    void shmem_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /**
      * @brief wait for symmetric variable to change value
@@ -1012,7 +1025,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait (long *ivar, long cmp_value);
+     void shmem_long_wait (volatile long *ivar, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -1027,16 +1040,16 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait (long *ivar, long cmp_value);
+    void shmem_long_wait (volatile long *ivar, long cmp_value);
 
     /** see \ref shmem_long_wait () */
-    void shmem_short_wait (short *ivar, short cmp_value);
+    void shmem_short_wait (volatile short *ivar, short cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_int_wait (int *ivar, int cmp_value);
+    void shmem_int_wait (volatile int *ivar, int cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_longlong_wait (long long *ivar, long long cmp_value);
+    void shmem_longlong_wait (volatile long long *ivar, long long cmp_value);
     /** see \ref shmem_long_wait () */
-    void shmem_wait (long *ivar, long cmp_value);
+    void shmem_wait (volatile long *ivar, long cmp_value);
 
     /*
      * atomic swaps
@@ -1412,26 +1425,15 @@ extern "C"
      */
 #define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-
-#if 0
-#define SHMEM_BCAST_SYNC_SIZE _SHMEM_BCAST_SYNC_SIZE
-#define SHMEM_BARRIER_SYNC_SIZE _SHMEM_BARRIER_SYNC_SIZE
-#define SHMEM_REDUCE_SYNC_SIZE _SHMEM_REDUCE_SYNC_SIZE
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE _SHMEM_REDUCE_MIN_WRKDATA_SIZE
-#endif
+#define SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
      */
-#define _SHMEM_SYNC_VALUE (-1L)
-
-#if 0
-#define SHMEM_SYNC_VALUE _SHMEM_SYNC_VALUE
-#endif
+#define SHMEM_SYNC_VALUE (-1L)
 
     void shmem_long_sum_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
@@ -1688,10 +1690,7 @@ extern "C"
      * collects
      */
 
-#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#if 0
-#define SHMEM_COLLECT_SYNC_SIZE _SHMEM_COLLECT_SYNC_SIZE
-#endif
+#define SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     void shmem_fcollect64 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,
@@ -1721,7 +1720,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_set_lock (long *lock);
+     void shmem_set_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1741,7 +1740,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_set_lock (long *lock);
+    void shmem_set_lock (volatile long *lock);
 
     /**
      * @brief releases a distributed lock
@@ -1750,7 +1749,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_clear_lock (long *lock);
+     void shmem_clear_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1769,7 +1768,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_clear_lock (long *lock);
+    void shmem_clear_lock (volatile long *lock);
 
     /**
      * @brief tests a distributed lock
@@ -1778,7 +1777,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_test_lock (long *lock);
+     void shmem_test_lock (volatile long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1799,7 +1798,7 @@ extern "C"
      * @return non-zero if lock acquired, 0 if not.
      *
      */
-    int shmem_test_lock (long *lock) _WUR;
+    int shmem_test_lock (volatile long *lock) _WUR;
 
     /*
      * --end--

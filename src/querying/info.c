@@ -47,7 +47,7 @@
 #include "shmem.h"
 
 void
-shmem_info_get_version (int *major, int *minor)
+shmem_info_get_version (int * restrict major, int * restrict minor)
 {
     (void) shmemi_version (major, minor);
 }
@@ -55,5 +55,5 @@ shmem_info_get_version (int *major, int *minor)
 void
 shmem_info_get_name (char *name)
 {
-    strncpy (name, _SHMEM_VENDOR_STRING, _SHMEM_MAX_NAME_LEN);
+    strncpy (name, SHMEM_VENDOR_STRING, SHMEM_MAX_NAME_LEN);
 }
