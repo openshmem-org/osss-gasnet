@@ -86,11 +86,15 @@
  * test for C99
  */
 
-# if __STDC_VERSION__ >= 199901L
-#  define SHMEM_RESTRICT restrict
+# ifdef __STDC_VERSION__
+#  if __STDC_VERSION__ >= 199901L
+#   define SHMEM_RESTRICT restrict
+#  else
+#   define SHMEM_RESTRICT
+#  endif
 # else
-#  define SHMEM_RESTRICT
-# endif
+#  error "This code requires C99 support"
+# endif /* c99 check */
 
 #endif  /* __cplusplus */
 
