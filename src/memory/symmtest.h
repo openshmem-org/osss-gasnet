@@ -52,6 +52,4 @@ extern void shmemi_symmetric_test_with_abort (void *remote_addr,
 
 extern int shmemi_symmetric_addr_accessible (void *addr, int pe);
 
-extern int shmemi_is_symmetric (void *addr);
-
 #endif /* _SYMMTEST_H */

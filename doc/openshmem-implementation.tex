@@ -84,9 +84,14 @@
 
 % --------------------------------------------------------------------------
 
+\usepackage{xspace}
+\newcommand{\openshmem} {\mbox{OpenSHMEM}\xspace}
+
+% --------------------------------------------------------------------------
+
 \begin{document}
 
-\title{OpenSHMEM Reference Library Implementation}
+\title{\openshmem Reference Library Implementation}
 \author{Tony Curtis <tonyc@uh.edu>}
 \maketitle
 \lyxrightaddress{Computer Science Department, University of Houston}
@@ -97,7 +102,7 @@
 
 \section{Sponsorship}
 
-Work on the OpenSHMEM project is sponsored by the
+Work on the \openshmem project is sponsored by the
 \href{http://www.ornl.gov/}{Oak Ridge National Laboratory} Extreme
 Scale System Center and the \href{http://www.defense.gov/}{U.S. Department
 of Defense}.
@@ -117,7 +122,7 @@ of a partitioned global address space for completeness.
 
 \section{Terminology}
 
-An OpenSHMEM program consists of a number of processors executing
+An \openshmem program consists of a number of processors executing
 separate processes. A processor is referred to as a ``processing
 element'', or PE. All PEs run the same program in the SPMD model,
 although they can discover which position, or rank, they occupy within
@@ -134,7 +139,7 @@ point-to-point remote atomic operations, and collective operations. A
 one-sided operation is a communication in which one PE transfers data
 to another PE, but the ``other'' PE does not participate: the data
 transfer does not cause the other PE to be interrupted to acknowledge
-the transfer (assuming the hardware underneath OpenSHMEM allows this).
+the transfer (assuming the hardware underneath \openshmem allows this).
 
 \section{Partitioned Global Address Space}
 
@@ -163,7 +168,7 @@ Clusters that use interconnects with remote direct memory access
 provide hardware off-load capability to avoid interrupts during
 one-sided communications.
 
-\section{SHMEM History and OpenSHMEM}
+\section{SHMEM History and \openshmem}
 
 The SHMEM communications library was originally developed as a
 proprietary application interface by Cray for their T3D systems and
@@ -192,16 +197,16 @@ differences between SHMEM implementations' semantics and APIs are
 subtle, resulting in portability and correctness
 issues. U.S. Department of Defense funded a collaboration between Oak
 Ridge National Laboratory and the University of Houston to develop a
-specification for a uniform SHMEM API. The OpenSHMEM specification was
+specification for a uniform SHMEM API. The \openshmem specification was
 announced to address the divergence of the SHMEM APIs.
 
-\section{The Reference OpenSHMEM Library}
+\section{The Reference \openshmem Library}
 
 The overall structure of the reference library is shown below. We use
 an intermediate library such as GASNet or ARMCI to abstract away from
 a particular interconnect/platform, although there is nothing to stop
 a more direct approach being used. Internally, the reference
-implementation of OpenSHMEM provides private APIs for memory
+implementation of \openshmem provides private APIs for memory
 management, the communications layer, tracing/debugging and
 (eventually) support for adaptivity to choose things like a barrier
 algorithm at run-time.
@@ -226,7 +231,7 @@ When you \texttt{gasnet\_attach()} and ask for segment information,
 each PE has access to an array of segments, 1 segment per PE. Each PE
 initializes a memory pool within its own segment. The set up is
 handled either by GASNet internally (``fast''/''large'' model) or by
-OpenSHMEM itself (``everything'' model). The table of segments
+\openshmem itself (``everything'' model). The table of segments
 allows any PE to know the virtual location and size of the segment
 belonging to any other PE.
 
@@ -261,36 +266,33 @@ symmetric heap is exposed by GASNet. Currently this is done via Active
 Messages.
 
 For the SMP conduit, PSHM support is required to run parallel threaded
-programs with OpenSHMEM. This excludes the ``everything'' model (at
+programs with \openshmem. This excludes the ``everything'' model (at
 least for the architectures to hand).
 
 \subsection{Initialization}
 
-In \texttt{src/updown/} we handle setting up the OpenSHMEM runtime,
+In \texttt{src/updown/} we handle setting up the \openshmem runtime,
 and eventual shutdown. Shutdown is implicit in user code, there is no
 call to do this in SGI SHMEM, so we register a handler to be called
 when \texttt{main()} exits. (Cray SHMEM has an explicit finalize call,
 however, and a profiling interface proposal has suggested introducing
-this to OpenSHMEM.) The segment exchange is a target for future
+this to \openshmem.) The segment exchange is a target for future
 optimization: in large programs, the start-up time will become
 burdensome due to the large number of address/size
 communications. Strategies for avoiding this include lazy
 initialization and hierarchical or directory-based lookups.
 
-\subsection{Incorporating OpenSHMEM into Programs}
+\subsection{Incorporating \openshmem into Programs}
 
 For C, the appropriate header file must be included:
 \texttt{<shmem.h>}~\footnote{The location \texttt{<mpp/shmem.h} is
   also accepted, but is now considered deprecated and the preprocessor
-  can generate a warning if desired}.  The first OpenSHMEM call in any
-program must be \texttt{start\_pes(npes)}.  \texttt{start\_pes} just
-ignores its argument (consistent with SGI behavior. SGI indicates
-``npes'' \emph{should} be set to zero but we don't enforce that,
-merely note it). The number of PEs is taken from the invoking
-environment. Currently this number is assumed to be fixed throughout
-the lifetime of the program, but fault tolerance extensions could
-generalize this notion. Below are simple C and Fortran program
-templates:
+  can generate a warning if desired}.  The first \openshmem call in
+any program must be \texttt{shmem\_init ()}.  The number of PEs is
+taken from the invoking environment. Currently this number is assumed
+to be fixed throughout the lifetime of the program, but fault
+tolerance extensions could generalize this notion. Below are simple C
+and Fortran program templates:
 
 \vspace{0.1in}
 \begin{minipage}{0.75\linewidth}
@@ -303,9 +305,9 @@ main(int argc, char *argv[])
 {
   int me, npes;
 
-  start_pes(0);
-  me   = _my_pe();       /* which PE I am */
-  npes = _num_pes();     /* how many PEs in program */
+  shmem_init ();
+  me   = shmem_my_pe ();       /* which PE I am */
+  npes = shmem_n_pes ();     /* how many PEs in program */
   printf("Hello from PE %d of %d\n", me, npes);
   return 0;
 }
@@ -318,11 +320,12 @@ main(int argc, char *argv[])
 \begin{lstlisting}[language=Fortran,caption={Simple Fortran ``hello world'' program}]
 program hello
   include 'shmem.fh'
+  integer :: shmem_my_pe, shmem_n_pes
   integer :: me, npes
 
-  call start_pes(0)
-  me   = my_pe()
-  npes = num_pes()
+  call shmem_init()
+  me   = shmem_my_pe()
+  npes = shmem_n_pes()
   print *, 'Hello from PE ', me, ' of ', npes
 end program hello
 \end{lstlisting}
@@ -330,7 +333,7 @@ end program hello
 
 \subsection{Communications Substrate}
 
-The OpenSHMEM library has been written to sit on top of any
+The \openshmem library has been written to sit on top of any
 communications library that can provide the required
 functionality. Initially we have targetted GASNet. The directory
 \texttt{src/comms/gasnet} provides implementations of the internal
@@ -379,7 +382,7 @@ variables may give better performance, and this needs to be looked
 into.
 
 The Quadrics extensions that add non-blocking calls into the API
-proper have already been requested for the OpenSHMEM development. An
+proper have already been requested for the \openshmem development. An
 initial attempt at these are already in the library and they pass the
 Cray verification tests.
 
@@ -396,21 +399,25 @@ the pun).
 
 Earlier versions of the implementation had a single handler lock
 variable per operation (one for all adds, one for all increments,
-\emph{etc.}).  However, we've now added a hash table to dynamically
-allocate and manage per-target-address handler locks. Large-scale
-atomic operations, like add-scatters across multiple variables could
-easily benefit from this, as the lock granularity then permits
-concurrent discrete memory accesses.
+\emph{etc.}).
+% However, we've now added a hash table to dynamically
+% allocate and manage per-target-address handler locks. Large-scale
+% atomic operations, like add-scatters across multiple variables could
+% easily benefit from this, as the lock granularity then permits
+% concurrent discrete memory accesses.
+However, the \openshmem 1.3 specification clarified atomicity
+guarantees: there is now a lock per data-type (integer, float, double,
+...).
 
 \subsection{\label{sub:Locks}Locks}
 
-OpenSHMEM provides routines to claim, release and test global locks.
+\openshmem provides routines to claim, release and test global locks.
 These can be used for mutual-exclusion regions. Our implementation is
 from the Quadrics library, which is a version of the
 Mellor-Crummy-Scott algorithm (``Algorithms for Scalable
 Synchronization on Shared-Memory Multiprocessors'' by John
 M. Mellor-Crummey and Michael L Scott).  The locks are layered on top
-of OpenSHMEM primitives, so there are no Elan dependencies.
+of \openshmem primitives, so there are no Elan dependencies.
 
 \subsection{Barrier and broadcast}
 
@@ -459,13 +466,13 @@ exclusive-or).  Currently probably naive, using gets. A version with
 puts that can overlap communication and the computation of the
 reduction operation should be more scalable. However, the code is
 rather compact and all ops use the same template. A future version of
-OpenSHMEM may add user-defined reductions, and in fact the framework
+\openshmem may add user-defined reductions, and in fact the framework
 for this is already in place: all that is needed is a specification of
-the OpenSHMEM API.
+the \openshmem API.
 
 \subsection{Address and PE Accessibility}
 
-OpenSHMEM allows us to test whether PEs are currently reachable, and
+\openshmem allows us to test whether PEs are currently reachable, and
 whether addresses on remote PEs are addressable. GASNet is used to
 ``ping'' the remote PE and then we wait for an ``ack'' with a
 configurable timeout. Remains to be seen how useful this is, and
@@ -504,13 +511,13 @@ The biggest difference is in the symmetric memory management routines.
 These have completely different names and parameters compared to the C
 interface.
 
-The OpenSHMEM implementation handles Fortran with a very thin wrapper
+The \openshmem implementation handles Fortran with a very thin wrapper
 on top of C. Mostly this involves catching Fortran's pass-by-reference
 variables and dereferencing them in the underlying C call.
 
 The main development has been on a CentOS platform with GNU
 4.1.2-redhat.  There seem to be some issues with this compilers'
-handling of cray-pointers: even the simplest programs (no OpenSHMEM
+handling of cray-pointers: even the simplest programs (no \openshmem
 content at all) produce a segmentation fault. Later versions
 (e.g.\ 4.5.0 ++) behave better.
 
@@ -523,7 +530,7 @@ specified.  This section attempts to set out a few of these scenarios
 \item put to PE out of range: suppose we do a put to ``right
 neighbor'' (pe + 1). The highest-numbered PE will attempt to
 communicate with a PE that does not exist.
-\item library not initialized: virtually all OpenSHMEM routines will
+\item library not initialized: virtually all \openshmem routines will
 have major problems if the library has not been
 initialized. Implementations can handle this situation in different
 ways.
@@ -550,7 +557,7 @@ or directly in the source tree.
 
 \section{Environment Variables\label{sec:Environment-Variables}}
 
-The behavior of the OpenSHMEM library can be controlled via a number
+The behavior of the \openshmem library can be controlled via a number
 of environment variables. For SGI compatibility reasons, we support
 the ``SMA'' variables and our own new ones.
 
@@ -714,7 +721,7 @@ suite. Compilation uses a standard C, C++ or Fortran compiler
 (e.g.\ GNU, Intel) and links against the SMA and MPI libraries.
 
 In order to abstract the compilation and launching process for
-OpenSHMEM we have provided 4 wrapper programs.  There is no
+\openshmem we have provided 4 wrapper programs.  There is no
 requirement to provide anything like this, it's merely a convenience.
 
 \begin{enumerate}
@@ -750,7 +757,7 @@ The pkgconfig file can be found in \emph{installroot/lib/pkgconfig}.
 
 \section{Future Plans}
 
-Ideas for extensions to SHMEM to go into OpenSHMEM need to be
+Ideas for extensions to SHMEM to go into \openshmem need to be
 requested and evaluated from the SHMEM user and vendor community. A
 decision process will determine which ideas are eventually
 implemented. The library that this document refers to is hopefully a
@@ -771,9 +778,6 @@ be generating calls with explicitly generated handles. Building a
 handle pool on which to synchronize later should take care of this.
 \item locality: exposing information about topology to the library
 and/or its API;
-\item regularized namespace: currently routines are a strange brew of
-``shmem\_'' prefixes, ``start\_pes'', ``\_my\_pe'' and so
-on. Providing an API with a consistent naming scheme would be useful;
 \item Fortran module, C++ API: provide better language support.
 \end{itemize}
 

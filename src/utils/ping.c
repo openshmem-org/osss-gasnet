@@ -151,6 +151,8 @@ shmemi_ping_set_alarm (void)
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: couldn't set accessibility timer (%s)",
                       strerror (errno));
+        return;
+        /* NOT REACHED */
     }
 #endif
 }
@@ -168,6 +170,8 @@ shmemi_ping_clear_alarm (void)
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: couldn't clear accessibility timer (%s)",
                       strerror (errno));
+        return;
+        /* NOT REACHED */
     }
 #endif
 }

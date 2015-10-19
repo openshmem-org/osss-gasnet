@@ -46,7 +46,7 @@
 #define _PSHMEMX_H 1
 
 #include <pshmem.h>
-#include "shmemx.h"
+#include <shmemx.h>
 
 #ifdef __cplusplus
 extern "C"

@@ -320,6 +320,7 @@ shmemi_symmetric_globalvar_table_init (void)
     if (table_init_helper () != 0) {
         shmemi_trace (SHMEM_LOG_FATAL,
                       "internal error: couldn't read global symbols in executable");
+        return;
         /* NOT REACHED */
     }
 
@@ -355,7 +356,7 @@ shmemi_symmetric_globalvar_table_finalize (void)
  * check to see if address is global
  */
 int
-shmemi_symmetric_is_globalvar (void *addr)
+shmemi_symmetric_is_globalvar (const void *addr)
 {
     const size_t a = (size_t) addr;
 
