@@ -53,7 +53,7 @@ shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
     const int me = shmem_my_pe ();
     const int step = 1 << logPE_stride;
-    const long nreplies = SHMEM_SYNC_VALUE + PE_size - 1;
+    const long nreplies = _SHMEM_SYNC_VALUE + PE_size - 1;
     int i, round;
     int thatpe;
 
@@ -70,9 +70,9 @@ shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size, long *pSync)
             }
 
         }
-        shmem_long_wait_until (&pSync[round], SHMEM_CMP_EQ, nreplies);
+        shmem_long_wait_until (&pSync[round], _SHMEM_CMP_EQ, nreplies);
 
-        pSync[round] = SHMEM_SYNC_VALUE;
+        pSync[round] = _SHMEM_SYNC_VALUE;
 
     }
 }

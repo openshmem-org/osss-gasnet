@@ -161,8 +161,8 @@ shmemi_broadcast32_tree (void *target, const void *source,
     lchild_ready = -1;
     rchild_ready = -1;
 
-    shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, SHMEM_SYNC_VALUE);
-    shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ, SHMEM_SYNC_VALUE);
+    shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
+    shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
 
     pSync[0] = 0;
     pSync[1] = 0;
@@ -181,7 +181,7 @@ shmemi_broadcast32_tree (void *target, const void *source,
 
     if (PE_size > 1) {
         if (my_pe == (PE_start + step * PE_root)) {
-            pSync[0] = SHMEM_SYNC_VALUE;
+            pSync[0] = _SHMEM_SYNC_VALUE;
 
             if (child_l != -1) {
                 shmem_long_get (&lchild_ready, (const long *) &pSync[0],
@@ -205,14 +205,14 @@ shmemi_broadcast32_tree (void *target, const void *source,
                 no_children = 2;
             }
 
-            shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
+            shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
                                    (long) no_children);
-            pSync[1] = SHMEM_SYNC_VALUE;
+            pSync[1] = _SHMEM_SYNC_VALUE;
 
         }
         else {
-            shmem_long_wait_until (&pSync[0], SHMEM_CMP_EQ, is_ready);
-            pSync[0] = SHMEM_SYNC_VALUE;
+            shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, is_ready);
+            pSync[0] = _SHMEM_SYNC_VALUE;
             shmemi_trace (SHMEM_LOG_BROADCAST, "inside else");
             memcpy (source_ptr, target_ptr, nlong * sizeof (int));
             if (child_l != -1) {
@@ -235,17 +235,17 @@ shmemi_broadcast32_tree (void *target, const void *source,
                 shmem_long_put (&pSync[0], &is_ready, 1, child_r);
                 no_children = 2;
             }
-            pSync[0] = SHMEM_SYNC_VALUE;
+            pSync[0] = _SHMEM_SYNC_VALUE;
 
             if (no_children == 0) {
-                pSync[1] = SHMEM_SYNC_VALUE;
+                pSync[1] = _SHMEM_SYNC_VALUE;
                 /* TO DO: Is check for parents pSync required? */
                 shmem_long_inc (&pSync[1], parent);
             }
             else {
-                shmem_long_wait_until (&pSync[1], SHMEM_CMP_EQ,
+                shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ,
                                        (long) no_children);
-                pSync[1] = SHMEM_SYNC_VALUE;
+                pSync[1] = _SHMEM_SYNC_VALUE;
                 /* printf("PE %d incrementing child count on PE
                    %d\n",my_pe,parent); */
                 shmem_long_inc (&pSync[1], parent);

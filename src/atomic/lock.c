@@ -77,7 +77,7 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 void
-shmem_set_lock (volatile long *lock)
+shmem_set_lock (long *lock)
 {
     shmemi_comms_lock_acquire (&((SHMEM_LOCK *) lock)[1],
                                &((SHMEM_LOCK *) lock)[0],
@@ -85,7 +85,7 @@ shmem_set_lock (volatile long *lock)
 }
 
 void
-shmem_clear_lock (volatile long *lock)
+shmem_clear_lock (long *lock)
 {
     /* The Cray man pages suggest we also need to do this (addy
        12.10.05) */
@@ -97,7 +97,7 @@ shmem_clear_lock (volatile long *lock)
 }
 
 int
-shmem_test_lock (volatile long *lock)
+shmem_test_lock (long *lock)
 {
     return shmemi_comms_lock_test (&((SHMEM_LOCK *) lock)[1],
                                    &((SHMEM_LOCK *) lock)[0],

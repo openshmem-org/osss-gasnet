@@ -527,12 +527,12 @@ FORTRANIFY_WAIT (int8, long);
 
 void FORTRANIFY (shmem_wait_until) (int *ivar, int *cmp, int *cmp_value)
 {
-    shmem_int4_wait_until (ivar, *cmp, *cmp_value);
+    shmem_int_wait_until (ivar, *cmp, *cmp_value);
 }
 
 void FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
 {
-    shmem_int4_wait (ivar, *cmp_value);
+    shmem_int_wait (ivar, *cmp_value);
 }
 
 /*

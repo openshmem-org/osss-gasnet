@@ -73,32 +73,6 @@
 #endif  /* __cplusplus */
 
 /*
- * C knows about restricted pointers, but C++ doesn't
- */
-
-#ifdef __cplusplus
-
-# define SHMEM_RESTRICT
-
-#else
-
-/*
- * test for C99
- */
-
-# ifdef __STDC_VERSION__
-#  if __STDC_VERSION__ >= 199901L
-#   define SHMEM_RESTRICT restrict
-#  else
-#   define SHMEM_RESTRICT
-#  endif
-# else
-#  define SHMEM_RESTRICT
-# endif /* c99 check */
-
-#endif  /* __cplusplus */
-
-/*
  * no symbol-mangling (closing brace near EOF)
  */
 #ifdef __cplusplus
@@ -349,12 +323,12 @@ extern "C"
     /*
      * OpenSHMEM release
      */
-#define SHMEM_MAJOR_VERSION 1
-#define SHMEM_MINOR_VERSION 3
+#define _SHMEM_MAJOR_VERSION 1
+#define _SHMEM_MINOR_VERSION 3
 
-#define SHMEM_MAX_NAME_LEN 64
+#define _SHMEM_MAX_NAME_LEN 64
 
-#define SHMEM_VENDOR_STRING "UH Reference Implementation"
+#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
 
     /**
      * @brief determines the major.minor version numbers of this release.
@@ -389,8 +363,8 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_info_get_version (int * SHMEM_RESTRICT major,
-                                 int * SHMEM_RESTRICT minor);
+    void shmem_info_get_version (int * major,
+                                 int * minor);
 
     /**
      * @brief determines a vandor-supplied name for this release.
@@ -423,108 +397,108 @@ extern "C"
      * I/O
      */
 
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_short_put (short *dest, const short *src, size_t nelems,
                           int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_int_put (int *dest, const int *src, size_t nelems,
                         int pe);
 
 
     void shmem_long_put (long *dest, const long *src, size_t nelems,
                          int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_longlong_put (long long *dest, const long long *src,
                              size_t nelems, int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_longdouble_put (long double *dest, const long double *src,
                                size_t nelems, int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_double_put (double *dest, const double *src,
                            size_t nelems, int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_float_put (float *dest, const float *src, size_t nelems,
                           int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_putmem (void *dest, const void *src, size_t nelems,
                        int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_put32 (void *dest, const void *src, size_t nelems,
                       int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_put64 (void *dest, const void *src, size_t nelems,
                       int pe);
-    /** see \ref shmem_long_put () */
+    /* see \ref shmem_long_put () */
     void shmem_put128 (void *dest, const void *src, size_t nelems,
                        int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_short_get (short *dest, const short *src, size_t nelems,
                           int pe);
 
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_int_get (int *dest, const int *src, size_t nelems,
                         int pe);
 
     void shmem_long_get (long *dest, const long *src, size_t nelems,
                          int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_longlong_get (long long *dest, const long long *src,
                              size_t nelems, int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_longdouble_get (long double *dest, const long double *src,
                                size_t nelems, int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_double_get (double *dest, const double *src,
                            size_t nelems, int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_float_get (float *dest, const float *src, size_t nelems,
                           int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_getmem (void *dest, const void *src, size_t nelems,
                        int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_get32 (void *dest, const void *src, size_t nelems,
                       int pe);
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_get64 (void *dest, const void *src, size_t nelems,
                       int pe);
 
-    /** see \ref shmem_long_get () */
+    /* see \ref shmem_long_get () */
     void shmem_get128 (void *dest, const void *src, size_t nelems,
                        int pe);
 
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_char_p (char *addr, char value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_short_p (short *addr, short value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_int_p (int *addr, int value, int pe);
     void shmem_long_p (long *addr, long value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_longlong_p (long long *addr, long long value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_float_p (float *addr, float value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_double_p (double *addr, double value, int pe);
-    /** see \ref shmem_long_p () */
+    /* see \ref shmem_long_p () */
     void shmem_longdouble_p (long double *addr, long double value,
                              int pe);
 
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     char shmem_char_g (char *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     short shmem_short_g (short *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     int shmem_int_g (int *addr, int pe) _WUR;
 
     long shmem_long_g (long *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     long long shmem_longlong_g (long long *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     float shmem_float_g (float *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     double shmem_double_g (double *addr, int pe) _WUR;
-    /** see \ref shmem_long_g () */
+    /* see \ref shmem_long_g () */
     long double shmem_longdouble_g (long double *addr, int pe) _WUR;
 
 
@@ -532,77 +506,77 @@ extern "C"
      * strided I/O
      */
 
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_double_iput (double *target, const double *source,
                             ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                             int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_float_iput (float *target, const float *source,
                            ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                            int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_int_iput (int *target, const int *source, ptrdiff_t tst,
                          ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_iput32 (void *target, const void *source, ptrdiff_t tst,
                        ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_iput64 (void *target, const void *source, ptrdiff_t tst,
                        ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_iput128 (void *target, const void *source, ptrdiff_t tst,
                         ptrdiff_t sst, size_t nelems, int pe);
 
     void shmem_long_iput (long *target, const long *source,
                           ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                           int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_longdouble_iput (long double *target,
                                 const long double *source, ptrdiff_t tst,
                                 ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_longlong_iput (long long *target, const long long *source,
                               ptrdiff_t tst, ptrdiff_t sst,
                               size_t nelems, int pe);
-    /** see \ref shmem_long_iput () */
+    /* see \ref shmem_long_iput () */
     void shmem_short_iput (short *target, const short *source,
                            ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                            int pe);
 
 
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_double_iget (double *target, const double *source,
                             ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                             int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_float_iget (float *target, const float *source,
                            ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                            int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_int_iget (int *target, const int *source, ptrdiff_t tst,
                          ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_iget32 (void *target, const void *source, ptrdiff_t tst,
                        ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_iget64 (void *target, const void *source, ptrdiff_t tst,
                        ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_iget128 (void *target, const void *source, ptrdiff_t tst,
                         ptrdiff_t sst, size_t nelems, int pe);
 
     void shmem_long_iget (long *target, const long *source,
                           ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                           int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_longdouble_iget (long double *target,
                                 const long double *source, ptrdiff_t tst,
                                 ptrdiff_t sst, size_t nelems, int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_longlong_iget (long long *target, const long long *source,
                               ptrdiff_t tst, ptrdiff_t sst,
                               size_t nelems, int pe);
-    /** see \ref shmem_long_iget () */
+    /* see \ref shmem_long_iget () */
     void shmem_short_iget (short *target, const short *source,
                            ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
                            int pe);
@@ -976,12 +950,12 @@ extern "C"
 
     enum shmem_cmp_constants
         {
-            SHMEM_CMP_EQ = 0,
-            SHMEM_CMP_NE,
-            SHMEM_CMP_GT,
-            SHMEM_CMP_LE,
-            SHMEM_CMP_LT,
-            SHMEM_CMP_GE,
+            _SHMEM_CMP_EQ = 0,
+            _SHMEM_CMP_NE,
+            _SHMEM_CMP_GT,
+            _SHMEM_CMP_LE,
+            _SHMEM_CMP_LT,
+            _SHMEM_CMP_GE,
         };
 
     /**
@@ -991,7 +965,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
+     void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -1006,17 +980,17 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
+    void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
 
-    /** see \ref shmem_long_wait_until () */
-    void shmem_short_wait_until (volatile short *ivar, int cmp, short cmp_value);
-    /** see \ref shmem_long_wait_until () */
-    void shmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
-    /** see \ref shmem_long_wait_until () */
-    void shmem_longlong_wait_until (volatile long long *ivar, int cmp,
+    /* see \ref shmem_long_wait_until () */
+    void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
+    /* see \ref shmem_long_wait_until () */
+    void shmem_int_wait_until (int *ivar, int cmp, int cmp_value);
+    /* see \ref shmem_long_wait_until () */
+    void shmem_longlong_wait_until (long long *ivar, int cmp,
                                     long long cmp_value);
-    /** see \ref shmem_long_wait_until () */
-    void shmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
+    /* see \ref shmem_long_wait_until () */
+    void shmem_wait_until (long *ivar, int cmp, long cmp_value);
 
     /**
      * @brief wait for symmetric variable to change value
@@ -1025,7 +999,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait (volatile long *ivar, long cmp_value);
+     void shmem_long_wait (long *ivar, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -1040,16 +1014,16 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait (volatile long *ivar, long cmp_value);
+    void shmem_long_wait (long *ivar, long cmp_value);
 
-    /** see \ref shmem_long_wait () */
-    void shmem_short_wait (volatile short *ivar, short cmp_value);
-    /** see \ref shmem_long_wait () */
-    void shmem_int_wait (volatile int *ivar, int cmp_value);
-    /** see \ref shmem_long_wait () */
-    void shmem_longlong_wait (volatile long long *ivar, long long cmp_value);
-    /** see \ref shmem_long_wait () */
-    void shmem_wait (volatile long *ivar, long cmp_value);
+    /* see \ref shmem_long_wait () */
+    void shmem_short_wait (short *ivar, short cmp_value);
+    /* see \ref shmem_long_wait () */
+    void shmem_int_wait (int *ivar, int cmp_value);
+    /* see \ref shmem_long_wait () */
+    void shmem_longlong_wait (long long *ivar, long long cmp_value);
+    /* see \ref shmem_long_wait () */
+    void shmem_wait (long *ivar, long cmp_value);
 
     /*
      * atomic swaps
@@ -1079,16 +1053,16 @@ extern "C"
      */
     long shmem_long_swap (long *target, long value, int pe) _WUR;
 
-    /** see \ref shmem_long_swap () */
+    /* see \ref shmem_long_swap () */
     int shmem_int_swap (int *target, int value, int pe) _WUR;
-    /** see \ref shmem_long_swap () */
+    /* see \ref shmem_long_swap () */
     long long shmem_longlong_swap (long long *target, long long value,
                                    int pe) _WUR;
-    /** see \ref shmem_long_swap () */
+    /* see \ref shmem_long_swap () */
     float shmem_float_swap (float *target, float value, int pe) _WUR;
-    /** see \ref shmem_long_swap () */
+    /* see \ref shmem_long_swap () */
     double shmem_double_swap (double *target, double value, int pe) _WUR;
-    /** see \ref shmem_long_swap () */
+    /* see \ref shmem_long_swap () */
     long shmem_swap (long *target, long value, int pe) _WUR;
 
     /**
@@ -1117,17 +1091,17 @@ extern "C"
     long shmem_long_cswap (long *target, long cond, long value,
                            int pe) _WUR;
 
-    /** see \ref shmem_long_cswap () */
+    /* see \ref shmem_long_cswap () */
     int shmem_int_cswap (int *target, int cond, int value, int pe) _WUR;
-    /** see \ref shmem_long_cswap () */
+    /* see \ref shmem_long_cswap () */
     long long shmem_longlong_cswap (long long *target, long long cond,
                                     long long value, int pe) _WUR;
 
-    /*
+    /**
      * atomic fetch-{add,inc} & add,inc
      */
 
-    /**
+    /*
      * @brief add value to symmetric variable, fetch back old value
      *
      * @section Synopsis
@@ -1151,13 +1125,13 @@ extern "C"
      */
     long shmem_long_fadd (long *target, long value, int pe) _WUR;
 
-    /** see \ref shmem_long_fadd () */
+    /* see \ref shmem_long_fadd () */
     int shmem_int_fadd (int *target, int value, int pe) _WUR;
-    /** see \ref shmem_long_fadd () */
+    /* see \ref shmem_long_fadd () */
     long long shmem_longlong_fadd (long long *target, long long value,
                                    int pe) _WUR;
 
-    /**
+    /*
      * @brief increment symmetric variable, fetch back old value
      *
      * @section Synopsis
@@ -1181,12 +1155,12 @@ extern "C"
      */
     long shmem_long_finc (long *target, int pe) _WUR;
 
-    /** see \ref shmem_long_finc () */
+    /* see \ref shmem_long_finc () */
     int shmem_int_finc (int *target, int pe) _WUR;
-    /** see \ref shmem_long_finc () */
+    /* see \ref shmem_long_finc () */
     long long shmem_longlong_finc (long long *target, int pe) _WUR;
 
-    /**
+    /*
      * @brief add value to symmetric variable
      *
      * @section Synopsis
@@ -1210,12 +1184,12 @@ extern "C"
      */
     void shmem_long_add (long *target, long value, int pe);
 
-    /** see \ref shmem_long_add () */
+    /* see \ref shmem_long_add () */
     void shmem_int_add (int *target, int value, int pe);
-    /** see \ref shmem_long_add () */
+    /* see \ref shmem_long_add () */
     void shmem_longlong_add (long long *target, long long value, int pe);
 
-    /**
+    /*
      * @brief increment symmetric variable
      *
      * @section Synopsis
@@ -1239,16 +1213,16 @@ extern "C"
      */
     void shmem_long_inc (long *target, int pe);
 
-    /** see \ref shmem_long_inc () */
+    /* see \ref shmem_long_inc () */
     void shmem_int_inc (int *target, int pe);
-    /** see \ref shmem_long_inc () */
+    /* see \ref shmem_long_inc () */
     void shmem_longlong_inc (long long *target, int pe);
 
-    /*
+    /**
      * cache flushing (deprecated)
      */
 
-    /**
+    /*
      * @brief shmem_clear_cache_inv has no effect.
      *
      * @section Synopsis
@@ -1275,7 +1249,7 @@ extern "C"
      */
     void shmem_clear_cache_inv (void) _DEPRECATED;
 
-    /**
+    /*
      * @brief shmem_set_cache_inv has no effect.
      *
      * @section Synopsis
@@ -1302,7 +1276,7 @@ extern "C"
      */
     void shmem_set_cache_inv (void) _DEPRECATED;
 
-    /**
+    /*
      * @brief shmem_clear_cache_line_inv has no effect.
      *
      * @section Synopsis
@@ -1331,7 +1305,7 @@ extern "C"
      */
     void shmem_clear_cache_line_inv (void *target) _DEPRECATED;
 
-    /**
+    /*
      * @brief shmem_set_cache_line_inv has no effect.
      *
      * @section Synopsis
@@ -1360,7 +1334,7 @@ extern "C"
      */
     void shmem_set_cache_line_inv (void *target) _DEPRECATED;
 
-    /**
+    /*
      * @brief shmem_udcflush has no effect.
      *
      * @section Synopsis
@@ -1387,7 +1361,7 @@ extern "C"
      */
     void shmem_udcflush (void) _DEPRECATED;
 
-    /**
+    /*
      * @brief shmem_udcflush_line has no effect.
      *
      * @section Synopsis
@@ -1416,30 +1390,30 @@ extern "C"
      */
     void shmem_udcflush_line (void *target) _DEPRECATED;
 
-    /*
+    /**
      * reductions
      */
 
-    /*
+     /**
      * cf. Fortran values are multiples of these (different types)
      */
 #define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
      */
-#define SHMEM_SYNC_VALUE (-1L)
+#define _SHMEM_SYNC_VALUE (-1L)
 
     void shmem_long_sum_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, long *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_complexd_sum_to_all (COMPLEXIFY (double) * target,
                                     COMPLEXIFY (double) * source,
                                     int nreduce,
@@ -1447,45 +1421,45 @@ extern "C"
                                     int PE_size,
                                     COMPLEXIFY (double) * pWrk,
                                     long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_complexf_sum_to_all (COMPLEXIFY (float) * target,
                                     COMPLEXIFY (float) * source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     COMPLEXIFY (float) * pWrk,
                                     long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_double_sum_to_all (double *target, double *source,
                                   int nreduce, int PE_start,
                                   int logPE_stride, int PE_size,
                                   double *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_float_sum_to_all (float *target, float *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  float *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_sum_to_all (int *target, int *source, int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longdouble_sum_to_all (long double *target,
                                       long double *source, int nreduce,
                                       int PE_start, int logPE_stride,
                                       int PE_size, long double *pWrk,
                                       long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_sum_to_all (long long *target, long long *source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_sum_to_all (short *target, short *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  short *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_complexd_prod_to_all (COMPLEXIFY (double) * target,
                                      COMPLEXIFY (double) * source,
                                      int nreduce,
@@ -1493,187 +1467,187 @@ extern "C"
                                      int PE_size,
                                      COMPLEXIFY (double) * pWrk,
                                      long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_complexf_prod_to_all (COMPLEXIFY (float) * target,
                                      COMPLEXIFY (float) * source,
                                      int nreduce, int PE_start,
                                      int logPE_stride, int PE_size,
                                      COMPLEXIFY (float) * pWrk,
                                      long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_double_prod_to_all (double *target, double *source,
                                    int nreduce, int PE_start,
                                    int logPE_stride, int PE_size,
                                    double *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_float_prod_to_all (float *target, float *source,
                                   int nreduce, int PE_start,
                                   int logPE_stride, int PE_size,
                                   float *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_prod_to_all (int *target, int *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_prod_to_all (long *target, long *source, int nreduce,
                                  int PE_start, int logPE_stride,
                                  int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longdouble_prod_to_all (long double *target,
                                        long double *source, int nreduce,
                                        int PE_start, int logPE_stride,
                                        int PE_size, long double *pWrk,
                                        long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_prod_to_all (long long *target,
                                      long long *source, int nreduce,
                                      int PE_start, int logPE_stride,
                                      int PE_size, long long *pWrk,
                                      long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_prod_to_all (short *target, short *source,
                                   int nreduce, int PE_start,
                                   int logPE_stride, int PE_size,
                                   short *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_and_to_all (int *target,
                                int *source,
                                int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_and_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_and_to_all (long long *target, long long *source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_and_to_all (short *target, short *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  short *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_or_to_all (int *target,
                               int *source,
                               int nreduce,
                               int PE_start, int logPE_stride,
                               int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_or_to_all (long *target, long *source, int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_or_to_all (long long *target, long long *source,
                                    int nreduce, int PE_start,
                                    int logPE_stride, int PE_size,
                                    long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_or_to_all (short *target, short *source,
                                 int nreduce, int PE_start,
                                 int logPE_stride, int PE_size,
                                 short *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_xor_to_all (int *target,
                                int *source,
                                int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_xor_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_xor_to_all (long long *target, long long *source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_xor_to_all (short *target, short *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  short *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_max_to_all (int *target,
                                int *source,
                                int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_max_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_max_to_all (long long *target, long long *source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_max_to_all (short *target, short *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  short *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longdouble_max_to_all (long double *target,
                                       long double *source, int nreduce,
                                       int PE_start, int logPE_stride,
                                       int PE_size, long double *pWrk,
                                       long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_float_max_to_all (float *target, float *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  float *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_double_max_to_all (double *target, double *source,
                                   int nreduce, int PE_start,
                                   int logPE_stride, int PE_size,
                                   double *pWrk, long *pSync);
 
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_int_min_to_all (int *target,
                                int *source,
                                int nreduce,
                                int PE_start, int logPE_stride,
                                int PE_size, int *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_long_min_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
                                 int PE_size, long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longlong_min_to_all (long long *target, long long *source,
                                     int nreduce, int PE_start,
                                     int logPE_stride, int PE_size,
                                     long long *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_short_min_to_all (short *target, short *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  short *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_longdouble_min_to_all (long double *target,
                                       long double *source, int nreduce,
                                       int PE_start, int logPE_stride,
                                       int PE_size, long double *pWrk,
                                       long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_float_min_to_all (float *target, float *source,
                                  int nreduce, int PE_start,
                                  int logPE_stride, int PE_size,
                                  float *pWrk, long *pSync);
-    /** see \ref shmem_long_sum_to_all () */
+    /* see \ref shmem_long_sum_to_all () */
     void shmem_double_min_to_all (double *target, double *source,
                                   int nreduce, int PE_start,
                                   int logPE_stride, int PE_size,
                                   double *pWrk, long *pSync);
 
-    /*
+    /**
      * broadcasts
      */
 
@@ -1681,22 +1655,22 @@ extern "C"
                             size_t nelems, int PE_root, int PE_start,
                             int logPE_stride, int PE_size, long *pSync);
 
-    /** see \ref shmem_broadcast64 () */
+    /* see \ref shmem_broadcast64 () */
     void shmem_broadcast32 (void *target, const void *source,
                             size_t nelems, int PE_root, int PE_start,
                             int logPE_stride, int PE_size, long *pSync);
 
-    /*
+    /**
      * collects
      */
 
-#define SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     void shmem_fcollect64 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,
                            int PE_size, long *pSync);
 
-    /** see \ref shmem_fcollect64 () */
+    /* see \ref shmem_fcollect64 () */
     void shmem_fcollect32 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,
                            int PE_size, long *pSync);
@@ -1704,7 +1678,7 @@ extern "C"
     void shmem_collect64 (void *target, const void *source,
                           size_t nelems, int PE_start, int logPE_stride,
                           int PE_size, long *pSync);
-    /** see \ref shmem_collect64 () */
+    /* see \ref shmem_collect64 () */
     void shmem_collect32 (void *target, const void *source,
                           size_t nelems, int PE_start, int logPE_stride,
                           int PE_size, long *pSync);
@@ -1720,7 +1694,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_set_lock (volatile long *lock);
+     void shmem_set_lock (long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1740,7 +1714,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_set_lock (volatile long *lock);
+    void shmem_set_lock (long *lock);
 
     /**
      * @brief releases a distributed lock
@@ -1749,7 +1723,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_clear_lock (volatile long *lock);
+     void shmem_clear_lock (long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1768,7 +1742,7 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_clear_lock (volatile long *lock);
+    void shmem_clear_lock (long *lock);
 
     /**
      * @brief tests a distributed lock
@@ -1777,7 +1751,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_test_lock (volatile long *lock);
+     void shmem_test_lock (long *lock);
      @endcode
      *
      * @subsection f Fortran
@@ -1798,7 +1772,7 @@ extern "C"
      * @return non-zero if lock acquired, 0 if not.
      *
      */
-    int shmem_test_lock (volatile long *lock) _WUR;
+    int shmem_test_lock (long *lock) _WUR;
 
     /*
      * --end--
