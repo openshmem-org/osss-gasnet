@@ -382,7 +382,7 @@ shmemi_service_init (void)
          * just blast this to true for now to make all PEs run the
          * progress thread
          *
-         * thread_starter = shmemi_thread_starter ();e
+         * thread_starter = shmemi_thread_starter ();
          *
          */
         thread_starter = true;
