@@ -376,16 +376,7 @@ shmemi_service_init (void)
         delayspec.tv_sec = (time_t) 0;
         delayspec.tv_nsec = delay;
 
-        /*
-         * TODO: this choose-representative-PE logic doesn't seem to
-         * function correctly: some known-to-work programs hang, so
-         * just blast this to true for now to make all PEs run the
-         * progress thread
-         *
-         * thread_starter = shmemi_thread_starter ();
-         *
-         */
-        thread_starter = true;
+        thread_starter = shmemi_thread_starter ();
 
         if (thread_starter) {
 #if defined(SHMEM_USE_PTHREADS)
