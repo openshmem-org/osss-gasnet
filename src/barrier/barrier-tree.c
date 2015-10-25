@@ -104,9 +104,6 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
     shmem_long_wait_until (&pSync[0], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
     shmem_long_wait_until (&pSync[1], _SHMEM_CMP_EQ, _SHMEM_SYNC_VALUE);
 
-    pSync[0] = 0;
-    pSync[1] = 0;
-
     /* printf("Tree barrier\n"); */
     set_2tree (PE_start, step, PE_size, &parent, &child_l, &child_r, my_pe);
 
@@ -119,6 +116,9 @@ shmemi_barrier_tree (int PE_start, int logPE_stride, int PE_size, long *pSync)
     /* The actual barrier */
 
     if (PE_size > 1) {
+        pSync[0] = 0;
+        pSync[1] = 0;
+
         if (my_pe == PE_start) {
             pSync[0] = _SHMEM_SYNC_VALUE;
 
