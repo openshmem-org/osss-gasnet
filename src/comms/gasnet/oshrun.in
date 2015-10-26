@@ -14,12 +14,12 @@ show_usage_and_exit()
     fi
     cat <<EOF
 Usage: $progname [launcher pass-through options]
-                 -n|-np PEs
+                 -n|-np N
                  program
-                 [program args]
+                 [ [--] program args]
        Where
 
-         -n|-np PEs   is the number of processing elements to launch
+         -n|-np N     is the number of processing elements to launch
 
 EOF
     exit 1
