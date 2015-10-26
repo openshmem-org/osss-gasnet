@@ -51,7 +51,7 @@ extern "C"
 {
 #endif  /* __cplusplus */
 
-    void pshmem_info_get_version (int * restrict major, int * restrict minor);
+    void pshmem_info_get_version (int *major, int *minor);
     void pshmem_info_get_name (char *name);
 
     /*

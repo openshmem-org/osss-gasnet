@@ -337,8 +337,8 @@ extern "C"
      *
      * @subsection c C
      @code
-     void shmem_info_get_version (int * restrict major,
-                                  int * restrict minor);
+     void shmem_info_get_version (int *major,
+                                  int *minor);
      @endcode
      * @subsection c C++
      @code
