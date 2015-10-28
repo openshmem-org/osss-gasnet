@@ -1131,13 +1131,14 @@ tmpcs=`mktemp $template`
 # save configuration options for C source code
 
 config_h="./config.h"
+osh_info="./src/osh_info"
 
 # clean up our temporary files on exit, or if something unexpected happens
 # but only clean config.h if problem
 
 clean_cfg()
 {
-    rm -f $config_h
+    rm -f $config_h $osh_info
 }
 clean_tmp()
 {
@@ -1248,7 +1249,7 @@ $0 $@
 _EOT_
 
 cp $tmpcs $cs
-chmod +x $cs
+chmod a+x $cs
 
 # cleanup of temporary file done by signal handler
 
@@ -1359,6 +1360,85 @@ setfeature()
 
     echo "#endif /* CONFIG_H */"
 ) > $config_h
+
+#
+# write config for osh_info
+#
+
+find_shmem_version()
+{
+    local hdr="./src/shmem.h"
+    local maj=`awk '/SHMEM_MAJOR_VERSION/ {print $3}' $hdr`
+    local min=`awk '/SHMEM_MINOR_VERSION/ {print $3}' $hdr`
+
+    echo "$maj.$min"
+}
+
+shmem_ver=`find_shmem_version`
+
+format_setting()
+{
+    local feature=$1
+    shift
+    local value="$*"
+
+    printf "echo \"%-29s\" %s\n" "${feature}:" "$value"
+}
+
+(
+    echo "#!/bin/sh"
+
+    format_setting openshmem_version $shmem_ver
+
+    format_setting have_feature_debug $feature_debug
+    format_setting have_feature_trace $feature_trace
+    format_setting have_feature_pshmem $feature_pshmem
+    format_setting have_feature_experimental $feature_experimental
+
+    format_setting openshmem_compiler_suite "$cc_type"
+    format_setting openshmem_compiler_cc "$cc_cmd"
+    format_setting openshmem_compiler_cppflags "$cpp_flags"
+    format_setting openshmem_compiler_cflags "$c_flags"
+    format_setting openshmem_compiler_cxx "$cxx_cmd"
+    format_setting openshmem_compiler_cxxflags "$cxx_flags"
+    format_setting openshmem_compiler_fc "$fc_cmd"
+    format_setting openshmem_compiler_fflags "$fc_flags"
+    format_setting openshmem_compiler_ld "$lc_cmd"
+    format_setting openshmem_compiler_ldflags "$ld_flags"
+
+    format_setting openshmem_exe_format "$exe_format"
+    format_setting openshmem_exe_headers "$exe_incdir"
+    format_setting openshmem_exe_libraries "$exe_libdir"
+
+    format_setting openshmem_comms_layer "$comms_layer"
+
+    case "$comms_layer" in
+        gasnet)
+            format_setting openshmem_have_gasnet 1
+            if [ "$gasnet_root" ]
+            then
+                format_setting openshmem_gasnet_root "$gasnet_root"
+            fi
+            format_setting openshmem_gasnet_incdir "$gasnet_incdir"
+            format_setting openshmem_gasnet_bindir "$gasnet_bindir"
+            format_setting openshmem_gasnet_version "$gasnet_ver"
+            format_setting openshmem_gasnet_conduit "$gasnet_conduit"
+            format_setting openshmem_gasnet_threnv "$gasnet_threnv"
+            ;;
+        *)
+            tell "I do not recognize communications layer \"$comms_layer\"."
+            tell "  I should not be here; please report this error"
+            bailout
+            ;;
+     esac
+
+    format_setting openshmem_install_prefix "$prefix"
+    format_setting openshmem_install_bin "$bindir"
+    format_setting openshmem_install_lib "$libdir"
+    format_setting openshmem_install_hdr "$incdir"
+    format_setting openshmem_install_pkg "$modulefilesdir"
+
+) > $osh_info
 
 tell ""
 tell "============================================================="

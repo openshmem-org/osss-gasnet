@@ -45,9 +45,14 @@
 .SH SYNOPSIS
 \fBoshrun\fP
 [launcher pass-through arguments]
+.RS
+.br
 -n N | -np N
+.br
 program
-[program arguments]
+.br
+[ [--] program arguments]
+.RE
 .SH DESCRIPTION
 \fBoshrun\fP runs an OpenSHMEM program on the given number of
 processing elements.
@@ -67,9 +72,13 @@ $ oshrun -np 4 ./sping.x -e 8192
 runs the Quadrics ping-pong example code on 4 processing elements, and
 passes the arguments "-e" and "8192" through to the OpenSHMEM program.
 .SH NOTES
+.LP
 The OpenSHMEM specification does not say anything about how OpenSHMEM
 programs and compiled, linked and launched.  These wrapper programs
 are supplied as part of the Reference Library for convenience.
+.LP
+To disambiguate launcher and program options/arguments, use "--" to
+signal end-of-launcher arguments.
 .SH SEE ALSO
 intro_shmem(3),
 .br

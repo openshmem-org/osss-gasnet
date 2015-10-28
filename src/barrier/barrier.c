@@ -57,7 +57,11 @@
 #include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static char *default_implementation = "tree";
+/*
+ * TODO: tree is currently buggy, don't use it
+ */
+
+static char *default_implementation = "linear";
 
 static void (*func) ();
 
@@ -78,17 +82,23 @@ shmemi_barrier_dispatch_init (void)
     if (strcmp (name, "linear") == 0) {
         func = shmemi_barrier_linear;
     }
+#if 0
     else if (strcmp (name, "tree") == 0) {
         func = shmemi_barrier_tree;
     }
+#endif
     else {
-        ;                       /* error */
+        shmemi_trace (SHMEM_LOG_FATAL,
+                      "unsupported barrier \"%s\"",
+                      name);
+        return;
+        /* NOT REACHED */
     }
 
     /*
-     * report which broadcast implementation we set up
+     * report which barrier implementation we set up
      */
-    shmemi_trace (SHMEM_LOG_BARRIER, "using broadcast \"%s\"", name);
+    shmemi_trace (SHMEM_LOG_BARRIER, "using barrier \"%s\"", name);
 }
 
 /*
