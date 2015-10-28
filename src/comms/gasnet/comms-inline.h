@@ -376,7 +376,11 @@ shmemi_service_init (void)
         delayspec.tv_sec = (time_t) 0;
         delayspec.tv_nsec = delay;
 
+#if defined(GASNET_CONDUIT_MPI)
+        thread_starter = true;
+#else
         thread_starter = shmemi_thread_starter ();
+#endif /* GASNET_CONDUIT_MPI */
 
         if (thread_starter) {
 #if defined(SHMEM_USE_PTHREADS)
