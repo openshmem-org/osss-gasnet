@@ -54,7 +54,7 @@ case "$progname" in
     oshcc)
         driver="${OSH_CC-$driver}"
         ;;
-    oshcxx | oshCC)
+    oshcxx | oshc++)
         driver="${OSH_CXX-$driver}"
         ;;
     oshfort)

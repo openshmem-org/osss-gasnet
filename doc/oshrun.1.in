@@ -44,8 +44,9 @@
 \fBoshrun\fP - run an OpenSHMEM program
 .SH SYNOPSIS
 \fBoshrun\fP
-[launcher pass-through arguments]
 .RS
+.br
+[launcher pass-through arguments]
 .br
 -n N | -np N
 .br
@@ -82,7 +83,7 @@ signal end-of-launcher arguments.
 .SH SEE ALSO
 intro_shmem(3),
 .br
-oshCC(1),
+oshcxx(1),
 .br
 oshrun(1),
 .br
