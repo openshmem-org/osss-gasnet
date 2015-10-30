@@ -44,8 +44,12 @@
 \fBoshcc\fP - compile an OpenSHMEM C program
 .SH SYNOPSIS
 \fBoshcc\fP
+.RS
+.br
 [ underlying compiler flags ]
+.br
 file.c [file.c ...]
+.RE
 .SH DESCRIPTION
 \fBoshcc\fP is a wrapper in the vein of mpicc that compiles
 an OpenSHMEM program.  The wrapper hides implementation
@@ -75,7 +79,7 @@ Library for convenience.
 .SH SEE ALSO
 intro_shmem(3),
 .br
-oshCC(1),
+oshcxx(1),
 .br
 oshfort(1),
 .br

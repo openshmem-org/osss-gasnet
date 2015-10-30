@@ -108,8 +108,8 @@ RANLIB           = ranlib
 # ---------------------------------------------------------
 
 SHMEM_CC         = oshcc
-SHMEM_CXX        = oshCC
-SHMEM_CXX_ALT    = oshcxx
+SHMEM_CXX        = oshcxx
+SHMEM_CXX_ALT    = oshc++
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
 
