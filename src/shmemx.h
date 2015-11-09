@@ -182,6 +182,101 @@ extern "C"
     void shmemx_long_xor (long *target, long value, int pe);
     void shmemx_longlong_xor (long long *target, long long value, int pe);
 
+    /**
+     * @brief These routines perform an atomic fetch from a remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     ...
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     ...
+     * @endcode
+     *
+     * @param target    Address of the symmetric data object where to save the data on the target pe.
+     * @param value     The value with which the exclusive-or operation is atomically
+     *                performed with the data at address target.
+     * @param pe        An integer that indicates the PE number upon
+     *                which target is to be updated. If you are using Fortran, it must
+     *                be a default integer value.
+     *
+     * @b Constraints:
+     *      - target must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the Synopsis
+     *      section. When calling from Fortran, the data type of value must be as follows:
+     *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the target data object.
+     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *
+     * @b Effect:
+     *
+     * The atomic exclusive-or routines perform an xor-operation between
+     * value and the data at address target on PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * target between the time of the fetch and the update.
+     *
+     * @return None.
+     *
+     */
+    int shmemx_int_fetch (int *target, int pe);
+    long shmemx_long_fetch (long *target, int pe);
+    long long shmemx_longlong_fetch (long long *target, int pe);
+
+    /**
+     * @brief These routines perform an atomic set of a variables on a
+     * remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     ...
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     ...
+     * @endcode
+     *
+     * @param target    Address of the symmetric data object where to save the data on the target pe.
+     * @param value     The value with which the exclusive-or operation is atomically
+     *                performed with the data at address target.
+     * @param pe        An integer that indicates the PE number upon
+     *                which target is to be updated. If you are using Fortran, it must
+     *                be a default integer value.
+     *
+     * @b Constraints:
+     *      - target must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the Synopsis
+     *      section. When calling from Fortran, the data type of value must be as follows:
+     *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the target data object.
+     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *
+     * @b Effect:
+     *
+     * The atomic exclusive-or routines perform an xor-operation between
+     * value and the data at address target on PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * target between the time of the fetch and the update.
+     *
+     * @return None.
+     *
+     */
+    void shmemx_int_set (int *target, int value, int pe);
+    void shmemx_long_set (long *target, long value, int pe);
+    void shmemx_longlong_set (long long *target, long long value, int pe);
+
     /*
      * wallclock time
      *
