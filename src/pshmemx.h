@@ -140,6 +140,10 @@ extern "C"
     void pshmemx_long_xor (long *target, long value, int pe);
     void pshmemx_longlong_xor (long long *target, long long value, int pe);
 
+    int pshmemx_int_fetch (int *target, int pe);
+    long pshmemx_long_fetch (long *target, int pe);
+    long long pshmemx_longlong_fetch (long long *target, int pe);
+
     /*
      * wallclock time
      *

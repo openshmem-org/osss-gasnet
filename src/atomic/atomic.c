@@ -278,4 +278,29 @@ SHMEMX_TYPE_XOR (int, int);
 SHMEMX_TYPE_XOR (long, long);
 SHMEMX_TYPE_XOR (longlong, long long);
 
+
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_int_fetch = pshmemx_int_fetch
+#define shmemx_int_fetch pshmemx_int_fetch
+#pragma weak shmemx_long_fetch = pshmemx_long_fetch
+#define shmemx_long_fetch pshmemx_long_fetch
+#pragma weak shmemx_longlong_fetch = pshmemx_longlong_fetch
+#define shmemx_longlong_fetch pshmemx_longlong_fetch
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#define SHMEM_TYPE_FETCH(Name, Type)                              \
+    Type                                                          \
+    shmemx_##Name##_fetch (Type *target, int pe)                  \
+    {                                                             \
+        INIT_CHECK ();                                            \
+        PE_RANGE_CHECK (pe, 2);                                   \
+        return shmemi_comms_fetch_request_##Name (target,         \
+                                                  pe);            \
+    }
+
+SHMEM_TYPE_FETCH (int, int);
+SHMEM_TYPE_FETCH (long, long);
+SHMEM_TYPE_FETCH (longlong, long long);
+
 #endif /* HAVE_FEATURE_EXPERIMENTAL */

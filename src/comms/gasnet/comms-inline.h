@@ -592,6 +592,10 @@ enum
     AMO_HANDLER_DEF (xor, long),
     AMO_HANDLER_DEF (xor, longlong),
 
+    AMO_HANDLER_DEF (fetch, int),
+    AMO_HANDLER_DEF (fetch, long),
+    AMO_HANDLER_DEF (fetch, longlong),
+
     GASNET_HANDLER_globalvar_put_out,
     GASNET_HANDLER_globalvar_put_bak,
     GASNET_HANDLER_globalvar_get_out,
@@ -1534,6 +1538,106 @@ AMO_XOR_BAK_EMIT (longlong, long long);
 AMO_XOR_REQ_EMIT (int, int);
 AMO_XOR_REQ_EMIT (long, long);
 AMO_XOR_REQ_EMIT (longlong, long long);
+
+
+/**
+ * fetch
+ */
+
+/**
+ * called by remote PE to do the fetch and add.  Store new value, send
+ * back old value
+ */
+#define AMO_FETCH_OUT_EMIT(Name, Type)                                  \
+    static void                                                         \
+    handler_fetch_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        pp->value = *(pp->r_symm_addr);                                 \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_fetch_bak_##Name,  \
+                               buf, bufsiz);                            \
+    }
+
+AMO_FETCH_OUT_EMIT (int, int);
+AMO_FETCH_OUT_EMIT (long, long);
+AMO_FETCH_OUT_EMIT (longlong, long long);
+
+/**
+ * called by fetch invoker when value returned by remote PE
+ */
+#define AMO_FETCH_BAK_EMIT(Name, Type)                                  \
+    static void                                                         \
+    handler_fetch_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        *(pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
+
+AMO_FETCH_BAK_EMIT (int, int);
+AMO_FETCH_BAK_EMIT (long, long);
+AMO_FETCH_BAK_EMIT (longlong, long long);
+
+/**
+ * perform the fetch
+ */
+#define AMO_FETCH_REQ_EMIT(Name, Type)                                  \
+    static inline Type                                                  \
+    shmemi_comms_fetch_request_##Name (Type *target, int pe)            \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate fetch payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_fetch_out_##Name,   \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
+                                                                        \
+        return p->value;                                                \
+    }
+
+AMO_FETCH_REQ_EMIT (int, int);
+AMO_FETCH_REQ_EMIT (long, long);
+AMO_FETCH_REQ_EMIT (longlong, long long);
+
+/**
+ * ---------------------------------------------------------------------------
+ */
 
 /**
  * perform the ping
