@@ -596,6 +596,10 @@ enum
     AMO_HANDLER_DEF (fetch, long),
     AMO_HANDLER_DEF (fetch, longlong),
 
+    AMO_HANDLER_DEF (set, int),
+    AMO_HANDLER_DEF (set, long),
+    AMO_HANDLER_DEF (set, longlong),
+
     GASNET_HANDLER_globalvar_put_out,
     GASNET_HANDLER_globalvar_put_bak,
     GASNET_HANDLER_globalvar_get_out,
@@ -1448,6 +1452,9 @@ AMO_INC_REQ_EMIT (int, int);
 AMO_INC_REQ_EMIT (long, long);
 AMO_INC_REQ_EMIT (longlong, long long);
 
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
 /**
  * Proposed by IBM Zurich
  *
@@ -1634,6 +1641,97 @@ AMO_FETCH_BAK_EMIT (longlong, long long);
 AMO_FETCH_REQ_EMIT (int, int);
 AMO_FETCH_REQ_EMIT (long, long);
 AMO_FETCH_REQ_EMIT (longlong, long long);
+
+/**
+ * called by remote PE to do the set
+ */
+#define AMO_SET_OUT_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_set_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        *(pp->r_symm_addr) = pp->value;                                 \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_set_bak_##Name,   \
+                               buf, bufsiz);                            \
+    }
+
+AMO_SET_OUT_EMIT (int, int);
+AMO_SET_OUT_EMIT (long, long);
+AMO_SET_OUT_EMIT (longlong, long long);
+
+/**
+ * called by set invoker when remote PE replies
+ */
+#define AMO_SET_BAK_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_set_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save returned value */                                       \
+        *(pp->value_addr) = pp->value;                                  \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
+
+AMO_SET_BAK_EMIT (int, int);
+AMO_SET_BAK_EMIT (long, long);
+AMO_SET_BAK_EMIT (longlong, long long);
+
+/**
+ * perform the fetch-and-add
+ */
+#define AMO_SET_REQ_EMIT(Name, Type)                                    \
+    static inline void                                                  \
+    shmemi_comms_set_request_##Name (Type *target, Type value, int pe)  \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate set payload memory"); \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_set_out_##Name,     \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
+    }
+
+AMO_SET_REQ_EMIT (int, int);
+AMO_SET_REQ_EMIT (long, long);
+AMO_SET_REQ_EMIT (longlong, long long);
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 /**
  * ---------------------------------------------------------------------------
@@ -2442,9 +2540,20 @@ static gasnet_handlerentry_t handlers[] = {
     AMO_HANDLER_LOOKUP (inc, long),
     AMO_HANDLER_LOOKUP (inc, longlong),
 
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
     AMO_HANDLER_LOOKUP (xor, int),
     AMO_HANDLER_LOOKUP (xor, long),
     AMO_HANDLER_LOOKUP (xor, longlong),
+
+    AMO_HANDLER_LOOKUP (fetch, int),
+    AMO_HANDLER_LOOKUP (fetch, long),
+    AMO_HANDLER_LOOKUP (fetch, longlong),
+
+    AMO_HANDLER_LOOKUP (set, int),
+    AMO_HANDLER_LOOKUP (set, long),
+    AMO_HANDLER_LOOKUP (set, longlong),
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
     {GASNET_HANDLER_globalvar_put_out, handler_globalvar_put_out},
