@@ -47,8 +47,9 @@
       integer SHMEM_MINOR_VERSION
       parameter ( SHMEM_MINOR_VERSION = 2 )
 
+! one less than C's length
       integer SHMEM_MAX_NAME_LEN
-      parameter ( SHMEM_MAX_NAME_LEN = 64 )
+      parameter ( SHMEM_MAX_NAME_LEN = 64 - 1 )
 
       character ( len = SHMEM_MAX_NAME_LEN ) SHMEM_VENDOR_STRING
       parameter ( SHMEM_VENDOR_STRING = "UH Reference Implementation" )
