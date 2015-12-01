@@ -93,8 +93,9 @@ SUSE/OpenSUSE
 GASNet Versions
 ===============
 
-Release versions 1.14.x up to the latest, currently 1.24.2, have all
-been used successfully.
+Released versions of GASNet are tracked as they come out and tested
+against this implementation.  The first version used was 1.14.0 and
+new versions are tested upon release.
 
 GASNet is now available from its source repository, which has also
 been used for testing.
