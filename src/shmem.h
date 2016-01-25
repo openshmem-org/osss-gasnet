@@ -965,7 +965,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+     void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -980,17 +980,17 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /* see \ref shmem_long_wait_until () */
-    void shmem_short_wait_until (short *ivar, int cmp, short cmp_value);
+    void shmem_short_wait_until (volatile short *ivar, int cmp, short cmp_value);
     /* see \ref shmem_long_wait_until () */
-    void shmem_int_wait_until (int *ivar, int cmp, int cmp_value);
+    void shmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
     /* see \ref shmem_long_wait_until () */
-    void shmem_longlong_wait_until (long long *ivar, int cmp,
+    void shmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                     long long cmp_value);
     /* see \ref shmem_long_wait_until () */
-    void shmem_wait_until (long *ivar, int cmp, long cmp_value);
+    void shmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /**
      * @brief wait for symmetric variable to change value
@@ -999,7 +999,7 @@ extern "C"
      *
      * @subsection c C/C++
      @code
-     void shmem_long_wait (long *ivar, long cmp_value);
+     void shmem_long_wait (volatile long *ivar, long cmp_value);
      @endcode
      *
      * @subsection f Fortran
@@ -1014,16 +1014,16 @@ extern "C"
      * @return None.
      *
      */
-    void shmem_long_wait (long *ivar, long cmp_value);
+    void shmem_long_wait (volatile long *ivar, long cmp_value);
 
     /* see \ref shmem_long_wait () */
-    void shmem_short_wait (short *ivar, short cmp_value);
+    void shmem_short_wait (volatile short *ivar, short cmp_value);
     /* see \ref shmem_long_wait () */
-    void shmem_int_wait (int *ivar, int cmp_value);
+    void shmem_int_wait (volatile int *ivar, int cmp_value);
     /* see \ref shmem_long_wait () */
-    void shmem_longlong_wait (long long *ivar, long long cmp_value);
+    void shmem_longlong_wait (volatile long long *ivar, long long cmp_value);
     /* see \ref shmem_long_wait () */
-    void shmem_wait (long *ivar, long cmp_value);
+    void shmem_wait (volatile long *ivar, long cmp_value);
 
     /*
      * atomic swaps
