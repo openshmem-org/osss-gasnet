@@ -44,20 +44,24 @@
 \fBoshfort\fP - compile an OpenSHMEM Fortran program
 .SH SYNOPSIS
 \fBoshfort\fP
+.RS
+.br
 [ underlying compiler flags ]
-file.f90 [file.f90 ...]
+.br
+file.f [file.f ...]
+.RE
 .SH DESCRIPTION
-\fBoshfort\fP is a wrapper in the vein of mpif90 that compiles
+\fBoshfort\fP is a wrapper in the vein of mpif77 that compiles
 an OpenSHMEM program.  The wrapper hides implementation
 details from the user.
 .SH EXAMPLES
 The command
 .LP
 .RS
-$ oshfort -g -o foo.exe foo.f90
+$ oshfort -g -o foo.exe foo.f
 .RE
 .LP
-compiles the Fortran source code foo.f90 into the OpenSHMEM executable foo.exe.
+compiles the Fortran source code foo.f into the OpenSHMEM executable foo.exe.
 .SH ENVIRONMENT
 The underlying compiler/linker invoked by this wrapper is determined
 when the OpenSHMEM library is built.  To override, set the
@@ -75,7 +79,7 @@ Library for convenience.
 .SH SEE ALSO
 intro_shmem(3),
 .br
-oshCC(1),
+oshcxx(1),
 .br
 oshfort(1),
 .br

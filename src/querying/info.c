@@ -55,5 +55,10 @@ shmem_info_get_version (int * major, int * minor)
 void
 shmem_info_get_name (char *name)
 {
-    strncpy (name, _SHMEM_VENDOR_STRING, _SHMEM_MAX_NAME_LEN);
+    snprintf (name,
+              _SHMEM_MAX_NAME_LEN,
+              "OpenSHMEM: %s, version %d.%d",
+              _SHMEM_VENDOR_STRING,
+              _SHMEM_MAJOR_VERSION, _SHMEM_MINOR_VERSION
+              );
 }

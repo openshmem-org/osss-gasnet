@@ -101,6 +101,10 @@ ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
 
+ifeq "@HAVE_FEATURE_EXPERIMENTAL@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_EXPERIMENTAL
+endif
+
 AR               = ar
 ARFLAGS          = cqv
 RANLIB           = ranlib
@@ -108,8 +112,8 @@ RANLIB           = ranlib
 # ---------------------------------------------------------
 
 SHMEM_CC         = oshcc
-SHMEM_CXX        = oshCC
-SHMEM_CXX_ALT    = oshcxx
+SHMEM_CXX        = oshcxx
+SHMEM_CXX_ALT    = oshc++
 SHMEM_FC         = oshfort
 SHMEM_RUN        = oshrun
 

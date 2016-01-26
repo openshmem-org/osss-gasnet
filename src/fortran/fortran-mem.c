@@ -97,7 +97,7 @@ extern char *sherror (void);
  */
 extern long malloc_error;
 
-void FORTRANIFY (shpalloc) (uintptr_t**addr, int *length,
+void FORTRANIFY (shpalloc) (uintptr_t **addr, int *length,
                             int *errcode, int *abort)
 {
     /* convert 32-bit words to bytes */
@@ -105,6 +105,12 @@ void FORTRANIFY (shpalloc) (uintptr_t**addr, int *length,
     void *symm_addr;
 
     INIT_CHECK ();
+
+    if (*length <= 0) {
+        *errcode = SHMEM_MALLOC_BAD_SIZE;
+        return;
+        /* NOT REACHED */
+    }
 
     symm_addr = shmem_malloc (*length * scale);
 
