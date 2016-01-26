@@ -257,19 +257,19 @@ extern "C"
      * wait operations
      */
 
-    void pshmem_short_wait_until (short *ivar, int cmp,
+    void pshmem_short_wait_until (volatile short *ivar, int cmp,
                                   short cmp_value);
-    void pshmem_int_wait_until (int *ivar, int cmp, int cmp_value);
-    void pshmem_long_wait_until (long *ivar, int cmp, long cmp_value);
-    void pshmem_longlong_wait_until (long long *ivar, int cmp,
+    void pshmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
+    void pshmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
+    void pshmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                             long long cmp_value);
-    void pshmem_wait_until (long *ivar, int cmp, long cmp_value);
+    void pshmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
-    void pshmem_short_wait (short *ivar, short cmp_value);
-    void pshmem_int_wait (int *ivar, int cmp_value);
-    void pshmem_long_wait (long *ivar, long cmp_value);
-    void pshmem_longlong_wait (long long *ivar, long long cmp_value);
-    void pshmem_wait (long *ivar, long cmp_value);
+    void pshmem_short_wait (volatile short *ivar, short cmp_value);
+    void pshmem_int_wait (volatile int *ivar, int cmp_value);
+    void pshmem_long_wait (volatile long *ivar, long cmp_value);
+    void pshmem_longlong_wait (volatile long long *ivar, long long cmp_value);
+    void pshmem_wait (volatile long *ivar, long cmp_value);
 
     /*
      * atomic swaps
@@ -559,9 +559,9 @@ extern "C"
      * locks/critical section
      */
 
-    void pshmem_set_lock (long *lock);
-    void pshmem_clear_lock (long *lock);
-    int  pshmem_test_lock (long *lock) _WUR;
+    void pshmem_set_lock (volatile long *lock);
+    void pshmem_clear_lock (volatile long *lock);
+    int  pshmem_test_lock (volatile long *lock) _WUR;
 
     /*
      * --end--
