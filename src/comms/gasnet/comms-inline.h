@@ -497,8 +497,8 @@ shmemi_comms_barrier_all (void)
 #define GASNET_WAIT_ALL()
 #endif /* USING_IMPLICIT_HANDLES */
 
-#define GASNET_GET(pe, dst, src, len)      gasnet_get (pe, dst, src, len)
-#define GASNET_GET_BULK(pe, dst, src, len) gasnet_get_bulk (pe, dst, src, len)
+#define GASNET_GET(dst, pe, src, len)      gasnet_get (dst, pe, src, len)
+#define GASNET_GET_pe(BULK, dst, src, len) gasnet_get_bulk (dst, pe, src, len)
 
 /**
  * ---------------------------------------------------------------------------
