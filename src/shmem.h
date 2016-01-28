@@ -139,37 +139,37 @@ extern "C"
      * start/stop & query
      */
 
-/**
- * @brief initializes the OpenSHMEM environment on the calling PE.
- *
- * @section Synopsis
- *
- * @subsection c C/C++
- @code
- void start_pes (int npes);
- @endcode
- *
- * @subsection f Fortran
- @code
- INTEGER npes
+    /**
+     * @brief initializes the OpenSHMEM environment on the calling PE.
+     *
+     * @section Synopsis
+     *
+     * @subsection c C/C++
+     @code
+     void start_pes (int npes);
+     @endcode
+     *
+     * @subsection f Fortran
+     @code
+     INTEGER npes
 
- CALL START_PES (npes)
- @endcode
- *
- * @param npes the number of PEs participating in the program.  This
- * is ignored and should be set to 0.
- *
- * @section Effect
- *
- * Initializes the OpenSHMEM environment on the calling PE.
- *
- * @return None.
- *
- * @deprecated by \ref shmem_init()
- *
- */
-      void start_pes (int npes)
-          _DEPRECATED_BY(shmem_init);
+     CALL START_PES (npes)
+     @endcode
+     *
+     * @param npes the number of PEs participating in the program.  This
+     * is ignored and should be set to 0.
+     *
+     * @section Effect
+     *
+     * Initializes the OpenSHMEM environment on the calling PE.
+     *
+     * @return None.
+     *
+     * @deprecated by \ref shmem_init()
+     *
+     */
+    void start_pes (int npes)
+        _DEPRECATED_BY(shmem_init);
 
     /**
      * @brief initializes the OpenSHMEM environment on the calling PE.
@@ -1397,12 +1397,12 @@ extern "C"
      /**
      * cf. Fortran values are multiples of these (different types)
      */
-#define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
+#define SHMEM_INTERNAL_F2C_SCALE        ( sizeof (long) / sizeof (int) )
 
-#define SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BCAST_SYNC_SIZE           (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE         (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE          (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE   (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
@@ -1903,6 +1903,20 @@ extern "C"
     void shmemx_longlong_set (long long *dest, long long value, int pe);
     void shmemx_float_set (float *dest, float value, int pe);
     void shmemx_double_set (double *dest, double value, int pe);
+
+    /*
+     * deprecated shmem constants
+     */
+#define _SHMEM_MAJOR_VERSION            SHMEM_MAJOR_VERSION
+#define _SHMEM_MINOR_VERSION            SHMEM_MINOR_VERSION
+#define _SHMEM_MAX_NAME_LEN             SHMEM_MAX_NAME_LEN
+#define _SHMEM_VENDOR_STRING            SHMEM_VENDOR_STRING
+#define _SHMEM_BCAST_SYNC_SIZE          SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_BARRIER_SYNC_SIZE        SHMEM_BARRIER_SYNC_SIZE
+#define _SHMEM_REDUCE_SYNC_SIZE         SHMEM_REDUCE_SYNC_SIZE
+#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE  SHMEM_REDUCE_MIN_WRKDATA_SIZE
+#define _SHMEM_SYNC_VALUE               SHMEM_SYNC_VALUE
+#define _SHMEM_COLLECT_SYNC_SIZE        SHMEM_COLLECT_SYNC_SIZE
 
     /*
      * --end--
