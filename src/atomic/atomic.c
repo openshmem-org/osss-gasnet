@@ -287,6 +287,10 @@ SHMEMX_TYPE_XOR (longlong, long long);
 #define shmemx_long_fetch pshmemx_long_fetch
 #pragma weak shmemx_longlong_fetch = pshmemx_longlong_fetch
 #define shmemx_longlong_fetch pshmemx_longlong_fetch
+#pragma weak shmemx_float_fetch = pshmemx_float_fetch
+#define shmemx_float_fetch pshmemx_float_fetch
+#pragma weak shmemx_double_fetch = pshmemx_double_fetch
+#define shmemx_double_fetch pshmemx_double_fetch
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_FETCH(Name, Type)                              \
@@ -302,6 +306,8 @@ SHMEMX_TYPE_XOR (longlong, long long);
 SHMEM_TYPE_FETCH (int, int);
 SHMEM_TYPE_FETCH (long, long);
 SHMEM_TYPE_FETCH (longlong, long long);
+SHMEM_TYPE_FETCH (float, float);
+SHMEM_TYPE_FETCH (double, double);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -311,6 +317,10 @@ SHMEM_TYPE_FETCH (longlong, long long);
 #define shmemx_long_set pshmemx_long_set
 #pragma weak shmemx_longlong_set = pshmemx_longlong_set
 #define shmemx_longlong_set pshmemx_longlong_set
+#pragma weak shmemx_float_set = pshmemx_float_set
+#define shmemx_float_set pshmemx_float_set
+#pragma weak shmemx_double_set = pshmemx_double_set
+#define shmemx_double_set pshmemx_double_set
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_SET(Name, Type)                                \
@@ -326,5 +336,7 @@ SHMEM_TYPE_FETCH (longlong, long long);
 SHMEM_TYPE_SET (int, int);
 SHMEM_TYPE_SET (long, long);
 SHMEM_TYPE_SET (longlong, long long);
+SHMEM_TYPE_SET (float, float);
+SHMEM_TYPE_SET (double, double);
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
