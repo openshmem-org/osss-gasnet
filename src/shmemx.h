@@ -150,23 +150,27 @@ extern "C"
      SHMEMX_INT8_XOR (target, value, pe)
      * @endcode
      *
-     * @param target    Address of the symmetric data object where to save the data on the target pe.
-     * @param value     The value with which the exclusive-or operation is atomically
-     *                performed with the data at address target.
+     * @param target    Address of the symmetric data object where to save
+     *                    the data on the target pe.
+     * @param value     The value with which the exclusive-or operation is
+     *                    atomically performed with the data at address target.
      * @param pe        An integer that indicates the PE number upon
-     *                which target is to be updated. If you are using Fortran, it must
-     *                be a default integer value.
+     *                which target is to be updated. If you are using Fortran,
+     *                it must be a default integer value.
      *
      * @b Constraints:
      *      - target must be the address of a symmetric data object.
-     *      - If using C/C++, the type of value must match that implied in the Synopsis
-     *      section. When calling from Fortran, the data type of value must be as follows:
+     *      - If using C/C++, the type of value must match that implied in
+     *        the Synopsis section. When calling from Fortran, the data type
+     *        of value must be as follows:
      *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
      *            with element size of 4 bytes
      *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
      *            with element size of 8 bytes.
      *      - value must be the same type as the target data object.
-     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
      *
      * @b Effect:
      *
@@ -189,40 +193,48 @@ extern "C"
      *
      * - C/C++:
      * @code
-     ...
+     int shmemx_int_fetch (int *target, int pe);
+     long shmemx_long_fetch (long *target, int pe);
+     long long shmemx_longlong_fetch (long long *target, int pe);
      * @endcode
      *
      * - Fortran:
      * @code
-     ...
+     INTEGER pe
+     INTEGER*4 v4
+     INTEGER*8 v8
+
+     v4 = SHMEMX_INT4_FETCH (target, pe)
+     v8 = SHMEMX_INT8_FETCH (target, pe)
      * @endcode
      *
-     * @param target    Address of the symmetric data object where to save the data on the target pe.
-     * @param value     The value with which the exclusive-or operation is atomically
-     *                performed with the data at address target.
+     * @param target    Address of the symmetric data object in which save the
+     *                    data on the target pe.
      * @param pe        An integer that indicates the PE number upon
-     *                which target is to be updated. If you are using Fortran, it must
-     *                be a default integer value.
+     *                    which target is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
      *
      * @b Constraints:
      *      - target must be the address of a symmetric data object.
      *      - If using C/C++, the type of value must match that implied in the Synopsis
      *      section. When calling from Fortran, the data type of value must be as follows:
-     *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
+     *          - For SHMEMX_INT4_FETCH(), value must be of type Integer,
      *            with element size of 4 bytes
-     *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
+     *          - For SHMEMX_INT8_FETCH(), value must be of type Integer,
      *            with element size of 8 bytes.
      *      - value must be the same type as the target data object.
-     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
      *
      * @b Effect:
      *
-     * The atomic exclusive-or routines perform an xor-operation between
-     * value and the data at address target on PE pe. The operation must
+     * The atomic fetch routines atomically return the value at address
+     * "target" on PE pe. The operation must
      * be completed without the possibility of another process updating
-     * target between the time of the fetch and the update.
+     * target on PE pe using the same type.
      *
-     * @return None.
+     * @return The value stored at address "target" on PE pe.
      *
      */
     int shmemx_int_fetch (int *target, int pe);
@@ -230,45 +242,56 @@ extern "C"
     long long shmemx_longlong_fetch (long long *target, int pe);
 
     /**
-     * @brief These routines perform an atomic set of a variables on a
+     * @brief These routines perform an atomic set of a variable on a
      * remote PE
      *
      * @b Synopsis:
      *
      * - C/C++:
      * @code
-     ...
+     void shmemx_int_set (int *target, int value, int pe);
+     void shmemx_long_set (long *target, long value, int pe);
+     void shmemx_longlong_set (long long *target, long long value, int pe);
      * @endcode
      *
      * - Fortran:
      * @code
-     ...
+     INTEGER pe
+     INTEGER*4 v4
+     INTEGER*8 v8
+
+     SHMEMX_INT4_SET (target, v4, pe)
+     SHMEMX_INT8_SET (target, v8, pe)
      * @endcode
      *
-     * @param target    Address of the symmetric data object where to save the data on the target pe.
-     * @param value     The value with which the exclusive-or operation is atomically
-     *                performed with the data at address target.
+     * @param target    Address of the symmetric data object in which save the
+     *                    data on the target pe.
+     * @param value     The remote target address is atomically set to
+     *                    this value.
      * @param pe        An integer that indicates the PE number upon
-     *                which target is to be updated. If you are using Fortran, it must
-     *                be a default integer value.
+     *                    which target is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
      *
      * @b Constraints:
      *      - target must be the address of a symmetric data object.
-     *      - If using C/C++, the type of value must match that implied in the Synopsis
-     *      section. When calling from Fortran, the data type of value must be as follows:
-     *          - For SHMEMX_INT4_XOR(), value must be of type Integer,
+     *      - If using C/C++, the type of value must match that implied in the
+     *        Synopsis section. When calling from Fortran, the data type of
+     *        value must be as follows:
+     *          - For SHMEMX_INT4_SET(), value must be of type Integer,
      *            with element size of 4 bytes
-     *          - For SHMEMX_INT8_XOR(), value must be of type Integer,
+     *          - For SHMEMX_INT8_SET(), value must be of type Integer,
      *            with element size of 8 bytes.
      *      - value must be the same type as the target data object.
-     *      - This process must be carried out guaranteeing that it will not be interrupted by any other operation.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
      *
      * @b Effect:
      *
-     * The atomic exclusive-or routines perform an xor-operation between
-     * value and the data at address target on PE pe. The operation must
+     * The atomic set routines atomically update an address to be "value" on
+     * PE pe. The operation must
      * be completed without the possibility of another process updating
-     * target between the time of the fetch and the update.
+     * target on PE pe using the same type.
      *
      * @return None.
      *
