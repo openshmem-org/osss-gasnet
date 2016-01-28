@@ -323,12 +323,12 @@ extern "C"
     /*
      * OpenSHMEM release
      */
-#define _SHMEM_MAJOR_VERSION 1
-#define _SHMEM_MINOR_VERSION 2
+#define SHMEM_MAJOR_VERSION 1
+#define SHMEM_MINOR_VERSION 2
 
-#define _SHMEM_MAX_NAME_LEN 64
+#define SHMEM_MAX_NAME_LEN 64
 
-#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
+#define SHMEM_VENDOR_STRING "UH Reference Implementation"
 
     /**
      * @brief determines the major.minor version numbers of this release.
@@ -950,12 +950,12 @@ extern "C"
 
     enum shmem_cmp_constants
         {
-            _SHMEM_CMP_EQ = 0,
-            _SHMEM_CMP_NE,
-            _SHMEM_CMP_GT,
-            _SHMEM_CMP_LE,
-            _SHMEM_CMP_LT,
-            _SHMEM_CMP_GE,
+            SHMEM_CMP_EQ = 0,
+            SHMEM_CMP_NE,
+            SHMEM_CMP_GT,
+            SHMEM_CMP_LE,
+            SHMEM_CMP_LT,
+            SHMEM_CMP_GE
         };
 
     /**
@@ -1399,15 +1399,15 @@ extern "C"
      */
 #define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
 
-#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BCAST_SYNC_SIZE           (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE         (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE          (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE   (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
      */
-#define _SHMEM_SYNC_VALUE (-1L)
+#define SHMEM_SYNC_VALUE (-1L)
 
     void shmem_long_sum_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
@@ -1664,7 +1664,7 @@ extern "C"
      * collects
      */
 
-#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     void shmem_fcollect64 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,
@@ -1773,6 +1773,26 @@ extern "C"
      *
      */
     int shmem_test_lock (long *lock) _WUR;
+
+    /*
+     * deprecated shmem constants
+     */
+#define _SHMEM_MAJOR_VERSION            SHMEM_MAJOR_VERSION
+#define _SHMEM_MINOR_VERSION            SHMEM_MINOR_VERSION
+#define _SHMEM_MAX_NAME_LEN             SHMEM_MAX_NAME_LEN
+#define _SHMEM_VENDOR_STRING            SHMEM_VENDOR_STRING
+#define _SHMEM_BCAST_SYNC_SIZE          SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_BARRIER_SYNC_SIZE        SHMEM_BARRIER_SYNC_SIZE
+#define _SHMEM_REDUCE_SYNC_SIZE         SHMEM_REDUCE_SYNC_SIZE
+#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE  SHMEM_REDUCE_MIN_WRKDATA_SIZE
+#define _SHMEM_SYNC_VALUE               SHMEM_SYNC_VALUE
+#define _SHMEM_COLLECT_SYNC_SIZE        SHMEM_COLLECT_SYNC_SIZE
+#define _SHMEM_CMP_EQ                   SHMEM_CMP_EQ
+#define _SHMEM_CMP_NE                   SHMEM_CMP_NE
+#define _SHMEM_CMP_GT                   SHMEM_CMP_GT
+#define _SHMEM_CMP_LE                   SHMEM_CMP_LE
+#define _SHMEM_CMP_LT                   SHMEM_CMP_LT
+#define _SHMEM_CMP_GE                   SHMEM_CMP_GE
 
     /*
      * --end--
