@@ -564,6 +564,23 @@ extern "C"
     int  pshmem_test_lock (volatile long *lock) _WUR;
 
     /*
+     * atomic fetch and set
+     */
+
+    int pshmem_int_fetch (int *target, int pe);
+    long pshmem_long_fetch (long *target, int pe);
+    long long pshmem_longlong_fetch (long long *target, int pe);
+    float pshmem_float_fetch (float *target, int pe);
+    double pshmem_double_fetch (double *target, int pe);
+
+    void pshmem_int_set (int *target, int value, int pe);
+    void pshmem_long_set (long *target, long value, int pe);
+    void pshmem_longlong_set (long long *target, long long value, int pe);
+    void pshmem_float_set (float *target, float value, int pe);
+    void pshmem_double_set (double *target, double value, int pe);
+
+
+    /*
      * --end--
      */
 

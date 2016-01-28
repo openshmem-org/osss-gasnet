@@ -1774,6 +1774,136 @@ extern "C"
      */
     int shmem_test_lock (volatile long *lock) _WUR;
 
+    /**
+     * @brief These routines perform an atomic fetch from a remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     int shmemx_int_fetch (int *dest, int pe);
+     long shmemx_long_fetch (long *dest, int pe);
+     long long shmemx_longlong_fetch (long long *dest, int pe);
+     float shmemx_float_fetch (float *dest, int pe);
+     double shmemx_double_fetch (double *dest, int pe);
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     integer pe
+     integer*4 v4
+     integer*8 v8
+     real*4 r4
+     real*8 r8
+
+     v4 = shmemx_int4_fetch (dest, pe)
+     v8 = shmemx_int8_fetch (dest, pe)
+     r4 = shmemx_real4_fetch (dest, pe)
+     r8 = shmemx_real8_fetch (dest, pe)
+     * @endcode
+     *
+     * @param dest    Address of the symmetric data object in which save the
+     *                    data on the target pe.
+     * @param pe        An integer that indicates the PE number upon
+     *                    which dest is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
+     *
+     * @b Constraints:
+     *      - dest must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the Synopsis
+     *      section. When calling from Fortran, the data type of value must be as follows:
+     *          - For SHMEMX_INT4_FETCH(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_FETCH(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the target data object.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
+     *
+     * @b Effect:
+     *
+     * The atomic fetch routines atomically return the value at address
+     * "dest" on PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * dest on PE pe using the same type.
+     *
+     * @return The value stored at address "dest" on PE pe.
+     *
+     */
+    int shmemx_int_fetch (int *dest, int pe);
+    long shmemx_long_fetch (long *dest, int pe);
+    long long shmemx_longlong_fetch (long long *dest, int pe);
+    float shmemx_float_fetch (float *dest, int pe);
+    double shmemx_double_fetch (double *dest, int pe);
+
+    /**
+     * @brief These routines perform an atomic set of a variable on a
+     * remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     void shmemx_int_set (int *dest, int value, int pe);
+     void shmemx_long_set (long *dest, long value, int pe);
+     void shmemx_longlong_set (long long *dest, long long value, int pe);
+     void shmemx_float_set (float *dest, float value, int pe);
+     void shmemx_double_set (double *dest, double value, int pe);
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     integer pe
+     integer*4 v4
+     integer*8 v8
+     real*4 r4
+     real*8 r8
+
+     call shmemx_int4_set (dest, v4, pe)
+     call shmemx_int8_set (dest, v8, pe)
+     call shmemx_real4_set (dest, r4, pe)
+     call shmemx_real8_set (dest, r8, pe)
+     * @endcode
+     *
+     * @param dest    Address of the symmetric data object in which save the
+     *                    data on the target pe.
+     * @param value     The remote dest address is atomically set to
+     *                    this value.
+     * @param pe        An integer that indicates the PE number upon
+     *                    which dest is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
+     *
+     * @b Constraints:
+     *      - dest must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the
+     *        Synopsis section. When calling from Fortran, the data type of
+     *        value must be as follows:
+     *          - For SHMEMX_INT4_SET(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_SET(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the dest data object.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
+     *
+     * @b Effect:
+     *
+     * The atomic set routines atomically update an address to be "value" on
+     * PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * dest on PE pe using the same type.
+     *
+     * @return None.
+     *
+     */
+    void shmemx_int_set (int *dest, int value, int pe);
+    void shmemx_long_set (long *dest, long value, int pe);
+    void shmemx_longlong_set (long long *dest, long long value, int pe);
+    void shmemx_float_set (float *dest, float value, int pe);
+    void shmemx_double_set (double *dest, double value, int pe);
+
     /*
      * --end--
      */
