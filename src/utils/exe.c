@@ -58,8 +58,21 @@
 
 #include "utils.h"
 
+#ifdef __FreeBSD__
+
+static const char *self = "/proc/self/file";
+static const char *self_fmt = "/proc/%ld/file";
+
+#elif defined(__linux__)
+
 static const char *self = "/proc/self/exe";
 static const char *self_fmt = "/proc/%ld/exe";
+
+#else
+
+#error "I don't know how to find the executable name on this OS"
+
+#endif /* __FreeBSD__, __linux__, ... */
 
 /**
  * inspect our own executable: find the real program name, and open a
@@ -75,23 +88,13 @@ shmemi_executable_init (void)
     s = readlink (self, GET_STATE (exe_name), MAXPATHLEN - 1);
 
     /* if not, try finding our PID */
-    if (EXPR_UNLIKELY (s < 0)) {
-        char buf[MAXPATHLEN];
-        snprintf (buf, MAXPATHLEN, self_fmt, getpid ());
-        s = readlink (buf, GET_STATE (exe_name), MAXPATHLEN - 1);
+    if (s >= 0) {
+        /* bleagh, readlink doesn't null-terminate */
+        GET_STATE (exe_name)[s] = '\0';
     }
-
-    /* dunno who I am, complain */
-    if (EXPR_UNLIKELY (s < 0)) {
-        shmemi_trace (SHMEM_LOG_FATAL,
-                      "can't find my own executable name (%s)",
-                      strerror (errno));
-        goto bail;
-        /* NOT REACHED */
+    else {
+        snprintf (GET_STATE (exe_name), MAXPATHLEN, self_fmt, getpid ());
     }
-
-    /* bleagh, readlink doesn't null-terminate */
-    GET_STATE (exe_name)[s] = '\0';
 
     /* get a file descriptor */
     fd = open (GET_STATE (exe_name), O_RDONLY, 0);
@@ -99,7 +102,7 @@ shmemi_executable_init (void)
         shmemi_trace (SHMEM_LOG_FATAL,
                       "can't open \"%s\" (%s)",
                       GET_STATE (exe_name), strerror (errno));
-        return;
+        goto bail;
         /* NOT REACHED */
     }
 
