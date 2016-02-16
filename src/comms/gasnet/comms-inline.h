@@ -2580,6 +2580,8 @@ static const int nhandlers = TABLE_SIZE (handlers);
 static int argc = 0;
 static char **argv = NULL;
 
+#ifdef __linux__
+
 static const char *cmdline = "/proc/self/cmdline";
 static const char *cmdline_fmt = "/proc/%ld/cmdline";
 
@@ -2644,6 +2646,94 @@ parse_cmdline (void)
   end:
     fclose (fp);
 }
+
+#endif /* __linux__ */
+
+#ifdef __FreeBSD__
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+#include <limits.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <fcntl.h>
+#include <kvm.h>
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#include <sys/user.h>
+
+#define IGNORE_COREFILE "/dev/null"
+
+static inline void
+parse_cmdline(void)
+{
+#if 0
+    char kerr[_POSIX2_LINE_MAX];
+    kvm_t *kp;
+    struct kinfo_proc *kip;
+    int nprocs;
+    char **kargv;
+    char **kwalk;
+    int narg;
+    int kcs;
+    int i;
+
+    kp = kvm_openfiles(NULL, IGNORE_COREFILE, NULL, O_RDONLY, kerr);
+    if (kp == NULL) {
+      goto bailkvm;
+    }
+
+    kip = kvm_getprocs(kp, KERN_PROC_PID, getpid(), &nprocs);
+    if (kip == NULL) {
+      goto bailkvm;
+    }
+    if (nprocs != 1) {
+      goto bailkvm;
+    }
+
+    kargv = kvm_getargv(kp, kip, 0);
+    if (kargv == NULL) {
+      goto bailkvm;
+    }
+
+    kwalk = kargv;
+    while (*kwalk != NULL) {
+      kwalk += 1;
+      argc += 1;
+    }
+
+    kcs = kvm_close(kp);
+    if (kcs != 0) {
+      goto bailkvm;
+    }
+#endif /* finding argv properly */
+
+    argv = (char **) malloc ((argc + 1) * sizeof (*argv));
+    if (EXPR_UNLIKELY (argv == (char **) NULL)) {
+        goto bailkvm;
+    }
+
+#if 0
+    for (i = 0; i < argc; i += 1) {
+      argv[i] = kargv[i];
+    }
+#else
+    argv[0] = NULL;
+#endif /* finding argv properly */
+
+    return;
+
+  bailkvm:
+    comms_bailout
+       ("internal error: unable to allocate memory for faked command-line arguments");
+    /* NOT REACHED */
+}
+
+#endif /* __FreeBSD__ */
 
 static inline void
 release_cmdline (void)
