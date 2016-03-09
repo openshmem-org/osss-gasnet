@@ -1,8 +1,8 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -53,7 +53,7 @@ shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
     const int me = shmem_my_pe ();
     const int step = 1 << logPE_stride;
-    const long nreplies = _SHMEM_SYNC_VALUE + PE_size - 1;
+    const long nreplies = SHMEM_SYNC_VALUE + PE_size - 1;
     int i, round;
     int thatpe;
 
@@ -70,9 +70,9 @@ shmemi_barrier_linear (int PE_start, int logPE_stride, int PE_size, long *pSync)
             }
 
         }
-        shmem_long_wait_until (&pSync[round], _SHMEM_CMP_EQ, nreplies);
+        shmem_long_wait_until (&pSync[round], SHMEM_CMP_EQ, nreplies);
 
-        pSync[round] = _SHMEM_SYNC_VALUE;
+        pSync[round] = SHMEM_SYNC_VALUE;
 
     }
 }

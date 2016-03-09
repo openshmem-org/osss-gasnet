@@ -1,8 +1,8 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -562,6 +562,23 @@ extern "C"
     void pshmem_set_lock (volatile long *lock);
     void pshmem_clear_lock (volatile long *lock);
     int  pshmem_test_lock (volatile long *lock) _WUR;
+
+    /*
+     * atomic fetch and set
+     */
+
+    int pshmem_int_fetch (int *target, int pe);
+    long pshmem_long_fetch (long *target, int pe);
+    long long pshmem_longlong_fetch (long long *target, int pe);
+    float pshmem_float_fetch (float *target, int pe);
+    double pshmem_double_fetch (double *target, int pe);
+
+    void pshmem_int_set (int *target, int value, int pe);
+    void pshmem_long_set (long *target, long value, int pe);
+    void pshmem_longlong_set (long long *target, long long value, int pe);
+    void pshmem_float_set (float *target, float value, int pe);
+    void pshmem_double_set (double *target, double value, int pe);
+
 
     /*
      * --end--

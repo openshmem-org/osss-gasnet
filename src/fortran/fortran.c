@@ -1,8 +1,8 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -1276,7 +1276,7 @@ void FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
 void FORTRANIFY (shmem_info_get_name) (char *name)
 {
     int len;
-    const int max_f_len = _SHMEM_MAX_NAME_LEN - 1;
+    const int max_f_len = SHMEM_MAX_NAME_LEN - 1;
 
     /* get the C string */
     shmem_info_get_name (name);

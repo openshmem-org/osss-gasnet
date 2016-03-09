@@ -2,7 +2,7 @@
  *
  * Copyright (c) 2011 - 2014
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -56,9 +56,9 @@ void
 shmem_info_get_name (char *name)
 {
     snprintf (name,
-              _SHMEM_MAX_NAME_LEN,
+              SHMEM_MAX_NAME_LEN,
               "OpenSHMEM: %s, version %d.%d",
-              _SHMEM_VENDOR_STRING,
-              _SHMEM_MAJOR_VERSION, _SHMEM_MINOR_VERSION
+              SHMEM_VENDOR_STRING,
+              SHMEM_MAJOR_VERSION, SHMEM_MINOR_VERSION
               );
 }

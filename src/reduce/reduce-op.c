@@ -1,8 +1,8 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -175,8 +175,8 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                                 Type *pWrk, long *pSync)                \
     {                                                                   \
         const int step = 1 << logPE_stride;                             \
-        const int nloops = nreduce / _SHMEM_REDUCE_MIN_WRKDATA_SIZE;    \
-        const int nrem = nreduce % _SHMEM_REDUCE_MIN_WRKDATA_SIZE;      \
+        const int nloops = nreduce / SHMEM_REDUCE_MIN_WRKDATA_SIZE;     \
+        const int nrem = nreduce % SHMEM_REDUCE_MIN_WRKDATA_SIZE;       \
         const int snred = sizeof(Type) * nreduce;                       \
         const int overlap = OVERLAP_CHECK (target, source, snred);      \
         size_t nget;                                                    \
@@ -224,16 +224,16 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                         int k;                                          \
                         int ti = 0, si = 0; /* target and source index walk */ \
                         /* pull in all the full chunks */               \
-                        nget = _SHMEM_REDUCE_MIN_WRKDATA_SIZE * sizeof (Type); \
+                        nget = SHMEM_REDUCE_MIN_WRKDATA_SIZE * sizeof (Type); \
                         for (k = 0; k < nloops; k += 1)                 \
                             {                                           \
                                 shmem_getmem (pWrk, & (source[si]), nget, pe); \
-                                for (j = 0; j < _SHMEM_REDUCE_MIN_WRKDATA_SIZE; j += 1) \
+                                for (j = 0; j < SHMEM_REDUCE_MIN_WRKDATA_SIZE; j += 1) \
                                     {                                   \
                                         write_to[ti] = (*the_op) (write_to[ti], pWrk[j]); \
                                         ti += 1;                        \
                                     }                                   \
-                                si += _SHMEM_REDUCE_MIN_WRKDATA_SIZE;   \
+                                si += SHMEM_REDUCE_MIN_WRKDATA_SIZE;    \
                             }                                           \
                         nget = nrem * sizeof (Type);                    \
                         /* now get remaining part of source */          \

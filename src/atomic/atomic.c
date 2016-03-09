@@ -1,8 +1,8 @@
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -278,20 +278,28 @@ SHMEMX_TYPE_XOR (int, int);
 SHMEMX_TYPE_XOR (long, long);
 SHMEMX_TYPE_XOR (longlong, long long);
 
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
+/**
+ * fetch and set go mainstream in 1.3
+ */
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmemx_int_fetch = pshmemx_int_fetch
-#define shmemx_int_fetch pshmemx_int_fetch
-#pragma weak shmemx_long_fetch = pshmemx_long_fetch
-#define shmemx_long_fetch pshmemx_long_fetch
-#pragma weak shmemx_longlong_fetch = pshmemx_longlong_fetch
-#define shmemx_longlong_fetch pshmemx_longlong_fetch
+#pragma weak shmem_int_fetch = pshmem_int_fetch
+#define shmem_int_fetch pshmem_int_fetch
+#pragma weak shmem_long_fetch = pshmem_long_fetch
+#define shmem_long_fetch pshmem_long_fetch
+#pragma weak shmem_longlong_fetch = pshmem_longlong_fetch
+#define shmem_longlong_fetch pshmem_longlong_fetch
+#pragma weak shmem_float_fetch = pshmem_float_fetch
+#define shmem_float_fetch pshmem_float_fetch
+#pragma weak shmem_double_fetch = pshmem_double_fetch
+#define shmem_double_fetch pshmem_double_fetch
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_FETCH(Name, Type)                              \
     Type                                                          \
-    shmemx_##Name##_fetch (Type *target, int pe)                  \
+    shmem_##Name##_fetch (Type *target, int pe)                   \
     {                                                             \
         INIT_CHECK ();                                            \
         PE_RANGE_CHECK (pe, 2);                                   \
@@ -302,20 +310,26 @@ SHMEMX_TYPE_XOR (longlong, long long);
 SHMEM_TYPE_FETCH (int, int);
 SHMEM_TYPE_FETCH (long, long);
 SHMEM_TYPE_FETCH (longlong, long long);
+SHMEM_TYPE_FETCH (float, float);
+SHMEM_TYPE_FETCH (double, double);
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmemx_int_set = pshmemx_int_set
-#define shmemx_int_set pshmemx_int_set
-#pragma weak shmemx_long_set = pshmemx_long_set
-#define shmemx_long_set pshmemx_long_set
-#pragma weak shmemx_longlong_set = pshmemx_longlong_set
-#define shmemx_longlong_set pshmemx_longlong_set
+#pragma weak shmem_int_set = pshmem_int_set
+#define shmem_int_set pshmem_int_set
+#pragma weak shmem_long_set = pshmem_long_set
+#define shmem_long_set pshmem_long_set
+#pragma weak shmem_longlong_set = pshmem_longlong_set
+#define shmem_longlong_set pshmem_longlong_set
+#pragma weak shmem_float_set = pshmem_float_set
+#define shmem_float_set pshmem_float_set
+#pragma weak shmem_double_set = pshmem_double_set
+#define shmem_double_set pshmem_double_set
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_SET(Name, Type)                                \
     void                                                          \
-    shmemx_##Name##_set (Type *target, Type value, int pe)        \
+    shmem_##Name##_set (Type *target, Type value, int pe)         \
     {                                                             \
         INIT_CHECK ();                                            \
         PE_RANGE_CHECK (pe, 2);                                   \
@@ -326,5 +340,5 @@ SHMEM_TYPE_FETCH (longlong, long long);
 SHMEM_TYPE_SET (int, int);
 SHMEM_TYPE_SET (long, long);
 SHMEM_TYPE_SET (longlong, long long);
-
-#endif /* HAVE_FEATURE_EXPERIMENTAL */
+SHMEM_TYPE_SET (float, float);
+SHMEM_TYPE_SET (double, double);

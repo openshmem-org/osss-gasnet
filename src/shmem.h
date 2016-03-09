@@ -1,9 +1,9 @@
 /* Emacs: -*- mode: c -*- */
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -139,37 +139,37 @@ extern "C"
      * start/stop & query
      */
 
-/**
- * @brief initializes the OpenSHMEM environment on the calling PE.
- *
- * @section Synopsis
- *
- * @subsection c C/C++
- @code
- void start_pes (int npes);
- @endcode
- *
- * @subsection f Fortran
- @code
- INTEGER npes
+    /**
+     * @brief initializes the OpenSHMEM environment on the calling PE.
+     *
+     * @section Synopsis
+     *
+     * @subsection c C/C++
+     @code
+     void start_pes (int npes);
+     @endcode
+     *
+     * @subsection f Fortran
+     @code
+     INTEGER npes
 
- CALL START_PES (npes)
- @endcode
- *
- * @param npes the number of PEs participating in the program.  This
- * is ignored and should be set to 0.
- *
- * @section Effect
- *
- * Initializes the OpenSHMEM environment on the calling PE.
- *
- * @return None.
- *
- * @deprecated by \ref shmem_init()
- *
- */
-      void start_pes (int npes)
-          _DEPRECATED_BY(shmem_init);
+     CALL START_PES (npes)
+     @endcode
+     *
+     * @param npes the number of PEs participating in the program.  This
+     * is ignored and should be set to 0.
+     *
+     * @section Effect
+     *
+     * Initializes the OpenSHMEM environment on the calling PE.
+     *
+     * @return None.
+     *
+     * @deprecated by \ref shmem_init()
+     *
+     */
+    void start_pes (int npes)
+        _DEPRECATED_BY(shmem_init);
 
     /**
      * @brief initializes the OpenSHMEM environment on the calling PE.
@@ -323,12 +323,12 @@ extern "C"
     /*
      * OpenSHMEM release
      */
-#define _SHMEM_MAJOR_VERSION 1
-#define _SHMEM_MINOR_VERSION 2
+#define SHMEM_MAJOR_VERSION 1
+#define SHMEM_MINOR_VERSION 3
 
-#define _SHMEM_MAX_NAME_LEN 64
+#define SHMEM_MAX_NAME_LEN 64
 
-#define _SHMEM_VENDOR_STRING "UH Reference Implementation"
+#define SHMEM_VENDOR_STRING "UH Reference Implementation"
 
     /**
      * @brief determines the major.minor version numbers of this release.
@@ -950,12 +950,12 @@ extern "C"
 
     enum shmem_cmp_constants
         {
-            _SHMEM_CMP_EQ = 0,
-            _SHMEM_CMP_NE,
-            _SHMEM_CMP_GT,
-            _SHMEM_CMP_LE,
-            _SHMEM_CMP_LT,
-            _SHMEM_CMP_GE,
+            SHMEM_CMP_EQ = 0,
+            SHMEM_CMP_NE,
+            SHMEM_CMP_GT,
+            SHMEM_CMP_LE,
+            SHMEM_CMP_LT,
+            SHMEM_CMP_GE,
         };
 
     /**
@@ -1397,17 +1397,17 @@ extern "C"
      /**
      * cf. Fortran values are multiples of these (different types)
      */
-#define SHMEM_INTERNAL_F2C_SCALE ( sizeof (long) / sizeof (int) )
+#define SHMEM_INTERNAL_F2C_SCALE        ( sizeof (long) / sizeof (int) )
 
-#define _SHMEM_BCAST_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_BARRIER_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_SYNC_SIZE (256L / SHMEM_INTERNAL_F2C_SCALE)
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BCAST_SYNC_SIZE           (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_BARRIER_SYNC_SIZE         (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_SYNC_SIZE          (256L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_REDUCE_MIN_WRKDATA_SIZE   (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     /*
      * Initialize sync arrays to this
      */
-#define _SHMEM_SYNC_VALUE (-1L)
+#define SHMEM_SYNC_VALUE (-1L)
 
     void shmem_long_sum_to_all (long *target, long *source, int nreduce,
                                 int PE_start, int logPE_stride,
@@ -1664,7 +1664,7 @@ extern "C"
      * collects
      */
 
-#define _SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_COLLECT_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
 
     void shmem_fcollect64 (void *target, const void *source,
                            size_t nelems, int PE_start, int logPE_stride,
@@ -1773,6 +1773,156 @@ extern "C"
      *
      */
     int shmem_test_lock (volatile long *lock) _WUR;
+
+    /**
+     * @brief These routines perform an atomic fetch from a remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     int shmemx_int_fetch (int *dest, int pe);
+     long shmemx_long_fetch (long *dest, int pe);
+     long long shmemx_longlong_fetch (long long *dest, int pe);
+     float shmemx_float_fetch (float *dest, int pe);
+     double shmemx_double_fetch (double *dest, int pe);
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     integer pe
+     integer*4 v4
+     integer*8 v8
+     real*4 r4
+     real*8 r8
+
+     v4 = shmemx_int4_fetch (dest, pe)
+     v8 = shmemx_int8_fetch (dest, pe)
+     r4 = shmemx_real4_fetch (dest, pe)
+     r8 = shmemx_real8_fetch (dest, pe)
+     * @endcode
+     *
+     * @param dest    Address of the symmetric data object in which save the
+     *                    data on the target pe.
+     * @param pe        An integer that indicates the PE number upon
+     *                    which dest is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
+     *
+     * @b Constraints:
+     *      - dest must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the Synopsis
+     *      section. When calling from Fortran, the data type of value must be as follows:
+     *          - For SHMEMX_INT4_FETCH(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_FETCH(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the target data object.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
+     *
+     * @b Effect:
+     *
+     * The atomic fetch routines atomically return the value at address
+     * "dest" on PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * dest on PE pe using the same type.
+     *
+     * @return The value stored at address "dest" on PE pe.
+     *
+     */
+    int shmemx_int_fetch (int *dest, int pe);
+    long shmemx_long_fetch (long *dest, int pe);
+    long long shmemx_longlong_fetch (long long *dest, int pe);
+    float shmemx_float_fetch (float *dest, int pe);
+    double shmemx_double_fetch (double *dest, int pe);
+
+    /**
+     * @brief These routines perform an atomic set of a variable on a
+     * remote PE
+     *
+     * @b Synopsis:
+     *
+     * - C/C++:
+     * @code
+     void shmemx_int_set (int *dest, int value, int pe);
+     void shmemx_long_set (long *dest, long value, int pe);
+     void shmemx_longlong_set (long long *dest, long long value, int pe);
+     void shmemx_float_set (float *dest, float value, int pe);
+     void shmemx_double_set (double *dest, double value, int pe);
+     * @endcode
+     *
+     * - Fortran:
+     * @code
+     integer pe
+     integer*4 v4
+     integer*8 v8
+     real*4 r4
+     real*8 r8
+
+     call shmemx_int4_set (dest, v4, pe)
+     call shmemx_int8_set (dest, v8, pe)
+     call shmemx_real4_set (dest, r4, pe)
+     call shmemx_real8_set (dest, r8, pe)
+     * @endcode
+     *
+     * @param dest    Address of the symmetric data object in which save the
+     *                    data on the target pe.
+     * @param value     The remote dest address is atomically set to
+     *                    this value.
+     * @param pe        An integer that indicates the PE number upon
+     *                    which dest is to be updated. If you are using
+     *                    Fortran, it must be a default integer value.
+     *
+     * @b Constraints:
+     *      - dest must be the address of a symmetric data object.
+     *      - If using C/C++, the type of value must match that implied in the
+     *        Synopsis section. When calling from Fortran, the data type of
+     *        value must be as follows:
+     *          - For SHMEMX_INT4_SET(), value must be of type Integer,
+     *            with element size of 4 bytes
+     *          - For SHMEMX_INT8_SET(), value must be of type Integer,
+     *            with element size of 8 bytes.
+     *      - value must be the same type as the dest data object.
+     *      - This process must be carried out guaranteeing that it will not
+     *          be interrupted by any other atomic operation on the
+     *          specified type.
+     *
+     * @b Effect:
+     *
+     * The atomic set routines atomically update an address to be "value" on
+     * PE pe. The operation must
+     * be completed without the possibility of another process updating
+     * dest on PE pe using the same type.
+     *
+     * @return None.
+     *
+     */
+    void shmemx_int_set (int *dest, int value, int pe);
+    void shmemx_long_set (long *dest, long value, int pe);
+    void shmemx_longlong_set (long long *dest, long long value, int pe);
+    void shmemx_float_set (float *dest, float value, int pe);
+    void shmemx_double_set (double *dest, double value, int pe);
+
+    /*
+     * deprecated shmem constants
+     */
+#define _SHMEM_MAJOR_VERSION            SHMEM_MAJOR_VERSION
+#define _SHMEM_MINOR_VERSION            SHMEM_MINOR_VERSION
+#define _SHMEM_MAX_NAME_LEN             SHMEM_MAX_NAME_LEN
+#define _SHMEM_VENDOR_STRING            SHMEM_VENDOR_STRING
+#define _SHMEM_BCAST_SYNC_SIZE          SHMEM_BCAST_SYNC_SIZE
+#define _SHMEM_BARRIER_SYNC_SIZE        SHMEM_BARRIER_SYNC_SIZE
+#define _SHMEM_REDUCE_SYNC_SIZE         SHMEM_REDUCE_SYNC_SIZE
+#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE  SHMEM_REDUCE_MIN_WRKDATA_SIZE
+#define _SHMEM_SYNC_VALUE               SHMEM_SYNC_VALUE
+#define _SHMEM_COLLECT_SYNC_SIZE        SHMEM_COLLECT_SYNC_SIZE
+#define _SHMEM_CMP_EQ                   SHMEM_CMP_EQ
+#define _SHMEM_CMP_NE                   SHMEM_CMP_NE
+#define _SHMEM_CMP_GT                   SHMEM_CMP_GT
+#define _SHMEM_CMP_LE                   SHMEM_CMP_LE
+#define _SHMEM_CMP_LT                   SHMEM_CMP_LT
+#define _SHMEM_CMP_GE                   SHMEM_CMP_GE
 
     /*
      * --end--

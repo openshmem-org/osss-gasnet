@@ -1,9 +1,9 @@
 /* Emacs: -*- mode: c -*- */
 /*
  *
- * Copyright (c) 2011 - 2015
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
- * Copyright (c) 2009 - 2015
+ * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
  *   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
  *   (shmem) is released by Open Source Software Solutions, Inc., under an
@@ -139,17 +139,6 @@ extern "C"
     void pshmemx_int_xor (int *target, int value, int pe);
     void pshmemx_long_xor (long *target, long value, int pe);
     void pshmemx_longlong_xor (long long *target, long long value, int pe);
-
-    /*
-     * atomic fetch and set
-     */
-    int pshmemx_int_fetch (int *target, int pe);
-    long pshmemx_long_fetch (long *target, int pe);
-    long long pshmemx_longlong_fetch (long long *target, int pe);
-
-    void pshmemx_int_set (int *target, int value, int pe);
-    void pshmemx_long_set (long *target, long value, int pe);
-    void pshmemx_longlong_set (long long *target, long long value, int pe);
 
     /*
      * wallclock time
