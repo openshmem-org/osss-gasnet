@@ -41,6 +41,7 @@
  */
 
 #ifndef _BARRIER_ALL_IMPL_H
+#define _BARRIER_ALL_IMPL_H 1
 
 extern void shmemi_barrier_all_linear ();
 

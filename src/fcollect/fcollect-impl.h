@@ -46,6 +46,7 @@
  */
 
 #ifndef _FCOLLECT_IMPL_H
+#define _FCOLLECT_IMPL_H 1
 
 extern void shmemi_fcollect32_linear ();
 extern void shmemi_fcollect64_linear ();
