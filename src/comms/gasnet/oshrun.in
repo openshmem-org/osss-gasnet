@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2014 Intel Corporation. All rights reserved.
 # generated from OpenSHMEM src directory, don't edit installed version
 #
 
@@ -113,4 +114,4 @@ case "$OPENSHMEM_GASNET_CONDUIT" in
         ;;
 esac
 
-$RUN_IT
+exec $RUN_IT

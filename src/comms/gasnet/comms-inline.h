@@ -313,8 +313,13 @@ waitmode_init (void)
     /*
      * this gives best performance in all cases observed by the author
      * (@ UH).  Could make this programmable.
+     * @ Intel - Found GASNET_WAIT_SPIN gives the best PSM performance.
      */
+#ifdef GASNET_CONDUIT_PSM
+    gasnet_set_waitmode (GASNET_WAIT_SPIN);
+#else
     gasnet_set_waitmode (GASNET_WAIT_SPINBLOCK);
+#endif
 }
 
 /**
