@@ -7,6 +7,7 @@
 #   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
 #   (shmem) is released by Open Source Software Solutions, Inc., under an
 #   agreement with Silicon Graphics International Corp. (SGI).
+# Copyright (c) 2015 Intel Corporation. All rights reserved.
 #
 # All rights reserved.
 #
@@ -57,6 +58,7 @@ gasnet_threnv=par
 exe_incdir=/usr/include
 exe_libdir=/usr/lib64
 
+feature_progthread=enabled
 feature_experimental=disabled
 feature_debug=disabled
 feature_trace=disabled
@@ -178,6 +180,9 @@ Usage: $progname [options]
                                      (default: /usr/lib64)
 
   Optional features:
+
+    --enable-progress-thread     Enable OpenSHMEM progress thread (default)
+    --disable-progress-thread    Disable OpenSHMEM progress thread
 
     --enable-trace               Run-time traces
     --disable-trace              No run-time traces
@@ -332,6 +337,12 @@ do
         --disable-debug)
             feature_debug=disabled
             ;;
+	--enable-progress-thread)
+	    feature_progthread=enabled
+	    ;;
+	--disable-progress-thread)
+	    feature_progthread=disabled
+	    ;;
         --enable-trace)
             feature_trace=enabled
             ;;
@@ -516,10 +527,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="gcc"
         fc_cmd="gfortran"
         cxx_cmd="g++"
@@ -532,10 +539,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="icc"
         fc_cmd="ifort"
         cxx_cmd="icpc"
@@ -548,10 +551,6 @@ case "$cc_type" in
         thread_flags=""
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="pgcc"
         fc_cmd="pgfortran"
         cxx_cmd="pgCC"
@@ -564,10 +563,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="suncc"
         fc_cmd="sunf90"
         cxx_cmd="sunCC"
@@ -580,10 +575,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="uhcc"
         fc_cmd="uhf90"
         cxx_cmd="uhCC"
@@ -596,10 +587,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="opencc"
         fc_cmd="openf90"
         cxx_cmd="openCC"
@@ -612,10 +599,6 @@ case "$cc_type" in
         thread_flags="-pthread"
         so_flags="-shared"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         cc_cmd="clang"
         fc_cmd="false"
         cxx_cmd="clang++"
@@ -627,10 +610,6 @@ case "$cc_type" in
         # pic_flags="-qpic"
         thread_flags="-qthreaded"
         exe_libs="-L$exe_libdir"
-        if  [ "$found_libexe" = "shared" ]
-        then
-            exe_libs="$exe_libs -Wl,-rpath,$exe_libdir"
-        fi
         so_flags="-G"
         cc_cmd="xlc"
         fc_cmd="xlf"
@@ -1040,6 +1019,7 @@ do
         -e "s%@HAVE_FEATURE_PSHMEM@%$feature_pshmem%g" \
         -e "s%@HAVE_FEATURE_DEBUG@%$feature_debug%g" \
         -e "s%@HAVE_FEATURE_TRACE@%$feature_trace%g" \
+        -e "s%@HAVE_FEATURE_PROGTHREAD@%$feature_progthread%g" \
         -e "s%@PREFIX@%$prefix%g" \
         -e "s%@BIN_DIR@%$bindir%g" \
         -e "s%@LIB_DIR@%$libdir%g" \
@@ -1103,6 +1083,7 @@ tell ""
 tell "Options:"
 tell "  Debug is                      $feature_debug"
 tell "  Trace is                      $feature_trace"
+tell "  Progress thread is            $feature_progthread"
 tell "  PSHMEM support is             $feature_pshmem"
 tell "  Experimental features are     $feature_experimental"
 tell ""
@@ -1295,6 +1276,7 @@ setfeature()
 
     setfeature debug        "run-time debug and other sanity checks"
     setfeature trace        "run-time tracing calls"
+    setfeature progthread   "progress thread"
     setfeature pshmem       "PSHMEM profiling interface"
     setfeature experimental "Experimental (non-API) routines"
 

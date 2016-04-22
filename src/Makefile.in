@@ -265,6 +265,10 @@ ifeq "@HAVE_FEATURE_TRACE@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_TRACE
 endif
 
+ifeq "@HAVE_FEATURE_PROGTHREAD@" "enabled"
+CPPFLAGS        += -DHAVE_FEATURE_PROGTHREAD
+endif
+
 ifeq "@HAVE_FEATURE_PSHMEM@" "enabled"
 CPPFLAGS        += -DHAVE_FEATURE_PSHMEM
 endif
