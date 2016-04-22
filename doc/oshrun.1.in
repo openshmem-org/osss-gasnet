@@ -75,7 +75,7 @@ passes the arguments "-e" and "8192" through to the OpenSHMEM program.
 .SH NOTES
 .LP
 The OpenSHMEM specification does not say anything about how OpenSHMEM
-programs and compiled, linked and launched.  These wrapper programs
+programs are compiled, linked and launched.  These wrapper programs
 are supplied as part of the Reference Library for convenience.
 .LP
 To disambiguate launcher and program options/arguments, use "--" to

@@ -73,7 +73,7 @@ when the OpenSHMEM library is built.  To override, set the
 environment variable.
 .SH NOTES
 The OpenSHMEM specification does not say anything about
-how OpenSHMEM programs and compiled, linked and launched.
+how OpenSHMEM programs are compiled, linked and launched.
 These wrapper programs are supplied as part of the Reference
 Library for convenience.
 .SH SEE ALSO
