@@ -97,7 +97,7 @@ extern "C"
     /*
      * TODO: need better detection
      */
-#if defined(__INTEL_COMPILER) || defined(__clang__)
+#if defined(__clang__)
 
 # define _DEPRECATED_BY(...)                                    \
     __attribute__((deprecated("use '" #__VA_ARGS__ "' instead")))
