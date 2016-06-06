@@ -155,8 +155,7 @@ Optimized for SMP (no MPI involved):
     1:    .../configure --prefix=$HOME/SHMEM          \
     2:                  --with-gasnet-root=/usr       \
     3:                  --with-gasnet-conduit=smp     \
-    4: 	                --enable-throttle-poll        \
-    5:                  --enable-debug
+    4:                  --enable-debug
 
     (GASNet built with fast/large model)
 
