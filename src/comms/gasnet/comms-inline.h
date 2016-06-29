@@ -600,10 +600,14 @@ enum
     AMO_HANDLER_DEF (fetch, int),
     AMO_HANDLER_DEF (fetch, long),
     AMO_HANDLER_DEF (fetch, longlong),
+    AMO_HANDLER_DEF (fetch, float),
+    AMO_HANDLER_DEF (fetch, double),
 
     AMO_HANDLER_DEF (set, int),
     AMO_HANDLER_DEF (set, long),
     AMO_HANDLER_DEF (set, longlong),
+    AMO_HANDLER_DEF (set, float),
+    AMO_HANDLER_DEF (set, double),
 
     GASNET_HANDLER_globalvar_put_out,
     GASNET_HANDLER_globalvar_put_bak,
@@ -1583,6 +1587,8 @@ AMO_XOR_REQ_EMIT (longlong, long long);
 AMO_FETCH_OUT_EMIT (int, int);
 AMO_FETCH_OUT_EMIT (long, long);
 AMO_FETCH_OUT_EMIT (longlong, long long);
+AMO_FETCH_OUT_EMIT (float, float);
+AMO_FETCH_OUT_EMIT (double, double);
 
 /**
  * called by fetch invoker when value returned by remote PE
@@ -1610,6 +1616,8 @@ AMO_FETCH_OUT_EMIT (longlong, long long);
 AMO_FETCH_BAK_EMIT (int, int);
 AMO_FETCH_BAK_EMIT (long, long);
 AMO_FETCH_BAK_EMIT (longlong, long long);
+AMO_FETCH_BAK_EMIT (float, float);
+AMO_FETCH_BAK_EMIT (double, double);
 
 /**
  * perform the fetch
@@ -1646,6 +1654,8 @@ AMO_FETCH_BAK_EMIT (longlong, long long);
 AMO_FETCH_REQ_EMIT (int, int);
 AMO_FETCH_REQ_EMIT (long, long);
 AMO_FETCH_REQ_EMIT (longlong, long long);
+AMO_FETCH_REQ_EMIT (float, float);
+AMO_FETCH_REQ_EMIT (double, double);
 
 /**
  * called by remote PE to do the set
@@ -1673,6 +1683,8 @@ AMO_FETCH_REQ_EMIT (longlong, long long);
 AMO_SET_OUT_EMIT (int, int);
 AMO_SET_OUT_EMIT (long, long);
 AMO_SET_OUT_EMIT (longlong, long long);
+AMO_SET_OUT_EMIT (float, float);
+AMO_SET_OUT_EMIT (double, double);
 
 /**
  * called by set invoker when remote PE replies
@@ -1700,9 +1712,11 @@ AMO_SET_OUT_EMIT (longlong, long long);
 AMO_SET_BAK_EMIT (int, int);
 AMO_SET_BAK_EMIT (long, long);
 AMO_SET_BAK_EMIT (longlong, long long);
+AMO_SET_BAK_EMIT (float, float);
+AMO_SET_BAK_EMIT (double, double);
 
 /**
- * perform the fetch-and-add
+ * perform the set
  */
 #define AMO_SET_REQ_EMIT(Name, Type)                                    \
     static inline void                                                  \
@@ -1735,6 +1749,8 @@ AMO_SET_BAK_EMIT (longlong, long long);
 AMO_SET_REQ_EMIT (int, int);
 AMO_SET_REQ_EMIT (long, long);
 AMO_SET_REQ_EMIT (longlong, long long);
+AMO_SET_REQ_EMIT (float, float);
+AMO_SET_REQ_EMIT (double, double);
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
@@ -2554,10 +2570,14 @@ static gasnet_handlerentry_t handlers[] = {
     AMO_HANDLER_LOOKUP (fetch, int),
     AMO_HANDLER_LOOKUP (fetch, long),
     AMO_HANDLER_LOOKUP (fetch, longlong),
+    AMO_HANDLER_LOOKUP (fetch, float),
+    AMO_HANDLER_LOOKUP (fetch, double),
 
     AMO_HANDLER_LOOKUP (set, int),
     AMO_HANDLER_LOOKUP (set, long),
     AMO_HANDLER_LOOKUP (set, longlong),
+    AMO_HANDLER_LOOKUP (set, float),
+    AMO_HANDLER_LOOKUP (set, double),
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
