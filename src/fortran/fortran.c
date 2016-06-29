@@ -1276,7 +1276,7 @@ void FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
 void FORTRANIFY (shmem_info_get_name) (char *name)
 {
     int len;
-    const int max_f_len = _SHMEM_MAX_NAME_LEN - 1;
+    const int max_f_len = SHMEM_MAX_NAME_LEN - 1;
 
     /* get the C string */
     shmem_info_get_name (name);

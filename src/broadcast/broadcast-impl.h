@@ -41,6 +41,7 @@
  */
 
 #ifndef _BROADCAST_IMPL_H
+#define _BROADCAST_IMPL_H 1
 
 extern void shmemi_broadcast32_linear ();
 extern void shmemi_broadcast64_linear ();

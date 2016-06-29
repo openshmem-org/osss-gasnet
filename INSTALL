@@ -155,8 +155,7 @@ Optimized for SMP (no MPI involved):
     1:    .../configure --prefix=$HOME/SHMEM          \
     2:                  --with-gasnet-root=/usr       \
     3:                  --with-gasnet-conduit=smp     \
-    4: 	                --enable-throttle-poll        \
-    5:                  --enable-debug
+    4:                  --enable-debug
 
     (GASNet built with fast/large model)
 
@@ -260,9 +259,7 @@ Other GASNet environment variables that may help include
 
 See the GASNet documentation for details:
 
-  http://gasnet.cs.berkeley.edu/dist/vapi-conduit/README
-
-(vapi and ibv are the same).
+  http://gasnet.lbl.gov/dist/ibv-conduit/README
 
 Update: the registered memory issues are at least partly due to
 hardware not allowing large registrations by default.  We (UH) were

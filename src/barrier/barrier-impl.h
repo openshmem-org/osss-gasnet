@@ -41,6 +41,7 @@
  */
 
 #ifndef _BARRIER_IMPL_H
+#define _BARRIER_IMPL_H 1
 
 extern void shmemi_barrier_linear ();
 extern void shmemi_barrier_tree ();
