@@ -115,6 +115,80 @@ extern "C"
     void shmemx_test_req (shmemx_request_handle_t desc, int *flag);
 
     /*
+     * non-blocking implicit put/get
+     *
+     */
+
+    /* see \ref shmemx_double_put_nbi () */
+    void shmemx_double_put_nbi (double *dest, const double *source,
+                                size_t nelems, int pe);
+    /* see \ref shmemx_float_put_nbi () */
+    void shmemx_float_put_nbi (float *dest, const float *source, size_t nelems,
+                               int pe);
+    /* see \ref shmemx_int_put_nbi () */
+    void shmemx_int_put_nbi (int *dest, const int *source, size_t nelems,
+                             int pe);
+    /* see \ref shmemx_long_put_nbi () */
+    void shmemx_long_put_nbi (long *dest, const long *source, size_t nelems,
+                              int pe);
+    /* see \ref shmemx_longdouble_put_nbi () */
+    void shmemx_longdouble_put_nbi (long double *dest, const long double *source,
+                                    size_t nelems, int pe);
+    /* see \ref shmemx_longlong_put_nbi () */
+    void shmemx_longlong_put_nbi (long long *dest, const long long *source,
+                                  size_t nelems, int pe);
+    /* see \ref shmemx_put32_nbi () */
+    void shmemx_put32_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    /* see \ref shmemx_put64_nbi () */
+    void shmemx_put64_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    /* see \ref shmemx_put128_nbi () */
+    void shmemx_put128_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    /* see \ref shmemx_putmem_nbi () */
+    void shmemx_putmem_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    /* see \ref shmemx_short_put_nbi () */
+    void shmemx_short_put_nbi (short *dest, const short *source, size_t nelems,
+                               int pe);
+
+    /* see \ref shmemx_double_get__nbi () */
+    void shmemx_double_get_nbi (double *dest, const double *source,
+                                size_t nelems, int pe);
+    /* see \ref shmemx_float_get_nbi () */
+    void shmemx_float_get_nbi (float *dest, const float *source, size_t nelems,
+                               int pe);
+    /* see \ref shmemx_get32_nbi () */
+    void shmemx_get32_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    /* see \ref shmemx_get64_nbi () */
+    void shmemx_get64_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    /* see \ref shmemx_get128_nbi () */
+    void shmemx_get128_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    /* see \ref shmemx_getmem_nbi () */
+    void shmemx_getmem_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    /* see \ref shmemx_int_get_nbi () */
+    void shmemx_int_get_nbi (int *dest, const int *source, size_t nelems,
+                             int pe);
+    /* see \ref shmemx_long_get_nbi () */
+    void shmemx_long_get_nbi (long *dest, const long *source, size_t nelems,
+                              int pe);
+    /* see \ref shmemx_longdouble_get_nbi () */
+    void shmemx_longdouble_get_nbi (long double *dest, const long double *source,
+                                    size_t nelems, int pe);
+    /* see \ref shmemx_longlong_get_nbi () */
+    void shmemx_longlong_get_nbi (long long *dest, const long long *source,
+                                  size_t nelems, int pe);
+    /* see \ref shmemx_short_get_nbi () */
+    void shmemx_short_get_nbi (short *dest, const short *source, size_t nelems,
+                               int pe);
+
+
+    /*
      * renamed & non-blocking memory management
      *
      */
