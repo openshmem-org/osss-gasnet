@@ -49,7 +49,11 @@ RANLIB           = ranlib
 #
 # needs to match what is in dlmalloc.h
 #
-DLMALLOC_CPPFLAGS = -DONLY_MSPACES=1 -DHAVE_MORECORE=0 -DUSE_LOCKS=1
+DLMALLOC_CPPFLAGS = \
+			-DONLY_MSPACES=1 \
+			-DHAVE_MORECORE=0 \
+			-DHAVE_MMAP=0 \
+			-DUSE_LOCKS=1
 
 .PHONY: clean
 
