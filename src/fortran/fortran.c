@@ -698,9 +698,9 @@ double FORTRANIFY (shmem_real8_swap) (double *target, double *value, int *pe)
     return shmem_double_swap (target, *value, *pe);
 }
 
-long FORTRANIFY (shmem_swap) (long *target, long *value, int *pe)
+int FORTRANIFY (shmem_swap) (int *target, int *value, int *pe)
 {
-    return shmem_long_swap (target, *value, *pe);
+    return shmem_int_swap (target, *value, *pe);
 }
 
 /*

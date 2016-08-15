@@ -1146,8 +1146,6 @@ extern "C"
     float shmem_float_swap (float *target, float value, int pe) _WUR;
     /* see \ref shmem_long_swap () */
     double shmem_double_swap (double *target, double value, int pe) _WUR;
-    /* see \ref shmem_long_swap () */
-    long shmem_swap (long *target, long value, int pe) _WUR;
 
     /**
      * @brief conditionally swap value into symmetric variable, fetch

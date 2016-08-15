@@ -275,6 +275,167 @@ extern "C"
     void pshmem_short_get_nbi (short *dest, const short *source, size_t nelems,
                               int pe);
 
+#ifdef __STDC_VERSION__
+#if  __STDC_VERSION__ == 201112L
+
+    /*
+     * C11 Generic variants
+     *
+     */
+
+    /* see \ref shmem_long_put () */
+#define pshmem_put(dest, source, nelems, pe)                            \
+    _Generic(*(dest),                                                   \
+             float:       pshmem_float_put,                             \
+             double:      pshmem_double_put,                            \
+             long double: pshmem_longdouble_put,                        \
+             char:        pshmem_char_put,                              \
+             short:       pshmem_short_put,                             \
+             int:         pshmem_int_put,                               \
+             long:        pshmem_long_put,                              \
+             long long:   pshmem_longlong_put) (dest, source, nelems, pe)
+
+    /* see \ref shmem_long_get () */
+#define pshmem_get(dest, source, nelems, pe)                            \
+    _Generic(*(dest),                                                   \
+             float:       pshmem_float_get,                             \
+             double:      pshmem_double_get,                            \
+             long double: pshmem_longdouble_get,                        \
+             char:        pshmem_char_get,                              \
+             short:       pshmem_short_get,                             \
+             int:         pshmem_int_get,                               \
+             long:        pshmem_long_get,                              \
+             long long:   pshmem_longlong_get) (dest, source, nelems, pe)
+
+    /* see \ref shmem_long_p () */
+#define pshmem_p(dest, value, pe)                               \
+    _Generic(*(dest),                                           \
+             float:       pshmem_float_p,                       \
+             double:      pshmem_double_p,                      \
+             long double: pshmem_longdouble_p,                  \
+             char:        pshmem_char_p,                        \
+             short:       pshmem_short_p,                       \
+             int:         pshmem_int_p,                         \
+             long:        pshmem_long_p,                        \
+             long long:   pshmem_longlong_p) (dest, value, pe)
+
+
+    /* see \ref shmem_long_g () */
+#define pshmem_g(addr, pe)                              \
+    _Generic((addr),                                    \
+             float:       pshmem_float_g,               \
+             double:      pshmem_double_g,              \
+             long double: pshmem_longdouble_g,          \
+             char:        pshmem_char_g,                \
+             short:       pshmem_short_g,               \
+             int:         pshmem_int_g,                 \
+             long:        pshmem_long_g,                \
+             long long:   pshmem_longlong_g) (addr, pe)
+
+    /* see \ref shmem_long_iput () */
+#define pshmem_iput(dest, source, dst, sst, nelems, pe)                 \
+    _Generic(*(dest),                                                   \
+             float:       pshmem_float_iput,                            \
+             double:      pshmem_double_iput,                           \
+             long double: pshmem_longdouble_iput,                       \
+             char:        pshmem_char_iput,                             \
+             short:       pshmem_short_iput,                            \
+             int:         pshmem_int_iput,                              \
+             long:        pshmem_long_iput,                             \
+             long long:   pshmem_longlong_iput) (dest, source, dst, sst, \
+                                                 nelems, pe)
+
+    /* see \ref shmem_long_iput () */
+#define pshmem_iput(dest, source, dst, sst, nelems, pe)                 \
+    _Generic(*(dest),                                                   \
+             float:       pshmem_float_iput,                            \
+             double:      pshmem_double_iput,                           \
+             long double: pshmem_longdouble_iput,                       \
+             char:        pshmem_char_iput,                             \
+             short:       pshmem_short_iput,                            \
+             int:         pshmem_int_iput,                              \
+             long:        pshmem_long_iput,                             \
+             long long:   pshmem_longlong_iput) (dest, source, dst, sst, \
+                                                 nelems, pe)
+
+    /* see \ref shmem_long_swap () */
+#define pshmem_swap(dest, value, pe)                                \
+    _Generic(*(dest),                                               \
+             int:          pshmem_int_swap,                         \
+             long:         pshmem_long_swap,                        \
+             long long:    pshmem_longlong_swap,                    \
+             float:        pshmem_float_swap,                       \
+             double:       pshmem_double_swap) (dest, value, pe)
+
+    /* see \ref shmem_long_cswap () */
+#define pshmem_cswap(dest, cond, value, pe)                             \
+    _Generic(*(dest),                                                   \
+             int:          pshmem_int_cswap,                            \
+             long:         pshmem_long_cswap,                           \
+             long long:    pshmem_longlong_cswap) (dest, cond, value, pe)
+
+    /* see \ref shmem_long_fadd () */
+#define pshmem_fadd(dest, value, pe)                                \
+    _Generic(*(dest),                                               \
+             int:          pshmem_int_fadd,                         \
+             long:         pshmem_long_fadd,                        \
+             long long:    pshmem_longlong_fadd) (dest, value, pe)
+
+
+    /* see \ref shmem_long_finc () */
+#define pshmem_finc(dest, pe)                               \
+    _Generic(*(dest),                                       \
+             int:          pshmem_int_finc,                 \
+             long:         pshmem_long_finc,                \
+             long long:    pshmem_longlong_finc) (dest, pe)
+
+    /* see \ref shmem_long_add () */
+#define pshmem_add(dest, value, pe)                                 \
+    _Generic(*(dest),                                               \
+             int:          pshmem_int_add,                          \
+             long:         pshmem_long_add,                         \
+             long long:    pshmem_longlong_add) (dest, value, pe)
+
+    /* see \ref shmem_long_add () */
+#define pshmem_add(dest, value, pe)                                 \
+    _Generic(*(dest),                                               \
+             int:          pshmem_int_add,                          \
+             long:         pshmem_long_add,                         \
+             long long:    pshmem_longlong_add) (dest, value, pe)
+
+    /* see \ref shmem_long_inc () */
+#define pshmem_inc(dest, pe)                                \
+    _Generic(*(dest),                                       \
+             int:          pshmem_int_inc,                  \
+             long:         pshmem_long_inc,                 \
+             long long:    pshmem_longlong_inc) (dest, pe)
+
+    /* see \ref shmem_long_fetch () */
+#define pshmem_fetch(dest, pe)                              \
+    _Generic(*(dest),                                       \
+             int:          pshmem_int_fetch,                \
+             const int:    pshmem_int_fetch,                \
+             long:         pshmem_long_fetch,               \
+             const long:   pshmem_long_fetch,               \
+             long long:    pshmem_longlong_fetch,           \
+             const long long: pshmem_longlong_fetch,        \
+             float:        pshmem_float_fetch,              \
+             const float:  pshmem_float_fetch,              \
+             double:       pshmem_double_fetch,             \
+             const double: pshmem_double_fetch) (dest, pe)
+
+    /* see \ref shmem_long_set () */
+#define pshmem_set(dest, value, pe)                             \
+    _Generic(*(dest),                                           \
+             int:          pshmem_int_set,                      \
+             long:         pshmem_long_set,                     \
+             long long:    pshmem_longlong_set,                 \
+             float:        pshmem_float_set,                    \
+             double:       pshmem_double_set) (dest, value, pe)
+
+#endif   /* __STDC_VERSION__ == 201112L test */
+#endif /* __STDC_VERSION__ defined test */
+
     /*
      * barriers
      */
@@ -335,8 +496,6 @@ extern "C"
     float pshmem_float_swap (float *target, float value, int pe) _WUR;
     double pshmem_double_swap (double *target, double value,
                                       int pe) _WUR;
-    long pshmem_swap (long *target, long value, int pe) _WUR;
-
     int pshmem_int_cswap (int *target, int cond, int value, int pe) _WUR;
     long pshmem_long_cswap (long *target, long cond, long value,
                                    int pe) _WUR;

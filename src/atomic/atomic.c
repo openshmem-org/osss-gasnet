@@ -83,8 +83,6 @@ shmemi_atomic_finalize (void)
 #define shmem_float_swap pshmem_float_swap
 #pragma weak shmem_double_swap = pshmem_double_swap
 #define shmem_double_swap pshmem_double_swap
-#pragma weak shmem_swap = pshmem_swap
-#define shmem_swap pshmem_swap
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -108,15 +106,6 @@ SHMEM_TYPE_SWAP (long, long);
 SHMEM_TYPE_SWAP (longlong, long long);
 SHMEM_TYPE_SWAP (double, double);
 SHMEM_TYPE_SWAP (float, float);
-
-/**
- * untyped variant
- */
-long
-shmem_swap (long *target, long value, int pe)
-{
-    return shmem_long_swap (target, value, pe);
-}
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_int_cswap = pshmem_int_cswap
