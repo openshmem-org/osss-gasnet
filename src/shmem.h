@@ -1925,26 +1925,6 @@ extern "C"
 #define _SHMEM_CMP_GE                   SHMEM_CMP_GE
 
     /*
-     * deprecated shmem constants
-     */
-#define _SHMEM_MAJOR_VERSION            SHMEM_MAJOR_VERSION
-#define _SHMEM_MINOR_VERSION            SHMEM_MINOR_VERSION
-#define _SHMEM_MAX_NAME_LEN             SHMEM_MAX_NAME_LEN
-#define _SHMEM_VENDOR_STRING            SHMEM_VENDOR_STRING
-#define _SHMEM_BCAST_SYNC_SIZE          SHMEM_BCAST_SYNC_SIZE
-#define _SHMEM_BARRIER_SYNC_SIZE        SHMEM_BARRIER_SYNC_SIZE
-#define _SHMEM_REDUCE_SYNC_SIZE         SHMEM_REDUCE_SYNC_SIZE
-#define _SHMEM_REDUCE_MIN_WRKDATA_SIZE  SHMEM_REDUCE_MIN_WRKDATA_SIZE
-#define _SHMEM_SYNC_VALUE               SHMEM_SYNC_VALUE
-#define _SHMEM_COLLECT_SYNC_SIZE        SHMEM_COLLECT_SYNC_SIZE
-#define _SHMEM_CMP_EQ                   SHMEM_CMP_EQ
-#define _SHMEM_CMP_NE                   SHMEM_CMP_NE
-#define _SHMEM_CMP_GT                   SHMEM_CMP_GT
-#define _SHMEM_CMP_LE                   SHMEM_CMP_LE
-#define _SHMEM_CMP_LT                   SHMEM_CMP_LT
-#define _SHMEM_CMP_GE                   SHMEM_CMP_GE
-
-    /*
      * --end--
      */
 
