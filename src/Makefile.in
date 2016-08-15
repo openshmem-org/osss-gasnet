@@ -114,6 +114,15 @@ BARRIER_ALL_OBJ      = $(BARRIER_ALL_SRC:.c=.o)
 
 # ---------------------------------------------------------
 #
+# different alltoall algorithms
+#
+ALLTOALL_DIR          = ./alltoall
+ALLTOALL_CPPFLAGS     = -I$(ALLTOALL_DIR)
+ALLTOALL_SRC          = $(ALLTOALL_DIR)/*.c
+ALLTOALL_OBJ          = $(ALLTOALL_SRC:.c=.o)
+
+# ---------------------------------------------------------
+#
 # parsing out global variables
 #
 GLOBALVAR_DIR        = ./globalvar
@@ -245,6 +254,7 @@ CPPFLAGS        += $(COMMS_CPPFLAGS)
 CPPFLAGS        += $(ATOMIC_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_CPPFLAGS)
 CPPFLAGS        += $(BARRIER_ALL_CPPFLAGS)
+CPPFLAGS        += $(ALLTOALL_CPPFLAGS)
 CPPFLAGS        += $(BROADCAST_CPPFLAGS)
 CPPFLAGS        += $(COLLECT_CPPFLAGS)
 CPPFLAGS        += $(FCOLLECT_CPPFLAGS)
@@ -324,6 +334,7 @@ API_OBJ         += $(UPDOWN_OBJ)
 API_OBJ         += $(QUERY_OBJ)
 API_OBJ         += $(BARRIER_OBJ)
 API_OBJ         += $(BARRIER_ALL_OBJ)
+API_OBJ         += $(ALLTOALL_OBJ)
 API_OBJ         += $(MEMORY_OBJ)
 API_OBJ         += $(ATOMIC_OBJ)
 API_OBJ         += $(FENCE_OBJ)
@@ -441,6 +452,9 @@ $(BARRIER_OBJ):
 $(BARRIER_ALL_OBJ):
 	$(MAKE) -C $(BARRIER_ALL_DIR) build-stamp
 
+$(ALLTOALL_OBJ):
+	$(MAKE) -C $(ALLTOALL_DIR) build-stamp
+
 $(MEMORY_OBJ):
 	$(MAKE) -C $(MEMORY_DIR) build-stamp
 
@@ -490,7 +504,7 @@ $(SHMEM_LIBRARY_SO):	$(OBJ_SO)
 		-o $@ \
 		$(UTILS_OBJ) $(COMMS_OBJ) $(GLOBALVAR_OBJ) \
 		$(MALLOC_OBJ) $(UPDOWN_OBJ) $(QUERY_OBJ) \
-		$(BARRIER_OBJ) $(BARRIER_ALL_OBJ) \
+		$(BARRIER_OBJ) $(BARRIER_ALL_OBJ) $(ALLTOALL_OBJ) \
 		$(MEMORY_OBJ) $(ATOMIC_OBJ) $(FENCE_OBJ) $(CACHE_OBJ) \
 		$(PTP_OBJ) $(BROADCAST_OBJ) $(COLLECT_OBJ) $(FCOLLECT_OBJ) \
 		$(FORTRAN_OBJ) $(REDUCE_OBJ) $(PROFILING_OBJ) $(WTIME_OBJ) \
@@ -522,6 +536,7 @@ tidy clean:
 	$(MAKE) -C $(ATOMIC_DIR) $@
 	$(MAKE) -C $(BARRIER_DIR) $@
 	$(MAKE) -C $(BARRIER_ALL_DIR) $@
+	$(MAKE) -C $(ALLTOALL_DIR) $@
 	$(MAKE) -C $(QUERY_DIR) $@
 	$(MAKE) -C $(UPDOWN_DIR) $@
 	$(MAKE) -C $(MALLOC_DIR) $@

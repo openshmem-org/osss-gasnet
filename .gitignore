@@ -42,7 +42,6 @@
 *\\#
 
 Makefile
-Makefile.in
 static-components.h
 *\\#
 config.cache

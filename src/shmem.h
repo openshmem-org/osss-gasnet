@@ -1767,6 +1767,29 @@ extern "C"
                           size_t nelems, int PE_start, int logPE_stride,
                           int PE_size, long *pSync);
 
+    /**
+     * all-to-all collectives
+     */
+
+    /* see \ref shmem_alltoall64 () */
+    void shmem_alltoall32 (void *target, const void *source, size_t nelems,
+                           int PE_start, int logPE_stride, int PE_size,
+                           long *pSync);
+    /* doc goes here */
+    void shmem_alltoall64 (void *target, const void *source, size_t nelems,
+                           int PE_start, int logPE_stride, int PE_size,
+                           long *pSync);
+    /* see \ref shmem_alltoalls64 () */
+    void shmem_alltoalls32 (void *target, const void *source,
+                            ptrdiff_t dst, ptrdiff_t sst, size_t nelems,
+                            int PE_start, int logPE_stride, int PE_size,
+                            long *pSync);
+    /* doc goes here */
+    void shmem_alltoalls64 (void *target, const void *source,
+                            ptrdiff_t dst, ptrdiff_t sst, size_t nelems,
+                            int PE_start, int logPE_stride, int PE_size,
+                            long *pSync);
+
     /*
      * locks/critical section
      */
