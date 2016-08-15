@@ -1769,6 +1769,9 @@ extern "C"
      * all-to-all collectives
      */
 
+#define SHMEM_ALLTOALL_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+#define SHMEM_ALLTOALLS_SYNC_SIZE (128L / SHMEM_INTERNAL_F2C_SCALE)
+
     /* see \ref shmem_alltoall64 () */
     void shmem_alltoall32 (void *target, const void *source, size_t nelems,
                            int PE_start, int logPE_stride, int PE_size,
