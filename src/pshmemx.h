@@ -126,56 +126,10 @@ extern "C"
     void pshmemx_wait_req (shmemx_request_handle_t desc);
     void pshmemx_test_req (shmemx_request_handle_t desc, int *flag);
 
+
     /*
-     * non-blocking implicit put/get
-     *
+     * symmetric memory management
      */
-    void pshmemx_double_put_nbi (double *dest, const double *source,
-                               size_t nelems, int pe);
-    void pshmemx_float_put_nbi (float *dest, const float *source, size_t nelems,
-                              int pe);
-    void pshmemx_int_put_nbi (int *dest, const int *source, size_t nelems,
-                            int pe);
-    void pshmemx_long_put_nbi (long *dest, const long *source, size_t nelems,
-                             int pe);
-    void pshmemx_longdouble_put_nbi (long double *dest, const long double *source,
-                                   size_t nelems, int pe);
-    void pshmemx_longlong_put_nbi (long long *dest, const long long *source,
-                                 size_t nelems, int pe);
-    void pshmemx_put32_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmemx_put64_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmemx_put128_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmemx_putmem_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmemx_short_put_nbi (short *dest, const short *source, size_t nelems,
-                              int pe);
-
-    void pshmemx_double_get_nbi (double *dest, const double *source,
-                               size_t nelems, int pe);
-    void pshmemx_float_get_nbi (float *dest, const float *source, size_t nelems,
-                              int pe);
-    void pshmemx_get32_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmemx_get64_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmemx_get128_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmemx_getmem_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmemx_int_get_nbi (int *dest, const int *source, size_t nelems,
-                            int pe);
-    void pshmemx_long_get_nbi (long *dest, const long *source, size_t nelems,
-                             int pe);
-    void pshmemx_longdouble_get_nbi (long double *dest, const long double *source,
-                                   size_t nelems, int pe);
-    void pshmemx_longlong_get_nbi (long long *dest, const long long *source,
-                                 size_t nelems, int pe);
-    void pshmemx_short_get_nbi (short *dest, const short *source, size_t nelems,
-                              int pe);
-
     void *pshmalloc_nb (size_t size);
     void  pshfree_nb (void *addr);
 
