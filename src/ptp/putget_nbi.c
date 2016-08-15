@@ -62,40 +62,42 @@
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern void shmemx_complexf_put_nbi (COMPLEXIFY (float) * dest,
-                                const COMPLEXIFY (float) * src,
-                                size_t nelems, int pe);  /* ! API */
-extern void shmemx_complexd_put_nbi (COMPLEXIFY (double) * dest,
-                                const COMPLEXIFY (double) * src,
-                                size_t nelems, int pe);    /* ! API */
-#pragma weak shmemx_short_put_nbi = pshmemx_short_put
-#define shmemx_short_put_nbi pshmemx_short_put
-#pragma weak shmemx_int_put_nbi = pshmemx_int_put
-#define shmemx_int_put_nbi pshmemx_int_put
-#pragma weak shmemx_long_put_nbi = pshmemx_long_put
-#define shmemx_long_put_nbi pshmemx_long_put
-#pragma weak shmemx_longdouble_put_nbi = pshmemx_longdouble_put
-#define shmemx_longdouble_put_nbi pshmemx_longdouble_put
-#pragma weak shmemx_longlong_put_nbi = pshmemx_longlong_put
-#define shmemx_longlong_put_nbi pshmemx_longlong_put
-#pragma weak shmemx_double_put_nbi = pshmemx_double_put
-#define shmemx_double_put_nbi pshmemx_double_put
-#pragma weak shmemx_float_put_nbi = pshmemx_float_put
-#define shmemx_float_put_nbi pshmemx_float_put
-#pragma weak shmemx_complexf_put_nbi = pshmemx_complexf_put
-#define shmemx_complexf_put_nbi pshmemx_complexf_put
-#pragma weak shmemx_complexd_put_nbi = pshmemx_complexd_put
-#define shmemx_complexd_put_nbi pshmemx_complexd_put
-#pragma weak shmemx_putmem_nbi = pshmemx_putmem
-#define shmemx_putmem_nbi pshmemx_putmem
-#pragma weak shmemx_put32_nbi = pshmemx_put32_nbi
-#define shmemx_put32_nbi pshmemx_put32_nbi
-#pragma weak shmemx_put64_nbi = pshmemx_put64_nbi
-#define shmemx_put64_nbi pshmemx_put64_nbi
-#pragma weak shmemx_put128_nbi = pshmemx_put128_nbi
-#define shmemx_put128_nbi pshmemx_put128_nbi
-/* # pragma weak pshmemx_put_nbi = pshmemx_long_put_nbi */
-/* # pragma weak shmemx_put_nbi = pshmemx_put_nbi */
+extern void shmem_complexf_put_nbi (COMPLEXIFY (float) * dest,
+                                    const COMPLEXIFY (float) * src,
+                                    size_t nelems, int pe);  /* ! API */
+extern void shmem_complexd_put_nbi (COMPLEXIFY (double) * dest,
+                                    const COMPLEXIFY (double) * src,
+                                    size_t nelems, int pe);    /* ! API */
+#pragma weak shmem_short_put_nbi = pshmem_short_put_nbi
+#define shmem_short_put_nbi pshmem_short_put_nbi
+#pragma weak shmem_int_put_nbi = pshmem_int_put_nbi
+#define shmem_int_put_nbi pshmem_int_put_nbi
+#pragma weak shmem_char_put_nbi = pshmem_char_put_nbi
+#define shmem_char_put_nbi pshmem_char_put_nbi
+#pragma weak shmem_long_put_nbi = pshmem_long_put_nbi
+#define shmem_long_put_nbi pshmem_long_put_nbi
+#pragma weak shmem_longdouble_put_nbi = pshmem_longdouble_put_nbi
+#define shmem_longdouble_put_nbi pshmem_longdouble_put_nbi
+#pragma weak shmem_longlong_put_nbi = pshmem_longlong_put_nbi
+#define shmem_longlong_put_nbi pshmem_longlong_put_nbi
+#pragma weak shmem_double_put_nbi = pshmem_double_put_nbi
+#define shmem_double_put_nbi pshmem_double_put_nbi
+#pragma weak shmem_float_put_nbi = pshmem_float_put_nbi
+#define shmem_float_put_nbi pshmem_float_put_nbi
+#pragma weak shmem_complexf_put_nbi = pshmem_complexf_put_nbi
+#define shmem_complexf_put_nbi pshmem_complexf_put_nbi
+#pragma weak shmem_complexd_put_nbi = pshmem_complexd_put_nbi
+#define shmem_complexd_put_nbi pshmem_complexd_put_nbi
+#pragma weak shmem_putmem_nbi = pshmem_putmem_nbi
+#define shmem_putmem_nbi pshmem_putmem_nbi
+#pragma weak shmem_put32_nbi = pshmem_put32_nbi
+#define shmem_put32_nbi pshmem_put32_nbi
+#pragma weak shmem_put64_nbi = pshmem_put64_nbi
+#define shmem_put64_nbi pshmem_put64_nbi
+#pragma weak shmem_put128_nbi = pshmem_put128_nbi
+#define shmem_put128_nbi pshmem_put128_nbi
+/* # pragma weak pshmem_put_nbi = pshmem_long_put_nbi */
+/* # pragma weak shmem_put_nbi = pshmem_put_nbi */
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /*
@@ -105,12 +107,12 @@ extern void shmemx_complexd_put_nbi (COMPLEXIFY (double) * dest,
 
 #define SHMEM_TYPE_PUT_NBI(Name, Type)                                  \
     void                                                                \
-    shmemx_##Name##_put_nbi (Type *dest, const Type *src,               \
-                             size_t nelems, int pe)                     \
+    shmem_##Name##_put_nbi (Type *dest, const Type *src,                \
+                            size_t nelems, int pe)                      \
     {                                                                   \
         const size_t typed_nelems = nelems * sizeof (Type);             \
         INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (dest, 1, "shmemx_" #Name "_put_nbi");           \
+        SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put_nbi");            \
         PE_RANGE_CHECK (pe, 4);                                         \
         shmemi_comms_put_nbi (dest, (void *) src, typed_nelems, pe);    \
     }
@@ -127,78 +129,80 @@ SHMEM_TYPE_PUT_NBI (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_PUT_NBI (complexd, COMPLEXIFY (double));
 
 void
-shmemx_put32_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_put32_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_int_put_nbi (dest, src, nelems, pe);
+    shmem_int_put_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_put64_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_put64_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_long_put_nbi (dest, src, nelems, pe);
+    shmem_long_put_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_put128_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_put128_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_longdouble_put_nbi (dest, src, nelems, pe);
+    shmem_longdouble_put_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_putmem_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_putmem_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
     INIT_CHECK ();
-    SYMMETRY_CHECK (dest, 1, "shmemx_putmem_nbi");
+    SYMMETRY_CHECK (dest, 1, "shmem_putmem_nbi");
     PE_RANGE_CHECK (pe, 4);
     shmemi_comms_put_nbi_bulk (dest, (void *) src, nelems, pe);
 }
 
 
 #ifdef HAVE_FEATURE_PSHMEM
-extern void shmemx_complexf_get_nbi (COMPLEXIFY (float) * dest,
-                                const COMPLEXIFY (float) * src,
-                                size_t nelems, int pe);  /* ! API */
-extern void shmemx_complexd_get_nbi (COMPLEXIFY (double) * dest,
-                                const COMPLEXIFY (double) * src,
-                                size_t nelems, int pe);    /* ! API */
-#pragma weak shmemx_short_get_nbi = pshmemx_short_get
-#define shmemx_short_get_nbi pshmemx_short_get
-#pragma weak shmemx_int_get_nbi = pshmemx_int_get
-#define shmemx_int_get_nbi pshmemx_int_get
-#pragma weak shmemx_long_get_nbi = pshmemx_long_get
-#define shmemx_long_get_nbi pshmemx_long_get
-#pragma weak shmemx_longdouble_get_nbi = pshmemx_longdouble_get
-#define shmemx_longdouble_get_nbi pshmemx_longdouble_get
-#pragma weak shmemx_longlong_get_nbi = pshmemx_longlong_get
-#define shmemx_longlong_get_nbi pshmemx_longlong_get
-#pragma weak shmemx_double_get_nbi = pshmemx_double_get
-#define shmemx_double_get_nbi pshmemx_double_get
-#pragma weak shmemx_float_get_nbi = pshmemx_float_get
-#define shmemx_float_get_nbi pshmemx_float_get
-#pragma weak shmemx_complexf_get_nbi = pshmemx_complexf_get
-#define shmemx_complexf_get_nbi pshmemx_complexf_get
-#pragma weak shmemx_complexd_get_nbi = pshmemx_complexd_get
-#define shmemx_complexd_get_nbi pshmemx_complexd_get
-#pragma weak shmemx_getmem_nbi = pshmemx_getmem
-#define shmemx_getmem_nbi pshmemx_getmem
-#pragma weak shmemx_get32_nbi = pshmemx_get32_nbi
-#define shmemx_get32_nbi pshmemx_get32_nbi
-#pragma weak shmemx_get64_nbi = pshmemx_get64_nbi
-#define shmemx_get64_nbi pshmemx_get64_nbi
-#pragma weak shmemx_get128_nbi = pshmemx_get128_nbi
-#define shmemx_get128_nbi pshmemx_get128_nbi
-/* # pragma weak pshmemx_get_nbi = pshmemx_long_get_nbi */
-/* # pragma weak shmemx_get_nbi = pshmemx_get_nbi */
+extern void shmem_complexf_get_nbi (COMPLEXIFY (float) * dest,
+                                    const COMPLEXIFY (float) * src,
+                                    size_t nelems, int pe);  /* ! API */
+extern void shmem_complexd_get_nbi (COMPLEXIFY (double) * dest,
+                                    const COMPLEXIFY (double) * src,
+                                    size_t nelems, int pe);    /* ! API */
+#pragma weak shmem_short_get_nbi = pshmem_short_get_nbi
+#define shmem_short_get_nbi pshmem_short_get_nbi
+#pragma weak shmem_int_get_nbi = pshmem_int_get_nbi
+#define shmem_int_get_nbi pshmem_int_get_nbi
+#pragma weak shmem_char_get_nbi = pshmem_char_get_nbi
+#define shmem_char_get_nbi pshmem_char_get_nbi
+#pragma weak shmem_long_get_nbi = pshmem_long_get_nbi
+#define shmem_long_get_nbi pshmem_long_get_nbi
+#pragma weak shmem_longdouble_get_nbi = pshmem_longdouble_get_nbi
+#define shmem_longdouble_get_nbi pshmem_longdouble_get_nbi
+#pragma weak shmem_longlong_get_nbi = pshmem_longlong_get_nbi
+#define shmem_longlong_get_nbi pshmem_longlong_get_nbi
+#pragma weak shmem_double_get_nbi = pshmem_double_get_nbi
+#define shmem_double_get_nbi pshmem_double_get_nbi
+#pragma weak shmem_float_get_nbi = pshmem_float_get_nbi
+#define shmem_float_get_nbi pshmem_float_get_nbi
+#pragma weak shmem_complexf_get_nbi = pshmem_complexf_get_nbi
+#define shmem_complexf_get_nbi pshmem_complexf_get_nbi
+#pragma weak shmem_complexd_get_nbi = pshmem_complexd_get_nbi
+#define shmem_complexd_get_nbi pshmem_complexd_get_nbi
+#pragma weak shmem_getmem_nbi = pshmem_getmem_nbi
+#define shmem_getmem_nbi pshmem_getmem_nbi
+#pragma weak shmem_get32_nbi = pshmem_get32_nbi
+#define shmem_get32_nbi pshmem_get32_nbi
+#pragma weak shmem_get64_nbi = pshmem_get64_nbi
+#define shmem_get64_nbi pshmem_get64_nbi
+#pragma weak shmem_get128_nbi = pshmem_get128_nbi
+#define shmem_get128_nbi pshmem_get128_nbi
+/* # pragma weak pshmem_get_nbi = pshmem_long_get_nbi */
+/* # pragma weak shmem_get_nbi = pshmem_get_nbi */
 #endif /* HAVE_FEATURE_PSHMEM */
 
 #define SHMEM_TYPE_GET_NBI(Name, Type)                                  \
     void                                                                \
-    shmemx_##Name##_get_nbi (Type *dest, const Type *src,               \
-                             size_t nelems, int pe)                     \
+    shmem_##Name##_get_nbi (Type *dest, const Type *src,                \
+                            size_t nelems, int pe)                      \
     {                                                                   \
         const size_t typed_nelems = nelems * sizeof (Type);             \
         INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (src, 2, "shmemx_" #Name "_get_nbi");            \
+        SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get_nbi");             \
         PE_RANGE_CHECK (pe, 4);                                         \
         shmemi_comms_get_nbi (dest, (void *) src, typed_nelems, pe);    \
     }
@@ -215,28 +219,28 @@ SHMEM_TYPE_GET_NBI (complexf, COMPLEXIFY (float));
 SHMEM_TYPE_GET_NBI (complexd, COMPLEXIFY (double));;
 
 void
-shmemx_get32_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_get32_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_int_get_nbi (dest, src, nelems, pe);
+    shmem_int_get_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_get64_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_get64_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_long_get_nbi (dest, src, nelems, pe);
+    shmem_long_get_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_get128_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_get128_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    shmemx_longdouble_get_nbi (dest, src, nelems, pe);
+    shmem_longdouble_get_nbi (dest, src, nelems, pe);
 }
 
 void
-shmemx_getmem_nbi (void *dest, const void *src, size_t nelems, int pe)
+shmem_getmem_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
     INIT_CHECK ();
-    SYMMETRY_CHECK (src, 2, "shmemx_getmem_nbi");
+    SYMMETRY_CHECK (src, 2, "shmem_getmem_nbi");
     PE_RANGE_CHECK (pe, 4);
     shmemi_comms_get_nbi_bulk (dest, (void *) src, nelems, pe);
 }

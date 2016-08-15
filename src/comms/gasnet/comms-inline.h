@@ -506,6 +506,16 @@ shmemi_comms_barrier_all (void)
 #define GASNET_GET_BULK(dst, pe, src, len) gasnet_get_bulk (dst, pe, src, len)
 
 /**
+ * explicitly use gasnet _nbi series function for implicit-handle nbi
+ * operation and for shmem _nbi series function implementation
+ *
+ */
+#define GASNET_PUT_NBI(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
+#define GASNET_PUT_NBI_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
+#define GASNET_GET_NBI(dst, pe, src, len)      gasnet_get_nbi (dst, pe, src, len)
+#define GASNET_GET_NBI_BULK(dst, pe, src, len) gasnet_get_nbi_bulk (dst, pe, src, len)
+
+/**
  * ---------------------------------------------------------------------------
  *
  * lookup where another PE stores things
@@ -2234,6 +2244,86 @@ shmemi_comms_get_val (void *src, size_t len, int pe)
 #endif /* HAVE_MANAGED_SEGMENTS */
 
     return retval;
+}
+
+/**
+ * non-blocking implicit put/get
+ */
+
+static inline void
+shmemi_comms_put_nbi (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+    if (shmemi_symmetric_is_globalvar (dst))
+      {
+          shmemi_comms_globalvar_put_request (dst, src, len, pe);
+      }
+    else
+      {
+          void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
+          GASNET_PUT_NBI (pe, their_dst, src, len);
+      }
+#else
+    void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
+    GASNET_PUT_NBI (pe, their_dst, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
+}
+
+static inline void
+shmemi_comms_put_nbi_bulk (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+    if (shmemi_symmetric_is_globalvar (dst))
+      {
+          shmemi_comms_globalvar_put_request (dst, src, len, pe);
+      }
+    else
+      {
+          void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
+          GASNET_PUT_NBI_BULK (pe, their_dst, src, len);
+      }
+#else
+    void *their_dst = shmemi_symmetric_addr_lookup (dst, pe);
+    GASNET_PUT_NBI_BULK (pe, their_dst, src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
+}
+
+static inline void
+shmemi_comms_get_nbi (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+    if (shmemi_symmetric_is_globalvar (src))
+      {
+          shmemi_comms_globalvar_get_request (dst, src, len, pe);
+      }
+    else
+      {
+          void *their_src = shmemi_symmetric_addr_lookup (src, pe);
+          GASNET_GET_NBI (dst, pe, their_src, len);
+      }
+#else
+    void *their_src = shmemi_symmetric_addr_lookup (src, pe);
+    GASNET_GET_NBI (dst, pe, their_src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
+}
+
+static inline void
+shmemi_comms_get_nbi_bulk (void *dst, void *src, size_t len, int pe)
+{
+#if defined(HAVE_MANAGED_SEGMENTS)
+    if (shmemi_symmetric_is_globalvar (src))
+      {
+          shmemi_comms_globalvar_get_request (dst, src, len, pe);
+      }
+    else
+      {
+          void *their_src = shmemi_symmetric_addr_lookup (src, pe);
+          GASNET_GET_NBI_BULK (dst, pe, their_src, len);
+      }
+#else
+    void *their_src = shmemi_symmetric_addr_lookup (src, pe);
+    GASNET_GET_NBI_BULK (dst, pe, their_src, len);
+#endif /* HAVE_MANAGED_SEGMENTS */
 }
 
 /**

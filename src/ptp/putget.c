@@ -72,6 +72,8 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
 #define shmem_short_put pshmem_short_put
 #pragma weak shmem_int_put = pshmem_int_put
 #define shmem_int_put pshmem_int_put
+#pragma weak shmem_char_put = pshmem_char_put
+#define shmem_char_put pshmem_char_put
 #pragma weak shmem_long_put = pshmem_long_put
 #define shmem_long_put pshmem_long_put
 #pragma weak shmem_longdouble_put = pshmem_longdouble_put
@@ -164,6 +166,8 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
 #define shmem_short_get pshmem_short_get
 #pragma weak shmem_int_get = pshmem_int_get
 #define shmem_int_get pshmem_int_get
+#pragma weak shmem_char_get = pshmem_char_get
+#define shmem_char_get pshmem_char_get
 #pragma weak shmem_long_get = pshmem_long_get
 #define shmem_long_get pshmem_long_get
 #pragma weak shmem_longdouble_get = pshmem_longdouble_get
