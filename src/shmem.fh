@@ -75,6 +75,12 @@
       integer SHMEM_COLLECT_SYNC_SIZE
       parameter ( SHMEM_COLLECT_SYNC_SIZE = 128 )
 
+      integer SHMEM_ALLTOALL_SYNC_SIZE
+      parameter ( SHMEM_ALLTOALL_SYNC_SIZE = 128 )
+
+      integer SHMEM_ALLTOALLS_SYNC_SIZE
+      parameter ( SHMEM_ALLTOALLS_SYNC_SIZE = 128 )
+
 !
 !     Initialize sync arrays to this
 !
