@@ -51,6 +51,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>             /* ptrdiff_t */
 #include <string.h>
 
 #include "fortran-common.h"
@@ -88,7 +89,8 @@
 #define shmem_n_pes_ pshmem_n_pes_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (start_pes) (int *npes /* unused */ )
+void
+FORTRANIFY (start_pes) (int *npes /* unused */ )
 {
     shmem_init ();
 }
@@ -96,7 +98,8 @@ void FORTRANIFY (start_pes) (int *npes /* unused */ )
 FORTRANIFY_VOID_VOID (shmem_init);
 FORTRANIFY_VOID_VOID (shmem_finalize);
 
-void FORTRANIFY (shmem_global_exit) (int *status)
+void
+FORTRANIFY (shmem_global_exit) (int *status)
 {
     shmem_global_exit (*status);
 }
@@ -546,7 +549,8 @@ SHMEM_FORTRAN_IGET (complex, complexf, COMPLEXIFY (float));
 #pragma weak shmem_nodename_ = pshmem_nodename_
 #define shmem_nodename_ pshmem_nodename_
 
-char *FORTRANIFY (shmem_nodename) (void)
+char *
+FORTRANIFY (shmem_nodename) (void)
 {
     return shmem_nodename ();
 }
@@ -567,17 +571,20 @@ char *FORTRANIFY (shmem_nodename) (void)
 #define shmem_ptr_ pshmem_ptr_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_addr_accessible) (void *addr, int *pe)
+int
+FORTRANIFY (shmem_addr_accessible) (void *addr, int *pe)
 {
     return shmem_addr_accessible (addr, *pe);
 }
 
-int FORTRANIFY (shmem_pe_accessible) (int *pe)
+int
+FORTRANIFY (shmem_pe_accessible) (int *pe)
 {
     return shmem_pe_accessible (*pe);
 }
 
-void *FORTRANIFY (shmem_ptr) (void *target, int *pe)
+void *
+FORTRANIFY (shmem_ptr) (void *target, int *pe)
 {
     return shmem_ptr (target, *pe);
 }
@@ -649,12 +656,14 @@ FORTRANIFY_WAIT_UNTIL (int8, long);
 FORTRANIFY_WAIT (int4, int);
 FORTRANIFY_WAIT (int8, long);
 
-void FORTRANIFY (shmem_wait_until) (int *ivar, int *cmp, int *cmp_value)
+void
+FORTRANIFY (shmem_wait_until) (int *ivar, int *cmp, int *cmp_value)
 {
     shmem_int_wait_until (ivar, *cmp, *cmp_value);
 }
 
-void FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
+void
+FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
 {
     shmem_int_wait (ivar, *cmp_value);
 }
@@ -675,12 +684,14 @@ void FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
 #define shmem_int8_inc_ pshmem_int8_inc_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_int4_inc) (int *target, int *pe)
+void
+FORTRANIFY (shmem_int4_inc) (int *target, int *pe)
 {
     shmem_int_inc (target, *pe);
 }
 
-void FORTRANIFY (shmem_int8_inc) (long *target, int *pe)
+void
+FORTRANIFY (shmem_int8_inc) (long *target, int *pe)
 {
     shmem_long_inc (target, *pe);
 }
@@ -696,12 +707,14 @@ void FORTRANIFY (shmem_int8_inc) (long *target, int *pe)
 #define shmem_int8_finc_ pshmem_int8_finc_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_int4_finc) (int *target, int *pe)
+int
+FORTRANIFY (shmem_int4_finc) (int *target, int *pe)
 {
     return shmem_int_finc (target, *pe);
 }
 
-long FORTRANIFY (shmem_int8_finc) (long *target, int *pe)
+long
+FORTRANIFY (shmem_int8_finc) (long *target, int *pe)
 {
     return shmem_long_finc (target, *pe);
 }
@@ -717,12 +730,14 @@ long FORTRANIFY (shmem_int8_finc) (long *target, int *pe)
 #define shmem_int8_add_ pshmem_int8_add_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_int4_add) (int *target, int *value, int *pe)
+void
+FORTRANIFY (shmem_int4_add) (int *target, int *value, int *pe)
 {
     shmem_int_add (target, *value, *pe);
 }
 
-void FORTRANIFY (shmem_int8_add) (long *target, long *value, int *pe)
+void
+FORTRANIFY (shmem_int8_add) (long *target, long *value, int *pe)
 {
     shmem_long_add (target, *value, *pe);
 }
@@ -738,12 +753,14 @@ void FORTRANIFY (shmem_int8_add) (long *target, long *value, int *pe)
 #define shmem_int8_fadd_ pshmem_int8_fadd_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_int4_fadd) (int *target, int *value, int *pe)
+int
+FORTRANIFY (shmem_int4_fadd) (int *target, int *value, int *pe)
 {
     return shmem_int_fadd (target, *value, *pe);
 }
 
-long FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
+long
+FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
 {
     return shmem_long_fadd (target, *value, *pe);
 }
@@ -766,27 +783,32 @@ long FORTRANIFY (shmem_int8_fadd) (long *target, long *value, int *pe)
 #define shmem_swap_ pshmem_swap_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_int4_swap) (int *target, int *value, int *pe)
+int
+FORTRANIFY (shmem_int4_swap) (int *target, int *value, int *pe)
 {
     return shmem_int_swap (target, *value, *pe);
 }
 
-long FORTRANIFY (shmem_int8_swap) (long *target, long *value, int *pe)
+long
+FORTRANIFY (shmem_int8_swap) (long *target, long *value, int *pe)
 {
     return shmem_long_swap (target, *value, *pe);
 }
 
-float FORTRANIFY (shmem_real4_swap) (float *target, float *value, int *pe)
+float
+FORTRANIFY (shmem_real4_swap) (float *target, float *value, int *pe)
 {
     return shmem_float_swap (target, *value, *pe);
 }
 
-double FORTRANIFY (shmem_real8_swap) (double *target, double *value, int *pe)
+double
+FORTRANIFY (shmem_real8_swap) (double *target, double *value, int *pe)
 {
     return shmem_double_swap (target, *value, *pe);
 }
 
-int FORTRANIFY (shmem_swap) (int *target, int *value, int *pe)
+int
+FORTRANIFY (shmem_swap) (int *target, int *value, int *pe)
 {
     return shmem_int_swap (target, *value, *pe);
 }
@@ -802,7 +824,8 @@ int FORTRANIFY (shmem_swap) (int *target, int *value, int *pe)
 #define shmem_int8_cswap_ pshmem_int8_cswap_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_int4_cswap) (int *target, int *cond, int *value, int *pe)
+int
+FORTRANIFY (shmem_int4_cswap) (int *target, int *cond, int *value, int *pe)
 {
     return shmem_int_cswap (target, *cond, *value, *pe);
 }
@@ -828,22 +851,26 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value, int *pe)
 #define shmem_real8_fetch_ pshmem_real8_fetch_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmem_int4_fetch) (const int *target, int *pe)
+int
+FORTRANIFY (shmem_int4_fetch) (const int *target, int *pe)
 {
     return shmem_int_fetch (target, *pe);
 }
 
-long FORTRANIFY (shmem_int8_fetch) (const long *target, int *pe)
+long
+FORTRANIFY (shmem_int8_fetch) (const long *target, int *pe)
 {
     return shmem_long_fetch (target, *pe);
 }
 
-float FORTRANIFY (shmem_real4_fetch) (const float *target, int *pe)
+float
+FORTRANIFY (shmem_real4_fetch) (const float *target, int *pe)
 {
     return shmem_float_fetch (target, *pe);
 }
 
-double FORTRANIFY (shmem_real8_fetch) (const double *target, int *pe)
+double
+FORTRANIFY (shmem_real8_fetch) (const double *target, int *pe)
 {
     return shmem_double_fetch (target, *pe);
 }
@@ -859,22 +886,26 @@ double FORTRANIFY (shmem_real8_fetch) (const double *target, int *pe)
 #define shmem_real8_set_ pshmem_real8_set_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_int4_set) (int *target, int *val, int *pe)
+void
+FORTRANIFY (shmem_int4_set) (int *target, int *val, int *pe)
 {
     shmem_int_set (target, *val, *pe);
 }
 
-void FORTRANIFY (shmem_int8_set) (long *target, long *val, int *pe)
+void
+FORTRANIFY (shmem_int8_set) (long *target, long *val, int *pe)
 {
     shmem_long_set (target, *val, *pe);
 }
 
-void FORTRANIFY (shmem_real4_set) (float *target, float *val, int *pe)
+void
+FORTRANIFY (shmem_real4_set) (float *target, float *val, int *pe)
 {
     shmem_float_set (target, *val, *pe);
 }
 
-void FORTRANIFY (shmem_real8_set) (double *target, double *val, int *pe)
+void
+FORTRANIFY (shmem_real8_set) (double *target, double *val, int *pe)
 {
     shmem_double_set (target, *val, *pe);
 }
@@ -895,12 +926,14 @@ void FORTRANIFY (shmem_real8_set) (double *target, double *val, int *pe)
 #define shmemx_int8_xor_ pshmemx_int8_xor_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmemx_int4_xor) (int *target, int *value, int *pe)
+void
+FORTRANIFY (shmemx_int4_xor) (int *target, int *value, int *pe)
 {
     shmemx_int_xor (target, *value, *pe);
 }
 
-void FORTRANIFY (shmemx_int8_xor) (long *target, long *value, int *pe)
+void
+FORTRANIFY (shmemx_int8_xor) (long *target, long *value, int *pe)
 {
     shmemx_long_xor (target, *value, *pe);
 }
@@ -1231,6 +1264,34 @@ FORTRANIFY (shmem_alltoall64) (void *target, const void *source, int *nelems,
                       (long *) pSync);
 }
 
+void
+FORTRANIFY (shmem_alltoalls32) (void *target, const void *source,
+                                ptrdiff_t *dst, ptrdiff_t *sst,
+                                int *nelems,
+                                int *PE_start, int *logPE_stride, int *PE_size,
+                                int *pSync)
+{
+    shmem_alltoalls32 (target, source,
+                       *dst, *sst,
+                       *nelems,
+                       *PE_start, *logPE_stride, *PE_size,
+                       (long *) pSync);
+}
+
+void
+FORTRANIFY (shmem_alltoalls64) (void *target, const void *source,
+                                ptrdiff_t *dst, ptrdiff_t *sst,
+                                int *nelems,
+                                int *PE_start, int *logPE_stride, int *PE_size,
+                                int *pSync)
+{
+    shmem_alltoalls64 (target, source,
+                       *dst, *sst,
+                       *nelems,
+                       *PE_start, *logPE_stride, *PE_size,
+                       (long *) pSync);
+}
+
 /*
  * locks
  *
@@ -1245,17 +1306,20 @@ FORTRANIFY (shmem_alltoall64) (void *target, const void *source, int *nelems,
 #define shmem_test_lock_ pshmem_test_lock_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_clear_lock) (long *lock)
+void
+FORTRANIFY (shmem_clear_lock) (long *lock)
 {
     shmem_clear_lock (lock);
 }
 
-void FORTRANIFY (shmem_set_lock) (long *lock)
+void
+FORTRANIFY (shmem_set_lock) (long *lock)
 {
     shmem_set_lock (lock);
 }
 
-int FORTRANIFY (shmem_test_lock) (long *lock)
+int
+FORTRANIFY (shmem_test_lock) (long *lock)
 {
     return shmem_test_lock (lock);
 }
@@ -1269,7 +1333,8 @@ int FORTRANIFY (shmem_test_lock) (long *lock)
 
 extern void shmem_pcontrol (int level);
 
-void FORTRANIFY (shmem_pcontrol) (int *level)
+void
+FORTRANIFY (shmem_pcontrol) (int *level)
 {
     shmem_pcontrol (*level);
 }
@@ -1413,7 +1478,8 @@ SHMEMX_FORTRAN_GET_SIZE_NB (128, longlong, long long);
 #define shmemx_wtime_ pshmemx_wtime_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-double FORTRANIFY (shmemx_wtime) (void)
+double
+FORTRANIFY (shmemx_wtime) (void)
 {
     return shmemx_wtime ();
 }
@@ -1427,7 +1493,8 @@ double FORTRANIFY (shmemx_wtime) (void)
 #define shmemx_lookup_remote_addr_ pshmemx_lookup_remote_addr_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-uintptr_t * FORTRANIFY (shmemx_lookup_remote_addr) (uintptr_t *addr, int *pe)
+uintptr_t *
+FORTRANIFY (shmemx_lookup_remote_addr) (uintptr_t *addr, int *pe)
 {
     return shmemx_lookup_remote_addr (addr, *pe);
 }
@@ -1440,7 +1507,8 @@ uintptr_t * FORTRANIFY (shmemx_lookup_remote_addr) (uintptr_t *addr, int *pe)
 #define shmem_info_get_version_ pshmem_info_get_version_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
+void
+FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
 {
     shmem_info_get_version (major, minor);
 }
@@ -1451,7 +1519,8 @@ void FORTRANIFY (shmem_info_get_version) (int *major, int *minor)
 #define shmem_info_get_name_ pshmem_info_get_name_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-void FORTRANIFY (shmem_info_get_name) (char *name)
+void
+FORTRANIFY (shmem_info_get_name) (char *name)
 {
     int len;
     const int max_f_len = SHMEM_MAX_NAME_LEN - 1;
@@ -1474,7 +1543,8 @@ void FORTRANIFY (shmem_info_get_name) (char *name)
 #define shmemx_fence_test_ pshmemx_fence_test_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmemx_fence_test) (void)
+int
+FORTRANIFY (shmemx_fence_test) (void)
 {
     return shmemx_fence_test ();
 }
@@ -1484,7 +1554,8 @@ int FORTRANIFY (shmemx_fence_test) (void)
 #define shmemx_quiet_test_ pshmemx_quiet_test_
 #endif /* HAVE_FEATURE_PSHMEM */
 
-int FORTRANIFY (shmemx_quiet_test) (void)
+int
+FORTRANIFY (shmemx_quiet_test) (void)
 {
     return shmemx_quiet_test ();
 }
