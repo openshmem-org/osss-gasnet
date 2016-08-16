@@ -2013,7 +2013,7 @@ extern "C"
     void shmem_double_set (double *dest, double value, int pe);
 
 #ifdef __STDC_VERSION__
-#if  __STDC_VERSION__ == 201112L
+#if  __STDC_VERSION__ >= 201112L
 
     /*
      * C11 Generic variants
@@ -2170,7 +2170,7 @@ extern "C"
              float:        shmem_float_set,                     \
              double:       shmem_double_set) (dest, value, pe)
 
-#endif   /* __STDC_VERSION__ == 201112L test */
+#endif   /* __STDC_VERSION__ >= 201112L test */
 #endif /* __STDC_VERSION__ defined test */
 
 
