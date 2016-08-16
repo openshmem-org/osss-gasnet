@@ -130,16 +130,6 @@ SHMEM_FORTRAN_QUERY_PE (shmem_n_pes, shmem_n_pes);
  * API
  */
 
-extern void shmem_char_put (char *target, const char *source, size_t nelems,
-                            int pe);
-extern void shmem_char_get (char *target, const char *source, size_t nelems,
-                            int pe);
-extern void shmem_char_iput (char *target, const char *source,
-                             ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-                             int pe);
-extern void shmem_char_iget (char *target, const char *source,
-                             ptrdiff_t tst, ptrdiff_t sst, size_t nelems,
-                             int pe);
 extern void shmem_complexf_put (COMPLEXIFY (float) * target,
                                 const COMPLEXIFY (float) * source,
                                 size_t nelems, int pe);
@@ -294,6 +284,139 @@ void
 FORTRANIFY (shmem_get) (long *target, const long *source, int *size, int *pe)
 {
     shmem_long_get (target, source, *size, *pe);
+}
+
+/*
+ * non-blocking implicit put/get
+ */
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_character_put_nbi_ = pshmem_character_put_nbi_
+#define shmem_character_put_nbi_ pshmem_character_put_nbi_
+#pragma weak shmem_double_put_nbi_ = pshmem_double_put_nbi_
+#define shmem_double_put_nbi_ pshmem_double_put_nbi_
+#pragma weak shmem_integer_put_nbi_ = pshmem_integer_put_nbi_
+#define shmem_integer_put_nbi_ pshmem_integer_put_nbi_
+#pragma weak shmem_logical_put_nbi_ = pshmem_logical_put_nbi_
+#define shmem_logical_put_nbi_ pshmem_logical_put_nbi_
+#pragma weak shmem_real_put_nbi_ = pshmem_real_put_nbi_
+#define shmem_real_put_nbi_ pshmem_real_put_nbi_
+#pragma weak shmem_complex_put_nbi_ = pshmem_complex_put_nbi_
+#define shmem_complex_put_nbi_ pshmem_complex_put_nbi_
+#pragma weak shmem_put4_nbi_ = pshmem_put4_nbi_
+#define shmem_put4_nbi_ pshmem_put4_nbi_
+#pragma weak shmem_put8_nbi_ = pshmem_put8_nbi_
+#define shmem_put8_nbi_ pshmem_put8_nbi_
+#pragma weak shmem_put32_nbi_ = pshmem_put32_nbi_
+#define shmem_put32_nbi_ pshmem_put32_nbi_
+#pragma weak shmem_put64_nbi_ = pshmem_put64_nbi_
+#define shmem_put64_nbi_ pshmem_put64_nbi_
+#pragma weak shmem_put128_nbi_ = pshmem_put128_nbi_
+#define shmem_put128_nbi_ pshmem_put128_nbi_
+#pragma weak shmem_putmem_nbi_ = pshmem_putmem_nbi_
+#define shmem_putmem_nbi_ pshmem_putmem_nbi_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#define SHMEM_FORTRAN_PUT_NBI(FName, CName, CType)                      \
+    void                                                                \
+    FORTRANIFY(shmem_##FName##_put_nbi) (CType *target,                 \
+                                         const CType *source,           \
+                                         int *size, int *pe)            \
+    {                                                                   \
+        shmem_##CName##_put_nbi (target, source, *size, *pe);           \
+    }
+
+#define SHMEM_FORTRAN_PUT_SIZE_NBI(Size, CName, CType)                  \
+    void                                                                \
+    FORTRANIFY(shmem_put##Size##_nbi) (CType *target,                   \
+                                       const CType *source,             \
+                                       int *size, int *pe)              \
+    {                                                                   \
+        shmem_##CName##_put_nbi (target, source, *size, *pe);           \
+    }
+
+SHMEM_FORTRAN_PUT_NBI (character, char, char);
+SHMEM_FORTRAN_PUT_NBI (double, double, double);
+SHMEM_FORTRAN_PUT_NBI (integer, int, int);
+SHMEM_FORTRAN_PUT_NBI (logical, int, int);
+SHMEM_FORTRAN_PUT_NBI (real, int, int);
+SHMEM_FORTRAN_PUT_NBI (complex, complexf, COMPLEXIFY (float));
+SHMEM_FORTRAN_PUT_SIZE_NBI (4, int, int);
+SHMEM_FORTRAN_PUT_SIZE_NBI (8, long, long);
+SHMEM_FORTRAN_PUT_SIZE_NBI (32, int, int);
+SHMEM_FORTRAN_PUT_SIZE_NBI (64, long, long);
+SHMEM_FORTRAN_PUT_SIZE_NBI (128, longlong, long long);
+
+
+void
+FORTRANIFY (shmem_putmem_nbi) (void *target, const void *source,
+                               int *size, int *pe)
+{
+    shmem_putmem_nbi (target, source, *size, *pe);
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_character_get_nbi_ = pshmem_character_get_nbi_
+#define shmem_character_get_nbi_ pshmem_character_get_nbi_
+#pragma weak shmem_double_get_nbi_ = pshmem_double_get_nbi_
+#define shmem_double_get_nbi_ pshmem_double_get_nbi_
+#pragma weak shmem_integer_get_nbi_ = pshmem_integer_get_nbi_
+#define shmem_integer_get_nbi_ pshmem_integer_get_nbi_
+#pragma weak shmem_logical_get_nbi_ = pshmem_logical_get_nbi_
+#define shmem_logical_get_nbi_ pshmem_logical_get_nbi_
+#pragma weak shmem_real_get_nbi_ = pshmem_real_get_nbi_
+#define shmem_real_get_nbi_ pshmem_real_get_nbi_
+#pragma weak shmem_complex_get_nbi_ = pshmem_complex_get_nbi_
+#define shmem_complex_get_nbi_ pshmem_complex_get_nbi_
+#pragma weak shmem_get4_nbi_ = pshmem_get4_nbi_
+#define shmem_get4_nbi_ pshmem_get4_nbi_
+#pragma weak shmem_get8_nbi_ = pshmem_get8_nbi_
+#define shmem_get8_nbi_ pshmem_get8_nbi_
+#pragma weak shmem_get32_nbi_ = pshmem_get32_nbi_
+#define shmem_get32_nbi_ pshmem_get32_nbi_
+#pragma weak shmem_get64_nbi_ = pshmem_get64_nbi_
+#define shmem_get64_nbi_ pshmem_get64_nbi_
+#pragma weak shmem_get128_nbi_ = pshmem_get128_nbi_
+#define shmem_get128_nbi_ pshmem_get128_nbi_
+#pragma weak shmem_getmem_nbi_ = pshmem_getmem_nbi_
+#define shmem_getmem_nbi_ pshmem_getmem_nbi_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#define SHMEM_FORTRAN_GET_NBI(FName, CName, CType)                      \
+    void                                                                \
+    FORTRANIFY(shmem_##FName##_get_nbi) (CType *target,                 \
+                                         const CType *source,           \
+                                         int *size, int *pe)            \
+    {                                                                   \
+        shmem_##CName##_get_nbi (target, source, *size, *pe);           \
+    }
+
+#define SHMEM_FORTRAN_GET_SIZE_NBI(Size, CName, CType)                  \
+    void                                                                \
+    FORTRANIFY(shmem_get##Size##_nbi) (CType *target,                   \
+                                       const CType *source,             \
+                                       int *size, int *pe)              \
+    {                                                                   \
+        shmem_##CName##_get_nbi (target, source, *size, *pe);           \
+    }
+
+SHMEM_FORTRAN_GET_NBI (character, char, char);
+SHMEM_FORTRAN_GET_NBI (double, double, double);
+SHMEM_FORTRAN_GET_NBI (integer, int, int);
+SHMEM_FORTRAN_GET_NBI (logical, int, int);
+SHMEM_FORTRAN_GET_NBI (real, int, int);
+SHMEM_FORTRAN_GET_NBI (complex, complexf, COMPLEXIFY (float));
+SHMEM_FORTRAN_GET_SIZE_NBI (4, int, int);
+SHMEM_FORTRAN_GET_SIZE_NBI (8, long, long);
+SHMEM_FORTRAN_GET_SIZE_NBI (32, int, int);
+SHMEM_FORTRAN_GET_SIZE_NBI (64, long, long);
+SHMEM_FORTRAN_GET_SIZE_NBI (128, longlong, long long);
+
+void
+FORTRANIFY (shmem_getmem_nbi) (void *target, const void *source,
+                               int *size, int *pe)
+{
+    shmem_getmem_nbi (target, source, *size, *pe);
 }
 
 /*
@@ -535,41 +658,6 @@ void FORTRANIFY (shmem_wait) (int *ivar, int *cmp_value)
 {
     shmem_int_wait (ivar, *cmp_value);
 }
-
-/*
- * cache flushing
- */
-
-#ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
-#define shmem_clear_cache_inv_ pshmem_clear_cache_inv_
-#pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
-#define shmem_clear_cache_line_inv_ pshmem_clear_cache_line_inv_
-#pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
-#define shmem_set_cache_inv_ pshmem_set_cache_inv_
-#pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
-#define shmem_set_cache_line_inv_ pshmem_set_cache_line_inv_
-#pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
-#define shmem_udcflush_line_ pshmem_udcflush_line_
-#pragma weak shmem_udcflush_ = pshmem_udcflush_
-#define shmem_udcflush_ pshmem_udcflush_
-#endif /* HAVE_FEATURE_PSHMEM */
-
-
-FORTRANIFY_VOID_VOID (shmem_clear_cache_inv);
-FORTRANIFY_VOID_VOID (shmem_set_cache_inv);
-FORTRANIFY_VOID_VOID (shmem_udcflush);
-
-#define FORTRANIFY_CACHE(Name)                  \
-    void                                        \
-    FORTRANIFY(Name) (void *target)             \
-    {                                           \
-        Name (target);                          \
-    }
-
-FORTRANIFY_CACHE (shmem_set_cache_line_inv);
-FORTRANIFY_CACHE (shmem_clear_cache_line_inv);
-FORTRANIFY_CACHE (shmem_udcflush_line);
 
 /*
  * atomics
@@ -1312,3 +1400,42 @@ int FORTRANIFY (shmemx_quiet_test) (void)
 }
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
+
+
+/**
+ *
+ * DEPRECATED API
+ *
+ * cache flushing
+ */
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_clear_cache_inv_ = pshmem_clear_cache_inv_
+#define shmem_clear_cache_inv_ pshmem_clear_cache_inv_
+#pragma weak shmem_clear_cache_line_inv_ = pshmem_clear_cache_line_inv_
+#define shmem_clear_cache_line_inv_ pshmem_clear_cache_line_inv_
+#pragma weak shmem_set_cache_inv_ = pshmem_set_cache_inv_
+#define shmem_set_cache_inv_ pshmem_set_cache_inv_
+#pragma weak shmem_set_cache_line_inv_ = pshmem_set_cache_line_inv_
+#define shmem_set_cache_line_inv_ pshmem_set_cache_line_inv_
+#pragma weak shmem_udcflush_line_ = pshmem_udcflush_line_
+#define shmem_udcflush_line_ pshmem_udcflush_line_
+#pragma weak shmem_udcflush_ = pshmem_udcflush_
+#define shmem_udcflush_ pshmem_udcflush_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+
+FORTRANIFY_VOID_VOID (shmem_clear_cache_inv);
+FORTRANIFY_VOID_VOID (shmem_set_cache_inv);
+FORTRANIFY_VOID_VOID (shmem_udcflush);
+
+#define FORTRANIFY_CACHE(Name)                  \
+    void                                        \
+    FORTRANIFY(Name) (void *target)             \
+    {                                           \
+        Name (target);                          \
+    }
+
+FORTRANIFY_CACHE (shmem_set_cache_line_inv);
+FORTRANIFY_CACHE (shmem_clear_cache_line_inv);
+FORTRANIFY_CACHE (shmem_udcflush_line);
