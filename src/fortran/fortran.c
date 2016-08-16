@@ -1208,6 +1208,30 @@ REDUCIFY (prod, comp4, complexf, float complex);
 REDUCIFY (prod, comp8, complexd, double complex);
 
 /*
+ * alltoall
+ */
+
+void
+FORTRANIFY (shmem_alltoall32) (void *target, const void *source, int *nelems,
+                               int *PE_start, int *logPE_stride, int *PE_size,
+                               int *pSync)
+{
+    shmem_alltoall32 (target, source, *nelems,
+                      *PE_start, *logPE_stride, *PE_size,
+                      (long *) pSync);
+}
+
+void
+FORTRANIFY (shmem_alltoall64) (void *target, const void *source, int *nelems,
+                               int *PE_start, int *logPE_stride, int *PE_size,
+                               int *pSync)
+{
+    shmem_alltoall64 (target, source, *nelems,
+                      *PE_start, *logPE_stride, *PE_size,
+                      (long *) pSync);
+}
+
+/*
  * locks
  *
  */
