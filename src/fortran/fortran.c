@@ -813,6 +813,72 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value, int *pe)
     return shmem_long_cswap (target, *cond, *value, *pe);
 }
 
+/*
+ * fetch/set
+ */
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int4_fetch_ = pshmem_int4_fetch_
+#define shmem_int4_fetch_ pshmem_int4_fetch_
+#pragma weak shmem_int8_fetch_ = pshmem_int8_fetch_
+#define shmem_int8_fetch_ pshmem_int8_fetch_
+#pragma weak shmem_real4_fetch_ = pshmem_real4_fetch_
+#define shmem_real4_fetch_ pshmem_real4_fetch_
+#pragma weak shmem_real8_fetch_ = pshmem_real8_fetch_
+#define shmem_real8_fetch_ pshmem_real8_fetch_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+int FORTRANIFY (shmem_int4_fetch) (const int *target, int *pe)
+{
+    return shmem_int_fetch (target, *pe);
+}
+
+long FORTRANIFY (shmem_int8_fetch) (const long *target, int *pe)
+{
+    return shmem_long_fetch (target, *pe);
+}
+
+float FORTRANIFY (shmem_real4_fetch) (const float *target, int *pe)
+{
+    return shmem_float_fetch (target, *pe);
+}
+
+double FORTRANIFY (shmem_real8_fetch) (const double *target, int *pe)
+{
+    return shmem_double_fetch (target, *pe);
+}
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_int4_set_ = pshmem_int4_set_
+#define shmem_int4_set_ pshmem_int4_set_
+#pragma weak shmem_int8_set_ = pshmem_int8_set_
+#define shmem_int8_set_ pshmem_int8_set_
+#pragma weak shmem_real4_set_ = pshmem_real4_set_
+#define shmem_real4_set_ pshmem_real4_set_
+#pragma weak shmem_real8_set_ = pshmem_real8_set_
+#define shmem_real8_set_ pshmem_real8_set_
+#endif /* HAVE_FEATURE_PSHMEM */
+
+void FORTRANIFY (shmem_int4_set) (int *target, int *val, int *pe)
+{
+    shmem_int_set (target, *val, *pe);
+}
+
+void FORTRANIFY (shmem_int8_set) (long *target, long *val, int *pe)
+{
+    shmem_long_set (target, *val, *pe);
+}
+
+void FORTRANIFY (shmem_real4_set) (float *target, float *val, int *pe)
+{
+    shmem_float_set (target, *val, *pe);
+}
+
+void FORTRANIFY (shmem_real8_set) (double *target, double *val, int *pe)
+{
+    shmem_double_set (target, *val, *pe);
+}
+
 #if defined(HAVE_FEATURE_EXPERIMENTAL)
 
 /*
