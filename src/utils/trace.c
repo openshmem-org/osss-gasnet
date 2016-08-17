@@ -304,11 +304,11 @@ parse_log_levels (void)
  */
 
 #define INFO_MSG(Var, Text)                     \
-  shmemi_trace (SHMEM_LOG_INFO,                \
-                 "%-28s %s",                    \
-                 Var,                           \
-                 Text                           \
-                 );
+    shmemi_trace (SHMEM_LOG_INFO,               \
+                  "%-28s %s",                   \
+                  Var,                          \
+                  Text                          \
+                  );
 
 void
 shmemi_maybe_tracers_show_info (void)
@@ -323,7 +323,9 @@ shmemi_maybe_tracers_show_info (void)
     }
 
     shmemi_trace (SHMEM_LOG_INFO,
-                  "We understand these SGI compatibility environment variables:");
+                  "We understand these SGI compatibility"
+                  " environment variables:"
+                  );
     INFO_MSG ("SMA_VERSION", "Print OpenSHMEM version.");
     INFO_MSG ("SMA_INFO", "Print this message.");
     INFO_MSG ("SMA_SYMMETRIC_SIZE",
@@ -335,7 +337,8 @@ shmemi_maybe_tracers_show_info (void)
     INFO_MSG ("SHMEM_LOG_LEVELS",
               "Select which kinds of trace messages are enabled");
     INFO_MSG ("SHMEM_LOG_FILE",
-              "Filename to append trace output to, instead of standard error");
+              "Filename to append trace output to,"
+              " instead of standard error");
     INFO_MSG ("SHMEM_SYMMETRIC_HEAP_SIZE",
               "Specify the size of symmetric memory.");
     INFO_MSG ("SHMEM_BARRIER_ALL_ALGORITHM",
