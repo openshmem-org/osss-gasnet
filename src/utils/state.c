@@ -68,16 +68,11 @@ struct state_desc
  */
 
 static struct state_desc d[] = {
-    {
-     PE_UNINITIALIZED, "PE has not been initialized yet"},
-    {
-     PE_UNKNOWN, "I have no information about PE"},
-    {
-     PE_RUNNING, "PE is running"},
-    {
-     PE_SHUTDOWN, "PE has been cleanly shut down"},
-    {
-     PE_FAILED, "PE has failed"},
+    { PE_UNINITIALIZED, "PE has not been initialized yet" },
+    { PE_UNKNOWN, "I have no information about PE"        },
+    { PE_RUNNING, "PE is running"                         },
+    { PE_SHUTDOWN, "PE has been cleanly shut down"        },
+    { PE_FAILED, "PE has failed"                          },
 };
 
 static const int nd = TABLE_SIZE (d);
