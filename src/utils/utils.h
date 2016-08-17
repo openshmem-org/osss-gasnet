@@ -87,8 +87,10 @@
                  const int top_pe = GET_STATE (numpes) - 1;             \
                  if (pe < bot_pe || pe > top_pe) {                      \
                      shmemi_trace (SHMEM_LOG_FATAL,                     \
-                                   "PE %d in argument #%d not within allocated range %d .. %d", \
-                                   pe, argpos, bot_pe, top_pe           \
+                                   "PE %d in argument #%d not"          \
+                                   " within allocated range %d .. %d",  \
+                                   pe, argpos,                          \
+                                   bot_pe, top_pe                       \
                                    );                                   \
                      /* NOT REACHED */                                  \
                  }                                                      \
@@ -101,15 +103,15 @@
 
 #include "symmtest.h"
 
-#define SYMMETRY_CHECK(addr, argpos, subrname)  \
+#define SYMMETRY_CHECK(addr, argpos, subrname)                          \
     IF_DEBUGGING(                                                       \
-                 if (shmemi_symmetric_addr_lookup ((void *) addr, GET_STATE (mype)) == NULL) \
+                 if (shmemi_symmetric_addr_lookup ((void *) addr,       \
+                                                   GET_STATE (mype)) == NULL) \
                      {                                                  \
                          shmemi_trace (SHMEM_LOG_FATAL,                 \
-                                       "%s(), argument #%d @ %p is not symmetric", \
-                                       subrname,                        \
-                                       argpos,                          \
-                                       addr                             \
+                                       "%s(), argument #%d @ %p"        \
+                                       "is not symmetric",              \
+                                       subrname, argpos, addr           \
                                        );                               \
                          /* NOT REACHED */                              \
                      }                                                  \
@@ -124,20 +126,18 @@
                  if ((len) == 0)                                        \
                      {                                                  \
                          shmemi_trace (SHMEM_LOG_INFO,                  \
-                                       "%s(), length in argument #%d is zero, call has no effect", \
-                                       subrname,                        \
-                                       argpos                           \
+                                       "%s(), length in argument #%d"   \
+                                       "is zero, call has no effect",   \
+                                       subrname, argpos                 \
                                        );                               \
-                         /* NOT REACHED */                              \
                      }                                                  \
                  if ((len) < 0)                                         \
                      {                                                  \
                          shmemi_trace (SHMEM_LOG_INFO,                  \
-                                       "%s(), length in argument #%d is negative, call has no effect", \
-                                       subrname,                        \
-                                       argpos                           \
+                                       "%s(), length in argument #%d"   \
+                                       "is negative, call has no effect", \
+                                       subrname, argpos                 \
                                        );                               \
-                         /* NOT REACHED */                              \
                      }                                                  \
                                                                         \
                                                     )
