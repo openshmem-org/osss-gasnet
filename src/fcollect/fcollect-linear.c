@@ -67,25 +67,27 @@
  */
 
 #define SHMEM_FCOLLECT(Bits, Bytes)                                     \
-  void                                                                  \
-  shmemi_fcollect##Bits##_linear(void *target, const void *source, size_t nelems, \
-                                  int PE_start, int logPE_stride, int PE_size, \
-                                  long *pSync)                          \
-  {                                                                     \
-    const int step = 1 << logPE_stride;                                 \
-    const int vpe = (GET_STATE(mype) - PE_start) >> logPE_stride;       \
-    const size_t tidx = nelems * Bytes * vpe;                           \
-    int i;                                                              \
-    int pe = PE_start;                                                  \
-    INIT_CHECK();                                                       \
-    SYMMETRY_CHECK(target, 1, "shmem_fcollect");                        \
-    SYMMETRY_CHECK(source, 2, "shmem_fcollect");                        \
-    for (i = 0; i < PE_size; i += 1) {                                  \
-      shmem_put##Bits(target + tidx, source, nelems, pe);               \
-      pe += step;                                                       \
-    }                                                                   \
-    shmem_barrier(PE_start, logPE_stride, PE_size, pSync);              \
-  }
+    void                                                                \
+    shmemi_fcollect##Bits##_linear(void *target, const void *source,    \
+                                   size_t nelems,                       \
+                                   int PE_start, int logPE_stride,      \
+                                   int PE_size,                         \
+                                   long *pSync)                         \
+    {                                                                   \
+        const int step = 1 << logPE_stride;                             \
+        const int vpe = (GET_STATE(mype) - PE_start) >> logPE_stride;   \
+        const size_t tidx = nelems * Bytes * vpe;                       \
+        int i;                                                          \
+        int pe = PE_start;                                              \
+        INIT_CHECK();                                                   \
+        SYMMETRY_CHECK(target, 1, "shmem_fcollect");                    \
+        SYMMETRY_CHECK(source, 2, "shmem_fcollect");                    \
+        for (i = 0; i < PE_size; i += 1) {                              \
+            shmem_put##Bits(target + tidx, source, nelems, pe);         \
+            pe += step;                                                 \
+        }                                                               \
+        shmem_barrier(PE_start, logPE_stride, PE_size, pSync);          \
+    }
 
 SHMEM_FCOLLECT (32, 4);
 SHMEM_FCOLLECT (64, 8);

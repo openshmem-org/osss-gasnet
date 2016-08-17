@@ -87,7 +87,8 @@ __shmalloc_symmetry_check (size_t size)
         (long *) shmemi_mem_alloc (sizeof (*shmalloc_remote_size));
     if (shmalloc_remote_size == (long *) NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: couldn't allocate memory for symmetry check");
+                      "internal error: couldn't allocate"
+                      " memory for symmetry check");
         return 0;               /* arbitrary PE number */
         /* NOT REACHED */
     }
@@ -311,7 +312,8 @@ shrealloc_private (void *addr, size_t size)
 
     if (addr == (void *) NULL) {
         shmemi_trace (SHMEM_LOG_MEMORY,
-                      "address passed to shrealloc() is null, handing to shmalloc()");
+                      "address passed to shrealloc() is null,"
+                      " handing to shmalloc()");
         return shmem_malloc (size);
         /* NOT REACHED */
     }

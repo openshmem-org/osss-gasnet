@@ -67,7 +67,8 @@
 
 #define SHMEM_COLLECT(Bits, Bytes)                                      \
     void                                                                \
-    shmemi_collect##Bits##_linear(void *target, const void *source, size_t nelems, \
+    shmemi_collect##Bits##_linear(void *target, const void *source,     \
+                                  size_t nelems,                        \
                                   int PE_start, int logPE_stride, int PE_size, \
                                   long *pSync)                          \
     {                                                                   \
@@ -82,7 +83,8 @@
         SYMMETRY_CHECK(source, 2, "shmem_collect");                     \
                                                                         \
         shmemi_trace(SHMEM_LOG_COLLECT,                                 \
-                     "nelems = %ld, PE_start = %d, PE_stride = %d, PE_size = %d, last_pe = %d", \
+                     "nelems = %ld, PE_start = %d, PE_stride = %d,"     \
+                     " PE_size = %d, last_pe = %d",                     \
                      nelems,                                            \
                      PE_start,                                          \
                      step,                                              \

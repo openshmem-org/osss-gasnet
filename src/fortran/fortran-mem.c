@@ -122,8 +122,11 @@ void FORTRANIFY (shpalloc) (uintptr_t **addr, int *length,
         *addr = symm_addr;
 
         shmemi_trace (SHMEM_LOG_MEMORY,
-                      "shpalloc(addr = %p, length = %d, errcode = %d, abort = %d)",
-                      addr, *length, *errcode, *abort);
+                      "shpalloc(addr = %p, length = %d,"
+                      " errcode = %d, abort = %d)",
+                      addr, *length,
+                      *errcode, *abort
+                      );
 
         return;
         /* NOT REACHED */

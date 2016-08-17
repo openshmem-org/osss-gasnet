@@ -1,5 +1,7 @@
 # Emacs: -*- mode: text; mode: auto-fill; -*-
 #
+# Copyright (c) 2016
+#   Stony Brook University and Los Alamos National Laboratory
 # Copyright (c) 2011 - 2016
 #   University of Houston System and UT-Battelle, LLC.
 # Copyright (c) 2009 - 2016
@@ -52,8 +54,15 @@ contributed documentation.
 Contact and Feedback
 ====================
 
-The Principal Investigator at the Universities of Stony Brook and
-Houston is
+The Principal Investigator at Stony Brook University
+
+    http://www.stonybrook.edu/
+
+and the University of Houston
+
+    http://www.uh.edu/
+
+is
 
     Prof. Barbara Chapman <barbara.chapman@stonybrook.edu>
 
