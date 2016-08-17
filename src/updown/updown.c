@@ -117,8 +117,11 @@ report_up (void)
 
     if (shmemi_version (&maj, &min) == 0) {
         shmemi_trace (SHMEM_LOG_INIT,
-                      "version %d.%d running on %d PE%s, using %zd bytes of symmetric heap",
-                      maj, min, n, (n == 1) ? "" : "s", h);
+                      "version %d.%d running on %d PE%s,"
+                      " using %zu bytes of symmetric heap",
+                      maj, min, n, (n == 1) ? "" : "s",
+                      (unsigned long) h
+                      );
     }
 }
 
