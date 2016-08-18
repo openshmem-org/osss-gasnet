@@ -128,7 +128,8 @@ shmemi_ping_init (void)
         double ot = timeout;
         timeout = DEFAULT_PE_ACCESSIBLE_TIMEOUT;
         shmemi_trace (SHMEM_LOG_INIT,
-                      "PE accessibility timeout %f negative, reset to default %f sec",
+                      "PE accessibility timeout %f negative,"
+                      " reset to default %f sec",
                       ot, timeout);
     }
 

@@ -98,7 +98,8 @@
             break;                                                      \
         default:                                                        \
             shmemi_trace (SHMEM_LOG_FATAL,                              \
-                          "unknown operator (code %d) in shmem_%s_wait_until()", \
+                          "unknown operator (code %d) in"               \
+                          " shmem_%s_wait_until()",                     \
                           cmp,                                          \
                           #Name                                         \
                           );                                            \

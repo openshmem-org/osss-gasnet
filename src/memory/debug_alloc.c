@@ -62,7 +62,8 @@ debug_alloc_new (void *a, size_t s)
 
     if (at == NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: out of memory allocating address/size record");
+                      "internal error: out of memory"
+                      " allocating address/size record");
         return NULL;
         /* NOT REACHED */
     }

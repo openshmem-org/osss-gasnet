@@ -226,54 +226,56 @@ extern "C"
      *
      */
     void pshmem_double_put_nbi (double *dest, const double *source,
-                               size_t nelems, int pe);
+                                size_t nelems, int pe);
     void pshmem_float_put_nbi (float *dest, const float *source, size_t nelems,
-                              int pe);
+                               int pe);
     void pshmem_char_put_nbi (char *dest, const char *source, size_t nelems,
-                            int pe);
-    void pshmem_int_put_nbi (int *dest, const int *source, size_t nelems,
-                            int pe);
-    void pshmem_long_put_nbi (long *dest, const long *source, size_t nelems,
-                             int pe);
-    void pshmem_longdouble_put_nbi (long double *dest, const long double *source,
-                                   size_t nelems, int pe);
-    void pshmem_longlong_put_nbi (long long *dest, const long long *source,
-                                 size_t nelems, int pe);
-    void pshmem_put32_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmem_put64_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
-    void pshmem_put128_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmem_putmem_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
-    void pshmem_short_put_nbi (short *dest, const short *source, size_t nelems,
                               int pe);
+    void pshmem_int_put_nbi (int *dest, const int *source, size_t nelems,
+                             int pe);
+    void pshmem_long_put_nbi (long *dest, const long *source, size_t nelems,
+                              int pe);
+    void pshmem_longdouble_put_nbi (long double *dest,
+                                    const long double *source,
+                                    size_t nelems, int pe);
+    void pshmem_longlong_put_nbi (long long *dest, const long long *source,
+                                  size_t nelems, int pe);
+    void pshmem_put32_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    void pshmem_put64_nbi (void *dest, const void *source, size_t nelems,
+                           int pe);
+    void pshmem_put128_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    void pshmem_putmem_nbi (void *dest, const void *source, size_t nelems,
+                            int pe);
+    void pshmem_short_put_nbi (short *dest, const short *source, size_t nelems,
+                               int pe);
 
     void pshmem_double_get_nbi (double *dest, const double *source,
-                               size_t nelems, int pe);
+                                size_t nelems, int pe);
     void pshmem_float_get_nbi (float *dest, const float *source, size_t nelems,
-                              int pe);
+                               int pe);
     void pshmem_get32_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
+                           int pe);
     void pshmem_get64_nbi (void *dest, const void *source, size_t nelems,
-                          int pe);
+                           int pe);
     void pshmem_get128_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
+                            int pe);
     void pshmem_getmem_nbi (void *dest, const void *source, size_t nelems,
-                           int pe);
+                            int pe);
     void pshmem_int_get_nbi (int *dest, const int *source, size_t nelems,
-                            int pe);
-    void pshmem_char_get_nbi (char *dest, const char *source, size_t nelems,
-                            int pe);
-    void pshmem_long_get_nbi (long *dest, const long *source, size_t nelems,
                              int pe);
-    void pshmem_longdouble_get_nbi (long double *dest, const long double *source,
-                                   size_t nelems, int pe);
-    void pshmem_longlong_get_nbi (long long *dest, const long long *source,
-                                 size_t nelems, int pe);
-    void pshmem_short_get_nbi (short *dest, const short *source, size_t nelems,
+    void pshmem_char_get_nbi (char *dest, const char *source, size_t nelems,
                               int pe);
+    void pshmem_long_get_nbi (long *dest, const long *source, size_t nelems,
+                              int pe);
+    void pshmem_longdouble_get_nbi (long double *dest,
+                                    const long double *source,
+                                    size_t nelems, int pe);
+    void pshmem_longlong_get_nbi (long long *dest, const long long *source,
+                                  size_t nelems, int pe);
+    void pshmem_short_get_nbi (short *dest, const short *source, size_t nelems,
+                               int pe);
 
 #ifdef __STDC_VERSION__
 #if  __STDC_VERSION__ >= 201112L

@@ -163,8 +163,10 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
  * Need to copy things if they do.
  */
 
-#define INRANGE_CHECK(a, b, n)  ( ( (a) >= (b) ) && ( (a) < ( (b) + (n) ) ) )
-#define OVERLAP_CHECK(t, s, n) ( INRANGE_CHECK(t, s, n) || INRANGE_CHECK(s, t, n) )
+#define INRANGE_CHECK(a, b, n) \
+    ( ( (a) >= (b) ) && ( (a) < ( (b) + (n) ) ) )
+#define OVERLAP_CHECK(t, s, n) \
+    ( INRANGE_CHECK(t, s, n) || INRANGE_CHECK(s, t, n) )
 
 #define SHMEM_UDR_TYPE_OP(Name, Type)                                   \
     static                                                              \
@@ -190,14 +192,16 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                 tmptrg = (Type *) malloc (snred);                       \
                 if (tmptrg == (Type *) NULL) {                          \
                     shmemi_trace (SHMEM_LOG_FATAL,                      \
-                                  "internal error: out of memory allocating temporary reduction buffer" \
+                                  "internal error: out of memory"       \
+                                  " allocating temporary reduction buffer" \
                                   );                                    \
                     return;                                             \
                     /* NOT REACHED */                                   \
                 }                                                       \
                 write_to = tmptrg;                                      \
                 shmemi_trace (SHMEM_LOG_REDUCTION,                      \
-                              "target (%p) and source (%p, size %ld) overlap, using temporary target", \
+                              "target (%p) and source (%p, size %ld)"   \
+                              " overlap, using temporary target",       \
                               target, source, snred                     \
                               );                                        \
             }                                                           \
@@ -205,7 +209,8 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
             {                                                           \
                 write_to = target;                                      \
                 shmemi_trace (SHMEM_LOG_REDUCTION,                      \
-                              "target (%p) and source (%p, size %ld) do not overlap", \
+                              "target (%p) and source (%p, size %ld)"   \
+                              " do not overlap",                        \
                               target, source, snred                     \
                               );                                        \
             } /* end overlap check */                                   \
@@ -222,15 +227,17 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                 if (GET_STATE (mype) != pe)                             \
                     {                                                   \
                         int k;                                          \
-                        int ti = 0, si = 0; /* target and source index walk */ \
+                        int ti = 0, si = 0; /* target & source index walk */ \
                         /* pull in all the full chunks */               \
                         nget = SHMEM_REDUCE_MIN_WRKDATA_SIZE * sizeof (Type); \
                         for (k = 0; k < nloops; k += 1)                 \
                             {                                           \
                                 shmem_getmem (pWrk, & (source[si]), nget, pe); \
-                                for (j = 0; j < SHMEM_REDUCE_MIN_WRKDATA_SIZE; j += 1) \
+                                for (j = 0; j < SHMEM_REDUCE_MIN_WRKDATA_SIZE; \
+                                     j += 1)                            \
                                     {                                   \
-                                        write_to[ti] = (*the_op) (write_to[ti], pWrk[j]); \
+                                        write_to[ti] =                  \
+                                            (*the_op) (write_to[ti], pWrk[j]); \
                                         ti += 1;                        \
                                     }                                   \
                                 si += SHMEM_REDUCE_MIN_WRKDATA_SIZE;    \
@@ -240,7 +247,8 @@ SHMEM_MINIMAX_FUNC (longdouble, long double);
                         shmem_getmem (pWrk, & (source[si]), nget, pe);  \
                         for (j = 0; j < nrem; j += 1)                   \
                             {                                           \
-                                write_to[ti] = (*the_op) (write_to[ti], pWrk[j]); \
+                                write_to[ti] =                          \
+                                    (*the_op) (write_to[ti], pWrk[j]);  \
                                 ti += 1;                                \
                             }                                           \
                     }                                                   \

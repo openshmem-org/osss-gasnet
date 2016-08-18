@@ -162,13 +162,15 @@ table_init_helper (void)
         }
 
         /* found the read-only data */
-        if (shdr.sh_type == SHT_PROGBITS && strcmp (shstr_name, ".rodata") == 0) {
+        if ((shdr.sh_type == SHT_PROGBITS) &&
+            (strcmp (shstr_name, ".rodata") == 0)) {
 
             elfro.start = shdr.sh_addr;
             elfro.end = elfro.start + shdr.sh_size;
 
             shmemi_trace (SHMEM_LOG_SYMBOLS,
-                          "ELF section .rodata for global variables = 0x%lX -> 0x%lX",
+                          "ELF section .rodata for"
+                          " global variables = 0x%lX -> 0x%lX",
                           elfro.start, elfro.end);
             continue;           /* move to next scan */
         }
@@ -180,19 +182,22 @@ table_init_helper (void)
             elfbss.end = elfbss.start + shdr.sh_size;
 
             shmemi_trace (SHMEM_LOG_SYMBOLS,
-                          "ELF section .bss for global variables = 0x%lX -> 0x%lX",
+                          "ELF section .bss for"
+                          " global variables = 0x%lX -> 0x%lX",
                           elfbss.start, elfbss.end);
             continue;           /* move to next scan */
         }
 
         /* found the initialized globals */
-        if (shdr.sh_type == SHT_PROGBITS && strcmp (shstr_name, ".data") == 0) {
+        if ((shdr.sh_type == SHT_PROGBITS) &&
+            (strcmp (shstr_name, ".data") == 0)) {
 
             elfdata.start = shdr.sh_addr;
             elfdata.end = elfdata.start + shdr.sh_size;
 
             shmemi_trace (SHMEM_LOG_SYMBOLS,
-                          "ELF section .data for global variables = 0x%lX -> 0x%lX",
+                          "ELF section .data for"
+                          " global variables = 0x%lX -> 0x%lX",
                           elfdata.start, elfdata.end);
             continue;           /* move to next scan */
         }
@@ -319,7 +324,8 @@ shmemi_symmetric_globalvar_table_init (void)
 {
     if (table_init_helper () != 0) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: couldn't read global symbols in executable");
+                      "internal error: couldn't read"
+                      " global symbols in executable");
         return;
         /* NOT REACHED */
     }

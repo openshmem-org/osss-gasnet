@@ -184,7 +184,8 @@ place_init (void)
     gnip = (gasnet_nodeinfo_t *) malloc (n * sizeof(*gnip));
     if (gnip == NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot allocate memory for locality queries");
+                      "internal error: cannot allocate memory for"
+                      " locality queries");
         return;
         /* NOT REACHED */
     }
@@ -194,7 +195,8 @@ place_init (void)
     SET_STATE (locp, (int *) malloc (n * sizeof(int)));
     if (GET_STATE (locp) == NULL) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot allocate memory for locality queries");
+                      "internal error: cannot allocate memory for"
+                      " locality queries");
         return;
         /* NOT REACHED */
     }
@@ -389,7 +391,8 @@ shmemi_service_init (void)
 
         if (thread_starter) {
 #if defined(SHMEM_USE_PTHREADS)
-            const int s = pthread_create (&thr, NULL, start_service, (void *) 0);
+            const int s = pthread_create (&thr, NULL,
+                                          start_service, (void *) 0);
 #elif defined(SHMEM_USE_QTHREADS)
             qthread_initialize ();
 
@@ -489,31 +492,45 @@ shmemi_comms_barrier_all (void)
 #define USING_IMPLICIT_HANDLES 1
 
 #if USING_IMPLICIT_HANDLES
-#define GASNET_PUT(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
-#define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
-#define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_nbi_val (pe, dst, src, len)
-#define GASNET_WAIT_PUTS()                 gasnet_wait_syncnbi_puts ()
-#define GASNET_WAIT_ALL()                  gasnet_wait_syncnbi_all ()
+#define GASNET_PUT(pe, dst, src, len) \
+    gasnet_put_nbi (pe, dst, src, len)
+#define GASNET_PUT_BULK(pe, dst, src, len) \
+    gasnet_put_nbi_bulk (pe, dst, src, len)
+#define GASNET_PUT_VAL(pe, dst, src, len)  \
+    gasnet_put_nbi_val (pe, dst, src, len)
+#define GASNET_WAIT_PUTS() \
+    gasnet_wait_syncnbi_puts ()
+#define GASNET_WAIT_ALL() \
+    gasnet_wait_syncnbi_all ()
 #else
-#define GASNET_PUT(pe, dst, src, len)      gasnet_put (pe, dst, src, len)
-#define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_bulk (pe, dst, src, len)
-#define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_val (pe, dst, src, len)
+#define GASNET_PUT(pe, dst, src, len) \
+    gasnet_put (pe, dst, src, len)
+#define GASNET_PUT_BULK(pe, dst, src, len) \
+    gasnet_put_bulk (pe, dst, src, len)
+#define GASNET_PUT_VAL(pe, dst, src, len) \
+    gasnet_put_val (pe, dst, src, len)
 #define GASNET_WAIT_PUTS()
 #define GASNET_WAIT_ALL()
 #endif /* USING_IMPLICIT_HANDLES */
 
-#define GASNET_GET(dst, pe, src, len)      gasnet_get (dst, pe, src, len)
-#define GASNET_GET_BULK(dst, pe, src, len) gasnet_get_bulk (dst, pe, src, len)
+#define GASNET_GET(dst, pe, src, len) \
+    gasnet_get (dst, pe, src, len)
+#define GASNET_GET_BULK(dst, pe, src, len) \
+    gasnet_get_bulk (dst, pe, src, len)
 
 /**
  * explicitly use gasnet _nbi series function for implicit-handle nbi
  * operation and for shmem _nbi series function implementation
  *
  */
-#define GASNET_PUT_NBI(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
-#define GASNET_PUT_NBI_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
-#define GASNET_GET_NBI(dst, pe, src, len)      gasnet_get_nbi (dst, pe, src, len)
-#define GASNET_GET_NBI_BULK(dst, pe, src, len) gasnet_get_nbi_bulk (dst, pe, src, len)
+#define GASNET_PUT_NBI(pe, dst, src, len) \
+    gasnet_put_nbi (pe, dst, src, len)
+#define GASNET_PUT_NBI_BULK(pe, dst, src, len) \
+    gasnet_put_nbi_bulk (pe, dst, src, len)
+#define GASNET_GET_NBI(dst, pe, src, len) \
+    gasnet_get_nbi (dst, pe, src, len)
+#define GASNET_GET_NBI_BULK(dst, pe, src, len) \
+    gasnet_get_nbi_bulk (dst, pe, src, len)
 
 /**
  * ---------------------------------------------------------------------------
@@ -1070,7 +1087,8 @@ AMO_CSWAP_BAK_EMIT (longlong, long long);
             (amo_payload_##Name##_t *) malloc (sizeof (*cp));           \
         if (EXPR_UNLIKELY (cp == NULL)) {                               \
             comms_bailout                                               \
-                ("internal error: unable to allocate conditional swap payload memory"); \
+                ("internal error: unable to allocate conditional"       \
+                 " swap payload memory");                               \
         }                                                               \
         /* build payload to send */                                     \
         cp->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);    \
@@ -1172,7 +1190,8 @@ AMO_FADD_BAK_EMIT (longlong, long long);
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
             comms_bailout                                               \
-                ("internal error: unable to allocate fetch-and-add payload memory"); \
+                ("internal error: unable to allocate fetch-and-add"     \
+                 " payload memory");                                    \
         }                                                               \
         /* build payload to send */                                     \
         p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
@@ -1262,15 +1281,16 @@ AMO_FINC_BAK_EMIT (longlong, long long);
 /**
  * perform the fetch-and-increment
  */
-#define AMO_FINC_REQ_EMIT(Name, Type)                                       \
+#define AMO_FINC_REQ_EMIT(Name, Type)                                   \
     static inline Type                                                  \
-    shmemi_comms_finc_request_##Name (Type *target, int pe)                     \
+    shmemi_comms_finc_request_##Name (Type *target, int pe)             \
     {                                                                   \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
             comms_bailout                                               \
-                ("internal error: unable to allocate fetch-and-increment payload memory"); \
+                ("internal error: unable to allocate"                   \
+                 " fetch-and-increment payload memory");                \
         }                                                               \
         /* build payload to send */                                     \
         p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
@@ -1360,7 +1380,8 @@ AMO_ADD_BAK_EMIT (longlong, long long);
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
             comms_bailout                                               \
-                ("internal error: unable to allocate remote add payload memory"); \
+                ("internal error: unable to allocate remote"            \
+                 " add payload memory");                                \
         }                                                               \
         /* build payload to send */                                     \
         p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
@@ -1443,13 +1464,14 @@ AMO_INC_BAK_EMIT (longlong, long long);
  */
 #define AMO_INC_REQ_EMIT(Name, Type)                                    \
     static inline void                                                  \
-    shmemi_comms_inc_request_##Name (Type *target, int pe)                      \
+    shmemi_comms_inc_request_##Name (Type *target, int pe)              \
     {                                                                   \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
             comms_bailout                                               \
-                ("internal error: unable to allocate remote increment payload memory"); \
+                ("internal error: unable to allocate remote"            \
+                 " increment payload memory");                          \
         }                                                               \
         /* build payload to send */                                     \
                                                                         \
@@ -1535,13 +1557,14 @@ AMO_XOR_BAK_EMIT (longlong, long long);
  */
 #define AMO_XOR_REQ_EMIT(Name, Type)                                    \
     static inline void                                                  \
-    shmemi_comms_xor_request_##Name (Type *target, Type value, int pe)          \
+    shmemi_comms_xor_request_##Name (Type *target, Type value, int pe)  \
     {                                                                   \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
             comms_bailout                                               \
-                ("internal error: unable to allocate remote exclusive-or payload memory"); \
+                ("internal error: unable to allocate remote"            \
+                 " exclusive-or payload memory");                       \
         }                                                               \
         /* build payload to send */                                     \
         p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
@@ -1894,7 +1917,8 @@ allocate_buffer_and_check (void **buf, size_t siz)
         break;
     default:
         comms_bailout
-            ("internal error: unknown error with global variable payload (posix_memalign returned %d)",
+            ("internal error: unknown error with global variable payload"
+             " (posix_memalign returned %d)",
              r);
         /* NOT REACHED */
         break;
@@ -2735,7 +2759,8 @@ parse_cmdline (void)
     argv = (char **) malloc ((argc + 1) * sizeof (*argv));
     if (EXPR_UNLIKELY (argv == (char **) NULL)) {
         comms_bailout
-            ("internal error: unable to allocate memory for faked command-line arguments");
+            ("internal error: unable to allocate memory for"
+             " faked command-line arguments");
         /* NOT REACHED */
     }
 
@@ -2913,7 +2938,8 @@ shmemi_comms_init (void)
     /* register shutdown handler */
     if (EXPR_UNLIKELY (atexit (shmemi_comms_finalize) != 0)) {
         shmemi_trace (SHMEM_LOG_FATAL,
-                      "internal error: cannot register OpenSHMEM finalize handler");
+                      "internal error: cannot register"
+                      " OpenSHMEM finalize handler");
         /* NOT REACHED */
     }
 

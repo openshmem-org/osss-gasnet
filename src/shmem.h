@@ -1067,7 +1067,8 @@ extern "C"
     void shmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
 
     /* see \ref shmem_long_wait_until () */
-    void shmem_short_wait_until (volatile short *ivar, int cmp, short cmp_value);
+    void shmem_short_wait_until (volatile short *ivar, int cmp,
+                                 short cmp_value);
     /* see \ref shmem_long_wait_until () */
     void shmem_int_wait_until (volatile int *ivar, int cmp, int cmp_value);
     /* see \ref shmem_long_wait_until () */
@@ -1918,8 +1919,9 @@ extern "C"
      *
      * @b Constraints:
      *      - dest must be the address of a symmetric data object.
-     *      - If using C/C++, the type of value must match that implied in the Synopsis
-     *      section. When calling from Fortran, the data type of value must be as follows:
+     *      - If using C/C++, the type of value must match that implied
+     *        in the Synopsis section. When calling from Fortran,
+     *        the data type of value must be as follows:
      *          - For SHMEM_INT4_FETCH(), value must be of type Integer,
      *            with element size of 4 bytes
      *          - For SHMEM_INT8_FETCH(), value must be of type Integer,
