@@ -1494,108 +1494,13 @@ AMO_INC_REQ_EMIT (long, long);
 AMO_INC_REQ_EMIT (longlong, long long);
 
 
-#if defined(HAVE_FEATURE_EXPERIMENTAL)
-
 /**
- * Proposed by IBM Zurich
- *
- * remote xor
+ * fetch & set
  */
 
 /**
- * called by remote PE to do the remote xor
- */
-#define AMO_XOR_OUT_EMIT(Name, Type)                                    \
-    static void                                                         \
-    handler_xor_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
-    {                                                                   \
-        amo_payload_##Name##_t *pp =                                    \
-            (amo_payload_##Name##_t *) buf;                             \
-                                                                        \
-        gasnet_hsl_lock (&amo_lock_##Name);                             \
-                                                                        \
-        /* save and update */                                           \
-        *(pp->r_symm_addr) ^= pp->value;                                \
-                                                                        \
-        LOAD_STORE_FENCE ();                                            \
-                                                                        \
-        gasnet_hsl_unlock (&amo_lock_##Name);                           \
-                                                                        \
-        /* return updated payload */                                    \
-        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_xor_bak_##Name,    \
-                               buf, bufsiz);                            \
-    }
-
-AMO_XOR_OUT_EMIT (int, int);
-AMO_XOR_OUT_EMIT (long, long);
-AMO_XOR_OUT_EMIT (longlong, long long);
-
-/**
- * called by remote xor invoker when store done
- */
-#define AMO_XOR_BAK_EMIT(Name, Type)                                    \
-    static void                                                         \
-    handler_xor_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
-    {                                                                   \
-        amo_payload_##Name##_t *pp =                                    \
-            (amo_payload_##Name##_t *) buf;                             \
-                                                                        \
-        gasnet_hsl_lock (&amo_lock_##Name);                             \
-                                                                        \
-        /* done it */                                                   \
-        *(pp->completed_addr) = 1;                                      \
-                                                                        \
-        gasnet_hsl_unlock (&amo_lock_##Name);                           \
-    }
-
-AMO_XOR_BAK_EMIT (int, int);
-AMO_XOR_BAK_EMIT (long, long);
-AMO_XOR_BAK_EMIT (longlong, long long);
-
-/**
- * perform the xor
- */
-#define AMO_XOR_REQ_EMIT(Name, Type)                                    \
-    static inline void                                                  \
-    shmemi_comms_xor_request_##Name (Type *target, Type value, int pe)  \
-    {                                                                   \
-        amo_payload_##Name##_t *p =                                     \
-            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
-        if (EXPR_UNLIKELY (p == NULL)) {                                \
-            comms_bailout                                               \
-                ("internal error: unable to allocate remote"            \
-                 " exclusive-or payload memory");                       \
-        }                                                               \
-        /* build payload to send */                                     \
-        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
-                                                                        \
-        p->value = value;                                               \
-        p->value_addr = &(p->value);                                    \
-                                                                        \
-        p->completed = 0;                                               \
-        p->completed_addr = &(p->completed);                            \
-                                                                        \
-        /* fire off request */                                          \
-        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_xor_out_##Name,     \
-                                 p, sizeof (*p));                       \
-                                                                        \
-        WAIT_ON_COMPLETION (p->completed);                              \
-                                                                        \
-        free (p);                                                       \
-    }
-
-AMO_XOR_REQ_EMIT (int, int);
-AMO_XOR_REQ_EMIT (long, long);
-AMO_XOR_REQ_EMIT (longlong, long long);
-
-
-/**
- * fetch
- */
-
-/**
- * called by remote PE to do the fetch and add.  Store new value, send
- * back old value
+ * called by remote PE to do the fetch.  Store new value, send back
+ * old value
  */
 #define AMO_FETCH_OUT_EMIT(Name, Type)                                  \
     static void                                                         \
@@ -1784,6 +1689,100 @@ AMO_SET_REQ_EMIT (long, long);
 AMO_SET_REQ_EMIT (longlong, long long);
 AMO_SET_REQ_EMIT (float, float);
 AMO_SET_REQ_EMIT (double, double);
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+/**
+ * Proposed by IBM Zurich
+ *
+ * remote xor
+ */
+
+/**
+ * called by remote PE to do the remote xor
+ */
+#define AMO_XOR_OUT_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_xor_out_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* save and update */                                           \
+        *(pp->r_symm_addr) ^= pp->value;                                \
+                                                                        \
+        LOAD_STORE_FENCE ();                                            \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+                                                                        \
+        /* return updated payload */                                    \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_xor_bak_##Name,    \
+                               buf, bufsiz);                            \
+    }
+
+AMO_XOR_OUT_EMIT (int, int);
+AMO_XOR_OUT_EMIT (long, long);
+AMO_XOR_OUT_EMIT (longlong, long long);
+
+/**
+ * called by remote xor invoker when store done
+ */
+#define AMO_XOR_BAK_EMIT(Name, Type)                                    \
+    static void                                                         \
+    handler_xor_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
+    {                                                                   \
+        amo_payload_##Name##_t *pp =                                    \
+            (amo_payload_##Name##_t *) buf;                             \
+                                                                        \
+        gasnet_hsl_lock (&amo_lock_##Name);                             \
+                                                                        \
+        /* done it */                                                   \
+        *(pp->completed_addr) = 1;                                      \
+                                                                        \
+        gasnet_hsl_unlock (&amo_lock_##Name);                           \
+    }
+
+AMO_XOR_BAK_EMIT (int, int);
+AMO_XOR_BAK_EMIT (long, long);
+AMO_XOR_BAK_EMIT (longlong, long long);
+
+/**
+ * perform the xor
+ */
+#define AMO_XOR_REQ_EMIT(Name, Type)                                    \
+    static inline void                                                  \
+    shmemi_comms_xor_request_##Name (Type *target, Type value, int pe)  \
+    {                                                                   \
+        amo_payload_##Name##_t *p =                                     \
+            (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
+        if (EXPR_UNLIKELY (p == NULL)) {                                \
+            comms_bailout                                               \
+                ("internal error: unable to allocate remote"            \
+                 " exclusive-or payload memory");                       \
+        }                                                               \
+        /* build payload to send */                                     \
+        p->r_symm_addr = shmemi_symmetric_addr_lookup (target, pe);     \
+                                                                        \
+        p->value = value;                                               \
+        p->value_addr = &(p->value);                                    \
+                                                                        \
+        p->completed = 0;                                               \
+        p->completed_addr = &(p->completed);                            \
+                                                                        \
+        /* fire off request */                                          \
+        gasnet_AMRequestMedium0 (pe, GASNET_HANDLER_xor_out_##Name,     \
+                                 p, sizeof (*p));                       \
+                                                                        \
+        WAIT_ON_COMPLETION (p->completed);                              \
+                                                                        \
+        free (p);                                                       \
+    }
+
+AMO_XOR_REQ_EMIT (int, int);
+AMO_XOR_REQ_EMIT (long, long);
+AMO_XOR_REQ_EMIT (longlong, long long);
 
 #endif /* HAVE_FEATURE_EXPERIMENTAL */
 
