@@ -492,31 +492,45 @@ shmemi_comms_barrier_all (void)
 #define USING_IMPLICIT_HANDLES 1
 
 #if USING_IMPLICIT_HANDLES
-#define GASNET_PUT(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
-#define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
-#define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_nbi_val (pe, dst, src, len)
-#define GASNET_WAIT_PUTS()                 gasnet_wait_syncnbi_puts ()
-#define GASNET_WAIT_ALL()                  gasnet_wait_syncnbi_all ()
+#define GASNET_PUT(pe, dst, src, len) \
+    gasnet_put_nbi (pe, dst, src, len)
+#define GASNET_PUT_BULK(pe, dst, src, len) \
+    gasnet_put_nbi_bulk (pe, dst, src, len)
+#define GASNET_PUT_VAL(pe, dst, src, len)  \
+    gasnet_put_nbi_val (pe, dst, src, len)
+#define GASNET_WAIT_PUTS() \
+    gasnet_wait_syncnbi_puts ()
+#define GASNET_WAIT_ALL() \
+    gasnet_wait_syncnbi_all ()
 #else
-#define GASNET_PUT(pe, dst, src, len)      gasnet_put (pe, dst, src, len)
-#define GASNET_PUT_BULK(pe, dst, src, len) gasnet_put_bulk (pe, dst, src, len)
-#define GASNET_PUT_VAL(pe, dst, src, len)  gasnet_put_val (pe, dst, src, len)
+#define GASNET_PUT(pe, dst, src, len) \
+    gasnet_put (pe, dst, src, len)
+#define GASNET_PUT_BULK(pe, dst, src, len) \
+    gasnet_put_bulk (pe, dst, src, len)
+#define GASNET_PUT_VAL(pe, dst, src, len) \
+    gasnet_put_val (pe, dst, src, len)
 #define GASNET_WAIT_PUTS()
 #define GASNET_WAIT_ALL()
 #endif /* USING_IMPLICIT_HANDLES */
 
-#define GASNET_GET(dst, pe, src, len)      gasnet_get (dst, pe, src, len)
-#define GASNET_GET_BULK(dst, pe, src, len) gasnet_get_bulk (dst, pe, src, len)
+#define GASNET_GET(dst, pe, src, len) \
+    gasnet_get (dst, pe, src, len)
+#define GASNET_GET_BULK(dst, pe, src, len) \
+    gasnet_get_bulk (dst, pe, src, len)
 
 /**
  * explicitly use gasnet _nbi series function for implicit-handle nbi
  * operation and for shmem _nbi series function implementation
  *
  */
-#define GASNET_PUT_NBI(pe, dst, src, len)      gasnet_put_nbi (pe, dst, src, len)
-#define GASNET_PUT_NBI_BULK(pe, dst, src, len) gasnet_put_nbi_bulk (pe, dst, src, len)
-#define GASNET_GET_NBI(dst, pe, src, len)      gasnet_get_nbi (dst, pe, src, len)
-#define GASNET_GET_NBI_BULK(dst, pe, src, len) gasnet_get_nbi_bulk (dst, pe, src, len)
+#define GASNET_PUT_NBI(pe, dst, src, len) \
+    gasnet_put_nbi (pe, dst, src, len)
+#define GASNET_PUT_NBI_BULK(pe, dst, src, len) \
+    gasnet_put_nbi_bulk (pe, dst, src, len)
+#define GASNET_GET_NBI(dst, pe, src, len) \
+    gasnet_get_nbi (dst, pe, src, len)
+#define GASNET_GET_NBI_BULK(dst, pe, src, len) \
+    gasnet_get_nbi_bulk (dst, pe, src, len)
 
 /**
  * ---------------------------------------------------------------------------

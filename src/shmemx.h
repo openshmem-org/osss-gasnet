@@ -66,14 +66,18 @@ extern "C"
     void shmemx_long_put_nb (long *dest, const long *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
     void shmemx_longlong_put_nb (long long *dest, const long long *src,
-                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                 size_t nelems, int pe,
+                                 shmemx_request_handle_t *desc);
     void shmemx_longdouble_put_nb (long double *dest, const long double *src,
-                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                   size_t nelems, int pe,
+                                   shmemx_request_handle_t *desc);
     void shmemx_double_put_nb (double *dest, const double *src,
-                               size_t nelems, int pe, shmemx_request_handle_t *desc);
+                               size_t nelems, int pe,
+                               shmemx_request_handle_t *desc);
     void shmemx_complexd_put_nb (COMPLEXIFY (double) * dest,
                                  const COMPLEXIFY (double) * src,
-                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                 size_t nelems, int pe
+                                 , shmemx_request_handle_t *desc);
     void shmemx_float_put_nb (float *dest, const float *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
     void shmemx_putmem_nb (void *dest, const void *src, size_t nelems,
@@ -92,14 +96,18 @@ extern "C"
     void shmemx_long_get_nb (long *dest, const long *src, size_t nelems,
                              int pe, shmemx_request_handle_t *desc);
     void shmemx_longlong_get_nb (long long *dest, const long long *src,
-                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                 size_t nelems, int pe,
+                                 shmemx_request_handle_t *desc);
     void shmemx_longdouble_get_nb (long double *dest, const long double *src,
-                                   size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                   size_t nelems, int pe,
+                                   shmemx_request_handle_t *desc);
     void shmemx_double_get_nb (double *dest, const double *src,
-                               size_t nelems, int pe, shmemx_request_handle_t *desc);
+                               size_t nelems, int pe,
+                               shmemx_request_handle_t *desc);
     void shmemx_complexd_get_nb (COMPLEXIFY (double) * dest,
                                  const COMPLEXIFY (double) * src,
-                                 size_t nelems, int pe, shmemx_request_handle_t *desc);
+                                 size_t nelems, int pe,
+                                 shmemx_request_handle_t *desc);
     void shmemx_float_get_nb (float *dest, const float *src, size_t nelems,
                               int pe, shmemx_request_handle_t *desc);
     void shmemx_getmem_nb (void *dest, const void *src, size_t nelems,
