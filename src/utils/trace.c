@@ -91,7 +91,6 @@ static trace_table_t tracers[] = {
     INIT_STATE (SYMBOLS, OFF),
     INIT_STATE (DEBUG, OFF),
     INIT_STATE (INFO, OFF),
-    INIT_STATE (VERSION, OFF),
     INIT_STATE (INIT, OFF),
     INIT_STATE (FINALIZE, OFF),
     INIT_STATE (ATOMIC, OFF),
@@ -168,7 +167,7 @@ shmemi_trace_enable_all (void)
  */
 
 static inline const char *
-__level_to_string (shmem_trace_t level)
+level_to_string (shmem_trace_t level)
 {
     int i;
     trace_table_t *t = tracers;
@@ -226,51 +225,73 @@ logging_filestream_init (void)
     trace_log_stream = stderr;
 
     shlf = shmemi_comms_getenv (SHMEM_LOGFILE_ENVVAR);
-    if (shlf == (char *) NULL) {
+    if (shlf == NULL) {
         return;
     }
 
     fp = fopen (shlf, "a");
-    if (fp != (FILE *) NULL) {
+    if (fp != NULL) {
         trace_log_stream = fp;
     }
 }
 
 /**
- * parse any environment settings and set up logging output
+ * turn off tracers at end
  *
  */
 
 static inline void
-sgi_compat_environment_init (void)
+logging_filestream_fini (void)
+{
+    fclose (trace_log_stream);
+}
+
+/**
+ * parse any environment settings and set up logging output
+ *
+ * 1.3 proposes renaming SMA_xxx to SHMEM_xxx.  We had a few of our
+ * own SHMEM_ before anyone tried to standardize.  This should handle
+ * old/non-standard ones.
+ *
+ */
+
+static inline void
+compat_environment_init (void)
 {
     int overwrite = 1;
-    char *sma;
+    char *shs;
 
     /* this one "prints out copious data" so turn on all debugging */
-    sma = shmemi_comms_getenv ("SMA_DEBUG");
-    if (sma != (char *) NULL) {
+    if ( (shmemi_comms_getenv ("SHMEM_DEBUG") != NULL) ||
+         (shmemi_comms_getenv ("SMA_DEBUG") != NULL) ) {
         (void) setenv ("SHMEM_LOG_LEVELS", "all", overwrite);
     }
+
     /* this one shows information about env vars, pass through */
-    sma = shmemi_comms_getenv ("SMA_INFO");
-    if (sma != (char *) NULL) {
+    if ( (shmemi_comms_getenv ("SHMEM_INFO") != NULL) ||
+         (shmemi_comms_getenv ("SMA_INFO") != NULL) ) {
         (void) setenv ("SHMEM_LOG_LEVELS", "info", overwrite);
     }
+
     /* turn on symmetric memory debugging */
-    sma = shmemi_comms_getenv ("SMA_MALLOC_DEBUG");
-    if (sma != (char *) NULL) {
+    if ( (shmemi_comms_getenv ("SHMEM_MALLOC_DEBUG") != NULL) ||
+         (shmemi_comms_getenv ("SMA_MALLOC_DEBUG") != NULL) ) {
         (void) setenv ("SHMEM_LOG_LEVELS", "memory", overwrite);
     }
-    /* version information.  "version" trace facility can cover this */
-    sma = shmemi_comms_getenv ("SMA_VERSION");
-    if (sma != (char *) NULL) {
-        (void) setenv ("SHMEM_LOG_LEVELS", "version", overwrite);
+
+    /* version information */
+    if ( (shmemi_comms_getenv ("SHMEM_VERSION") != NULL) ||
+         (shmemi_comms_getenv ("SMA_VERSION") != NULL) ) {
+        (void) setenv ("SHMEM_LOG_LEVELS", "init", overwrite);
     }
+
     /* if heap size given, translate into our env var */
-    sma = shmemi_comms_getenv ("SMA_SYMMETRIC_SIZE");
-    if (sma != (char *) NULL) {
-        (void) setenv ("SHMEM_SYMMETRIC_HEAP_SIZE", sma, overwrite);
+    shs = shmemi_comms_getenv ("SHMEM_SYMMETRIC_SIZE");
+    if (shs == NULL) {
+        shs = shmemi_comms_getenv ("SMA_SYMMETRIC_SIZE");
+        if (shs != NULL) {
+            (void) setenv ("SHMEM_SYMMETRIC_HEAP_SIZE", shs, overwrite);
+        }
     }
 }
 
@@ -285,15 +306,15 @@ parse_log_levels (void)
     const char *delims = ",:;";
     char *opt = strtok (shll, delims);
 
-    if (shll != (char *) NULL) {
-        while (opt != (char *) NULL) {
+    if (shll != NULL) {
+        while (opt != NULL) {
             if (strcasecmp (opt, "all") == 0) {
                 shmemi_trace_enable_all ();
                 break;
                 /* NOT REACHED */
             }
             (void) shmemi_trace_enable_text (opt);
-            opt = strtok ((char *) NULL, delims);
+            opt = strtok (NULL, delims);
         }
     }
 }
@@ -326,14 +347,16 @@ shmemi_maybe_tracers_show_info (void)
                   "We understand these SGI compatibility"
                   " environment variables:"
                   );
-    INFO_MSG ("SMA_VERSION", "Print OpenSHMEM version.");
-    INFO_MSG ("SMA_INFO", "Print this message.");
-    INFO_MSG ("SMA_SYMMETRIC_SIZE",
+    INFO_MSG ("{SHMEM,SMA}_VERSION", "Print OpenSHMEM version.");
+    INFO_MSG ("{SHMEM,SMA}_INFO", "Print this message.");
+    INFO_MSG ("{SHMEM,SMA}_SYMMETRIC_SIZE",
               "Specify the size in bytes of symmetric memory.");
-    INFO_MSG ("SMA_DEBUG", "Print internal debug information.");
+    INFO_MSG ("{SHMEM,SMA}_DEBUG", "Print internal debug information.");
+
     shmemi_trace (SHMEM_LOG_INFO, "");
     shmemi_trace (SHMEM_LOG_INFO,
                   "We also understand these new environment variables:");
+
     INFO_MSG ("SHMEM_LOG_LEVELS",
               "Select which kinds of trace messages are enabled");
     INFO_MSG ("SHMEM_LOG_FILE",
@@ -358,9 +381,19 @@ shmemi_tracers_init (void)
 {
     logging_filestream_init ();
 
-    sgi_compat_environment_init ();
+    compat_environment_init ();
 
     parse_log_levels ();
+}
+
+/**
+ * shut down the tracers sub-system
+ */
+
+void
+shmemi_tracers_fini (void)
+{
+    logging_filestream_fini ();
 }
 
 /**
@@ -411,7 +444,7 @@ shmemi_trace (shmem_trace_t msg_type, char *fmt, ...)
         snprintf (tmp1, TRACE_MSG_BUF_SIZE,
                   "%-8.8f PE %d: %s: ",
                   shmemi_elapsed_clock_get (),
-                  GET_STATE (mype), __level_to_string (msg_type));
+                  GET_STATE (mype), level_to_string (msg_type));
 
         va_start (ap, fmt);
         vsnprintf (tmp2, TRACE_MSG_BUF_SIZE, fmt, ap);
@@ -435,6 +468,11 @@ shmemi_trace (shmem_trace_t msg_type, char *fmt, ...)
 
 void
 shmemi_tracers_init (void)
+{
+}
+
+void
+shmemi_tracers_fini (void)
 {
 }
 
