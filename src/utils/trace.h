@@ -76,6 +76,7 @@ typedef enum
   } shmem_trace_t;
 
 extern void shmemi_tracers_init (void);
+extern void shmemi_tracers_fini (void);
 extern void shmemi_tracers_show (void);
 
 extern void shmemi_maybe_tracers_show_info (void);

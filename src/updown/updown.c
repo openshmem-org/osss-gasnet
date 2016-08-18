@@ -46,22 +46,6 @@
 #include <sys/utsname.h>        /* uname() */
 #include <sys/types.h>          /* size_t */
 
-#include "globalvar.h"
-#include "state.h"
-#include "trace.h"
-#include "atomic.h"
-
-#include "barrier.h"
-#include "barrier-all.h"
-#include "broadcast.h"
-#include "collect.h"
-#include "fcollect.h"
-
-#include "ping.h"
-#include "utils.h"
-#include "clock.h"
-#include "exe.h"
-
 #include "shmem.h"
 
 #include "comms/comms.h"
