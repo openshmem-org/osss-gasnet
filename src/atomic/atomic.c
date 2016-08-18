@@ -242,33 +242,6 @@ SHMEM_TYPE_INC (longlong, long long);
 
 /* --------------------------------------------------------------- */
 
-#if defined(HAVE_FEATURE_EXPERIMENTAL)
-
-#ifdef HAVE_FEATURE_PSHMEM
-#pragma weak shmemx_int_xor = pshmemx_int_xor
-#define shmemx_int_xor pshmemx_int_xor
-#pragma weak shmemx_long_xor = pshmemx_long_xor
-#define shmemx_long_xor pshmemx_long_xor
-#pragma weak shmemx_longlong_xor = pshmemx_longlong_xor
-#define shmemx_longlong_xor pshmemx_longlong_xor
-#endif /* HAVE_FEATURE_PSHMEM */
-
-#define SHMEMX_TYPE_XOR(Name, Type)                                     \
-    void                                                                \
-    shmemx_##Name##_xor (Type *target, Type value, int pe)              \
-    {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 3);                                         \
-        shmemi_comms_xor_request_##Name (target, value,                 \
-                                         pe);                           \
-    }
-
-SHMEMX_TYPE_XOR (int, int);
-SHMEMX_TYPE_XOR (long, long);
-SHMEMX_TYPE_XOR (longlong, long long);
-
-#endif /* HAVE_FEATURE_EXPERIMENTAL */
-
 /**
  * fetch and set go mainstream in 1.3
  */
@@ -331,3 +304,32 @@ SHMEM_TYPE_SET (long, long);
 SHMEM_TYPE_SET (longlong, long long);
 SHMEM_TYPE_SET (float, float);
 SHMEM_TYPE_SET (double, double);
+
+/* --------------------------------------------------------------- */
+
+#if defined(HAVE_FEATURE_EXPERIMENTAL)
+
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmemx_int_xor = pshmemx_int_xor
+#define shmemx_int_xor pshmemx_int_xor
+#pragma weak shmemx_long_xor = pshmemx_long_xor
+#define shmemx_long_xor pshmemx_long_xor
+#pragma weak shmemx_longlong_xor = pshmemx_longlong_xor
+#define shmemx_longlong_xor pshmemx_longlong_xor
+#endif /* HAVE_FEATURE_PSHMEM */
+
+#define SHMEMX_TYPE_XOR(Name, Type)                                     \
+    void                                                                \
+    shmemx_##Name##_xor (Type *target, Type value, int pe)              \
+    {                                                                   \
+        INIT_CHECK ();                                                  \
+        PE_RANGE_CHECK (pe, 3);                                         \
+        shmemi_comms_xor_request_##Name (target, value,                 \
+                                         pe);                           \
+    }
+
+SHMEMX_TYPE_XOR (int, int);
+SHMEMX_TYPE_XOR (long, long);
+SHMEMX_TYPE_XOR (longlong, long long);
+
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
