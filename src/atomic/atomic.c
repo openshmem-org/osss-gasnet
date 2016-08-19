@@ -265,7 +265,7 @@ SHMEM_TYPE_INC (longlong, long long);
     {                                                             \
         INIT_CHECK ();                                            \
         PE_RANGE_CHECK (pe, 2);                                   \
-        return shmemi_comms_fetch_request_##Name (target,         \
+        return shmemi_comms_fetch_request_##Name ((Type *) target,  \
                                                   pe);            \
     }
 

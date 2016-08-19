@@ -784,11 +784,11 @@ extern "C"
      * atomic fetch and set
      */
 
-    int pshmem_int_fetch (int *target, int pe);
-    long pshmem_long_fetch (long *target, int pe);
-    long long pshmem_longlong_fetch (long long *target, int pe);
-    float pshmem_float_fetch (float *target, int pe);
-    double pshmem_double_fetch (double *target, int pe);
+    int pshmem_int_fetch (const int *target, int pe);
+    long pshmem_long_fetch (const long *target, int pe);
+    long long pshmem_longlong_fetch (const long long *target, int pe);
+    float pshmem_float_fetch (const float *target, int pe);
+    double pshmem_double_fetch (const double *target, int pe);
 
     void pshmem_int_set (int *target, int value, int pe);
     void pshmem_long_set (long *target, long value, int pe);
