@@ -479,17 +479,12 @@ extern "C"
     void pshmem_long_wait_until (volatile long *ivar, int cmp, long cmp_value);
     void pshmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                             long long cmp_value);
-#if 0
-    void pshmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
-#endif
 
     void pshmem_short_wait (volatile short *ivar, short cmp_value);
     void pshmem_int_wait (volatile int *ivar, int cmp_value);
     void pshmem_long_wait (volatile long *ivar, long cmp_value);
     void pshmem_longlong_wait (volatile long long *ivar, long long cmp_value);
-#if 0
-    void pshmem_wait (volatile long *ivar, long cmp_value);
-#endif
+
     /*
      * atomic swaps
      */
