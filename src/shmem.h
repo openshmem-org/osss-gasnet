@@ -596,71 +596,77 @@ extern "C"
      *
      */
 
-    /* see \ref shmem_double_put_nbi () */
+    /* see \ref shmem_long_put_nbi () */
     void shmem_double_put_nbi (double *dest, const double *source,
                                 size_t nelems, int pe);
-    /* see \ref shmem_float_put_nbi () */
+    /* see \ref shmem_long_put_nbi () */
     void shmem_float_put_nbi (float *dest, const float *source, size_t nelems,
                                int pe);
-    /* see \ref shmem_int_put_nbi () */
-    void shmem_int_put_nbi (int *dest, const int *source, size_t nelems,
+    /* see \ref shmem_long_put_nbi () */
+    void shmem_char_put_nbi (char *dest, const char *source, size_t nelems,
                              int pe);
     /* see \ref shmem_long_put_nbi () */
+    void shmem_int_put_nbi (int *dest, const int *source, size_t nelems,
+                             int pe);
+
     void shmem_long_put_nbi (long *dest, const long *source, size_t nelems,
                               int pe);
-    /* see \ref shmem_longdouble_put_nbi () */
+    /* see \ref shmem_long_put_nbi () */
     void shmem_longdouble_put_nbi (long double *dest, const long double *source,
                                     size_t nelems, int pe);
-    /* see \ref shmem_longlong_put_nbi () */
+    /* see \ref shmem_long_put_nbi () */
     void shmem_longlong_put_nbi (long long *dest, const long long *source,
                                   size_t nelems, int pe);
-    /* see \ref shmem_put32_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_put32_nbi (void *dest, const void *source, size_t nelems,
                            int pe);
-    /* see \ref shmem_put64_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_put64_nbi (void *dest, const void *source, size_t nelems,
                            int pe);
-    /* see \ref shmem_put128_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_put128_nbi (void *dest, const void *source, size_t nelems,
                             int pe);
-    /* see \ref shmem_putmem_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_putmem_nbi (void *dest, const void *source, size_t nelems,
                             int pe);
-    /* see \ref shmem_short_put_nbi () */
+    /* see \ref shmem_long_put_nbi () */
     void shmem_short_put_nbi (short *dest, const short *source, size_t nelems,
                                int pe);
 
-    /* see \ref shmem_double_get__nbi () */
+    /* see \ref shmem_long_get__nbi () */
     void shmem_double_get_nbi (double *dest, const double *source,
                                 size_t nelems, int pe);
-    /* see \ref shmem_float_get_nbi () */
+    /* see \ref shmem_long_get_nbi () */
     void shmem_float_get_nbi (float *dest, const float *source, size_t nelems,
                                int pe);
-    /* see \ref shmem_get32_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_get32_nbi (void *dest, const void *source, size_t nelems,
                            int pe);
-    /* see \ref shmem_get64_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_get64_nbi (void *dest, const void *source, size_t nelems,
                            int pe);
-    /* see \ref shmem_get128_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_get128_nbi (void *dest, const void *source, size_t nelems,
                             int pe);
-    /* see \ref shmem_getmem_nbi () */
+    /* see \ref shmem_long_nbi () */
     void shmem_getmem_nbi (void *dest, const void *source, size_t nelems,
                             int pe);
-    /* see \ref shmem_int_get_nbi () */
+    /* see \ref shmem_long_get_nbi () */
     void shmem_int_get_nbi (int *dest, const int *source, size_t nelems,
                              int pe);
     /* see \ref shmem_long_get_nbi () */
+    void shmem_char_get_nbi (char *dest, const char *source, size_t nelems,
+                             int pe);
+
     void shmem_long_get_nbi (long *dest, const long *source, size_t nelems,
                               int pe);
-    /* see \ref shmem_longdouble_get_nbi () */
+    /* see \ref shmem_long_get_nbi () */
     void shmem_longdouble_get_nbi (long double *dest, const long double *source,
                                     size_t nelems, int pe);
-    /* see \ref shmem_longlong_get_nbi () */
+    /* see \ref shmem_long_get_nbi () */
     void shmem_longlong_get_nbi (long long *dest, const long long *source,
                                   size_t nelems, int pe);
-    /* see \ref shmem_short_get_nbi () */
+    /* see \ref shmem_get_nbi () */
     void shmem_short_get_nbi (short *dest, const short *source, size_t nelems,
                                int pe);
 
