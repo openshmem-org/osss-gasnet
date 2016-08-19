@@ -1074,8 +1074,10 @@ extern "C"
     /* see \ref shmem_long_wait_until () */
     void shmem_longlong_wait_until (volatile long long *ivar, int cmp,
                                     long long cmp_value);
+#if 0
     /* see \ref shmem_long_wait_until () */
     void shmem_wait_until (volatile long *ivar, int cmp, long cmp_value);
+#endif
 
     /**
      * @brief wait for symmetric variable to change value
@@ -1107,8 +1109,10 @@ extern "C"
     void shmem_int_wait (volatile int *ivar, int cmp_value);
     /* see \ref shmem_long_wait () */
     void shmem_longlong_wait (volatile long long *ivar, long long cmp_value);
+#if 0
     /* see \ref shmem_long_wait () */
     void shmem_wait (volatile long *ivar, long cmp_value);
+#endif
 
     /*
      * atomic swaps
@@ -1890,11 +1894,11 @@ extern "C"
      *
      * - C/C++:
      * @code
-     int shmem_int_fetch (int *dest, int pe);
-     long shmem_long_fetch (long *dest, int pe);
-     long long shmem_longlong_fetch (long long *dest, int pe);
-     float shmem_float_fetch (float *dest, int pe);
-     double shmem_double_fetch (double *dest, int pe);
+     int shmem_int_fetch (const int *dest, int pe);
+     long shmem_long_fetch (const long *dest, int pe);
+     long long shmem_longlong_fetch (const long long *dest, int pe);
+     float shmem_float_fetch (const float *dest, int pe);
+     double shmem_double_fetch (const double *dest, int pe);
      * @endcode
      *
      * - Fortran:
@@ -1941,11 +1945,11 @@ extern "C"
      * @return The value stored at address "dest" on PE pe.
      *
      */
-    int shmem_int_fetch (int *dest, int pe);
-    long shmem_long_fetch (long *dest, int pe);
-    long long shmem_longlong_fetch (long long *dest, int pe);
-    float shmem_float_fetch (float *dest, int pe);
-    double shmem_double_fetch (double *dest, int pe);
+    int shmem_int_fetch (const int *dest, int pe);
+    long shmem_long_fetch (const long *dest, int pe);
+    long long shmem_longlong_fetch (const long long *dest, int pe);
+    float shmem_float_fetch (const float *dest, int pe);
+    double shmem_double_fetch (const double *dest, int pe);
 
     /**
      * @brief These routines perform an atomic set of a variable on a
@@ -2171,6 +2175,22 @@ extern "C"
              long long:    shmem_longlong_set,                  \
              float:        shmem_float_set,                     \
              double:       shmem_double_set) (dest, value, pe)
+
+    /* see \ref shmem_long_wait () */
+#define shmem_wait(ivar, cmp_value)                                 \
+    _Generic(*(ivar),                                               \
+             short:        shmem_short_wait,                        \
+             int:          shmem_int_wait,                          \
+             long:         shmem_long_wait,                         \
+             long long:    shmem_longlong_wait) (ivar, cmp_value)
+
+    /* see \ref shmem_long_wait_until () */
+#define shmem_wait_until(ivar, cmp, cmp_value)                          \
+    _Generic(*(ivar),                                                   \
+             short:        shmem_short_wait_until,                      \
+             int:          shmem_int_wait_until,                        \
+             long:         shmem_long_wait_until,                       \
+             long long:    shmem_longlong_wait_until) (ivar, cmp, cmp_value)
 
 #endif   /* __STDC_VERSION__ >= 201112L test */
 #endif /* __STDC_VERSION__ defined test */

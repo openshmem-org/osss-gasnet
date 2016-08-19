@@ -852,25 +852,25 @@ FORTRANIFY (shmem_int8_cswap) (long *target, long *cond, long *value, int *pe)
 #endif /* HAVE_FEATURE_PSHMEM */
 
 int
-FORTRANIFY (shmem_int4_fetch) (const int *target, int *pe)
+FORTRANIFY (shmem_int4_fetch) (int *target, int *pe)
 {
     return shmem_int_fetch (target, *pe);
 }
 
 long
-FORTRANIFY (shmem_int8_fetch) (const long *target, int *pe)
+FORTRANIFY (shmem_int8_fetch) (long *target, int *pe)
 {
     return shmem_long_fetch (target, *pe);
 }
 
 float
-FORTRANIFY (shmem_real4_fetch) (const float *target, int *pe)
+FORTRANIFY (shmem_real4_fetch) (float *target, int *pe)
 {
     return shmem_float_fetch (target, *pe);
 }
 
 double
-FORTRANIFY (shmem_real8_fetch) (const double *target, int *pe)
+FORTRANIFY (shmem_real8_fetch) (double *target, int *pe)
 {
     return shmem_double_fetch (target, *pe);
 }
