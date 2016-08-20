@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011 - 2014
+ * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
  * Copyright (c) 2009 - 2016
  *   Silicon Graphics International Corp.  SHMEM is copyrighted
