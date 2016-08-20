@@ -261,11 +261,11 @@ SHMEM_TYPE_INC (longlong, long long);
 
 #define SHMEM_TYPE_FETCH(Name, Type)                              \
     Type                                                          \
-    shmem_##Name##_fetch (Type *target, int pe)                   \
+    shmem_##Name##_fetch (const Type *target, int pe)             \
     {                                                             \
         INIT_CHECK ();                                            \
         PE_RANGE_CHECK (pe, 2);                                   \
-        return shmemi_comms_fetch_request_##Name (target,         \
+        return shmemi_comms_fetch_request_##Name ((Type *) target,  \
                                                   pe);            \
     }
 

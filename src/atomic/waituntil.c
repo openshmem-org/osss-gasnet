@@ -65,8 +65,6 @@
 #define shmem_long_wait_until pshmem_long_wait_until
 #pragma weak shmem_longlong_wait_until = pshmem_longlong_wait_until
 #define shmem_longlong_wait_until pshmem_longlong_wait_until
-#pragma weak shmem_wait_until = pshmem_wait_until
-#define shmem_wait_until pshmem_wait_until
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -114,6 +112,7 @@ SHMEM_TYPE_WAIT_UNTIL (int, int);
 SHMEM_TYPE_WAIT_UNTIL (long, long);
 SHMEM_TYPE_WAIT_UNTIL (longlong, long long);
 
+#if 0
 /**
  * and a special case for the untyped call
  */
@@ -123,6 +122,7 @@ shmem_wait_until (volatile long *ivar, int cmp, long cmp_value)
 {
     shmem_long_wait_until (ivar, cmp, cmp_value);
 }
+#endif
 
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak shmem_short_wait = pshmem_short_wait
@@ -133,8 +133,6 @@ shmem_wait_until (volatile long *ivar, int cmp, long cmp_value)
 #define shmem_long_wait pshmem_long_wait
 #pragma weak shmem_longlong_wait = pshmem_longlong_wait
 #define shmem_longlong_wait pshmem_longlong_wait
-#pragma weak shmem_wait = pshmem_wait
-#define shmem_wait pshmem_wait
 #endif /* HAVE_FEATURE_PSHMEM */
 
 /**
@@ -153,6 +151,7 @@ SHMEM_TYPE_WAIT (int, int);
 SHMEM_TYPE_WAIT (long, long);
 SHMEM_TYPE_WAIT (longlong, long long);
 
+#if 0
 /**
  * and a special case for the untyped call
  */
@@ -162,3 +161,4 @@ shmem_wait (volatile long *ivar, long cmp_value)
 {
     shmem_long_wait (ivar, cmp_value);
 }
+#endif
