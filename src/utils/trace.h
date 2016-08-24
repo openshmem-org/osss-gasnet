@@ -72,7 +72,6 @@ typedef enum
     SHMEM_LOG_NOTICE,           /* serious, but non-fatal */
     SHMEM_LOG_SERVICE,          /* network service thread */
     SHMEM_LOG_PROFILING,        /* for the PSHMEM profiling interface */
-    SHMEM_LOG_MODULES,          /* loadable routines modules */
   } shmem_trace_t;
 
 extern void shmemi_tracers_init (void);
