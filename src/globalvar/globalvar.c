@@ -345,18 +345,17 @@ shmemi_symmetric_globalvar_table_finalize (void)
     HASH_ITER (hh, gvp, current, tmp) {
         free (current->name);   /* was strdup'ed above */
         HASH_DEL (gvp, current);
-        free (current);
     }
 }
 
 /*
  * helper to check address ranges
  */
-#define IN_RANGE(Area, Addr)                                \
-  ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
+#define IN_RANGE(Area, Addr)                                    \
+    ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
 
 #define IS_GLOBAL(Addr)                                                 \
-  (IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a))
+    (IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a))
 
 /*
  * check to see if address is global
