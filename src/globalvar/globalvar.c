@@ -345,7 +345,6 @@ shmemi_symmetric_globalvar_table_finalize (void)
     HASH_ITER (hh, gvp, current, tmp) {
         free (current->name);   /* was strdup'ed above */
         HASH_DEL (gvp, current);
-        free (current);
     }
 }
 
