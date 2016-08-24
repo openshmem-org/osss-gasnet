@@ -77,8 +77,6 @@ how OpenSHMEM programs are compiled, linked and launched.
 These wrapper programs are supplied as part of the Reference
 Library for convenience.
 .SH SEE ALSO
-intro_shmem(3),
-.br
 oshcxx(1),
 .br
 oshfort(1),

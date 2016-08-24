@@ -39,48 +39,63 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
 
-.TH oshfort 1 ""
+.TH oshenv 5 ""
 .SH NAME
-\fBoshfort\fP - compile an OpenSHMEM Fortran program
-.SH SYNOPSIS
-\fBoshfort\fP
-.RS
-.br
-[ underlying compiler flags ]
-.br
-file.f [file.f ...]
-.RE
+\fBoshenv\fP - Environment Variables
 .SH DESCRIPTION
-\fBoshfort\fP is a wrapper in the vein of mpif77 that compiles
-an OpenSHMEM program.  The wrapper hides implementation
-details from the user.
-.SH EXAMPLES
-The command
-.LP
-.RS
-$ oshfort -g -o foo.exe foo.f
+This implementation of OpenSHMEM understands the following
+environment variables:
+.SH IN SPECIFICATION
+.IP "SHMEM_DEBUG, SMA_DEBUG" 4
+Enable debugging messages.
+.IP "SHMEM_INFO, SMA_INFO" 4
+Print helpful text about all these environment variables.
+.IP "SHMEM_VERSION, SMA_VERSION" 4
+Print the library vetsion at start-up.
+.IP "SHMEM_SYMMETRIC_SIZE, SMA_SYMMETRIC_SIZE" 4
+Number of bytes to allocate for symmetric heap.
+.SH ADDITIONAL
+.IP "SHMEM_LOG_LEVELS" 4
+Fine tuning of logging.  Value, if set, is either "all" or a
+comma-separated list of:
+.RS 8
+.IP "fatal" 4
+Unrecoverable problem
+.IP "debug" 4
+General debugging information
+.IP "info" 4
+Informational output only
+.IP "symbols" 4
+Dump global dymbol table
+.IP "version" 4
+Show library version during start-up
+.IP "init" 4
+Actions during during OpenSHMEM initialization
+.IP "finalize" 4
+Actions during OpenSHMEM shutdown
+.IP "atomic" 4
+Used by various atomic ops
+.IP "auth" 4
+Something not authorized
+.IP "barrier, alltoall, broadcast, reduction, collect" 4
+Used by these collective routines
+.IP "cache" 4
+Cache management ops (deprecated)
+.IP "fence, quiet" 4
+Used by these routines
+.IP "lock" 4
+Global locks
+.IP "memory" 4
+Symmetric memory operations
+.IP "notice" 4
+Serious, but non-fatal
+.IP "service" 4
+Network service thread
+.IP "profiling" 4
+For the PSHMEM profiling interface
 .RE
-.LP
-compiles the Fortran source code foo.f into the OpenSHMEM executable foo.exe.
-.SH ENVIRONMENT
-The underlying compiler/linker invoked by this wrapper is determined
-when the OpenSHMEM library is built.  To override, set the
-.LP
-.RS
-\f(CROSH_FC\fP
-.RE
-.LP
-environment variable.
 .SH NOTES
-The OpenSHMEM specification does not say anything about
-how OpenSHMEM programs are compiled, linked and launched.
-These wrapper programs are supplied as part of the Reference
-Library for convenience.
-.SH SEE ALSO
-oshcxx(1),
-.br
-oshfort(1),
-.br
-oshrun(1).
+The preferred variable names are those with prefix \f(CRSHMEM_\fP.
+The \f(CRSMA_\fP names are deprecated.
 .SH OPENSHMEM
 http://www.openshmem.org/

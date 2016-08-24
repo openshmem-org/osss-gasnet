@@ -107,7 +107,6 @@ static trace_table_t tracers[] = {
     INIT_STATE (NOTICE, OFF),
     INIT_STATE (SERVICE, OFF),
     INIT_STATE (PROFILING, OFF),
-    INIT_STATE (MODULES, OFF),
 };
 
 static const int n_tracers = TABLE_SIZE (tracers);
@@ -271,12 +270,6 @@ compat_environment_init (void)
     if ( (shmemi_comms_getenv ("SHMEM_INFO") != NULL) ||
          (shmemi_comms_getenv ("SMA_INFO") != NULL) ) {
         (void) setenv ("SHMEM_LOG_LEVELS", "info", overwrite);
-    }
-
-    /* turn on symmetric memory debugging */
-    if ( (shmemi_comms_getenv ("SHMEM_MALLOC_DEBUG") != NULL) ||
-         (shmemi_comms_getenv ("SMA_MALLOC_DEBUG") != NULL) ) {
-        (void) setenv ("SHMEM_LOG_LEVELS", "memory", overwrite);
     }
 
     /* version information */
