@@ -273,12 +273,6 @@ compat_environment_init (void)
         (void) setenv ("SHMEM_LOG_LEVELS", "info", overwrite);
     }
 
-    /* turn on symmetric memory debugging */
-    if ( (shmemi_comms_getenv ("SHMEM_MALLOC_DEBUG") != NULL) ||
-         (shmemi_comms_getenv ("SMA_MALLOC_DEBUG") != NULL) ) {
-        (void) setenv ("SHMEM_LOG_LEVELS", "memory", overwrite);
-    }
-
     /* version information */
     if ( (shmemi_comms_getenv ("SHMEM_VERSION") != NULL) ||
          (shmemi_comms_getenv ("SMA_VERSION") != NULL) ) {
