@@ -355,7 +355,7 @@ shmemi_symmetric_globalvar_table_finalize (void)
     ( ( (Area).start <= (Addr) ) && ( (Addr) < (Area).end ) )
 
 #define IS_GLOBAL(Addr)                                                 \
-    (IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a))
+    ( IN_RANGE (elfdata, a) || IN_RANGE (elfbss, a) || IN_RANGE (elfro, a) )
 
 /*
  * check to see if address is global

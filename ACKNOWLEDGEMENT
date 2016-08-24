@@ -43,15 +43,21 @@
 Acknowledgement
 ---------------
 
-This work is supported by Oak Ridge National Laboratory's Extreme
-Scale System Center.
+This work is, and has been, supported by:
 
-Development and testing for the BlueGene/P is courtesy of Argonne
-National Laboratory.
+* Los Alamos National Laboratory.
 
-Development at the University of Houston was supported in part by the
-National Science Foundation's Computer Systems Research program under
-Award No. CRI-0958464.  Any opinions, findings, and conclusions or
-recommendations expressed in this material are those of the authors
-and do not necessarily reflect the views of the National Science
-Foundation.
+* US Department of Defense.
+
+* Open Source Software Solutions (OSSS).
+
+* Oak Ridge National Laboratory's Extreme Scale Systems Center.
+
+* Argonne National Laboratory (BlueGene/P testing).
+
+* Development at the University of Houston was supported in part by
+  the National Science Foundation's Computer Systems Research program
+  under Award No. CRI-0958464.  Any opinions, findings, and
+  conclusions or recommendations expressed in this material are those
+  of the authors and do not necessarily reflect the views of the
+  National Science Foundation.
