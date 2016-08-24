@@ -1,0 +1,101 @@
+.\" Emacs: -*- nroff -*-
+.\"
+.\" Copyright (c) 2011 - 2016
+.\"   University of Houston System and UT-Battelle, LLC.
+.\" Copyright (c) 2009 - 2016
+.\"   Silicon Graphics International Corp.  SHMEM is copyrighted
+.\"   by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
+.\"   (shmem) is released by Open Source Software Solutions, Inc., under an
+.\"   agreement with Silicon Graphics International Corp. (SGI).
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" o Redistributions of source code must retain the above copyright notice,
+.\"   this list of conditions and the following disclaimer.
+.\"
+.\" o Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\"
+.\" o Neither the name of the University of Houston System,
+.\"   UT-Battelle, LLC. nor the names of its contributors may be used to
+.\"   endorse or promote products derived from this software without specific
+.\"   prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+.\" TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+.\" PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+.\" LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+.\" NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+.\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+
+.TH oshenv 5 ""
+.SH NAME
+\fBoshenv\fP - Environment Variables
+.SH DESCRIPTION
+This implementation of OpenSHMEM understands the following
+environment variables:
+.SH IN SPECIFICATION
+.IP "SHMEM_DEBUG, SMA_DEBUG" 4
+Enable debugging messages.
+.IP "SHMEM_INFO, SMA_INFO" 4
+Print helpful text about all these environment variables.
+.IP "SHMEM_VERSION, SMA_VERSION" 4
+Print the library vetsion at start-up.
+.IP "SHMEM_SYMMETRIC_SIZE, SMA_SYMMETRIC_SIZE" 4
+Number of bytes to allocate for symmetric heap.
+.SH ADDITIONAL
+.IP "SHMEM_LOG_LEVELS" 4
+Fine tuning of logging.  Value, if set, is either "all" or a
+comma-separated list of:
+.RS 8
+.IP "fatal" 4
+Unrecoverable problem
+.IP "debug" 4
+General debugging information
+.IP "info" 4
+Informational output only
+.IP "symbols" 4
+Dump global dymbol table
+.IP "version" 4
+Show library version during start-up
+.IP "init" 4
+Actions during during OpenSHMEM initialization
+.IP "finalize" 4
+Actions during OpenSHMEM shutdown
+.IP "atomic" 4
+Used by various atomic ops
+.IP "auth" 4
+Something not authorized
+.IP "barrier, alltoall, broadcast, reduction, collect" 4
+Used by these collective routines
+.IP "cache" 4
+Cache management ops (deprecated)
+.IP "fence, quiet" 4
+Used by these routines
+.IP "lock" 4
+Global locks
+.IP "memory" 4
+Symmetric memory operations
+.IP "notice" 4
+Serious, but non-fatal
+.IP "service" 4
+Network service thread
+.IP "profiling" 4
+For the PSHMEM profiling interface
+.RE
+.SH NOTES
+The preferred variable names are those with prefix \f(CRSHMEM_\fP.
+The \f(CRSMA_\fP names are deprecated.
+.SH OPENSHMEM
+http://www.openshmem.org/
