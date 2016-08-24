@@ -107,7 +107,6 @@ static trace_table_t tracers[] = {
     INIT_STATE (NOTICE, OFF),
     INIT_STATE (SERVICE, OFF),
     INIT_STATE (PROFILING, OFF),
-    INIT_STATE (MODULES, OFF),
 };
 
 static const int n_tracers = TABLE_SIZE (tracers);
