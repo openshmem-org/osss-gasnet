@@ -81,8 +81,6 @@ are supplied as part of the Reference Library for convenience.
 To disambiguate launcher and program options/arguments, use "--" to
 signal end-of-launcher arguments.
 .SH SEE ALSO
-intro_shmem(3),
-.br
 oshcxx(1),
 .br
 oshrun(1),
