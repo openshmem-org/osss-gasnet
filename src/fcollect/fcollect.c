@@ -109,12 +109,13 @@ void
 shmem_fcollect32 (void *target, const void *source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (target, 1, "shmem_fcollect32");
-    SYMMETRY_CHECK (source, 2, "shmem_fcollect32");
-    SYMMETRY_CHECK (pSync, 7, "shmem_fcollect32");
-    PE_RANGE_CHECK (PE_start, 4);
-    /* PE_RANGE_CHECK (PE_size, 6); */
+    DEBUG_NAME ("shmem_fcollect32");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync, 7, debug_name);
+    PE_RANGE_CHECK (PE_start, 4, debug_name);
+    /* PE_RANGE_CHECK (PE_size, 6, debug_name); */
 
     func32 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }
@@ -134,12 +135,13 @@ void
 shmem_fcollect64 (void *target, const void *source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (target, 1, "shmem_fcollect64");
-    SYMMETRY_CHECK (source, 2, "shmem_fcollect64");
-    SYMMETRY_CHECK (pSync, 7, "shmem_fcollect64");
-    PE_RANGE_CHECK (PE_start, 4);
-    /* PE_RANGE_CHECK (PE_size, 6); */
+    DEBUG_NAME ("shmem_fcollect64");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync, 7, debug_name);
+    PE_RANGE_CHECK (PE_start, 4, debug_name);
+    /* PE_RANGE_CHECK (PE_size, 6, debug_name); */
 
     func64 (target, source, nelems, PE_start, logPE_stride, PE_size, pSync);
 }

@@ -63,7 +63,8 @@
 void
 shmem_fence (void)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_fence");
+    INIT_CHECK (debug_name);
     shmemi_comms_fence_request ();
 }
 

@@ -63,7 +63,8 @@
 void
 shmem_quiet (void)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_quiet");
+    INIT_CHECK (debug_name);
     shmemi_comms_quiet_request ();
 }
 

@@ -104,14 +104,15 @@ extern void shmem_char_iget (char *target, const char *source, ptrdiff_t tst,
     shmem_##Name##_iput (Type *target, const Type *source,              \
                          ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_iput");                            \
         size_t ti = 0, si = 0;                                          \
         size_t i;                                                       \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 6);                                         \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 6, debug_name);                             \
         for (i = 0; i < nelems; i += 1) {                               \
             shmem_##Name##_p (& (target[ti]), source[si], pe);          \
-                ti += tst;                                              \
-                si += sst;                                              \
+            ti += tst;                                                  \
+            si += sst;                                                  \
         }                                                               \
     }
 
@@ -185,14 +186,15 @@ shmem_iput128 (void *target, const void *source,
     shmem_##Name##_iget (Type *target, const Type *source,              \
                          ptrdiff_t tst, ptrdiff_t sst, size_t nelems, int pe) \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_iget");                            \
         size_t ti = 0, si = 0;                                          \
         size_t i;                                                       \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 6);                                         \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 6, debug_name);                             \
         for (i = 0; i < nelems; i += 1) {                               \
             target[ti] = shmem_##Name##_g ((Type *) & (source[si]), pe); \
-                ti += tst;                                              \
-                si += sst;                                              \
+            ti += tst;                                                  \
+            si += sst;                                                  \
         }                                                               \
     }
 

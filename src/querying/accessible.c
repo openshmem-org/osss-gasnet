@@ -66,7 +66,8 @@
 int
 shmem_pe_accessible (int pe)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_pe_accessible");
+    INIT_CHECK (debug_name);
     /*
      * don't trap this here, need to just test in program flow
      * PE_RANGE_CHECK (pe, 1);
@@ -81,7 +82,8 @@ shmem_pe_accessible (int pe)
 int
 shmem_addr_accessible (const void *addr, int pe)
 {
-    INIT_CHECK ();
-    PE_RANGE_CHECK (pe, 2);
+    DEBUG_NAME ("shmem_addr_accessible");
+    INIT_CHECK (debug_name);
+    PE_RANGE_CHECK (pe, 2, debug_name);
     return shmemi_symmetric_addr_accessible ((void *) addr, pe);
 }

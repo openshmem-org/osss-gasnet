@@ -100,7 +100,8 @@ shmemi_barrier_all_dispatch_init (void)
 void
 shmem_barrier_all (void)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_barrier_all");
+    INIT_CHECK (debug_name);
 
     shmem_quiet ();
 

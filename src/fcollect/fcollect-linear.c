@@ -79,9 +79,6 @@
         const size_t tidx = nelems * Bytes * vpe;                       \
         int i;                                                          \
         int pe = PE_start;                                              \
-        INIT_CHECK();                                                   \
-        SYMMETRY_CHECK(target, 1, "shmem_fcollect");                    \
-        SYMMETRY_CHECK(source, 2, "shmem_fcollect");                    \
         for (i = 0; i < PE_size; i += 1) {                              \
             shmem_put##Bits(target + tidx, source, nelems, pe);         \
             pe += step;                                                 \

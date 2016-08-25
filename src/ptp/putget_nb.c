@@ -97,10 +97,11 @@ extern void shmemx_put_nb (long *dest, const long *src,
     shmemx_##Name##_put_nb (Type *target, const Type *source, size_t nelems, \
                             int pe, shmemx_request_handle_t *desc)      \
     {                                                                   \
-        int typed_nelems = sizeof(Type) * nelems;                       \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (target, 1, "shmemx_" #Name "_put_nb");          \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        DEBUG_NAME ("shmemx_" #Name "_put_nb");                         \
+        const int typed_nelems = sizeof(Type) * nelems;                 \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (target, 1, debug_name);                         \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_put_nb ((Type *) target, (Type *) source,          \
                              typed_nelems, pe, desc);                   \
     }
@@ -152,9 +153,10 @@ void
 shmemx_putmem_nb (void *target, const void *source, size_t nelems,
                   int pe, shmemx_request_handle_t * desc)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (target, 1, "shmemx_putmem_nb");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmemx_putmem_nb");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (target, 1, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_put_nb (target, (void *) source, nelems, pe, desc);
 }
 
@@ -201,10 +203,11 @@ extern void shmemx_get_nb (long *dest, const long *src,
     shmemx_##Name##_get_nb (Type *target, const Type *source, size_t nelems, \
                             int pe, shmemx_request_handle_t *desc)      \
     {                                                                   \
-        int typed_nelems = sizeof(Type) * nelems;                       \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (source, 2, "shmemx_" #Name "_get_nb");          \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        DEBUG_NAME ("shmemx_" #Name "_get_nb");                         \
+        const int typed_nelems = sizeof(Type) * nelems;                 \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (source, 2, debug_name);                         \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_get_nb ((Type *) target, (Type *) source,          \
                              typed_nelems, pe, desc);                   \
     }
@@ -257,9 +260,10 @@ void
 shmemx_getmem_nb (void *target, const void *source, size_t nelems,
                   int pe, shmemx_request_handle_t * desc)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (source, 2, "shmemx_getmem_nb");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmemx_getmem_nb");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_get_nb (target, (void *) source, nelems, pe, desc);
 }
 

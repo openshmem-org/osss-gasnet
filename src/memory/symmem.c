@@ -171,8 +171,6 @@ shmalloc_nb (size_t size)
 {
     void *addr;
 
-    INIT_CHECK ();
-
 #ifdef HAVE_FEATURE_DEBUG
     if (__shmalloc_symmetry_check (size) != -1) {
         malloc_error = SHMEM_MALLOC_SYMMSIZE_FAILED;
@@ -218,12 +216,16 @@ shmalloc_private (size_t size)
 void *
 shmalloc (size_t size)
 {
+    DEBUG_NAME ("shmalloc");
+    INIT_CHECK (debug_name);
     return shmalloc_private (size);
 }
 
 void *
 shmem_malloc (size_t size)
 {
+    DEBUG_NAME ("shmem_malloc");
+    INIT_CHECK (debug_name);
     return shmalloc_private (size);
 }
 
@@ -243,8 +245,6 @@ shmem_malloc (size_t size)
 void
 shfree_nb (void *addr)
 {
-    INIT_CHECK ();
-
     if (addr == (void *) NULL) {
         shmemi_trace (SHMEM_LOG_MEMORY,
                       "address passed to shfree() already null");
@@ -285,12 +285,16 @@ shfree_private (void *addr)
 void
 shfree (void *addr)
 {
+    DEBUG_NAME ("shfree");
+    INIT_CHECK (debug_name);
     shfree_private (addr);
 }
 
 void
 shmem_free (void *addr)
 {
+    DEBUG_NAME ("shmem_free");
+    INIT_CHECK (debug_name);
     shfree_private (addr);
 }
 
@@ -307,8 +311,6 @@ static inline void *
 shrealloc_private (void *addr, size_t size)
 {
     void *newaddr;
-
-    INIT_CHECK ();
 
     if (addr == (void *) NULL) {
         shmemi_trace (SHMEM_LOG_MEMORY,
@@ -357,12 +359,16 @@ shrealloc_private (void *addr, size_t size)
 void *
 shrealloc (void *addr, size_t size)
 {
+    DEBUG_NAME ("shrealloc");
+    INIT_CHECK (debug_name);
     return shrealloc_private (addr, size);
 }
 
 void *
 shmem_realloc (void *addr, size_t size)
 {
+    DEBUG_NAME ("shmem_realloc");
+    INIT_CHECK (debug_name);
     return shrealloc_private (addr, size);
 }
 
@@ -380,8 +386,6 @@ static inline void *
 shmemalign_private (size_t alignment, size_t size)
 {
     void *addr;
-
-    INIT_CHECK ();
 
 #ifdef HAVE_FEATURE_DEBUG
     if (__shmalloc_symmetry_check (size) != -1) {
@@ -415,12 +419,16 @@ shmemalign_private (size_t alignment, size_t size)
 void *
 shmemalign (size_t alignment, size_t size)
 {
+    DEBUG_NAME ("shmemalign");
+    INIT_CHECK (debug_name);
     return shmemalign_private (alignment, size);
 }
 
 void *
 shmem_align (size_t alignment, size_t size)
 {
+    DEBUG_NAME ("shmem_align");
+    INIT_CHECK (debug_name);
     return shmemalign_private (alignment, size);
 }
 
@@ -470,10 +478,11 @@ extern char *sherror (void);    /* ! API */
 char *
 sherror (void)
 {
+    DEBUG_NAME ("sherror");
     malloc_error_code_t *etp = error_table;
     int i;
 
-    INIT_CHECK ();
+    INIT_CHECK (debug_name);
 
     for (i = 0; i < nerrors; i += 1) {
         if (malloc_error == etp->code) {

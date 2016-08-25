@@ -70,12 +70,14 @@
 void *
 shmem_ptr (const void *target, int pe)
 {
-    INIT_CHECK ();
-    PE_RANGE_CHECK (pe, 2);
+    DEBUG_NAME ("shmem_ptr");
+    INIT_CHECK (debug_name);
+    PE_RANGE_CHECK (pe, 2, debug_name);
 
 #ifdef SHMEM_PUTGET_SHARED_MEMORY
 
-    shmemi_trace (SHMEM_LOG_NOTICE, "shmem_ptr() not implemented yet");
+    shmemi_trace (SHMEM_LOG_NOTICE,
+                  "shmem_ptr() not implemented yet");
     return (void *) NULL;
 
 #else /* ! SHMEM_PUTGET_SHARED_MEMORY */

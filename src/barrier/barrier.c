@@ -117,7 +117,8 @@ shmemi_barrier_dispatch_init (void)
 void
 shmem_barrier (int PE_start, int logPE_stride, int PE_size, long *pSync)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_barrier");
+    INIT_CHECK (debug_name);
 
     shmem_quiet ();
 

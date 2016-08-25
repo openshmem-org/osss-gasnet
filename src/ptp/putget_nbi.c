@@ -110,10 +110,11 @@ extern void shmem_complexd_put_nbi (COMPLEXIFY (double) * dest,
     shmem_##Name##_put_nbi (Type *dest, const Type *src,                \
                             size_t nelems, int pe)                      \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_put_nbi");                         \
         const size_t typed_nelems = nelems * sizeof (Type);             \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put_nbi");            \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (dest, 1, debug_name);                           \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_put_nbi (dest, (void *) src, typed_nelems, pe);    \
     }
 
@@ -149,9 +150,10 @@ shmem_put128_nbi (void *dest, const void *src, size_t nelems, int pe)
 void
 shmem_putmem_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (dest, 1, "shmem_putmem_nbi");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmem_putmem_nbi");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (dest, 1, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_put_nbi_bulk (dest, (void *) src, nelems, pe);
 }
 
@@ -200,10 +202,11 @@ extern void shmem_complexd_get_nbi (COMPLEXIFY (double) * dest,
     shmem_##Name##_get_nbi (Type *dest, const Type *src,                \
                             size_t nelems, int pe)                      \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_get_nbi");                         \
         const size_t typed_nelems = nelems * sizeof (Type);             \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get_nbi");             \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (src, 2, debug_name);                            \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_get_nbi (dest, (void *) src, typed_nelems, pe);    \
     }
 
@@ -239,8 +242,9 @@ shmem_get128_nbi (void *dest, const void *src, size_t nelems, int pe)
 void
 shmem_getmem_nbi (void *dest, const void *src, size_t nelems, int pe)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (src, 2, "shmem_getmem_nbi");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmem_getmem_nbi");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (src, 2, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_get_nbi_bulk (dest, (void *) src, nelems, pe);
 }
