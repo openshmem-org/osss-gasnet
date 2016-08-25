@@ -95,8 +95,9 @@ shmemi_atomic_finalize (void)
     Type                                                                \
     shmem_##Name##_swap (Type *target, Type value, int pe)              \
     {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 3);                                         \
+        DEBUG_NAME ("shmem_" #Name "_swap");                            \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 3, debug_name);                             \
         return shmemi_comms_swap_request_##Name (target, value,         \
                                                  pe);                   \
     }
@@ -126,8 +127,9 @@ SHMEM_TYPE_SWAP (float, float);
     Type                                                                \
     shmem_##Name##_cswap (Type *target, Type cond, Type value, int pe)  \
     {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        DEBUG_NAME ("shmem_" #Name "_swap");                            \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         return shmemi_comms_cswap_request_##Name (target, cond, value,  \
                                                   pe);                  \
     }
@@ -149,8 +151,9 @@ SHMEM_TYPE_CSWAP (longlong, long long);
     Type                                                                \
     shmem_##Name##_fadd (Type *target, Type value, int pe)              \
     {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 3);                                         \
+        DEBUG_NAME ("shmem_" #Name "_fadd");                            \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 3, debug_name);                             \
         return shmemi_comms_fadd_request_##Name (target, value,         \
                                                  pe);                   \
     }
@@ -178,8 +181,9 @@ SHMEM_TYPE_FADD (longlong, long long);
     Type                                                        \
     shmem_##Name##_finc (Type *target, int pe)                  \
     {                                                           \
-        INIT_CHECK ();                                          \
-        PE_RANGE_CHECK (pe, 2);                                 \
+        DEBUG_NAME ("shmem_" #Name "_finc");                    \
+        INIT_CHECK (debug_name);                                \
+        PE_RANGE_CHECK (pe, 2, debug_name);                     \
         return shmemi_comms_finc_request_##Name (target,        \
                                                  pe);           \
     }
@@ -205,8 +209,9 @@ SHMEM_TYPE_FINC (longlong, long long);
     void                                                                \
     shmem_##Name##_add (Type *target, Type value, int pe)               \
     {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 3);                                         \
+        DEBUG_NAME ("shmem_" #Name "_add");                             \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 3, debug_name);                             \
         shmemi_comms_add_request_##Name (target,                        \
                                          value,                         \
                                          pe);                           \
@@ -230,8 +235,9 @@ SHMEM_TYPE_ADD (longlong, long long);
     void                                                        \
     shmem_##Name##_inc (Type *target, int pe)                   \
     {                                                           \
-        INIT_CHECK ();                                          \
-        PE_RANGE_CHECK (pe, 2);                                 \
+        DEBUG_NAME ("shmem_" #Name "_inc");                     \
+        INIT_CHECK (debug_name);                                \
+        PE_RANGE_CHECK (pe, 2, debug_name);                     \
         shmemi_comms_inc_request_##Name (target,                \
                                          pe);                   \
     }
@@ -259,14 +265,15 @@ SHMEM_TYPE_INC (longlong, long long);
 #define shmem_double_fetch pshmem_double_fetch
 #endif /* HAVE_FEATURE_PSHMEM */
 
-#define SHMEM_TYPE_FETCH(Name, Type)                              \
-    Type                                                          \
-    shmem_##Name##_fetch (const Type *target, int pe)             \
-    {                                                             \
-        INIT_CHECK ();                                            \
-        PE_RANGE_CHECK (pe, 2);                                   \
+#define SHMEM_TYPE_FETCH(Name, Type)                                \
+    Type                                                            \
+    shmem_##Name##_fetch (const Type *target, int pe)               \
+    {                                                               \
+        DEBUG_NAME ("shmem_" #Name "_fetch");                       \
+        INIT_CHECK (debug_name);                                    \
+        PE_RANGE_CHECK (pe, 2, debug_name);                         \
         return shmemi_comms_fetch_request_##Name ((Type *) target,  \
-                                                  pe);            \
+                                                  pe);              \
     }
 
 SHMEM_TYPE_FETCH (int, int);
@@ -293,8 +300,9 @@ SHMEM_TYPE_FETCH (double, double);
     void                                                          \
     shmem_##Name##_set (Type *target, Type value, int pe)         \
     {                                                             \
-        INIT_CHECK ();                                            \
-        PE_RANGE_CHECK (pe, 2);                                   \
+        DEBUG_NAME ("shmem_" #Name "_set");                       \
+        INIT_CHECK (debug_name);                                  \
+        PE_RANGE_CHECK (pe, 2, debug_name);                       \
         shmemi_comms_set_request_##Name (target, value,           \
                                          pe);                     \
     }
@@ -322,8 +330,9 @@ SHMEM_TYPE_SET (double, double);
     void                                                                \
     shmemx_##Name##_xor (Type *target, Type value, int pe)              \
     {                                                                   \
-        INIT_CHECK ();                                                  \
-        PE_RANGE_CHECK (pe, 3);                                         \
+        DEBUG_NAME ("shmem_" #Name "_xor");                             \
+        INIT_CHECK (debug_name);                                        \
+        PE_RANGE_CHECK (pe, 3, debug_name);                             \
         shmemi_comms_xor_request_##Name (target, value,                 \
                                          pe);                           \
     }

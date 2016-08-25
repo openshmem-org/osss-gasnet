@@ -109,10 +109,11 @@ extern void shmem_complexd_put (COMPLEXIFY (double) * dest,
     void                                                                \
     shmem_##Name##_put (Type *dest, const Type *src, size_t nelems, int pe) \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_put");                             \
         const size_t typed_nelems = nelems * sizeof (Type);             \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (dest, 1, "shmem_" #Name "_put");                \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (dest, 1, debug_name);                           \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_put (dest, (void *) src, typed_nelems, pe);        \
     }
 
@@ -148,9 +149,10 @@ shmem_put128 (void *dest, const void *src, size_t nelems, int pe)
 void
 shmem_putmem (void *dest, const void *src, size_t nelems, int pe)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (dest, 1, "shmem_putmem");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmem_putmem");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (dest, 1, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_put_bulk (dest, (void *) src, nelems, pe);
 }
 
@@ -198,10 +200,11 @@ extern void shmem_complexd_get (COMPLEXIFY (double) * dest,
     void                                                                \
     shmem_##Name##_get (Type *dest, const Type *src, size_t nelems, int pe) \
     {                                                                   \
+        DEBUG_NAME ("shmem_" #Name "_get");                             \
         const size_t typed_nelems = nelems * sizeof (Type);             \
-        INIT_CHECK ();                                                  \
-        SYMMETRY_CHECK (src, 2, "shmem_" #Name "_get");                 \
-        PE_RANGE_CHECK (pe, 4);                                         \
+        INIT_CHECK (debug_name);                                        \
+        SYMMETRY_CHECK (src, 2, debug_name);                            \
+        PE_RANGE_CHECK (pe, 4, debug_name);                             \
         shmemi_comms_get (dest, (void *) src, typed_nelems, pe);        \
     }
 
@@ -237,9 +240,10 @@ shmem_get128 (void *dest, const void *src, size_t nelems, int pe)
 void
 shmem_getmem (void *dest, const void *src, size_t nelems, int pe)
 {
-    INIT_CHECK ();
-    SYMMETRY_CHECK (src, 2, "shmem_getmem");
-    PE_RANGE_CHECK (pe, 4);
+    DEBUG_NAME ("shmem_getmem");
+    INIT_CHECK (debug_name);
+    SYMMETRY_CHECK (src, 2, debug_name);
+    PE_RANGE_CHECK (pe, 4, debug_name);
     shmemi_comms_get_bulk (dest, (void *) src, nelems, pe);
 }
 

@@ -116,12 +116,13 @@ shmem_alltoall32 (void *target, const void* source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size,
                   long *pSync)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_alltoall32");
+    INIT_CHECK (debug_name);
     shmem_quiet ();
 
-    SYMMETRY_CHECK (target, 1, "shmem_alltoall32");
-    SYMMETRY_CHECK (source, 2, "shmem_alltoall32");
-    SYMMETRY_CHECK (pSync,  7, "shmem_alltoall32");
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync,  7, debug_name);
 
     func32 (target, source, 1, 1, nelems,
             PE_start, logPE_stride, PE_size, pSync);
@@ -137,12 +138,13 @@ shmem_alltoall64 (void *target, const void* source, size_t nelems,
                   int PE_start, int logPE_stride, int PE_size,
                   long *pSync)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_alltoall64");
+    INIT_CHECK (debug_name);
     shmem_quiet ();
 
-    SYMMETRY_CHECK (target, 1, "shmem_alltoall64");
-    SYMMETRY_CHECK (source, 2, "shmem_alltoall64");
-    SYMMETRY_CHECK (pSync,  7, "shmem_alltoall64");
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync,  7, debug_name);
 
     func64 (target, source, 1, 1, nelems,
             PE_start, logPE_stride, PE_size, pSync);
@@ -159,12 +161,13 @@ shmem_alltoalls32 (void *target, const void* source,
                    int PE_start, int logPE_stride, int PE_size,
                    long *pSync)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_alltoalls32");
+    INIT_CHECK (debug_name);
     shmem_quiet ();
 
-    SYMMETRY_CHECK (target, 1, "shmem_alltoalls32");
-    SYMMETRY_CHECK (source, 2, "shmem_alltoalls32");
-    SYMMETRY_CHECK (pSync,  9, "shmem_alltoalls32");
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync,  9, debug_name);
 
     func32 (target, source, dst, sst, nelems,
             PE_start, logPE_stride, PE_size, pSync);
@@ -181,12 +184,13 @@ shmem_alltoalls64 (void *target, const void* source,
                    int PE_start, int logPE_stride, int PE_size,
                    long *pSync)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shmem_alltoalls64");
+    INIT_CHECK (debug_name);
     shmem_quiet ();
 
-    SYMMETRY_CHECK (target, 1, "shmem_alltoalls64");
-    SYMMETRY_CHECK (source, 2, "shmem_alltoalls64");
-    SYMMETRY_CHECK (pSync,  9, "shmem_alltoalls64");
+    SYMMETRY_CHECK (target, 1, debug_name);
+    SYMMETRY_CHECK (source, 2, debug_name);
+    SYMMETRY_CHECK (pSync,  9, debug_name);
 
     func64 (target, source, dst, sst, nelems,
             PE_start, logPE_stride, PE_size, pSync);

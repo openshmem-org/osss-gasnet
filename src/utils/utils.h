@@ -61,17 +61,20 @@
  *
  */
 
-#define INIT_CHECK()                                                    \
+#define DEBUG_NAME(Name) const char *debug_name = Name
+
+#define INIT_CHECK(subrname)                                            \
     IF_DEBUGGING(                                                       \
                  const int s = GET_STATE (pe_status);                   \
-                 if (s != PE_RUNNING)                                   \
-                     {                                                  \
-                         shmemi_trace (SHMEM_LOG_FATAL,                 \
-                                       "Library is not running, reason: %s", \
-                                       shmemi_state_as_string (s)       \
-                                       );                               \
-                         /* NOT REACHED */                              \
-                     }                                                  \
+                 if (s != PE_RUNNING) {                                 \
+                     fprintf (stderr,                                   \
+                              "OpenSHMEM: Called %s() but %s\n",        \
+                              subrname,                                 \
+                              shmemi_state_as_string (s)                \
+                              );                                        \
+                     exit (EXIT_FAILURE);                               \
+                     /* NOT REACHED */                                  \
+                 }                                                      \
                                                                         )
 
 /*
@@ -81,15 +84,15 @@
 
 #include "trace.h"
 
-#define PE_RANGE_CHECK(pe, argpos)                                      \
+#define PE_RANGE_CHECK(pe, argpos, subrname)                            \
     IF_DEBUGGING(                                                       \
                  const int bot_pe = 0;                                  \
                  const int top_pe = GET_STATE (numpes) - 1;             \
                  if (pe < bot_pe || pe > top_pe) {                      \
                      shmemi_trace (SHMEM_LOG_FATAL,                     \
-                                   "PE %d in argument #%d not"          \
+                                   "PE %d in argument #%d of %s() not"  \
                                    " within allocated range %d .. %d",  \
-                                   pe, argpos,                          \
+                                   pe, argpos, subrname,                \
                                    bot_pe, top_pe                       \
                                    );                                   \
                      /* NOT REACHED */                                  \
@@ -110,7 +113,7 @@
                      {                                                  \
                          shmemi_trace (SHMEM_LOG_FATAL,                 \
                                        "%s(), argument #%d @ %p"        \
-                                       "is not symmetric",              \
+                                       " is not symmetric",             \
                                        subrname, argpos, addr           \
                                        );                               \
                          /* NOT REACHED */                              \
@@ -123,29 +126,28 @@
 
 #define TXRX_LENGTH_CHECK(len, argpos, subrname)                        \
     IF_DEBUGGING(                                                       \
-                 if ((len) == 0)                                        \
-                     {                                                  \
-                         shmemi_trace (SHMEM_LOG_INFO,                  \
-                                       "%s(), length in argument #%d"   \
-                                       "is zero, call has no effect",   \
-                                       subrname, argpos                 \
-                                       );                               \
-                     }                                                  \
-                 if ((len) < 0)                                         \
-                     {                                                  \
-                         shmemi_trace (SHMEM_LOG_INFO,                  \
-                                       "%s(), length in argument #%d"   \
-                                       "is negative, call has no effect", \
-                                       subrname, argpos                 \
-                                       );                               \
-                     }                                                  \
+                 if ((len) == 0) {                                      \
+                     shmemi_trace (SHMEM_LOG_INFO,                      \
+                                   "%s(), length in argument #%d"       \
+                                   " is zero, call has no effect",      \
+                                   subrname, argpos                     \
+                                   );                                   \
+                 }                                                      \
+                 if ((len) < 0) {                                       \
+                     shmemi_trace (SHMEM_LOG_INFO,                      \
+                                   "%s(), length in argument #%d"       \
+                                   " is negative, call has no effect",  \
+                                   subrname, argpos                     \
+                                   );                                   \
+                 }                                                      \
                                                                         \
-                                                    )
+                                                                        )
 
 #else /* ! HAVE_FEATURE_DEBUG */
 
-#define INIT_CHECK()
-#define PE_RANGE_CHECK(pe, argpos)
+#define DEBUG_NAME(name)
+#define INIT_CHECK(subrname)
+#define PE_RANGE_CHECK(pe, argpos, subrname)
 #define SYMMETRY_CHECK(addr, argpos, subrname)
 #define TXRX_LENGTH_CHECK(len, argpos, subrname)
 

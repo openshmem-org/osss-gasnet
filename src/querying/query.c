@@ -52,13 +52,6 @@
 #include "pshmem.h"
 #endif /* HAVE_FEATURE_PSHMEM */
 
-static inline int
-mype_helper (void)
-{
-    INIT_CHECK ();
-    return GET_STATE (mype);
-}
-
 #ifdef HAVE_FEATURE_PSHMEM
 #pragma weak _my_pe = p_my_pe
 #define _my_pe p_my_pe
@@ -69,20 +62,17 @@ mype_helper (void)
 int
 _my_pe (void)
 {
-    return mype_helper ();
+    DEBUG_NAME ("_my_pe");
+    INIT_CHECK (debug_name);
+    return GET_STATE (mype);
 }
 
 int
 shmem_my_pe (void)
 {
-    return mype_helper ();
-}
-
-static inline int
-numpes_helper (void)
-{
-    INIT_CHECK ();
-    return GET_STATE (numpes);
+    DEBUG_NAME ("shmem_my_pe");
+    INIT_CHECK (debug_name);
+    return GET_STATE (mype);
 }
 
 #ifdef HAVE_FEATURE_PSHMEM
@@ -95,11 +85,15 @@ numpes_helper (void)
 int
 _num_pes (void)
 {
-    return numpes_helper ();
+    DEBUG_NAME ("_num_pes");
+    INIT_CHECK (debug_name);
+    return GET_STATE (numpes);
 }
 
 int
 shmem_n_pes (void)
 {
-    return numpes_helper ();
+    DEBUG_NAME ("shmem_n_pes");
+    INIT_CHECK (debug_name);
+    return GET_STATE (numpes);
 }

@@ -100,11 +100,12 @@ extern long malloc_error;
 void FORTRANIFY (shpalloc) (uintptr_t **addr, int *length,
                             int *errcode, int *abort)
 {
+    DEBUG_NAME ("shpalloc");
     /* convert 32-bit words to bytes */
     const int scale = sizeof (int32_t);
     void *symm_addr;
 
-    INIT_CHECK ();
+    INIT_CHECK (debug_name);
 
     if (*length <= 0) {
         *errcode = SHMEM_MALLOC_BAD_SIZE;
@@ -158,7 +159,8 @@ void FORTRANIFY (shpalloc) (uintptr_t **addr, int *length,
 
 void FORTRANIFY (shpdeallc) (uintptr_t **addr, int *errcode, int *abort)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shpdeallc");
+    INIT_CHECK (debug_name);
 
     shmemi_trace (SHMEM_LOG_MEMORY,
                   "shpdeallc(addr = %p, errcode = %d, abort = %d)",
@@ -203,7 +205,8 @@ void FORTRANIFY (shpdeallc) (uintptr_t **addr, int *errcode, int *abort)
 void FORTRANIFY (shpclmove) (uintptr_t **addr, int *length,
                              int *errcode, int *abort)
 {
-    INIT_CHECK ();
+    DEBUG_NAME ("shpclmove");
+    INIT_CHECK (debug_name);
 
     *addr = shmem_realloc (*addr, *length);
 

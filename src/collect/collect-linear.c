@@ -78,10 +78,6 @@
         /* TODO: temp fix: I know barrier doesn't use this many indices */ \
         long *acc_off = & (pSync[SHMEM_COLLECT_SYNC_SIZE - 1]);         \
                                                                         \
-        INIT_CHECK();                                                   \
-        SYMMETRY_CHECK(target, 1, "shmem_collect");                     \
-        SYMMETRY_CHECK(source, 2, "shmem_collect");                     \
-                                                                        \
         shmemi_trace(SHMEM_LOG_COLLECT,                                 \
                      "nelems = %ld, PE_start = %d, PE_stride = %d,"     \
                      " PE_size = %d, last_pe = %d",                     \

@@ -384,9 +384,10 @@ SHMEM_UDR_TYPE_OP (complexf, float complex);
                                      int PE_size,                       \
                                      Type *pWrk, long *pSync)           \
     {                                                                   \
-        INIT_CHECK();                                                   \
-        SYMMETRY_CHECK(target, 1, "shmem_" #Name "_" #OpCall "_to_all"); \
-        SYMMETRY_CHECK(source, 2, "shmem_" #Name "_" #OpCall "_to_all"); \
+        DEBUG_NAME ("shmem_" #Name "_" #OpCall "_to_all");              \
+        INIT_CHECK(debug_name);                                         \
+        SYMMETRY_CHECK(target, 1, debug_name);                          \
+        SYMMETRY_CHECK(source, 2, debug_name);                          \
         shmemi_udr_##Name##_to_all(OpCall##_##Name##_func,              \
                                    target, source, nreduce,             \
                                    PE_start, logPE_stride, PE_size,     \
