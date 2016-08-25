@@ -769,7 +769,7 @@ shmemi_symmetric_memory_init (void)
     if (EXPR_UNLIKELY (seginfo_table == (gasnet_seginfo_t *) NULL)) {
         comms_bailout ("could not allocate GASNet segments (%s)",
                        strerror (errno)
-            );
+                       );
         /* NOT REACHED */
     }
 
@@ -1255,7 +1255,7 @@ AMO_FINC_OUT_EMIT (longlong, long long);
 /**
  * called by finc invoker when old value returned by remote PE
  */
-#define AMO_FINC_BAK_EMIT(Name, Type)                                       \
+#define AMO_FINC_BAK_EMIT(Name, Type)                                   \
     static void                                                         \
     handler_finc_bak_##Name (gasnet_token_t token, void *buf, size_t bufsiz) \
     {                                                                   \
@@ -1614,7 +1614,7 @@ AMO_FETCH_REQ_EMIT (double, double);
         gasnet_hsl_unlock (&amo_lock_##Name);                           \
                                                                         \
         /* return updated payload */                                    \
-        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_set_bak_##Name,   \
+        gasnet_AMReplyMedium0 (token, GASNET_HANDLER_set_bak_##Name,    \
                                buf, bufsiz);                            \
     }
 
@@ -1945,7 +1945,7 @@ handler_globalvar_put_out (gasnet_token_t token, void *buf, size_t bufsiz)
     /* return ack, just need the control structure */
     gasnet_AMReplyMedium0 (token, GASNET_HANDLER_globalvar_put_bak,
                            buf, sizeof (*pp)
-        );
+                           );
 }
 
 /**
@@ -1979,8 +1979,8 @@ put_a_chunk (void *buf, size_t bufsize,
      * (global var is trivially symmetric here, no translation needed)
      */
     p->nbytes = bytes_to_send;
-    p->source = NULL;           /* not used in put */
-    p->target = target + offset;    /* on the other PE */
+    p->source = NULL;            /* not used in put */
+    p->target = target + offset; /* on the other PE */
     p->completed = 0;
     p->completed_addr = &(p->completed);
 
@@ -2742,7 +2742,7 @@ parse_cmdline (void)
         if (EXPR_UNLIKELY (fp == NULL)) {
             comms_bailout ("could not discover process' command-line (%s)",
                            strerror (errno)
-                );
+                           );
             /* NOT REACHED */
         }
     }
@@ -3099,7 +3099,7 @@ shmemi_comms_lock_release (SHMEM_LOCK * node, SHMEM_LOCK * lock, int this_pe)
         GASNET_BLOCKUNTIL (!
                            ((node->l_next == SHMEM_LOCK_FREE) ||
                             (node->l_next < 0))
-            );
+                           );
 
     }
 
