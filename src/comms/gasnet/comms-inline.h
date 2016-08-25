@@ -1899,7 +1899,7 @@ atomic_wait_get_zero (void)
 static inline void
 allocate_buffer_and_check (void **buf, size_t siz)
 {
-    int r = posix_memalign (buf, GASNET_PAGESIZE, siz);
+    const int r = posix_memalign (buf, GASNET_PAGESIZE, siz);
     switch (r) {
     case 0:
         /* all ok, return */
