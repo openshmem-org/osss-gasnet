@@ -1,5 +1,9 @@
 /*
  *
+ * Copyright (c) 2016
+ *   Stony Brook University
+ * Copyright (c) 2015-2016
+ *   Los Alamos National Security, LLC.
  * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
  * Copyright (c) 2009 - 2016
