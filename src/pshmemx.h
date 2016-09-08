@@ -1,4 +1,3 @@
-/* Emacs: -*- mode: c -*- */
 /*
  *
  * Copyright (c) 2016

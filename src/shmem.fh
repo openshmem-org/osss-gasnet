@@ -1,187 +1,187 @@
-!     Emacs: -*- mode: fortran; -*-
+  !   Emacs: -*- mode: f90; -*-
 
-!
-!   Copyright (c) 2016
-!     Stony Brook University
-!   Copyright (c) 2015-2016
-!     Los Alamos National Security, LLC.
-!   Copyright (c) 2011 - 2016
-!     University of Houston System and UT-Battelle, LLC.
-!   Copyright (c) 2009 - 2016
-!     Silicon Graphics International Corp.  SHMEM is copyrighted
-!     by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
-!     (shmem) is released by Open Source Software Solutions, Inc., under an
-!     agreement with Silicon Graphics International Corp. (SGI).
-!
-!   All rights reserved.
-!
-!   Redistribution and use in source and binary forms, with or without
-!   modification, are permitted provided that the following conditions
-!   are met:
-!
-!   o Redistributions of source code must retain the above copyright notice,
-!     this list of conditions and the following disclaimer.
-!
-!   o Redistributions in binary form must reproduce the above copyright
-!     notice, this list of conditions and the following disclaimer in the
-!     documentation and/or other materials provided with the distribution.
-!
-!   o Neither the name of the University of Houston System,
-!     UT-Battelle, LLC. nor the names of its contributors may be used to
-!     endorse or promote products derived from this software without specific
-!     prior written permission.
-!
-!   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-!   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-!   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-!   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-!   HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-!   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-!   TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-!   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-!   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-!   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-!   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-!
+  !
+  !   Copyright (c) 2016
+  !     Stony Brook University
+  !   Copyright (c) 2015-2016
+  !     Los Alamos National Security, LLC.
+  !   Copyright (c) 2011 - 2016
+  !     University of Houston System and UT-Battelle, LLC.
+  !   Copyright (c) 2009 - 2016
+  !     Silicon Graphics International Corp.  SHMEM is copyrighted
+  !     by Silicon Graphics International Corp. (SGI) The OpenSHMEM API
+  !     (shmem) is released by Open Source Software Solutions, Inc., under an
+  !     agreement with Silicon Graphics International Corp. (SGI).
+  !
+  !   All rights reserved.
+  !
+  !   Redistribution and use in source and binary forms, with or without
+  !   modification, are permitted provided that the following conditions
+  !   are met:
+  !
+  !   o Redistributions of source code must retain the above copyright notice,
+  !     this list of conditions and the following disclaimer.
+  !
+  !   o Redistributions in binary form must reproduce the above copyright
+  !     notice, this list of conditions and the following disclaimer in the
+  !     documentation and/or other materials provided with the distribution.
+  !
+  !   o Neither the name of the University of Houston System,
+  !     UT-Battelle, LLC. nor the names of its contributors may be used to
+  !     endorse or promote products derived from this software without specific
+  !     prior written permission.
+  !
+  !   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  !   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  !   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  !   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  !   HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  !   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+  !   TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  !   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  !   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  !   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  !   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  !
 
-!     OpenSHMEM release
+  !     OpenSHMEM release
 
-      integer SHMEM_MAJOR_VERSION
-      parameter ( SHMEM_MAJOR_VERSION = 1 )
-      integer SHMEM_MINOR_VERSION
-      parameter ( SHMEM_MINOR_VERSION = 2 )
+  integer SHMEM_MAJOR_VERSION
+  parameter ( SHMEM_MAJOR_VERSION = 1 )
+  integer SHMEM_MINOR_VERSION
+  parameter ( SHMEM_MINOR_VERSION = 2 )
 
-! one less than C's length
-      integer SHMEM_MAX_NAME_LEN
-      parameter ( SHMEM_MAX_NAME_LEN = 64 - 1 )
+  ! one less than C's length
+  integer SHMEM_MAX_NAME_LEN
+  parameter ( SHMEM_MAX_NAME_LEN = 64 - 1 )
 
-      character ( len = SHMEM_MAX_NAME_LEN ) SHMEM_VENDOR_STRING
-      parameter ( SHMEM_VENDOR_STRING = "UH Reference Implementation" )
+  character ( len = SHMEM_MAX_NAME_LEN ) SHMEM_VENDOR_STRING
+  parameter ( SHMEM_VENDOR_STRING = "UH Reference Implementation" )
 
-!     collectives
+  !     collectives
 
-!
-!     cf. C types which are fractions of these (different type sizes)
-!
+  !
+  !     cf. C types which are fractions of these (different type sizes)
+  !
 
-      integer SHMEM_BCAST_SYNC_SIZE
-      parameter ( SHMEM_BCAST_SYNC_SIZE = 128 )
+  integer SHMEM_BCAST_SYNC_SIZE
+  parameter ( SHMEM_BCAST_SYNC_SIZE = 128 )
 
-      integer SHMEM_BARRIER_SYNC_SIZE
-      parameter ( SHMEM_BARRIER_SYNC_SIZE = 128 )
+  integer SHMEM_BARRIER_SYNC_SIZE
+  parameter ( SHMEM_BARRIER_SYNC_SIZE = 128 )
 
-      integer SHMEM_REDUCE_SYNC_SIZE
-      parameter ( SHMEM_REDUCE_SYNC_SIZE = 256 )
+  integer SHMEM_REDUCE_SYNC_SIZE
+  parameter ( SHMEM_REDUCE_SYNC_SIZE = 256 )
 
-      integer SHMEM_REDUCE_MIN_WRKDATA_SIZE
-      parameter ( SHMEM_REDUCE_MIN_WRKDATA_SIZE = 128 )
+  integer SHMEM_REDUCE_MIN_WRKDATA_SIZE
+  parameter ( SHMEM_REDUCE_MIN_WRKDATA_SIZE = 128 )
 
-      integer SHMEM_COLLECT_SYNC_SIZE
-      parameter ( SHMEM_COLLECT_SYNC_SIZE = 128 )
+  integer SHMEM_COLLECT_SYNC_SIZE
+  parameter ( SHMEM_COLLECT_SYNC_SIZE = 128 )
 
-      integer SHMEM_ALLTOALL_SYNC_SIZE
-      parameter ( SHMEM_ALLTOALL_SYNC_SIZE = 128 )
+  integer SHMEM_ALLTOALL_SYNC_SIZE
+  parameter ( SHMEM_ALLTOALL_SYNC_SIZE = 128 )
 
-      integer SHMEM_ALLTOALLS_SYNC_SIZE
-      parameter ( SHMEM_ALLTOALLS_SYNC_SIZE = 128 )
+  integer SHMEM_ALLTOALLS_SYNC_SIZE
+  parameter ( SHMEM_ALLTOALLS_SYNC_SIZE = 128 )
 
-!
-!     Initialize sync arrays to this
-!
-      integer SHMEM_SYNC_VALUE
-      parameter ( SHMEM_SYNC_VALUE = -1 )
+  !
+  !     Initialize sync arrays to this
+  !
+  integer SHMEM_SYNC_VALUE
+  parameter ( SHMEM_SYNC_VALUE = -1 )
 
-!
-!     compatibility with SGI
-!
+  !
+  !     compatibility with SGI
+  !
 
-      integer SHMEM_TARGET_T3E
-      parameter ( SHMEM_TARGET_T3E = 0 )
+  integer SHMEM_TARGET_T3E
+  parameter ( SHMEM_TARGET_T3E = 0 )
 
-      integer   SHMEM_NULL
-      common /SHMEMCOM_/ SHMEM_NULL
+  integer   SHMEM_NULL
+  common /SHMEMCOM_/ SHMEM_NULL
 
-      Integer SHMEM_GROUP_WORLD
-      parameter ( SHMEM_GROUP_WORLD = -1 )
+  Integer SHMEM_GROUP_WORLD
+  parameter ( SHMEM_GROUP_WORLD = -1 )
 
-!
-!     shpalloc errors
-!
+  !
+  !     shpalloc errors
+  !
 
-      integer SHMEM_MALLOC_OK
-      parameter ( SHMEM_MALLOC_OK = 0 )
+  integer SHMEM_MALLOC_OK
+  parameter ( SHMEM_MALLOC_OK = 0 )
 
-      integer SHMEM_MALLOC_BAD_SIZE
-      parameter ( SHMEM_MALLOC_BAD_SIZE = -1 )
+  integer SHMEM_MALLOC_BAD_SIZE
+  parameter ( SHMEM_MALLOC_BAD_SIZE = -1 )
 
-      integer SHMEM_MALLOC_FAIL
-      parameter ( SHMEM_MALLOC_FAIL = -2 )
+  integer SHMEM_MALLOC_FAIL
+  parameter ( SHMEM_MALLOC_FAIL = -2 )
 
-      integer SHMEM_MALLOC_NOT_IN_SYMM_HEAP
-      parameter ( SHMEM_MALLOC_NOT_IN_SYMM_HEAP = -3 )
+  integer SHMEM_MALLOC_NOT_IN_SYMM_HEAP
+  parameter ( SHMEM_MALLOC_NOT_IN_SYMM_HEAP = -3 )
 
-      integer SHMEM_MALLOC_ALREADY_FREE
-      parameter ( SHMEM_MALLOC_ALREADY_FREE = -4 )
+  integer SHMEM_MALLOC_ALREADY_FREE
+  parameter ( SHMEM_MALLOC_ALREADY_FREE = -4 )
 
-      integer SHMEM_MALLOC_NOT_ALIGNED
-      parameter ( SHMEM_MALLOC_NOT_ALIGNED = -5 )
+  integer SHMEM_MALLOC_NOT_ALIGNED
+  parameter ( SHMEM_MALLOC_NOT_ALIGNED = -5 )
 
-      integer SHMEM_MALLOC_MEMALIGN_FAILED
-      parameter ( SHMEM_MALLOC_MEMALIGN_FAILED = -11 )
+  integer SHMEM_MALLOC_MEMALIGN_FAILED
+  parameter ( SHMEM_MALLOC_MEMALIGN_FAILED = -11 )
 
-      integer SHMEM_MALLOC_REALLOC_FAILED
-      parameter ( SHMEM_MALLOC_REALLOC_FAILED = -12 )
+  integer SHMEM_MALLOC_REALLOC_FAILED
+  parameter ( SHMEM_MALLOC_REALLOC_FAILED = -12 )
 
-      integer SHMEM_MALLOC_SYMMSIZE_FAILED
-      parameter ( SHMEM_MALLOC_SYMMSIZE_FAILED = -10 )
+  integer SHMEM_MALLOC_SYMMSIZE_FAILED
+  parameter ( SHMEM_MALLOC_SYMMSIZE_FAILED = -10 )
 
-!
-!     waits
-!
-      integer SHMEM_CMP_EQ
-      parameter ( SHMEM_CMP_EQ = 0 )
-      integer SHMEM_CMP_NE
-      parameter ( SHMEM_CMP_NE = 1 )
-      integer SHMEM_CMP_GT
-      parameter ( SHMEM_CMP_GT = 2 )
-      integer SHMEM_CMP_LE
-      parameter ( SHMEM_CMP_LE = 3 )
-      integer SHMEM_CMP_LT
-      parameter ( SHMEM_CMP_LT = 4 )
-      integer SHMEM_CMP_GE
-      parameter ( SHMEM_CMP_GE = 5 )
+  !
+  !     waits
+  !
+  integer SHMEM_CMP_EQ
+  parameter ( SHMEM_CMP_EQ = 0 )
+  integer SHMEM_CMP_NE
+  parameter ( SHMEM_CMP_NE = 1 )
+  integer SHMEM_CMP_GT
+  parameter ( SHMEM_CMP_GT = 2 )
+  integer SHMEM_CMP_LE
+  parameter ( SHMEM_CMP_LE = 3 )
+  integer SHMEM_CMP_LT
+  parameter ( SHMEM_CMP_LT = 4 )
+  integer SHMEM_CMP_GE
+  parameter ( SHMEM_CMP_GE = 5 )
 
 
-!     For routines that return values (Currently adding only those that
-!     are in the SGI header file, the rest are here but commented out for
-!     now)
+  !     For routines that return values (Currently adding only those that
+  !     are in the SGI header file, the rest are here but commented out for
+  !     now)
 
-!     integer my_pe
-!     integer num_pes
-!     integer shmem_my_pe
-!     integer shmem_n_pes
+  !     integer my_pe
+  !     integer num_pes
+  !     integer shmem_my_pe
+  !     integer shmem_n_pes
 
-      logical shmem_pe_accessible
-      logical shmem_addr_accessible
+  logical shmem_pe_accessible
+  logical shmem_addr_accessible
 
-      integer*8 shmem_ptr
+  integer*8 shmem_ptr
 
-!     integer shmem_int4_swap
-!     integer shmem_int8_swap
-!     integer shmem_swap
-!     integer shmem_real4_swap
-!     integer shmem_real8_swap
-!
-!     integer shmem_int4_cswap
-!     integer shmem_int8_cswap
-!     integer shmem_real4_cswap
-!     integer shmem_real8_cswap
-!
-!     integer shmem_int4_fadd
-!     integer shmem_int8_fadd
-!
-!     integer shmem_int4_finc
-!     integer shmem_int8_finc
-!
-!     integer shmem_test_lock
+  !     integer shmem_int4_swap
+  !     integer shmem_int8_swap
+  !     integer shmem_swap
+  !     integer shmem_real4_swap
+  !     integer shmem_real8_swap
+  !
+  !     integer shmem_int4_cswap
+  !     integer shmem_int8_cswap
+  !     integer shmem_real4_cswap
+  !     integer shmem_real8_cswap
+  !
+  !     integer shmem_int4_fadd
+  !     integer shmem_int8_fadd
+  !
+  !     integer shmem_int4_finc
+  !     integer shmem_int8_finc
+  !
+  !     integer shmem_test_lock
 
