@@ -1,5 +1,9 @@
 /*
  *
+ * Copyright (c) 2016
+ *   Stony Brook University
+ * Copyright (c) 2015 - 2016
+ *   Los Alamos National Security, LLC.
  * Copyright (c) 2011 - 2016
  *   University of Houston System and UT-Battelle, LLC.
  * Copyright (c) 2009 - 2016
@@ -15,7 +19,7 @@
  * are met:
  *
  * o Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
+ *   this list of conditions and the following disclaimers.
  *
  * o Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
@@ -25,6 +29,11 @@
  *   UT-Battelle, LLC. nor the names of its contributors may be used to
  *   endorse or promote products derived from this software without specific
  *   prior written permission.
+ *
+ * o Neither the name of Los Alamos National Security, LLC, Los Alamos
+ *   National Laboratory, LANL, the U.S. Government, nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -39,7 +48,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 #ifndef _UNITPARSE_H
 #define _UNITPARSE_H 1
 
