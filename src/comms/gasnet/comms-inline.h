@@ -503,7 +503,7 @@ shmemi_comms_barrier_all (void)
 #define GASNET_PUT(pe, dst, src, len) \
     gasnet_put_nbi (pe, dst, src, len)
 #define GASNET_PUT_BULK(pe, dst, src, len) \
-    gasnet_put_nbi_bulk (pe, dst, src, len)
+    gasnet_put_bulk (pe, dst, src, len) /* not nbi (see GASNet spec) */
 #define GASNET_PUT_VAL(pe, dst, src, len)  \
     gasnet_put_nbi_val (pe, dst, src, len)
 #define GASNET_WAIT_PUTS() \
