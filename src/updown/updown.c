@@ -172,6 +172,11 @@ shmem_finalize (void)
     shmemi_comms_finalize ();
 }
 
+#ifdef HAVE_FEATURE_PSHMEM
+#pragma weak shmem_global_exit = pshmem_global_exit
+#define shmem_global_exit pshmem_global_exit
+#endif /* HAVE_FEATURE_PSHMEM */
+
 void
 shmem_global_exit (int status)
 {
