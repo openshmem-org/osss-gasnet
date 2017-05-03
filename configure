@@ -869,7 +869,7 @@ case "$comms_layer" in
 
         if [ ! -r "$gasnet_path_h" ]
             then
-                basil_gasnet "Can't find header file $gasnet_path_h"
+                bail_gasnet "Can't find header file $gasnet_path_h"
         fi
 
         # check GASNet version
