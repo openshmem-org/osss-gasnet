@@ -2687,6 +2687,7 @@ static gasnet_handlerentry_t handlers[] = {
     AMO_HANDLER_LOOKUP (xor, int),
     AMO_HANDLER_LOOKUP (xor, long),
     AMO_HANDLER_LOOKUP (xor, longlong),
+#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
     AMO_HANDLER_LOOKUP (fetch, int),
     AMO_HANDLER_LOOKUP (fetch, long),
@@ -2699,7 +2700,6 @@ static gasnet_handlerentry_t handlers[] = {
     AMO_HANDLER_LOOKUP (set, longlong),
     AMO_HANDLER_LOOKUP (set, float),
     AMO_HANDLER_LOOKUP (set, double),
-#endif /* HAVE_FEATURE_EXPERIMENTAL */
 
 #if defined(HAVE_MANAGED_SEGMENTS)
     {GASNET_HANDLER_globalvar_put_out, handler_globalvar_put_out},
