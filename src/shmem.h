@@ -721,7 +721,7 @@ extern "C"
      * @subsection f Fortran
      @code
      INTEGER PE_start, logPE_stride, PE_size
-     INTEGER (*) pSync   <-----
+     INTEGER (*) pSync
 
      CALL SHMEM_BARRIER (PE_start, logPE_stride, PE_size, pSync)
      @endcode
@@ -821,7 +821,8 @@ extern "C"
      *
      * None
      *
-     * @return non-zero if "pe" can be communicated with.  0 if not.
+     * @return non-zero (C/C++) or .true. (Fortran) if "pe" can be
+     * communicated with.  0 (C/C++) or .false. (Fortran) if not.
      *
      */
     int shmem_pe_accessible (int pe) _WUR;
@@ -839,8 +840,9 @@ extern "C"
      *
      * @subsection f Fortran
      @code
-     INTEGER PE, RET
-     ADDR = address    <----------------
+     INTEGER PE
+     LOGICAL RET
+     ADDR = address to query
 
      RET = SHMEM_ADDR_ACCESSIBLE (ADDR, PE)
      @endcode
@@ -852,8 +854,9 @@ extern "C"
      *
      * None
      *
-     * @return non-zero if address "addr" can be used for communication
-     * on PE "pe".  0 if not.
+     * @return non-zero (C/C++) or .true. (Fortran) if address "addr"
+     * can be used for communication on PE "pe".  0 (C/C++) or
+     * .false. (Fortran) if not.
      *
      */
     int shmem_addr_accessible (const void *addr, int pe) _WUR;
@@ -872,10 +875,10 @@ extern "C"
      * @subsection f Fortran
      @code
      INTEGER PE
-     ADDR RET = address <----------
-     ADDR = address    <----------------
+     POINTER (PTR, POINTEE)
+     ADDR = address
 
-     RET = SHMEM_PTR (ADDR, PE)
+     PTR = SHMEM_PTR (ADDR, PE)
      @endcode
      *
      * @section Effect
