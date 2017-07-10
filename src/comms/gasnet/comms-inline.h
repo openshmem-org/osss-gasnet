@@ -986,6 +986,7 @@ AMO_SWAP_OUT_EMIT (double, double);
     static inline Type                                                  \
     shmemi_comms_swap_request_##Name (Type *target, Type value, int pe) \
     {                                                                   \
+        Type save;                                                      \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
@@ -1006,8 +1007,9 @@ AMO_SWAP_OUT_EMIT (double, double);
                                  p, sizeof (*p));                       \
                                                                         \
         WAIT_ON_COMPLETION (p->completed);                              \
+        save = p->value;                                                \
         free (p);                                                       \
-        return p->value;                                                \
+        return save;                                                    \
     }
 
 AMO_SWAP_REQ_EMIT (int, int);
@@ -1091,6 +1093,7 @@ AMO_CSWAP_BAK_EMIT (longlong, long long);
                                        Type value,                      \
                                        int pe)                          \
     {                                                                   \
+        Type save;                                                      \
         amo_payload_##Name##_t *cp =                                    \
             (amo_payload_##Name##_t *) malloc (sizeof (*cp));           \
         if (EXPR_UNLIKELY (cp == NULL)) {                               \
@@ -1114,10 +1117,9 @@ AMO_CSWAP_BAK_EMIT (longlong, long long);
                                  cp, sizeof (*cp));                     \
                                                                         \
         WAIT_ON_COMPLETION (cp->completed);                             \
-                                                                        \
+        save = cp->value;                                               \
         free (cp);                                                      \
-                                                                        \
-        return cp->value;                                               \
+        return save;                                                    \
     }
 
 AMO_CSWAP_REQ_EMIT (int, int);
@@ -1194,6 +1196,7 @@ AMO_FADD_BAK_EMIT (longlong, long long);
     static inline Type                                                  \
     shmemi_comms_fadd_request_##Name (Type *target, Type value, int pe) \
     {                                                                   \
+        Type save;                                                      \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
@@ -1215,10 +1218,9 @@ AMO_FADD_BAK_EMIT (longlong, long long);
                                  p, sizeof (*p));                       \
                                                                         \
         WAIT_ON_COMPLETION (p->completed);                              \
-                                                                        \
+        save = p->value;                                                \
         free (p);                                                       \
-                                                                        \
-        return p->value;                                                \
+        return save;                                                    \
     }
 
 AMO_FADD_REQ_EMIT (int, int);
@@ -1293,6 +1295,7 @@ AMO_FINC_BAK_EMIT (longlong, long long);
     static inline Type                                                  \
     shmemi_comms_finc_request_##Name (Type *target, int pe)             \
     {                                                                   \
+        Type save;                                                      \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
@@ -1313,10 +1316,9 @@ AMO_FINC_BAK_EMIT (longlong, long long);
                                  p, sizeof (*p));                       \
                                                                         \
         WAIT_ON_COMPLETION (p->completed);                              \
-                                                                        \
+        save = p->value;                                                \
         free (p);                                                       \
-                                                                        \
-        return p->value;                                                \
+        return save;                                                    \
     }
 
 AMO_FINC_REQ_EMIT (int, int);
@@ -1572,6 +1574,7 @@ AMO_FETCH_BAK_EMIT (double, double);
     static inline Type                                                  \
     shmemi_comms_fetch_request_##Name (Type *target, int pe)            \
     {                                                                   \
+        Type save;                                                      \
         amo_payload_##Name##_t *p =                                     \
             (amo_payload_##Name##_t *) malloc (sizeof (*p));            \
         if (EXPR_UNLIKELY (p == NULL)) {                                \
@@ -1591,10 +1594,9 @@ AMO_FETCH_BAK_EMIT (double, double);
                                  p, sizeof (*p));                       \
                                                                         \
         WAIT_ON_COMPLETION (p->completed);                              \
-                                                                        \
+        save = p->value;                                                \
         free (p);                                                       \
-                                                                        \
-        return p->value;                                                \
+        return save;                                                    \
     }
 
 AMO_FETCH_REQ_EMIT (int, int);
