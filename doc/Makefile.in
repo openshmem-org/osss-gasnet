@@ -82,8 +82,8 @@ REMOVE   = rm -f
 #
 
 %.pdf:	%.tex
-	-pdflatex $<
-	-pdflatex $<
+	-pdflatex $< </dev/null
+	-pdflatex $< </dev/null
 
 all default:	$(IMPL_PDF)	$(MAN_PAGES)
 
